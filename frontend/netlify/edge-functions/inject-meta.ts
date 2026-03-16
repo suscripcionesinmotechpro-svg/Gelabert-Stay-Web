@@ -146,52 +146,59 @@ export default async (request: Request, context: Context) => {
       
       let description = `${typeLabel}${location ? ` ${isEn ? 'in' : 'en'} ${location}` : ''}`;
       if (features.length > 0) {
-          description += ` • ${features.join(' • ')}`;
+          description += ` - ${features.join(' - ')}`;
       }
       
       description = description.trim() || "Gelabert Stay Real Estate";
 
       const mainImage = prop.main_image || (prop.gallery && prop.gallery.length > 0 ? prop.gallery[0] : null);
-      if (mainImage) {
-        const cacheBuster = `t=${Date.now()}`;
-        const previewImage = mainImage.includes('?') ? `${mainImage}&${cacheBuster}` : `${mainImage}?${cacheBuster}`;
-        const cleanTitle = (title || "").replace(/"/g, '&quot;');
-        const cleanDesc = (description || "").slice(0, 160).replace(/"/g, '&quot;');
+      const cacheBuster = `t=${Date.now()}`;
+      const previewImage = mainImage ? (mainImage.includes('?') ? `${mainImage}&${cacheBuster}` : `${mainImage}?${cacheBuster}`) : null;
+      
+      const cleanTitle = (title || "").replace(/"/g, '&quot;');
+      const cleanDesc = (description || "").slice(0, 160).replace(/"/g, '&quot;');
 
-        // Clean existing tags
-        html = html.replace(/<title>[^<]*<\/title>/gi, '');
-        html = html.replace(/<meta [^>]*property=["']og:[^"']*["'][^>]*>/gi, '');
-        html = html.replace(/<meta [^>]*name=["']twitter:[^"']*["'][^>]*>/gi, '');
-        html = html.replace(/<meta [^>]*name=["']description["'][^>]*>/gi, '');
-        html = html.replace(/<link [^>]*rel=["'](canonical|image_src)["'][^>]*>/gi, '');
+      // Clean existing tags
+      html = html.replace(/<title>[^<]*<\/title>/gi, '');
+      html = html.replace(/<meta [^>]*property=["']og:[^"']*["'][^>]*>/gi, '');
+      html = html.replace(/<meta [^>]*name=["']twitter:[^"']*["'][^>]*>/gi, '');
+      html = html.replace(/<meta [^>]*name=["']description["'][^>]*>/gi, '');
+      html = html.replace(/<link [^>]*rel=["'](canonical|image_src)["'][^>]*>/gi, '');
 
-        const tags = [
-          `<title>${cleanTitle} | Gelabert Stay</title>`,
-          `<meta name="description" content="${cleanDesc}">`,
-          `<link rel="canonical" href="${request.url}">`,
+      const tags = [
+        `<title>${cleanTitle} | Gelabert Stay</title>`,
+        `<meta name="description" content="${cleanDesc}">`,
+        `<link rel="canonical" href="${request.url}">`,
+        `<meta property="og:site_name" content="Gelabert Stay Real Estate">`,
+        `<meta property="og:type" content="website">`,
+        `<meta property="og:url" content="${request.url}">`,
+        `<meta property="og:title" content="${cleanTitle} | Gelabert Stay">`,
+        `<meta property="og:description" content="${cleanDesc}">`,
+        `<meta property="og:locale" content="${isEn ? 'en_US' : 'es_ES'}">`,
+        `<meta name="twitter:card" content="${previewImage ? 'summary_large_image' : 'summary'}">`,
+        `<meta name="twitter:title" content="${cleanTitle} | Gelabert Stay">`,
+        `<meta name="twitter:description" content="${cleanDesc}">`,
+        `<meta itemprop="name" content="${cleanTitle}">`,
+        `<meta itemprop="description" content="${cleanDesc}">`,
+      ];
+
+      if (previewImage) {
+        tags.push(
           `<link rel="image_src" href="${previewImage}">`,
-          `<meta property="og:site_name" content="Gelabert Stay Real Estate">`,
-          `<meta property="og:type" content="website">`,
-          `<meta property="og:url" content="${request.url}">`,
-          `<meta property="og:title" content="${cleanTitle} | Gelabert Stay">`,
-          `<meta property="og:description" content="${cleanDesc}">`,
           `<meta property="og:image" content="${previewImage}">`,
           `<meta property="og:image:secure_url" content="${previewImage}">`,
           `<meta property="og:image:width" content="1200">`,
           `<meta property="og:image:height" content="630">`,
           `<meta property="og:image:type" content="image/jpeg">`,
-          `<meta property="og:locale" content="${isEn ? 'en_US' : 'es_ES'}">`,
-          `<meta name="twitter:card" content="summary_large_image">`,
-          `<meta name="twitter:title" content="${cleanTitle} | Gelabert Stay">`,
-          `<meta name="twitter:description" content="${cleanDesc}">`,
           `<meta name="twitter:image" content="${previewImage}">`,
-          `<meta itemprop="name" content="${cleanTitle}">`,
-          `<meta itemprop="description" content="${cleanDesc}">`,
           `<meta itemprop="image" content="${previewImage}">`
-        ];
-
-        html = html.replace(/<head>/i, `<head>\n    <meta charset="UTF-8">\n    ${tags.join('\n    ')}`);
+        );
       }
+
+      html = html.replace(/<head>/i, `<head>\n    <meta charset="UTF-8">\n    ${tags.join('\n    ')}`);
+
+      // Update xDebug for testing
+      xDebug += `|desc:${cleanDesc.slice(0, 20)}...`;
     }
 
     // Always return a success response if we have HTML, to avoid 404s for dynamic properties
