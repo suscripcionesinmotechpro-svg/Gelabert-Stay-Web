@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme {
+  --font-primary: 'Manrope', sans-serif;
+  --font-secondary: 'Playfair Display', serif;
+}
+:root {
+  --background: #0F0F0F;
+  --foreground: #FAF8F5;
+  --primary: #C9A962;
+  --primary-hover: #D4B673;
+  --secondary: #161616;
+  --border: #1F1F1F;
+  --muted: #888888;
+  
+  --bg-page: #0F0F0F;
+  --bg-card: #161616;
+  --bg-sidebar: #0A0A0A;
+  
+  --gold: #C9A962;
+  --gold-tint-10: rgba(201, 169, 98, 0.1);
+  --gold-tint-30: rgba(201, 169, 98, 0.3);
+  --gold-tint-40: rgba(201, 169, 98, 0.4);
+  
+  --text-primary: #FAF8F5;
+  --text-secondary: #888888;
+  --text-tertiary: #666666;
+  --text-on-gold: #0A0A0A;
+  
+  --success: #4ADE80;
+  --error: #F87171;
+  --info: #60A5FA;
+}
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-primary);
+  }
+}

@@ -1,0 +1,768 @@
+{
+  "common": {
+    "no_image": "No image available",
+    "details": "View Details",
+    "search": "Search",
+    "more_info": "More information",
+    "back": "Back",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "month": "month",
+    "year": "year"
+  },
+  "tags": {
+    "premium": "Premium Property",
+    "destacada": "Featured Property",
+    "oportunidad": "Great Opportunity",
+    "inversión": "Ideal Investment",
+    "reformado": "Recently Renovated",
+    "amueblado": "Furnished",
+    "vistas al mar": "Sea Views",
+    "terraza": "Large Terrace",
+    "piscina": "Private Pool",
+    "local comercial": "Commercial Premises",
+    "alta rentabilidad": "High Profitability",
+    "lujo": "Luxury Property",
+    "centro histórico": "Historic Center",
+    "obra nueva": "New Build",
+    "cerca de playa": "Near the Beach",
+    "primera línea": "Beachfront",
+    "parking": "With Parking",
+    "jardín": "Own Garden",
+    "ascensor": "With Elevator",
+    "cerca de colegios": "School Area"
+  },
+  "property_conditions": {
+    "Reformado": "Renovated",
+    "A reformar": "To be renovated",
+    "Obra nueva": "New Construction",
+    "Buen estado": "Good Condition",
+    "A estrenar": "Brand New",
+    "En construcción": "Under Construction"
+  },
+  "availability_statuses": {
+    "Inmediata": "Immediate Availability",
+    "A convenir": "Availability to be agreed",
+    "Próximamente": "Available soon"
+  },
+  "nav": {
+    "home": "Home",
+    "properties": "Properties",
+    "services": "Services",
+    "owners": "Owners",
+    "contact": "Contact",
+    "clientArea": "Private Access"
+  },
+  "property": {
+    "labels": {
+      "operation": {
+        "all": "All operations",
+        "venta": "Sale",
+        "alquiler": "Rent",
+        "traspaso": "Transfer"
+      },
+      "featured": "Featured",
+      "type": {
+        "all": "All types",
+        "piso": "Apartment",
+        "casa": "House",
+        "atico": "Penthouse",
+        "estudio": "Studio",
+        "loft": "Loft",
+        "local": "Commercial Premises",
+        "oficina": "Office",
+        "nave": "Industrial Warehouse",
+        "terreno": "Land",
+        "negocio": "Business",
+        "otro": "Other"
+      },
+      "status": {
+        "borrador": "Draft",
+        "publicada": "Published",
+        "oculta": "Hidden"
+      },
+      "commercial_status": {
+        "all": "All statuses",
+        "disponible": "Available",
+        "reservado": "Reserved",
+        "alquilado": "Rented",
+        "vendido": "Sold",
+        "traspasado": "Transferred"
+      },
+      "features": {
+        "bedrooms": "Beds",
+        "bathrooms": "Baths",
+        "area": "sqm",
+        "community_fees": "Community Fees",
+        "ibi": "IBI",
+        "view_more": "View Details",
+        "show_advanced": "Show Advanced Filters",
+        "hide_advanced": "Hide Advanced Filters",
+        "clear_filters": "Clear all filters",
+        "search_placeholder": "Search by neighborhood, title or keyword",
+        "city_placeholder": "City / Zone",
+        "min_price": "Min price (€)",
+        "max_price": "Max price (€)",
+        "min_bedrooms": "Bedrooms (min)",
+        "min_bathrooms": "Bathrooms (min)",
+        "additional_features": "Additional Features",
+        "amenities": "Amenities",
+        "floor": "Floor",
+        "whatsapp": "Contact via WhatsApp",
+        "inquiry": "Request Information",
+        "name": "Your name",
+        "email": "Your email",
+        "phone": "Phone",
+        "message": "Message",
+        "accept_privacy": "I accept the <1>Privacy Policy</1> *",
+        "accept_privacy_short": "By contacting, you accept our <0>Privacy Policy</0>",
+        "accept_privacy_1": "I have read and accept the",
+        "send": "Send Inquiry",
+        "sending": "Sending...",
+        "success": "Message sent!",
+        "success_detail": "We will contact you shortly.",
+        "send_another": "Send another message",
+        "similar": "Similar Properties",
+        "back_to_catalog": "Back to catalog",
+        "condition": "Property Status",
+        "availability": "Availability",
+        "features_and_extras": "Features and Extras",
+        "description": "Description",
+        "highlights": "Key Highlights",
+        "price_per_month": "/mo",
+        "loading": "Searching properties...",
+        "results": "properties found",
+        "no_results": "No properties found with these criteria.",
+        "error": "Error loading properties",
+        "admin_panel": "Admin panel",
+        "photos": "Photos",
+        "video": "Video",
+        "floor_plan": "Floor Plan",
+        "location": "Location",
+        "not_found": "Property not found",
+        "has_elevator": "Elevator",
+        "is_furnished": "Furnished",
+        "has_terrace": "Terrace",
+        "has_balcony": "Balcony",
+        "has_parking": "Parking",
+        "has_storage": "Storage Room",
+        "has_pool": "Pool",
+        "heating": "Heating",
+        "air_conditioning": "Air Conditioning",
+        "is_exterior": "Exterior",
+        "garden": "Garden",
+        "has_patio": "Patio",
+        "pets_allowed": "Pets Allowed",
+        "no_pets_allowed": "No Pets Allowed",
+        "sea_views": "Sea Views",
+        "map_hint_public": "The location on the map is approximate to protect the privacy of the property.",
+        "rent_type": "Rental Type"
+      }
+    }
+  },
+  "hero": {
+    "hero_title": "Gelabert Stay",
+    "hero_subtitle": "Real estate experts in Malaga & Costa del Sol.",
+    "view_properties": "View Properties",
+    "contact_us": "Contact Us"
+  },
+  "home": {
+    "services": {
+      "title": "Our Services",
+      "rent": { "title": "Rentals", "desc": "Any type of rental" },
+      "sale": { "title": "Sales", "desc": "Featured properties" },
+      "transfers": { "title": "Transfers", "desc": "Business and commercial premises" },
+      "management": { "title": "Management", "desc": "Full administration" }
+    },
+    "owners": {
+      "title": "Trust the management of your property to experts",
+      "desc": "At Gelabert Stay Real Estate we take care of everything: from tenant search to daily maintenance. We maximize the profitability of your property while you enjoy total peace of mind. Our professional team manages contracts, payments, incidents, and communication with tenants.",
+      "button": "Services for Owners"
+    },
+    "customers": {
+      "title": "Find your next home",
+      "subtitle": "Discover featured properties in Malaga & Costa del Sol with the support of a professional team.",
+      "feature1": { "title": "Personalized Attention", "desc": "We accompany you at every step of the buying or renting process." },
+      "feature2": { "title": "Selected Portfolio", "desc": "Access to featured properties and unique opportunities." },
+      "feature3": { "title": "Legal Advice", "desc": "Total legal security in all your real estate operations." },
+      "button": "Search Properties"
+    },
+    "featured": {
+      "badge": "Selection",
+      "title": "Featured Properties",
+      "view_all": "View All",
+      "empty": "No featured properties at this time."
+    },
+    "why": {
+      "title": "Why Choose Gelabert Stay Real Estate",
+      "item1": "Local Experience in Malaga",
+      "item2": "Accurate Valuations",
+      "item3": "Marketing Strategy",
+      "item4": "Tenant Screening",
+      "item5": "360º Support",
+      "item6": "Total Transparency"
+    },
+    "testimonials": {
+      "title": "What our clients say",
+      "item1": { "name": "Maria Gomez", "role": "Owner", "text": "Gelabert Stay Real Estate has been managing my tourist apartment for a year now and the peace of mind they give me is priceless. Highly recommended." },
+      "item2": { "name": "Carlos Ruiz", "role": "Buyer", "text": "We found our dream home thanks to their excellent property portfolio. The treatment was impeccable from start to finish." },
+      "item3": { "name": "Laura Sanchez", "role": "Tenant", "text": "Very professional in the rental contract management. They solved all my doubts and the whole process was super agile." }
+    }
+  },
+  "seo": {
+    "home_title": "Gelabert Stay Real Estate | Real Estate in Malaga & Costa del Sol",
+    "home_description": "Experts in real estate management in Malaga & Costa del Sol. Sale, rent and transfers of properties, studios and luxury businesses.",
+    "properties_description": "Discover our exclusive selection of properties for sale, rent, and transfer in Malaga & Costa del Sol."
+  },
+  "footer": {
+    "description": "Real Estate Management in Málaga & Costa del Sol. Specialists in rent, sale and transfer.",
+    "services": "Services",
+    "rent": "Rent",
+    "sale": "Sale",
+    "transfers": "Transfers",
+    "all_services": "All services",
+    "contact": "Contact",
+    "location": "Málaga & Costa del Sol",
+    "online_estate": "Online Real Estate",
+    "legal": "Legal",
+    "legal_notice": "Legal Notice",
+    "privacy_policy": "Privacy Policy",
+    "cookies_policy": "Cookies Policy"
+  },
+  "services": {
+    "seo": {
+      "title": "Real Estate Services in Malaga | Gelabert Stay Real Estate",
+      "description": "Comprehensive real estate management: Sales, rentals, transfers, and property administration in Malaga & Costa del Sol.",
+      "og_title": "Services | Gelabert Stay Real Estate",
+      "og_description": "Comprehensive solutions for owners, investors, and tenants."
+    },
+    "hero": {
+      "badge": "Real Estate Excellence",
+      "title_1": "Our",
+      "title_2": "Services",
+      "subtitle": "Comprehensive solutions for owners, investors, and tenants in the Malaga & Costa del Sol real estate market.",
+      "subtitle_italic": "No bureaucracy, with results."
+    },
+    "owners": {
+      "badge": "For Owners and Investors",
+      "title": "Maximize your assets",
+      "description": "From the first consultation to the closing of the operation, our team becomes your strategic partner to get the most out of your property.",
+      "more_info": "More info for Owners",
+      "free_valuation": "Request free valuation"
+    },
+    "tenants": {
+      "badge": "For Tenants",
+      "title": "Find your ideal home",
+      "description": "Looking for a home in Malaga or the Costa del Sol? Let us do the work for you. We have access to featured properties and the experience to find exactly what you need.",
+      "request_search": "Request search",
+      "includes": "What's included?",
+      "view_properties": "View available properties"
+    },
+    "why_choose_us": {
+      "title": "Why Gelabert Stay Real Estate?",
+      "subtitle": "Agency focused on Malaga & Costa del Sol, with personalized treatment and real results.",
+      "items": {
+        "specialists": {
+          "label": "Costa del Sol Specialists",
+          "desc": "Deep knowledge of the local market: real prices, trendy areas, and investment opportunities."
+        },
+        "agile": {
+          "label": "Agile and Secure Management",
+          "desc": "Optimized processes to save you time."
+        },
+        "personalized": {
+          "label": "Personalized Treatment",
+          "desc": "Personalized attention for each client, to study their case professionally and understand their needs in detail."
+        },
+        "off_market": {
+          "label": "Off-Market Network",
+          "desc": "Access to properties not published on portals, for both buyers and tenants."
+        },
+        "profitability": {
+          "label": "Maximum Profitability",
+          "desc": "Proven strategies to ensure your investment gives the highest possible return with the least risk."
+        },
+        "availability": {
+          "label": "Always Available",
+          "desc": "We respond quickly, without rigid office hours. WhatsApp, email, or video call."
+        }
+      }
+    },
+    "final_cta": {
+      "title": "Ready to start?",
+      "description": "Tell us about your situation — buying, selling, renting, or searching for a home — and we'll give you a clear answer without commitment.",
+      "contact_now": "Contact now",
+      "view_properties": "View properties"
+    },
+    "owner_services": {
+      "compra_venta": {
+        "title": "Property Sales and Purchase",
+        "tag": "OWNERS",
+        "desc": "Comprehensive management of sales and purchases in the best areas of Malaga & Costa del Sol. Free valuation, marketing strategy, and expert negotiation.",
+        "bullets": [
+          "Free property valuation",
+          "Professional photography and virtual tours",
+          "Distribution on national and international portals",
+          "Negotiation and closing of the operation",
+          "Legal and fiscal advice"
+        ]
+      },
+      "alquiler": {
+        "title": "Rental Management",
+        "tag": "OWNERS",
+        "desc": "Delegate the complete management of your property. We take care of everything: sourcing, contracts, payments, incidents, and maintenance.",
+        "bullets": [
+          "Sourcing and selection of solvent tenants",
+          "Drafting and signing of contracts",
+          "Management of payments and deposits",
+          "Coordination of maintenance and repairs",
+          "Monthly profitability reports"
+        ]
+      },
+      "traspaso": {
+        "title": "Transfer of Premises and Businesses",
+        "tag": "OWNERS & COMPANIES",
+        "desc": "Specialized advice for the transfer of functioning businesses. Bars, restaurants, shops, franchises, and industry.",
+        "bullets": [
+          "Business goodwill valuation",
+          "Complete legal documentation",
+          "Search for qualified buyers",
+          "Negotiation and due diligence",
+          "Accompaniment until notary closing"
+        ]
+      },
+      "administracion": {
+        "title": "Property Administration",
+        "tag": "OWNERS",
+        "desc": "Comprehensive administration service for communities of owners and investors with multiple properties.",
+        "bullets": [
+          "Management of communities of owners",
+          "Tracking of payments and expenses",
+          "Coordination of suppliers",
+          "24/7 incident management",
+          "Tax optimization of rents"
+        ]
+      }
+    },
+    "tenant_search": {
+      "title": "Home Search",
+      "tag": "TENANTS · PERSONALIZED SERVICE",
+      "desc": "Our star service for tenants: you tell us exactly what you're looking for and we finding it. No stress, no wasting time on portals.",
+      "bullets": [
+        "Initial consultation to define your exact needs",
+        "Active search across our owner network",
+        "Access to unpublished (off-market) properties",
+        "Organized visits and personal accompaniment",
+        "Negotiation of conditions in your favor",
+        "Advice on contract and documentation",
+        "Accompaniment throughout the duration of the rental contract"
+      ]
+    }
+  },
+  "owners_page": {
+    "seo": {
+      "title": "Sell or Rent Your Property | Gelabert Stay Real Estate",
+      "description": "Entrust your property to experts. Free valuation and effective promotion of your property in Malaga & Costa del Sol.",
+      "og_title": "For Owners | Gelabert Stay Real Estate"
+    },
+    "hero": {
+      "badge": "Real Estate Management",
+      "title": "Do You Want to Sell or Rent Your Property?",
+      "description": "Entrust your property to Gelabert Stay Real Estate. We offer you a realistic valuation, effective promotion, and agile document management in Malaga & Costa del Sol.",
+      "features": {
+        "valuation": "Realistic & Free Valuation",
+        "promotion": "Effective Portal Promotion",
+        "legal": "Legal and Fiscal Advice"
+      },
+      "whatsapp_label": "Contact via WhatsApp",
+      "whatsapp_message": "Hello, I would like to request information about your services for owners."
+    }
+  },
+  "contact_page": {
+    "seo": {
+      "title": "Contact | Gelabert Stay Real Estate",
+      "description": "Contact Gelabert Stay Real Estate. We will solve all your questions about the real estate market in Malaga."
+    },
+    "hero": {
+      "badge": "Personalized Attention",
+      "title": "Get in touch",
+      "description": "Our team is ready to assist you. We are an online real estate agency specialized in Malaga & Costa del Sol.",
+      "email": "Email",
+      "phone": "Phone",
+      "whatsapp_label": "Contact via WhatsApp",
+      "whatsapp_message": "Hello, I would like to receive more information."
+    }
+  },
+  "legal": {
+    "notice": {
+      "seo_title": "Legal Notice | Gelabert Stay Real Estate",
+      "title": "Legal Notice",
+      "section1": {
+        "title": "1. General Information",
+        "content": "In compliance with the information obligation set out in Article 10 of Law 34/2002, of July 11, on Information Society Services and Electronic Commerce (LSSI-CE), the following data is provided:",
+        "owner": "Owner:",
+        "address": "Address:",
+        "address_val": "Malaga & Costa del Sol (Online Real Estate)",
+        "email": "Email:",
+        "phone": "Phone:"
+      },
+      "section2": {
+        "title": "2. Conditions of Use",
+        "content": "Access and use of this website attribute the status of USER, who accepts, from said access and/or use, the General Conditions of Use reflected here."
+      },
+      "section3": {
+        "title": "3. Intellectual Property",
+        "content": "GELABERT STAY REAL ESTATE, on its own behalf or as an assignee, is the owner of all intellectual and industrial property rights of its website, as well as the elements contained therein (images, sound, audio, video, software, or texts; trademarks or logos, color combinations, structure, and design)."
+      },
+      "section4": {
+        "title": "4. Exclusion of Liability",
+        "content": "The owner is not responsible, in any case, for damages of any nature that may be caused by, but not limited to: errors or omissions in the content, lack of availability of the portal, or the transmission of viruses or malicious or harmful programs in the content, despite having adopted all the necessary technological measures to prevent it."
+      }
+    },
+    "privacy": {
+      "seo_title": "Privacy Policy | Gelabert Stay Real Estate",
+      "title": "Privacy Policy",
+      "section1": {
+        "title": "1. Data Controller",
+        "content": "GELABERT STAY REAL ESTATE informs data subjects that their personal data will be treated in accordance with Regulation (EU) 2016/679 (GDPR) and Organic Law 3/2018 (LOPDGDD).",
+        "responsible": "Responsible:",
+        "purpose": "Purpose:",
+        "purpose_val": "Management of real estate inquiries, services for owners, tenants, and housing seekers."
+      },
+      "section2": {
+        "title": "2. Data Collected",
+        "content": "Through our forms we collect: name, email, telephone, and details of the property or inquiry. The treatment of this data is based on the consent of the data subject by checking the acceptance box."
+      },
+      "section3": {
+        "title": "3. User Rights",
+        "content": "Any person has the right to obtain confirmation as to whether we are processing their data. Data subjects have the right to:",
+        "rights": [
+          "Access their personal data.",
+          "Request the rectification of inaccurate data.",
+          "Request its deletion when it is no longer necessary.",
+          "Object to the processing of their data."
+        ],
+        "exercise": "To exercise these rights, send an email to info@gelabertstay.es attaching a copy of your ID."
+      },
+      "section4": {
+        "title": "4. Data Retention",
+        "content": "Data will be kept as long as the commercial relationship is maintained or for the years necessary to comply with legal obligations."
+      }
+    },
+    "cookies": {
+      "seo_title": "Cookie Policy | Gelabert Stay Real Estate",
+      "title": "Cookie Policy",
+      "section1": {
+        "title": "What are cookies?",
+        "content": "A cookie is a small file that is downloaded to your computer when accessing certain websites. Cookies allow a website, among other things, to store and retrieve information about the browsing habits of a user or their equipment."
+      },
+      "section2": {
+        "title": "Cookies used on this site",
+        "content": "This website uses the following cookies:",
+        "types": {
+          "technical": {
+            "title": "Technical Cookies:",
+            "content": "These are those that allow the user to navigate through a website and use the different options or services that exist in it."
+          },
+          "analysis": {
+            "title": "Analysis Cookies:",
+            "content": "These are those that, processed by us or by third parties (such as Google Analytics), allow us to quantify the number of users and carry out the measurement and statistical analysis of the use made by users of the service offered."
+          }
+        }
+      },
+      "section3": {
+        "title": "How to disable cookies",
+        "content": "You can allow, block, or delete cookies installed on your computer by configuring the options of the browser installed on your computer.",
+        "browsers": [
+          "Google Chrome",
+          "Mozilla Firefox",
+          "Internet Explorer/Edge",
+          "Safari"
+        ]
+      }
+    }
+  },
+  "cookie_banner": {
+    "title": "Your privacy matters to us",
+    "description": "We use our own and third-party cookies to improve your browsing experience, offer you content tailored to your interests, and perform analytical work. You can accept all cookies or configure your preferences. See our <1>Cookie Policy</1>.",
+    "only_necessary": "Necessary only",
+    "accept_all": "Accept all"
+  },
+  "forms": {
+    "name": "Full Name *",
+    "name_placeholder": "E.g.: Manuel Ruiz",
+    "email": "Email *",
+    "email_placeholder": "example@mail.com",
+    "phone": "Phone *",
+    "phone_placeholder": "+34 600 000 000",
+    "city": "City/Area *",
+    "city_placeholder": "E.g.: Malaga, Marbella...",
+    "message": "Message *",
+    "message_placeholder": "Please provide as much detail as possible about your request so we can respond accurately...",
+    "privacy_accept": "I have read and accept the <1>Privacy Policy</1> and the processing of my personal data to manage my inquiry. *",
+    "whatsapp_label": "Contact via WhatsApp",
+    "whatsapp_placeholder_msg": "Hello, I would like to receive more information.",
+    "whatsapp_privacy": "Chat protected by our <0>Privacy Policy</0>",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "success_title": "Message Received!",
+    "success_desc": "Thank you for trusting Gelabert Stay Real Estate. Our team will review your request and contact you as soon as possible.",
+    "send_another": "Send another message",
+    "error": "There was an error sending the form. Please try again or contact us directly.",
+    "inquiry_type": {
+      "label": "How can we help you? *",
+      "buy": "I want to buy",
+      "rent": "I want to rent",
+      "sell": "I want to sell my property",
+      "collab": "I want to collaborate",
+      "work": "I want to work with you",
+      "other": "General info / Other"
+    },
+    "owner_inquiry": {
+      "label": "What would you like to do? *",
+      "sell": "Sell",
+      "rent": "Rent",
+      "message_label": "Observations / Property Details",
+      "message_placeholder": "Please provide as much detail as possible about the characteristics of your property so we can respond accurately...",
+      "privacy_accept": "I have read and accept the <1>Privacy Policy</1> and the processing of my data to manage my service request. *"
+    }
+  },
+  "search": {
+    "placeholder": "Search by zone, reference or keyword...",
+    "property_type": "Property Type",
+    "max_price": "Max Price",
+    "rent_type": {
+      "label": "Rent Type",
+      "habitual": "Long Term",
+      "temporal": "Short Term / Seasonal",
+      "vacacional": "Vacation Rental",
+      "otros": "Other"
+    }
+  },
+  "property_types": {
+    "piso": "Apartment",
+    "casa": "House",
+    "chalet": "Chalet / Villa",
+    "atico": "Penthouse",
+    "estudio": "Studio",
+    "loft": "Loft",
+    "local": "Commercial Premises",
+    "oficina": "Office",
+    "nave": "Industrial Warehouse",
+    "terreno": "Land",
+    "negocio": "Business",
+    "otro": "Other"
+  },
+  "price_filters": {
+    "up_to_500k": "Up to 500k",
+    "up_to_1M": "Up to 1M",
+    "up_to_2M": "Up to 2M"
+  },
+  "property_status": {
+    "PUBLICADA": "Published",
+    "BORRADOR": "Draft",
+    "RESERVADA": "Reserved",
+    "VENDIDA": "Sold",
+    "ALQUILADA": "Rented",
+    "TRASPASADA": "Transferred",
+    "OCULTA": "Hidden"
+  },
+  "map": {
+    "coordinates_required": "Enter coordinates to view the map",
+    "default_popup": "Property Location"
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "properties": "Properties",
+      "new_property": "New Property",
+      "view_web": "View web",
+      "sign_out": "Sign out",
+      "admin_panel": "Admin Panel"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Property management panel",
+      "stats": {
+        "total": "Total properties",
+        "published": "Published",
+        "drafts": "Drafts",
+        "rent": "For Rent",
+        "sale": "For Sale",
+        "transfer": "Transfers"
+      },
+      "quick_actions": {
+        "title": "Quick actions",
+        "add_property": "Add property",
+        "view_all": "View all properties",
+        "view_public": "View public web"
+      },
+      "tips": {
+        "title": "Tip",
+        "description": "Properties with <0>Published</0> status appear automatically on the public web. Those marked as <1>Draft</1> are only visible here."
+      }
+    },
+    "login": {
+      "title": "Private Access",
+      "subtitle": "Admin Panel",
+      "email_label": "Email",
+      "password_label": "Password",
+      "submit_button": "Login to Panel",
+      "loading_button": "Verifying...",
+      "footer_text": "Authorized administrators access only",
+      "errors": {
+        "missing_fields": "Please enter email and password",
+        "invalid_credentials": "Invalid credentials. Check your email and password."
+      }
+    },
+    "properties": {
+      "title": "Properties",
+      "loading": "Loading...",
+      "property_count": "{{count}} property",
+      "properties_count": "{{count}} properties",
+      "new_property": "New Property",
+      "search_placeholder": "Search by title or code...",
+      "filter_status_all": "Publishing (All)",
+      "filter_commercial_all": "Commercial Status (All)",
+      "filter_operation_all": "All operations",
+      "empty_state": "No properties to show",
+      "add_first": "Add the first property",
+      "delete_confirm": "Are you sure you want to delete \"{{title}}\"? This action cannot be undone.",
+      "featured_add": "Mark as featured",
+      "featured_remove": "Remove from featured",
+      "view_on_web": "View on web",
+      "not_published": "Not published",
+      "table": {
+        "property": "Property",
+        "operation": "Operation",
+        "price": "Price",
+        "status": "Publishing",
+        "commercial": "Commercial",
+        "featured": "Featured",
+        "actions": "Actions"
+      }
+    },
+    "form": {
+      "new_title": "New Property",
+      "edit_title": "Edit Property",
+      "editing": "Editing: {{title}}",
+      "complete_data": "Complete the property data",
+      "save_draft": "Save draft",
+      "publish": "Publish",
+      "update_publish": "Update and publish",
+      "publish_property": "Publish property",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "sections": {
+        "primary": "Primary Information",
+        "location": "Location",
+        "features": "Features",
+        "commercial": "Commercial Content",
+        "multimedia": "Multimedia",
+        "seo": "SEO and URL"
+      },
+      "fields": {
+        "title": "Title *",
+        "title_placeholder": "E.g.: Panoramic Villa in Marbella",
+        "title_en": "Title (English)",
+        "title_en_placeholder": "Ex: Panoramic Villa in Marbella",
+        "operation": "Operation Type *",
+        "rent_type": "Rent Type",
+        "rent_type_not_specified": "Not specified",
+        "reference": "Reference",
+        "reference_placeholder": "E.g.: REF123",
+        "type": "Property Type *",
+        "commercial_status": "Commercial Status",
+        "public_status": "Publishing Status",
+        "price": "Price",
+        "price_placeholder": "E.g.: 350000",
+        "currency": "Currency",
+        "featured": "Featured",
+        "featured_label": "Mark as featured",
+        "parking_included": "Parking included?",
+        "parking_price": "Parking Price",
+        "city": "City",
+        "city_placeholder": "E.g.: Malaga",
+        "zone": "Zone",
+        "zone_placeholder": "E.g.: Pedregalejo",
+        "address": "Address",
+        "address_placeholder": "Street, number...",
+        "street_number": "Number",
+        "door_number": "Door",
+        "postal_code": "Postal Code",
+        "postal_code_placeholder": "29001",
+        "coordinates": "Coordinates (Latitude, Longitude)",
+        "lat_placeholder": "Latitude (e.g.: 36.72)",
+        "lon_placeholder": "Longitude (e.g.: -4.42)",
+        "search_map": "Search on map",
+        "map_hint": "* The \"Search on map\" button will try to geolocate the address automatically.",
+        "map_preview": "Location Preview",
+        "map_exact_hint": "Ensure the marker is at the correct location. If it's not exact, you can adjust the coordinates manually.",
+        "m2": "m² built",
+        "m2_placeholder": "120",
+        "bedrooms": "Bedrooms",
+        "bedrooms_placeholder": "3",
+        "bathrooms": "Bathrooms",
+        "bathrooms_placeholder": "2",
+        "floor": "Floor",
+        "floor_placeholder": "2nd",
+        "condition": "Property Condition",
+        "condition_placeholder": "Select condition...",
+        "availability": "Availability",
+        "availability_placeholder": "Immediate",
+        "long_desc": "Full Description (ES)",
+        "long_desc_placeholder": "Detailed property description...",
+        "description_en": "Long Description (EN)",
+        "description_en_placeholder": "Detailed property description...",
+        "long_desc_en": "Full Description (English)",
+        "long_desc_en_placeholder": "Detailed description in English...",
+        "highlights": "Key Highlights",
+        "highlights_placeholder": "E.g.: Panoramic sea views",
+        "highlights_en": "Key Highlights (English)",
+        "highlights_en_placeholder": "Ex: Panoramic sea views",
+        "tags_label": "Tags",
+        "video": "URL / Video File",
+        "video_placeholder": "YouTube, Vimeo URL... or upload file",
+        "floor_plan": "URL / Floor Plan File",
+        "floor_plan_placeholder": "Image/PDF URL... or upload file",
+        "upload": "Upload",
+        "uploading": "Uploading...",
+        "slug": "Slug (SEO friendly URL)",
+        "slug_hint": "generated automatically if left empty",
+        "slug_placeholder": "panoramic-villa-marbella",
+        "meta_title": "Meta Title",
+        "meta_title_placeholder": "Panoramic Villa in Marbella | Gelabert Stay Real Estate",
+        "meta_desc": "Meta Description",
+        "meta_desc_placeholder": "Search engine description (max. 160 characters)",
+        "orientation": "Orientation",
+        "energy_efficiency": "Energy Efficiency",
+        "energy_rating": "Energy Consumption Rating",
+        "energy_consumption": "Energy Consumption (kWh/m² year)",
+        "emissions_rating": "Carbon Emissions Rating",
+        "emissions_value": "Carbon Emissions (kg CO₂/m² year)",
+        "community_fees": "Community Fees",
+        "ibi": "IBI",
+        "block": "Block / Staircase",
+        "urbanization": "Urbanization",
+        "conservation_state": "Conservation State"
+      },
+      "errors": {
+        "title_required": "Title is required",
+        "operation_required": "Operation type is required",
+        "geo_not_found": "Could not find location automatically",
+        "geo_service_error": "Error consulting the map service",
+        "video_too_large": "The video exceeds 50MB (Supabase Free plan limit). Please try compressing it.",
+        "floor_plan_too_large": "The floor plan is too large (max 20MB)",
+        "image_too_large": "Image \"{{name}}\" is too large (max 20MB)",
+        "image_upload_error": "Error uploading images",
+        "video_upload_error": "Error uploading video",
+        "floor_plan_upload_error": "Error uploading floor plan",
+        "save_error": "Error saving",
+        "address_city_required": "Enter address and city to search"
+      }
+    }
+
+  }
+}
