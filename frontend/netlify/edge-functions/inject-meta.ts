@@ -89,19 +89,47 @@ export default async (request: Request, context: Context) => {
 
     // 5. Injection Logic
     if (prop) {
-      const title = prop.meta_title || (isEn ? (prop.title_en || prop.title) : prop.title) || "Propiedad | Gelabert Stay";
+      // Helper to translate text if needed (simulated logic for the edge function)
+      const translateText = async (text: string, to: string) => {
+        if (!text || to === 'es') return text;
+        try {
+          const tUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=es&tl=${to}&dt=t&q=${encodeURIComponent(text)}`;
+          const res = await fetch(tUrl);
+          if (res.ok) {
+            const data = await res.json();
+            return data[0].map((item: any) => item[0]).join("");
+          }
+        } catch (e) { console.error("Translation fail", e); }
+        return text;
+      };
+
+      // Determine Language Title
+      let title = "";
+      if (isEn) {
+        // If meta_title exists and it looks like a custom SEO title, we might want to translate it too
+        // but often meta_title is in Spanish. We favor title_en if present.
+        title = prop.title_en || prop.meta_title_en || await translateText(prop.meta_title || prop.title, "en");
+      } else {
+        title = prop.meta_title || prop.title;
+      }
+      title = (title || "Propiedad").trim();
+
       const features = [];
       if (prop.area_m2) features.push(`${prop.area_m2} ${isEn ? 'sqm' : 'm²'}`);
       if (prop.bedrooms) features.push(`${prop.bedrooms} ${isEn ? 'beds' : 'hab.'}`);
       if (prop.bathrooms) features.push(`${prop.bathrooms} ${isEn ? 'baths' : 'baños'}`);
       
-      let description = prop.meta_description;
+      let description = "";
+      if (isEn) {
+          description = prop.description_en || prop.meta_description_en || await translateText(prop.meta_description || prop.description, "en");
+      } else {
+          description = prop.meta_description || prop.description;
+      }
+
       if (!description || description.length < 10) {
           description = features.join(' • ');
-          if (!description || description.length < 10) {
-              description = isEn ? (prop.description_en || prop.description) : prop.description;
-          }
       }
+      description = (description || "Gelabert Stay Real Estate").trim();
 
       const mainImage = prop.main_image || (prop.gallery && prop.gallery.length > 0 ? prop.gallery[0] : null);
       if (mainImage) {
@@ -132,6 +160,7 @@ export default async (request: Request, context: Context) => {
           `<meta property="og:image:width" content="1200">`,
           `<meta property="og:image:height" content="630">`,
           `<meta property="og:image:type" content="image/jpeg">`,
+          `<meta property="og:locale" content="${isEn ? 'en_US' : 'es_ES'}">`,
           `<meta name="twitter:card" content="summary_large_image">`,
           `<meta name="twitter:title" content="${cleanTitle} | Gelabert Stay">`,
           `<meta name="twitter:description" content="${cleanDesc}">`,
