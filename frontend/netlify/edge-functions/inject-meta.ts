@@ -150,14 +150,14 @@ export default async (request: Request, context: Context) => {
       const location = locationParts.join(', ');
 
       const features = [];
-      if (typeof prop.area_m2 === 'number' && prop.area_m2 > 0) features.push(`${prop.area_m2}${isEn ? ' sqm' : ' m²'}`);
-      if (typeof prop.bedrooms === 'number' && prop.bedrooms > 0) features.push(`${prop.bedrooms} ${isEn ? (prop.bedrooms === 1 ? 'bed' : 'beds') : 'hab.'}`);
+      if (typeof prop.area_m2 === 'number' && prop.area_m2 > 0) features.push(`${prop.area_m2}${isEn ? ' m2' : ' m2'}`);
+      if (typeof prop.bedrooms === 'number' && prop.bedrooms > 0) features.push(`${prop.bedrooms} ${isEn ? (prop.bedrooms === 1 ? 'bed' : 'beds') : 'hab'}`);
       if (typeof prop.bathrooms === 'number' && prop.bathrooms > 0) features.push(`${prop.bathrooms} ${isEn ? (prop.bathrooms === 1 ? 'bath' : 'baths') : 'baños'}`);
       if (prop.floor && String(prop.floor).trim() !== "") features.push(`${isEn ? 'Floor' : 'Planta'} ${prop.floor}`);
       
-      let description = `${typeLabel}${location ? ` ${isEn ? 'in' : 'en'} ${location}` : ''}`;
+      let description = `(V3.2) ${typeLabel}${location ? ` ${isEn ? 'in' : 'en'} ${location}` : ''}`;
       if (features.length > 0) {
-          description += ` | ${features.join(' | ')}`;
+          description += `: ${features.join(', ')}`;
       }
       
       description = description.trim() || title || "Gelabert Stay Real Estate";
@@ -217,7 +217,7 @@ export default async (request: Request, context: Context) => {
       headers: { 
         "content-type": "text/html; charset=UTF-8",
         "x-meta-injected": prop ? "true" : "false",
-        "x-meta-version": "3.1",
+        "x-meta-version": "3.2",
         "x-debug": xDebug,
         "x-prop-id": searchId,
         "cache-control": "public, max-age=0, must-revalidate"
