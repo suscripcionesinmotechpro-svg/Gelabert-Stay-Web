@@ -114,22 +114,42 @@ export default async (request: Request, context: Context) => {
       }
       title = (title || "Propiedad").trim();
 
+      // Mappings for property types
+      const typeLabels: Record<string, { es: string, en: string }> = {
+          piso: { es: 'Piso', en: 'Apartment' },
+          casa: { es: 'Casa', en: 'House' },
+          atico: { es: 'Ático', en: 'Penthouse' },
+          estudio: { es: 'Estudio', en: 'Studio' },
+          loft: { es: 'Loft', en: 'Loft' },
+          local: { es: 'Local', en: 'Commercial Premises' },
+          oficina: { es: 'Oficina', en: 'Office' },
+          nave: { es: 'Nave', en: 'Industrial Warehouse' },
+          terreno: { es: 'Terreno', en: 'Land' },
+          negocio: { es: 'Negocio', en: 'Business' },
+          otro: { es: 'Propiedad', en: 'Property' }
+      };
+
+      const type = prop.property_type || 'otro';
+      const typeLabel = isEn ? (typeLabels[type]?.en || typeLabels.otro.en) : (typeLabels[type]?.es || typeLabels.otro.es);
+      
+      // Build location string
+      const locationParts = [];
+      if (prop.city) locationParts.push(prop.city);
+      if (prop.zone) locationParts.push(prop.zone);
+      const location = locationParts.join(', ');
+
       const features = [];
       if (prop.area_m2) features.push(`${prop.area_m2} ${isEn ? 'sqm' : 'm²'}`);
       if (prop.bedrooms) features.push(`${prop.bedrooms} ${isEn ? 'beds' : 'hab.'}`);
       if (prop.bathrooms) features.push(`${prop.bathrooms} ${isEn ? 'baths' : 'baños'}`);
+      if (prop.floor) features.push(`${isEn ? 'Floor' : 'Planta'} ${prop.floor}`);
       
-      let description = "";
-      if (isEn) {
-          description = prop.description_en || prop.meta_description_en || await translateText(prop.meta_description || prop.description, "en");
-      } else {
-          description = prop.meta_description || prop.description;
+      let description = `${typeLabel}${location ? ` ${isEn ? 'in' : 'en'} ${location}` : ''}`;
+      if (features.length > 0) {
+          description += ` • ${features.join(' • ')}`;
       }
-
-      if (!description || description.length < 10) {
-          description = features.join(' • ');
-      }
-      description = (description || "Gelabert Stay Real Estate").trim();
+      
+      description = description.trim() || "Gelabert Stay Real Estate";
 
       const mainImage = prop.main_image || (prop.gallery && prop.gallery.length > 0 ? prop.gallery[0] : null);
       if (mainImage) {
