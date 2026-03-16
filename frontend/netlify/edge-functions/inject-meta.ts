@@ -61,9 +61,22 @@ export default async (request: Request, context: Context) => {
     }
 
     // 4. Supabase Query
+    // Build a set of possible references to check (case-insensitive)
+    const possibleRefs = [searchId];
+    if (searchId.includes('-')) {
+        possibleRefs.push(searchId.replace('-', ''));
+        possibleRefs.push(searchId.replace('-', ' '));
+    } else if (searchId.startsWith('GEL') && searchId.length > 3) {
+        // If it's like GEL123, also try GEL-123
+        const numPart = searchId.substring(3);
+        if (/^\d+$/.test(numPart)) {
+            possibleRefs.push(`GEL-${numPart}`);
+        }
+    }
+
     const orConditions = isUuid 
       ? `reference.eq.${searchId},slug.eq.${searchId},id.eq.${searchId}`
-      : `reference.eq.${searchId},slug.eq.${searchId},reference.ilike.${searchId},slug.ilike.${searchId}`;
+      : `reference.in.(${possibleRefs.join(',')}),slug.eq.${searchId},reference.ilike.${searchId},slug.ilike.${searchId}`;
 
     const queryUrl = `${SUPABASE_URL}/rest/v1/properties?or=(${orConditions})&select=*`;
     
@@ -133,33 +146,31 @@ export default async (request: Request, context: Context) => {
       const typeLabel = isEn ? (typeLabels[type]?.en || typeLabels.otro.en) : (typeLabels[type]?.es || typeLabels.otro.es);
       
       // Build location string
-      const locationParts = [];
-      if (prop.city) locationParts.push(prop.city);
-      if (prop.zone) locationParts.push(prop.zone);
+      const locationParts = [prop.city, prop.zone].filter(Boolean);
       const location = locationParts.join(', ');
 
       const features = [];
-      if (prop.area_m2) features.push(`${prop.area_m2} ${isEn ? 'sqm' : 'm²'}`);
-      if (prop.bedrooms) features.push(`${prop.bedrooms} ${isEn ? 'beds' : 'hab.'}`);
-      if (prop.bathrooms) features.push(`${prop.bathrooms} ${isEn ? 'baths' : 'baños'}`);
-      if (prop.floor) features.push(`${isEn ? 'Floor' : 'Planta'} ${prop.floor}`);
+      if (typeof prop.area_m2 === 'number' && prop.area_m2 > 0) features.push(`${prop.area_m2}${isEn ? ' sqm' : ' m²'}`);
+      if (typeof prop.bedrooms === 'number' && prop.bedrooms > 0) features.push(`${prop.bedrooms} ${isEn ? (prop.bedrooms === 1 ? 'bed' : 'beds') : 'hab.'}`);
+      if (typeof prop.bathrooms === 'number' && prop.bathrooms > 0) features.push(`${prop.bathrooms} ${isEn ? (prop.bathrooms === 1 ? 'bath' : 'baths') : 'baños'}`);
+      if (prop.floor && String(prop.floor).trim() !== "") features.push(`${isEn ? 'Floor' : 'Planta'} ${prop.floor}`);
       
       let description = `${typeLabel}${location ? ` ${isEn ? 'in' : 'en'} ${location}` : ''}`;
       if (features.length > 0) {
-          description += ` - ${features.join(' - ')}`;
+          description += ` | ${features.join(' | ')}`;
       }
       
-      description = description.trim() || "Gelabert Stay Real Estate";
+      description = description.trim() || title || "Gelabert Stay Real Estate";
 
       const mainImage = prop.main_image || (prop.gallery && prop.gallery.length > 0 ? prop.gallery[0] : null);
       const cacheBuster = `t=${Date.now()}`;
       const previewImage = mainImage ? (mainImage.includes('?') ? `${mainImage}&${cacheBuster}` : `${mainImage}?${cacheBuster}`) : null;
       
-      const cleanTitle = (title || "").replace(/"/g, '&quot;');
-      const cleanDesc = (description || "").slice(0, 160).replace(/"/g, '&quot;');
+      const cleanTitle = (title || "").replace(/"/g, '&quot;').replace(/[\r\n]+/g, ' ').trim();
+      const cleanDesc = (description || "").slice(0, 160).replace(/"/g, '&quot;').replace(/[\r\n]+/g, ' ').trim();
 
-      // Clean existing tags
-      html = html.replace(/<title>[^<]*<\/title>/gi, '');
+      // Aggressive cleaning of existing tags
+      html = html.replace(/<title>[\s\S]*?<\/title>/gi, '');
       html = html.replace(/<meta [^>]*property=["']og:[^"']*["'][^>]*>/gi, '');
       html = html.replace(/<meta [^>]*name=["']twitter:[^"']*["'][^>]*>/gi, '');
       html = html.replace(/<meta [^>]*name=["']description["'][^>]*>/gi, '');
@@ -206,6 +217,7 @@ export default async (request: Request, context: Context) => {
       headers: { 
         "content-type": "text/html; charset=UTF-8",
         "x-meta-injected": prop ? "true" : "false",
+        "x-meta-version": "3.1",
         "x-debug": xDebug,
         "x-prop-id": searchId,
         "cache-control": "public, max-age=0, must-revalidate"
