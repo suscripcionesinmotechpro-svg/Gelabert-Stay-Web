@@ -87,7 +87,7 @@ export const Home = () => {
             transition={{ duration: 0.8, ease: "easeOut" }}
             src="/logo.png" 
             alt="Gelabert Homes Real Estate" 
-            className="w-48 md:w-64 h-auto drop-shadow-2xl mb-2"
+            className="w-64 md:w-80 lg:w-96 h-auto drop-shadow-2xl mb-2 -mt-8"
           />
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
