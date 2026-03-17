@@ -99,8 +99,11 @@ export const Propiedades = () => {
   return (
     <div className="w-full pb-20">
       <Helmet>
-        <title>{t('seo.home_title')} | Gelabert Homes Real Estate</title>
-        <meta name="description" content={t('seo.home_description')} />
+        <title>{t('seo.properties_title')} | Gelabert Homes Real Estate</title>
+        <meta name="description" content={t('seo.properties_description')} />
+        <link rel="alternate" hrefLang="es" href="https://gelaberthomes.es/propiedades/" />
+        <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/propiedades/" />
+        <link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es/propiedades/" />
       </Helmet>
       {/* Header */}
       <section className="w-full px-6 md:px-14 py-16 bg-[#0A0A0A] flex flex-col gap-4 border-b border-[#1F1F1F]">

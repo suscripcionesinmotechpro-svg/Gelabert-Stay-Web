@@ -30,6 +30,11 @@ export const Home = () => {
         <meta property="twitter:title" content="Gelabert Homes Real Estate | Inmobiliaria en Málaga" />
         <meta property="twitter:description" content="Especialistas en la gestión inmobiliaria en Málaga & Costa del Sol." />
 
+        {/* Hreflang */}
+        <link rel="alternate" hrefLang="es" href="https://gelaberthomes.es/" />
+        <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/" />
+        <link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es/" />
+
         {/* JSON-LD Structured Data */}
         <script type="application/ld+json">
           {`
@@ -43,10 +48,10 @@ export const Home = () => {
               "telephone": "+34611898827",
               "address": {
                 "@type": "PostalAddress",
-                "streetAddress": "",
+                "streetAddress": "Málaga Centro",
                 "addressLocality": "Málaga",
                 "addressRegion": "Andalucía",
-                "postalCode": "",
+                "postalCode": "29001",
                 "addressCountry": "ES"
               },
               "geo": {

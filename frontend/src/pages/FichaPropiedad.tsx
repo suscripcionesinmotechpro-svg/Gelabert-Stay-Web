@@ -198,6 +198,43 @@ export const FichaPropiedad = () => {
         <meta name="twitter:description" content={translatedDescription?.slice(0, 160) || ''} />
         <meta name="twitter:image" content={previewImage} />
         <meta name="twitter:image:alt" content={translatedTitle} />
+
+        {/* Hreflang para versionado internacional */}
+        <link rel="alternate" hrefLang="es" href={`https://gelaberthomes.es/propiedades/${property.reference || property.slug || property.id}/`} />
+        <link rel="alternate" hrefLang="en" href={`https://gelaberthomes.es/en/propiedades/${property.reference || property.slug || property.id}/`} />
+        <link rel="alternate" hrefLang="x-default" href={`https://gelaberthomes.es/propiedades/${property.reference || property.slug || property.id}/`} />
+
+        {/* JSON-LD Schema.org para propieades */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": ["RealEstateListing", ['atico', 'estudio', 'loft'].includes(property.property_type) ? 'Apartment' : 'SingleFamilyResidence'],
+            "name": translatedTitle,
+            "description": translatedDescription?.slice(0, 160),
+            "image": previewImage,
+            "url": propertyUrl,
+            "offers": {
+              "@type": "Offer",
+              "price": property.price,
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock",
+              "url": propertyUrl
+            },
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": property.city,
+              "addressRegion": "Andalucía",
+              "addressCountry": "ES"
+            },
+            "numberOfRooms": property.bedrooms,
+            "numberOfBathroomsTotal": property.bathrooms,
+            "floorSize": {
+              "@type": "QuantitativeValue",
+              "value": property.area_m2,
+              "unitCode": "MTK"
+            }
+          })}
+        </script>
       </Helmet>
       {/* Breadcrumb */}
       <div className="w-full px-6 md:px-14 py-4 border-b border-[#1F1F1F] bg-[#0A0A0A]">

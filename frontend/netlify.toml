@@ -14,3 +14,7 @@
 [[edge_functions]]
   path = "/en/propiedades/*"
   function = "inject-meta"
+
+[[edge_functions]]
+  path = "/sitemap.xml"
+  function = "sitemap"

@@ -141,6 +141,9 @@ export const Servicios = () => {
         <meta name="description" content={t('services.seo.description')} />
         <meta property="og:title" content={t('services.seo.og_title')} />
         <meta property="og:description" content={t('services.seo.og_description')} />
+        <link rel="alternate" hrefLang="es" href="https://gelaberthomes.es/servicios/" />
+        <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/servicios/" />
+        <link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es/servicios/" />
       </Helmet>
       {/* Header / Hero Section */}
       <section className="relative w-full min-h-[50vh] flex items-center overflow-hidden border-b border-[#1F1F1F]">

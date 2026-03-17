@@ -12,6 +12,9 @@ export const Propietarios = () => {
         <title>{t('owners_page.seo.title')}</title>
         <meta name="description" content={t('owners_page.seo.description')} />
         <meta property="og:title" content={t('owners_page.seo.og_title')} />
+        <link rel="alternate" hrefLang="es" href="https://gelaberthomes.es/propietarios/" />
+        <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/propietarios/" />
+        <link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es/propietarios/" />
       </Helmet>
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-[#C9A962]/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2"></div>

@@ -163,9 +163,10 @@ export default async (request: Request, context: Context) => {
       let description = features.join(' • ');
       description = description.trim() || title || "Gelabert Homes Real Estate";
 
-      const mainImage = prop.main_image || (prop.gallery && prop.gallery.length > 0 ? prop.gallery[0] : null);
+      const siteLogo = "https://gelaberthomes.es/logo.png";
+      const mainImage = prop.main_image || (prop.gallery && prop.gallery.length > 0 ? prop.gallery[0] : siteLogo);
       const cacheBuster = `t=${Date.now()}`;
-      const previewImage = mainImage ? (mainImage.includes('?') ? `${mainImage}&${cacheBuster}` : `${mainImage}?${cacheBuster}`) : null;
+      const previewImage = mainImage.includes('?') ? `${mainImage}&${cacheBuster}` : `${mainImage}?${cacheBuster}`;
       
       const cleanTitle = (title || "").replace(/"/g, '&quot;').replace(/[\r\n]+/g, ' ').trim();
       const cleanDesc = (description || "").slice(0, 160).replace(/"/g, '&quot;').replace(/[\r\n]+/g, ' ').trim();
@@ -202,6 +203,7 @@ export default async (request: Request, context: Context) => {
           `<meta property="og:image:width" content="1200">`,
           `<meta property="og:image:height" content="630">`,
           `<meta property="og:image:type" content="image/jpeg">`,
+          `<meta property="og:image:alt" content="${cleanTitle}">`,
           `<meta name="twitter:image" content="${previewImage}">`,
           `<meta itemprop="image" content="${previewImage}">`
         );
