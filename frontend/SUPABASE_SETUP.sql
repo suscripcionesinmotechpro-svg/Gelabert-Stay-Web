@@ -233,5 +233,14 @@ INSERT INTO public.properties (
   'Local comercial en funcionamiento en la zona más exclusiva de la Costa del Sol.',
   'Traspaso de local comercial en pleno funcionamiento ubicado en el paseo marítimo de Puerto Banús. Alta afluencia de turistas, equipamiento completo incluido.',
   'publicada', TRUE,
-  ARRAY['local comercial', 'inversión', 'oportunidad']
 );
+
+-- =======================================================
+-- ADMIN ACTIVATION (Run this in Supabase SQL Editor)
+-- =======================================================
+-- Step 1: Force confirm the user if it was already created via script
+-- UPDATE auth.users SET email_confirmed_at = NOW(), confirmed_at = NOW() WHERE email = 'admin@gelaberthomes.es';
+
+-- Step 2: Ensure the user metadata is correct for administrative access
+-- UPDATE auth.users SET raw_user_meta_data = '{"full_name": "Administrador", "role": "admin"}' WHERE email = 'admin@gelaberthomes.es';
+
