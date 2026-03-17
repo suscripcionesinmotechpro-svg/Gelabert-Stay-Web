@@ -81,6 +81,14 @@ export const Home = () => {
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop')] bg-cover bg-center brightness-[0.3]" />
         
         <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center gap-6">
+          <motion.img 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            src="/logo.png" 
+            alt="Gelabert Homes Real Estate" 
+            className="w-48 md:w-64 h-auto drop-shadow-2xl mb-2"
+          />
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
