@@ -9,7 +9,7 @@ export const Footer = () => {
       <div className="flex flex-col gap-6 max-w-sm">
         <img
           src="/logo.png"
-          alt="Gelabert Stay Real Estate"
+          alt="Gelabert Homes Real Estate"
           className="h-28 w-auto object-contain self-start"
         />
         <p className="font-primary text-sm text-[#888888] leading-relaxed">
@@ -30,7 +30,7 @@ export const Footer = () => {
         <p className="font-primary text-sm text-[#888888]">{t('footer.location')}</p>
         <p className="font-primary text-sm text-[#C9A962] font-semibold">{t('footer.online_estate')}</p>
         <p className="font-primary text-sm text-[#888888]">+34 611 89 88 27</p>
-        <p className="font-primary text-sm text-[#888888]">info@gelabertstay.es</p>
+        <p className="font-primary text-sm text-[#888888]">info@gelaberthomes.es</p>
       </div>
 
       <div className="flex flex-col gap-4">

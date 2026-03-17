@@ -99,7 +99,7 @@ export const Propiedades = () => {
   return (
     <div className="w-full pb-20">
       <Helmet>
-        <title>{t('seo.home_title')} | Gelabert Stay Real Estate</title>
+        <title>{t('seo.home_title')} | Gelabert Homes Real Estate</title>
         <meta name="description" content={t('seo.home_description')} />
       </Helmet>
       {/* Header */}

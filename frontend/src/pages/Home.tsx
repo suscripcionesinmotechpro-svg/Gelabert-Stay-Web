@@ -15,19 +15,19 @@ export const Home = () => {
       <Helmet>
         <title>{t('seo.home_title')}</title>
         <meta name="description" content={t('seo.home_description')} />
-        <meta name="keywords" content="inmobiliaria málaga, costa del sol, comprar casa málaga, alquiler málaga, gelabert stay, real estate malaga" />
+        <meta name="keywords" content="inmobiliaria málaga, costa del sol, comprar casa málaga, alquiler málaga, gelaberthomes, gelabert homes, real estate malaga" />
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://gelabertstay.es/" />
-        <meta property="og:title" content="Gelabert Stay Real Estate | Inmobiliaria en Málaga" />
-        <meta property="og:description" content="Encuentra tu propiedad ideal en Málaga & la Costa del Sol con Gelabert Stay Real Estate. Compra, venta y gestión integral." />
-        <meta property="og:image" content="https://gelabertstay.es/logo.png" />
+        <meta property="og:url" content="https://gelaberthomes.es/" />
+        <meta property="og:title" content="Gelabert Homes Real Estate | Inmobiliaria en Málaga" />
+        <meta property="og:description" content="Encuentra tu propiedad ideal en Málaga & la Costa del Sol con Gelabert Homes Real Estate. Compra, venta y gestión integral." />
+        <meta property="og:image" content="https://gelaberthomes.es/logo.png" />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://gelabertstay.es/" />
-        <meta property="twitter:title" content="Gelabert Stay Real Estate | Inmobiliaria en Málaga" />
+        <meta property="twitter:url" content="https://gelaberthomes.es/" />
+        <meta property="twitter:title" content="Gelabert Homes Real Estate | Inmobiliaria en Málaga" />
         <meta property="twitter:description" content="Especialistas en la gestión inmobiliaria en Málaga & Costa del Sol." />
 
         {/* JSON-LD Structured Data */}
@@ -36,10 +36,10 @@ export const Home = () => {
             {
               "@context": "https://schema.org",
               "@type": "RealEstateAgent",
-              "name": "Gelabert Stay Real Estate",
-              "image": "https://gelabertstay.es/logo.png",
-              "@id": "https://gelabertstay.es/",
-              "url": "https://gelabertstay.es/",
+              "name": "Gelabert Homes Real Estate",
+              "image": "https://gelaberthomes.es/logo.png",
+              "@id": "https://gelaberthomes.es/",
+              "url": "https://gelaberthomes.es/",
               "telephone": "+34611898827",
               "address": {
                 "@type": "PostalAddress",

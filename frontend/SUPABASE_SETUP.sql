@@ -1,5 +1,5 @@
 -- =======================================================
--- GELABERT STAY — SUPABASE DATABASE SCHEMA
+-- GELABERT HOMES — SUPABASE DATABASE SCHEMA
 -- Run this entire file in your Supabase SQL Editor
 -- Go to: Supabase Dashboard → SQL Editor → New Query
 -- =======================================================

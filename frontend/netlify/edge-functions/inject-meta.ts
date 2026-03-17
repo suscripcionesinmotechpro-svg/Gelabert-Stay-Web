@@ -161,7 +161,7 @@ export default async (request: Request, context: Context) => {
       }
       
       let description = features.join(' • ');
-      description = description.trim() || title || "Gelabert Stay Real Estate";
+      description = description.trim() || title || "Gelabert Homes Real Estate";
 
       const mainImage = prop.main_image || (prop.gallery && prop.gallery.length > 0 ? prop.gallery[0] : null);
       const cacheBuster = `t=${Date.now()}`;
@@ -178,17 +178,17 @@ export default async (request: Request, context: Context) => {
       html = html.replace(/<link [^>]*rel=["'](canonical|image_src)["'][^>]*>/gi, '');
 
       const tags = [
-        `<title>${cleanTitle} | Gelabert Stay</title>`,
+        `<title>${cleanTitle} | Gelabert Homes</title>`,
         `<meta name="description" content="${cleanDesc}">`,
         `<link rel="canonical" href="${request.url}">`,
-        `<meta property="og:site_name" content="Gelabert Stay Real Estate">`,
+        `<meta property="og:site_name" content="Gelabert Homes Real Estate">`,
         `<meta property="og:type" content="website">`,
         `<meta property="og:url" content="${request.url}">`,
-        `<meta property="og:title" content="${cleanTitle} | Gelabert Stay">`,
+        `<meta property="og:title" content="${cleanTitle} | Gelabert Homes">`,
         `<meta property="og:description" content="${cleanDesc}">`,
         `<meta property="og:locale" content="${isEn ? 'en_US' : 'es_ES'}">`,
         `<meta name="twitter:card" content="${previewImage ? 'summary_large_image' : 'summary'}">`,
-        `<meta name="twitter:title" content="${cleanTitle} | Gelabert Stay">`,
+        `<meta name="twitter:title" content="${cleanTitle} | Gelabert Homes">`,
         `<meta name="twitter:description" content="${cleanDesc}">`,
         `<meta itemprop="name" content="${cleanTitle}">`,
         `<meta itemprop="description" content="${cleanDesc}">`,

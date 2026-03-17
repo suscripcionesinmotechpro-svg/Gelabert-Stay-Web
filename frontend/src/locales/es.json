@@ -163,7 +163,7 @@
     }
   },
   "hero": {
-    "hero_title": "Gelabert Stay",
+    "hero_title": "Gelabert Homes Real Estate",
     "hero_subtitle": "Especialistas en la gestión inmobiliaria en Málaga & Costa del Sol.",
     "view_properties": "Ver Propiedades",
     "contact_us": "Contáctanos"
@@ -178,7 +178,7 @@
     },
     "owners": {
       "title": "Confía la gestión de tu propiedad a expertos",
-      "desc": "En Gelabert Stay Real Estate nos encargamos de todo: desde la captación de inquilinos hasta el mantenimiento diario. Maximizamos la rentabilidad de tu inmueble mientras tú disfrutas de total tranquilidad. Nuestro equipo profesional gestiona contratos, cobros, incidencias y comunicación con inquilinos.",
+      "desc": "En Gelabert Homes Real Estate nos encargamos de todo: desde la captación de inquilinos hasta el mantenimiento diario. Maximizamos la rentabilidad de tu inmueble mientras tú disfrutas de total tranquilidad. Nuestro equipo profesional gestiona contratos, cobros, incidencias y comunicación con inquilinos.",
       "button": "Servicios para Propietarios"
     },
     "customers": {
@@ -196,7 +196,7 @@
       "empty": "No hay propiedades destacadas en este momento."
     },
     "why": {
-      "title": "Por qué elegir Gelabert Stay Real Estate",
+      "title": "Por qué elegir Gelabert Homes Real Estate",
       "item1": "Experiencia Local en Málaga",
       "item2": "Valoraciones Precisas",
       "item3": "Estrategia de Marketing",
@@ -206,13 +206,13 @@
     },
     "testimonials": {
       "title": "Lo que dicen nuestros clientes",
-      "item1": { "name": "María Gómez", "role": "Propietaria", "text": "Gelabert Stay Real Estate gestiona mi apartamento turístico desde hace un año y la tranquilidad que me dan no tiene precio. Sumamente recomendables." },
+      "item1": { "name": "María Gómez", "role": "Propietaria", "text": "Gelabert Homes Real Estate gestiona mi apartamento turístico desde hace un año y la tranquilidad que me dan no tiene precio. Sumamente recomendables." },
       "item2": { "name": "Carlos Ruiz", "role": "Comprador", "text": "Encontramos la casa de nuestros sueños gracias a su excelente cartera de propiedades. El trato fue impecable de principio a fin." },
       "item3": { "name": "Laura Sánchez", "role": "Inquilina", "text": "Muy profesionales en la gestión del contrato de alquiler. Resolvieron todas mis dudas y todo el proceso fue súper ágil." }
     }
   },
   "seo": {
-    "home_title": "Gelabert Stay Real Estate | Inmobiliaria en Málaga & Costa del Sol",
+    "home_title": "Gelabert Homes Real Estate | Inmobiliaria en Málaga & Costa del Sol",
     "home_description": "Especialistas en la gestión inmobiliaria en Málaga & Costa del Sol. Venta, alquiler y traspasos de propiedades, estudios y negocios de lujo.",
     "properties_description": "Descubra nuestra selección exclusiva de inmuebles en venta, alquiler y traspaso en Málaga & Costa del Sol."
   },
@@ -233,9 +233,9 @@
   },
   "services": {
     "seo": {
-      "title": "Servicios Inmobiliarios en Málaga | Gelabert Stay Real Estate",
+      "title": "Servicios Inmobiliarios en Málaga | Gelabert Homes Real Estate",
       "description": "Gestión integral inmobiliaria: Venta, alquiler, traspasos y administración de fincas en Málaga & Costa del Sol.",
-      "og_title": "Servicios | Gelabert Stay Real Estate",
+      "og_title": "Servicios | Gelabert Homes Real Estate",
       "og_description": "Soluciones integrales para propietarios, inversores e inquilinos."
     },
     "hero": {
@@ -261,7 +261,7 @@
       "view_properties": "Ver propiedades disponibles"
     },
     "why_choose_us": {
-      "title": "¿Por qué Gelabert Stay Real Estate?",
+      "title": "¿Por qué Gelabert Homes Real Estate?",
       "subtitle": "Agencia enfocada en Málaga & Costa del Sol, con trato personalizado y resultados reales.",
       "items": {
         "specialists": {
@@ -363,14 +363,14 @@
   },
   "owners_page": {
     "seo": {
-      "title": "Venda o Alquile su Propiedad | Gelabert Stay Real Estate",
+      "title": "Venda o Alquile su Propiedad | Gelabert Homes Real Estate",
       "description": "Confíe su inmueble a expertos. Valoración gratuita y promoción eficaz de su propiedad en Málaga & Costa del Sol.",
-      "og_title": "Para Propietarios | Gelabert Stay Real Estate"
+      "og_title": "Para Propietarios | Gelabert Homes Real Estate"
     },
     "hero": {
       "badge": "Gestión Inmobiliaria",
       "title": "¿Desea Vender o Alquilar su Propiedad?",
-      "description": "Confíe su inmueble a Gelabert Stay Real Estate. Le ofrecemos una tasación realista, promoción eficaz y gestión documental ágil en Málaga & Costa del Sol.",
+      "description": "Confíe su inmueble a Gelabert Homes Real Estate. Le ofrecemos una tasación realista, promoción eficaz y gestión documental ágil en Málaga & Costa del Sol.",
       "features": {
         "valuation": "Tasación gratuita y realista",
         "promotion": "Promoción eficaz en portales",
@@ -382,8 +382,8 @@
   },
   "contact_page": {
     "seo": {
-      "title": "Contacto | Gelabert Stay Real Estate Inmobiliaria",
-      "description": "Contacta con Gelabert Stay Real Estate. Resolveremos todas tus dudas sobre el mercado inmobiliario en Málaga."
+      "title": "Contacto | Gelabert Homes Real Estate Inmobiliaria",
+      "description": "Contacta con Gelabert Homes Real Estate. Resolveremos todas tus dudas sobre el mercado inmobiliario en Málaga."
     },
     "hero": {
       "badge": "Atención Personalizada",
@@ -397,7 +397,7 @@
   },
   "legal": {
     "notice": {
-      "seo_title": "Aviso Legal | Gelabert Stay Real Estate",
+      "seo_title": "Aviso Legal | Gelabert Homes Real Estate",
       "title": "Aviso Legal",
       "section1": {
         "title": "1. Información General",
@@ -414,7 +414,7 @@
       },
       "section3": {
         "title": "3. Propiedad Intelectual",
-        "content": "GELABERT STAY REAL ESTATE por sí o como cesionaria, es titular de todos los derechos de propiedad intelectual e industrial de su página web, así como de los elementos contenidos en la misma (imágenes, sonido, audio, vídeo, software o textos; marcas o logotipos, combinaciones de colores, estructura y diseño)."
+        "content": "GELABERT HOMES REAL ESTATE por sí o como cesionaria, es titular de todos los derechos de propiedad intelectual e industrial de su página web, así como de los elementos contenidos en la misma (imágenes, sonido, audio, vídeo, software o textos; marcas o logotipos, combinaciones de colores, estructura y diseño)."
       },
       "section4": {
         "title": "4. Exclusión de Responsabilidad",
@@ -422,11 +422,11 @@
       }
     },
     "privacy": {
-      "seo_title": "Política de Privacidad | Gelabert Stay Real Estate",
+      "seo_title": "Política de Privacidad | Gelabert Homes Real Estate",
       "title": "Política de Privacidad",
       "section1": {
         "title": "1. Responsable del Tratamiento",
-        "content": "GELABERT STAY REAL ESTATE informa a los interesados de que sus datos de carácter personal serán tratados de conformidad con el Reglamento (UE) 2016/679 (RGPD) y la Ley Orgánica 3/2018 (LOPDGDD).",
+        "content": "GELABERT HOMES REAL ESTATE informa a los interesados de que sus datos de carácter personal serán tratados de conformidad con el Reglamento (UE) 2016/679 (RGPD) y la Ley Orgánica 3/2018 (LOPDGDD).",
         "responsible": "Responsable:",
         "purpose": "Finalidad:",
         "purpose_val": "Gestión de consultas inmobiliarias, servicios para propietarios, inquilinos y demandantes de vivienda."
@@ -444,7 +444,7 @@
           "Solicitar su supresión cuando ya no sean necesarios.",
           "Oponerse al tratamiento de sus datos."
         ],
-        "exercise": "Para ejercer estos derechos, envíe un correo a info@gelabertstay.es adjuntando copia de su DNI."
+        "exercise": "Para ejercer estos derechos, envíe un correo a info@gelaberthomes.es adjuntando copia de su DNI."
       },
       "section4": {
         "title": "4. Conservación de Datos",
@@ -452,7 +452,7 @@
       }
     },
     "cookies": {
-      "seo_title": "Política de Cookies | Gelabert Stay Real Estate",
+      "seo_title": "Política de Cookies | Gelabert Homes Real Estate",
       "title": "Política de Cookies",
       "section1": {
         "title": "¿Qué son las cookies?",
@@ -508,7 +508,7 @@
     "send": "Enviar Mensaje",
     "sending": "Enviando...",
     "success_title": "¡Mensaje Recibido!",
-    "success_desc": "Gracias por confiar en Gelabert Stay Real Estate. Nuestro equipo revisará su solicitud y se pondrá en contacto con usted a la mayor brevedad posible.",
+    "success_desc": "Gracias por confiar en Gelabert Homes Real Estate. Nuestro equipo revisará su solicitud y se pondrá en contacto con usted a la mayor brevedad posible.",
     "send_another": "Enviar otro mensaje",
     "error": "Hubo un error al enviar el formulario. Por favor, inténtelo de nuevo o contacte con nosotros directamente.",
     "inquiry_type": {
@@ -725,7 +725,7 @@
         "slug_hint": "se genera automático si se deja vacío",
         "slug_placeholder": "villa-panoramica-marbella",
         "meta_title": "Meta Title",
-        "meta_title_placeholder": "Villa Panorámica en Marbella | Gelabert Stay Real Estate",
+        "meta_title_placeholder": "Villa Panorámica en Marbella | Gelabert Homes Real Estate",
         "meta_desc": "Meta Description",
         "meta_desc_placeholder": "Descripción para motores de búsqueda (máx. 160 caracteres)",
         "orientation": "Orientación",

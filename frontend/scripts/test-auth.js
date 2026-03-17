@@ -21,22 +21,22 @@ async function testLogin(email, password) {
 
 async function run() {
   // Test root control
-  await testLogin('root@gelabertstay.es', 'GelabertStay2024!');
+  await testLogin('root@gelaberthomes.es', 'GelabertStay2024!');
   // Test admin2 variant
-  await testLogin('admin2@gelabertstay.es', 'GelabertStay2024!');
+  await testLogin('admin2@gelaberthomes.es', 'GelabertStay2024!');
   // Test a completely random email to see if it still 500s
-  await testLogin('random_test_123@gelabertstay.es', 'any_password');
+  await testLogin('random_test_123@gelaberthomes.es', 'any_password');
   // Test wrong password to see if it 500s or returns 'Invalid credentials'
-  await testLogin('admin@gelabertstay.es', 'WRONG_PASSWORD');
+  await testLogin('admin@gelaberthomes.es', 'WRONG_PASSWORD');
   // Test simple password
-  await testLogin('admin@gelabertstay.es', '12345678');
+  await testLogin('admin@gelaberthomes.es', '12345678');
   // Test new final candidate
-  await testLogin('admin_final@gelabertstay.es', 'GelabertStay2024!');
+  await testLogin('admin_final@gelaberthomes.es', 'GelabertStay2024!');
   // Test both password variants
-  await testLogin('admin@gelabertstay.es', 'GelabertStay2024!');
-  await testLogin('admin@gelabertstay.es', 'GelabertStay2024');
-  await testLogin('info@gelabertstay.es', 'GelabertStay2024!');
-  await testLogin('info@gelabertstay.es', 'GelabertStay2024');
+  await testLogin('admin@gelaberthomes.es', 'GelabertStay2024!');
+  await testLogin('admin@gelaberthomes.es', 'GelabertStay2024');
+  await testLogin('info@gelaberthomes.es', 'GelabertStay2024!');
+  await testLogin('info@gelaberthomes.es', 'GelabertStay2024');
 }
 
 run();

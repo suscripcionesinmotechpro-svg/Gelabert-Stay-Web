@@ -22,9 +22,9 @@ export const AvisoLegal = () => {
             </h2>
             <p>{t('legal.notice.section1.content')}</p>
             <ul className="mt-4 space-y-2 list-disc list-inside">
-              <li><strong className="text-[#C9A962]">{t('legal.notice.section1.owner')}</strong> GELABERT STAY REAL ESTATE</li>
+              <li><strong className="text-[#C9A962]">{t('legal.notice.section1.owner')}</strong> GELABERT HOMES REAL ESTATE</li>
               <li><strong className="text-[#C9A962]">{t('legal.notice.section1.address')}</strong> {t('legal.notice.section1.address_val')}</li>
-              <li><strong className="text-[#C9A962]">{t('legal.notice.section1.email')}</strong> info@gelabertstay.es</li>
+              <li><strong className="text-[#C9A962]">{t('legal.notice.section1.email')}</strong> info@gelaberthomes.es</li>
               <li><strong className="text-[#C9A962]">{t('legal.notice.section1.phone')}</strong> +34 611 89 88 27</li>
             </ul>
           </div>

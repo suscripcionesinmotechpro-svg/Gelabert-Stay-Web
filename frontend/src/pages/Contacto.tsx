@@ -26,7 +26,7 @@ export const Contacto = () => {
         <div className="flex flex-col gap-8 font-primary text-[#FAF8F5]">
           <div>
             <span className="block text-[#666666] text-sm mb-1 uppercase">{t('contact_page.hero.email')}</span>
-            <a href="mailto:info@gelabertstay.es" className="text-xl hover:text-[#C9A962] transition-colors">info@gelabertstay.es</a>
+            <a href="mailto:info@gelaberthomes.es" className="text-xl hover:text-[#C9A962] transition-colors">info@gelaberthomes.es</a>
           </div>
           <div>
             <span className="block text-[#666666] text-sm mb-1 uppercase">{t('contact_page.hero.phone')}</span>

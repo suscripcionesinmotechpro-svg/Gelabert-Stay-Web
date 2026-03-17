@@ -22,7 +22,7 @@ export const Privacidad = () => {
             </h2>
             <p>{t('legal.privacy.section1.content')}</p>
             <p className="mt-2">
-              <strong className="text-[#C9A962]">{t('legal.privacy.section1.responsible')}</strong> GELABERT STAY REAL ESTATE<br />
+              <strong className="text-[#C9A962]">{t('legal.privacy.section1.responsible')}</strong> GELABERT HOMES REAL ESTATE<br />
               <strong className="text-[#C9A962]">{t('legal.privacy.section1.purpose')}</strong> {t('legal.privacy.section1.purpose_val')}
             </p>
           </div>

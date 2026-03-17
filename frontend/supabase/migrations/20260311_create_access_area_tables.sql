@@ -1,5 +1,5 @@
 -- ============================================================
--- GELABERT STAY — TABLAS PARA EL ÁREA DE ACCESO
+-- GELABERT HOMES — TABLAS PARA EL ÁREA DE ACCESO
 -- Migración: 20260311_create_access_area_tables.sql
 -- Proyecto Supabase: aumqjpqngmhpbwytpets
 -- ============================================================

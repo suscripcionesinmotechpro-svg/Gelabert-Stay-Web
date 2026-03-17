@@ -87,7 +87,7 @@ async function generateStaticPreviews() {
       if (prop.floor) featuresEs.push(`Planta ${prop.floor}`);
       if (prop.availability) featuresEs.push(`Disp: ${prop.availability}`);
       
-      const descEs = escapeHtml(featuresEs.join(' • ') || prop.description?.slice(0, 150) || "Gelabert Stay Real Estate | Málaga & Costa del Sol.");
+      const descEs = escapeHtml(featuresEs.join(' • ') || prop.description?.slice(0, 150) || "Gelabert Homes Real Estate | Málaga & Costa del Sol.");
       
       const htmlEs = buildPropHtml(baseHtml, titleEs, descEs, prop, 'es');
       savePropHtml(htmlEs, prop, PROPERTIES_DIR);
@@ -127,7 +127,7 @@ async function generateStaticPreviews() {
         rawDescEn = escapeHtml(rawDescEn.slice(0, 160));
       }
       
-      const descEn = escapeHtml(rawDescEn || "Gelabert Stay Real Estate | Malaga & Costa del Sol.");
+      const descEn = escapeHtml(rawDescEn || "Gelabert Homes Real Estate | Malaga & Costa del Sol.");
       
       const htmlEn = buildPropHtml(baseHtml, titleEn, descEn, prop, 'en');
       savePropHtml(htmlEn, prop, EN_PROPERTIES_DIR);
@@ -150,7 +150,7 @@ function buildPropHtml(baseHtml, title, description, prop, lang) {
     if (prop.gallery && prop.gallery.length > 0) {
       mainImage = prop.gallery[0];
     } else {
-      mainImage = "https://gelabertstay.es/logo.png";
+      mainImage = "https://gelaberthomes.es/logo.png";
     }
   }
 
@@ -168,7 +168,7 @@ function buildPropHtml(baseHtml, title, description, prop, lang) {
 
   const langPrefix = lang === 'en' ? '/en' : '';
   // Usamos URL con slash final para mejorar compatibilidad con algunos scrapers
-  const siteUrl = `https://gelabertstay.es${langPrefix}/propiedades/${prop.reference || prop.id}/`;
+  const siteUrl = `https://gelaberthomes.es${langPrefix}/propiedades/${prop.reference || prop.id}/`;
   
   let propHtml = baseHtml;
   
@@ -179,11 +179,11 @@ function buildPropHtml(baseHtml, title, description, prop, lang) {
   const metaTags = [
     { name: 'description', content: description },
     // Google / Schema.org
-    { itemprop: 'name', content: `${title} | Gelabert Stay` },
+    { itemprop: 'name', content: `${title} | Gelabert Homes` },
     { itemprop: 'description', content: description },
     { itemprop: 'image', content: previewImage },
     // Open Graph / Facebook
-    { property: 'og:title', content: `${title} | Gelabert Stay` },
+    { property: 'og:title', content: `${title} | Gelabert Homes` },
     { property: 'og:description', content: description },
     { property: 'og:image', content: previewImage },
     { property: 'og:image:secure_url', content: previewImage },
@@ -193,18 +193,18 @@ function buildPropHtml(baseHtml, title, description, prop, lang) {
     { property: 'og:image:alt', content: title },
     { property: 'og:url', content: siteUrl },
     { property: 'og:type', content: 'website' },
-    { property: 'og:site_name', content: 'Gelabert Stay Real Estate' },
+    { property: 'og:site_name', content: 'Gelabert Homes Real Estate' },
     { property: 'og:locale', content: lang === 'en' ? 'en_US' : 'es_ES' },
     // Twitter
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: `${title} | Gelabert Stay` },
+    { name: 'twitter:title', content: `${title} | Gelabert Homes` },
     { name: 'twitter:description', content: description },
     { name: 'twitter:image', content: previewImage },
     { name: 'twitter:image:alt', content: title }
   ];
 
   // Actualizar el título
-  propHtml = propHtml.replace(/<title>.*?<\/title>/i, `<title>${title} | Gelabert Stay</title>`);
+  propHtml = propHtml.replace(/<title>.*?<\/title>/i, `<title>${title} | Gelabert Homes</title>`);
   
   // Inyectar etiquetas meta al principio del head (justo después de <head>)
   // Esto es crucial para scrapers que solo leen los primeros bytes del archivo
@@ -261,16 +261,16 @@ function generateSitemap(properties) {
 
   // Rutas base ES y EN
   routes.forEach(r => {
-    sitemapEntries.push({ loc: `https://gelabertstay.es${r}`, priority: r === '' ? '1.0' : '0.8', lastmod: now });
-    sitemapEntries.push({ loc: `https://gelabertstay.es/en${r}`, priority: r === '' ? '0.9' : '0.7', lastmod: now });
+    sitemapEntries.push({ loc: `https://gelaberthomes.es${r}`, priority: r === '' ? '1.0' : '0.8', lastmod: now });
+    sitemapEntries.push({ loc: `https://gelaberthomes.es/en${r}`, priority: r === '' ? '0.9' : '0.7', lastmod: now });
   });
 
   // Rutas de propiedades ES y EN
   for (const prop of properties) {
     const lastmod = (prop.updated_at || now).split('T')[0];
     const ref = prop.reference || prop.id;
-    sitemapEntries.push({ loc: `https://gelabertstay.es/propiedades/${ref}`, priority: '0.6', lastmod });
-    sitemapEntries.push({ loc: `https://gelabertstay.es/en/propiedades/${ref}`, priority: '0.6', lastmod });
+    sitemapEntries.push({ loc: `https://gelaberthomes.es/propiedades/${ref}`, priority: '0.6', lastmod });
+    sitemapEntries.push({ loc: `https://gelaberthomes.es/en/propiedades/${ref}`, priority: '0.6', lastmod });
   }
 
   const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>

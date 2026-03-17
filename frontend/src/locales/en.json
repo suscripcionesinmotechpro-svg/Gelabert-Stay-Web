@@ -163,7 +163,7 @@
     }
   },
   "hero": {
-    "hero_title": "Gelabert Stay",
+    "hero_title": "Gelabert Homes Real Estate",
     "hero_subtitle": "Real estate experts in Malaga & Costa del Sol.",
     "view_properties": "View Properties",
     "contact_us": "Contact Us"
@@ -178,7 +178,7 @@
     },
     "owners": {
       "title": "Trust the management of your property to experts",
-      "desc": "At Gelabert Stay Real Estate we take care of everything: from tenant search to daily maintenance. We maximize the profitability of your property while you enjoy total peace of mind. Our professional team manages contracts, payments, incidents, and communication with tenants.",
+      "desc": "At Gelabert Homes Real Estate we take care of everything: from tenant search to daily maintenance. We maximize the profitability of your property while you enjoy total peace of mind. Our professional team manages contracts, payments, incidents, and communication with tenants.",
       "button": "Services for Owners"
     },
     "customers": {
@@ -196,7 +196,7 @@
       "empty": "No featured properties at this time."
     },
     "why": {
-      "title": "Why Choose Gelabert Stay Real Estate",
+      "title": "Why Choose Gelabert Homes Real Estate",
       "item1": "Local Experience in Malaga",
       "item2": "Accurate Valuations",
       "item3": "Marketing Strategy",
@@ -206,13 +206,13 @@
     },
     "testimonials": {
       "title": "What our clients say",
-      "item1": { "name": "Maria Gomez", "role": "Owner", "text": "Gelabert Stay Real Estate has been managing my tourist apartment for a year now and the peace of mind they give me is priceless. Highly recommended." },
+      "item1": { "name": "Maria Gomez", "role": "Owner", "text": "Gelabert Homes Real Estate has been managing my tourist apartment for a year now and the peace of mind they give me is priceless. Highly recommended." },
       "item2": { "name": "Carlos Ruiz", "role": "Buyer", "text": "We found our dream home thanks to their excellent property portfolio. The treatment was impeccable from start to finish." },
       "item3": { "name": "Laura Sanchez", "role": "Tenant", "text": "Very professional in the rental contract management. They solved all my doubts and the whole process was super agile." }
     }
   },
   "seo": {
-    "home_title": "Gelabert Stay Real Estate | Real Estate in Malaga & Costa del Sol",
+    "home_title": "Gelabert Homes Real Estate | Real Estate in Malaga & Costa del Sol",
     "home_description": "Experts in real estate management in Malaga & Costa del Sol. Sale, rent and transfers of properties, studios and luxury businesses.",
     "properties_description": "Discover our exclusive selection of properties for sale, rent, and transfer in Malaga & Costa del Sol."
   },
@@ -233,9 +233,9 @@
   },
   "services": {
     "seo": {
-      "title": "Real Estate Services in Malaga | Gelabert Stay Real Estate",
+      "title": "Real Estate Services in Malaga | Gelabert Homes Real Estate",
       "description": "Comprehensive real estate management: Sales, rentals, transfers, and property administration in Malaga & Costa del Sol.",
-      "og_title": "Services | Gelabert Stay Real Estate",
+      "og_title": "Services | Gelabert Homes Real Estate",
       "og_description": "Comprehensive solutions for owners, investors, and tenants."
     },
     "hero": {
@@ -261,7 +261,7 @@
       "view_properties": "View available properties"
     },
     "why_choose_us": {
-      "title": "Why Gelabert Stay Real Estate?",
+      "title": "Why Gelabert Homes Real Estate?",
       "subtitle": "Agency focused on Malaga & Costa del Sol, with personalized treatment and real results.",
       "items": {
         "specialists": {
@@ -363,14 +363,14 @@
   },
   "owners_page": {
     "seo": {
-      "title": "Sell or Rent Your Property | Gelabert Stay Real Estate",
+      "title": "Sell or Rent Your Property | Gelabert Homes Real Estate",
       "description": "Entrust your property to experts. Free valuation and effective promotion of your property in Malaga & Costa del Sol.",
-      "og_title": "For Owners | Gelabert Stay Real Estate"
+      "og_title": "For Owners | Gelabert Homes Real Estate"
     },
     "hero": {
       "badge": "Real Estate Management",
       "title": "Do You Want to Sell or Rent Your Property?",
-      "description": "Entrust your property to Gelabert Stay Real Estate. We offer you a realistic valuation, effective promotion, and agile document management in Malaga & Costa del Sol.",
+      "description": "Entrust your property to Gelabert Homes Real Estate. We offer you a realistic valuation, effective promotion, and agile document management in Malaga & Costa del Sol.",
       "features": {
         "valuation": "Realistic & Free Valuation",
         "promotion": "Effective Portal Promotion",
@@ -382,8 +382,8 @@
   },
   "contact_page": {
     "seo": {
-      "title": "Contact | Gelabert Stay Real Estate",
-      "description": "Contact Gelabert Stay Real Estate. We will solve all your questions about the real estate market in Malaga."
+      "title": "Contact | Gelabert Homes Real Estate",
+      "description": "Contact Gelabert Homes Real Estate. We will solve all your questions about the real estate market in Malaga."
     },
     "hero": {
       "badge": "Personalized Attention",
@@ -397,7 +397,7 @@
   },
   "legal": {
     "notice": {
-      "seo_title": "Legal Notice | Gelabert Stay Real Estate",
+      "seo_title": "Legal Notice | Gelabert Homes Real Estate",
       "title": "Legal Notice",
       "section1": {
         "title": "1. General Information",
@@ -414,7 +414,7 @@
       },
       "section3": {
         "title": "3. Intellectual Property",
-        "content": "GELABERT STAY REAL ESTATE, on its own behalf or as an assignee, is the owner of all intellectual and industrial property rights of its website, as well as the elements contained therein (images, sound, audio, video, software, or texts; trademarks or logos, color combinations, structure, and design)."
+        "content": "GELABERT HOMES REAL ESTATE, on its own behalf or as an assignee, is the owner of all intellectual and industrial property rights of its website, as well as the elements contained therein (images, sound, audio, video, software, or texts; trademarks or logos, color combinations, structure, and design)."
       },
       "section4": {
         "title": "4. Exclusion of Liability",
@@ -422,11 +422,11 @@
       }
     },
     "privacy": {
-      "seo_title": "Privacy Policy | Gelabert Stay Real Estate",
+      "seo_title": "Privacy Policy | Gelabert Homes Real Estate",
       "title": "Privacy Policy",
       "section1": {
         "title": "1. Data Controller",
-        "content": "GELABERT STAY REAL ESTATE informs data subjects that their personal data will be treated in accordance with Regulation (EU) 2016/679 (GDPR) and Organic Law 3/2018 (LOPDGDD).",
+        "content": "GELABERT HOMES REAL ESTATE informs data subjects that their personal data will be treated in accordance with Regulation (EU) 2016/679 (GDPR) and Organic Law 3/2018 (LOPDGDD).",
         "responsible": "Responsible:",
         "purpose": "Purpose:",
         "purpose_val": "Management of real estate inquiries, services for owners, tenants, and housing seekers."
@@ -444,7 +444,7 @@
           "Request its deletion when it is no longer necessary.",
           "Object to the processing of their data."
         ],
-        "exercise": "To exercise these rights, send an email to info@gelabertstay.es attaching a copy of your ID."
+        "exercise": "To exercise these rights, send an email to info@gelaberthomes.es attaching a copy of your ID."
       },
       "section4": {
         "title": "4. Data Retention",
@@ -452,7 +452,7 @@
       }
     },
     "cookies": {
-      "seo_title": "Cookie Policy | Gelabert Stay Real Estate",
+      "seo_title": "Cookie Policy | Gelabert Homes Real Estate",
       "title": "Cookie Policy",
       "section1": {
         "title": "What are cookies?",
@@ -508,7 +508,7 @@
     "send": "Send Message",
     "sending": "Sending...",
     "success_title": "Message Received!",
-    "success_desc": "Thank you for trusting Gelabert Stay Real Estate. Our team will review your request and contact you as soon as possible.",
+    "success_desc": "Thank you for trusting Gelabert Homes Real Estate. Our team will review your request and contact you as soon as possible.",
     "send_another": "Send another message",
     "error": "There was an error sending the form. Please try again or contact us directly.",
     "inquiry_type": {
@@ -733,7 +733,7 @@
         "slug_hint": "generated automatically if left empty",
         "slug_placeholder": "panoramic-villa-marbella",
         "meta_title": "Meta Title",
-        "meta_title_placeholder": "Panoramic Villa in Marbella | Gelabert Stay Real Estate",
+        "meta_title_placeholder": "Panoramic Villa in Marbella | Gelabert Homes Real Estate",
         "meta_desc": "Meta Description",
         "meta_desc_placeholder": "Search engine description (max. 160 characters)",
         "orientation": "Orientation",

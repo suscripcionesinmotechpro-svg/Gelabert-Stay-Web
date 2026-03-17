@@ -45,7 +45,7 @@ export const AdminLayout = () => {
     <>
       {/* Logo */}
       <div className="p-6 border-b border-[#1F1F1F]">
-        <h1 className="font-secondary text-xl text-[#C9A962] tracking-wider">Gelabert Stay</h1>
+        <h1 className="font-secondary text-xl text-[#C9A962] tracking-wider">Gelabert Homes</h1>
         <p className="font-primary text-[#444444] text-[10px] mt-1 uppercase tracking-[0.2em]">Panel de Control</p>
       </div>
 
@@ -112,7 +112,7 @@ export const AdminLayout = () => {
       <div className="flex-1 md:ml-60 flex flex-col min-h-screen">
         {/* Mobile topbar */}
         <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[#0A0A0A] border-b border-[#1F1F1F]">
-          <h1 className="font-secondary text-lg text-[#C9A962]">Gelabert Stay</h1>
+          <h1 className="font-secondary text-lg text-[#C9A962]">Gelabert Homes</h1>
           <div className="flex items-center gap-4">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[#888888] hover:text-[#FAF8F5]">
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

@@ -1,5 +1,5 @@
 async function checkHeaders(ref) {
-    const url = `https://gelabertstay.es/propiedades/${ref}`;
+    const url = `https://gelaberthomes.es/propiedades/${ref}`;
     try {
         const res = await fetch(url, { headers: { 'User-Agent': 'WhatsApp/2.21.12.21 A' } });
         console.log(`Ref: ${ref} | Status: ${res.status} | x-meta-injected: ${res.headers.get('x-meta-injected')}`);

@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /admin/*
 
-Sitemap: https://gelabertstay.es/sitemap.xml
+Sitemap: https://gelaberthomes.es/sitemap.xml

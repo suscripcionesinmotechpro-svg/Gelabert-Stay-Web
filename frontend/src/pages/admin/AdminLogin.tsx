@@ -52,7 +52,7 @@ export const AdminLogin = () => {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-10 gap-3">
-          <h1 className="font-secondary text-4xl text-[#C9A962] tracking-widest drop-shadow-sm">Gelabert Stay</h1>
+          <h1 className="font-secondary text-4xl text-[#C9A962] tracking-widest drop-shadow-sm">Gelabert Homes</h1>
           <p className="font-primary text-[#666666] text-xs tracking-[0.3em] uppercase">Panel de Administración</p>
         </div>
 
@@ -78,7 +78,7 @@ export const AdminLogin = () => {
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="admin@gelabertstay.es"
+              placeholder="admin@gelaberthomes.es"
               className="h-12 bg-[#0A0A0A] border border-[#1F1F1F] px-4 font-primary text-[#FAF8F5] outline-none focus:border-[#C9A962] transition-all text-sm rounded-none"
               autoComplete="email"
             />

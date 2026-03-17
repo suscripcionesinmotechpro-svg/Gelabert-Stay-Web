@@ -29,7 +29,7 @@ export const Layout = () => {
         <Link to={langPrefix || '/'} className="flex items-center">
           <img
             src="/logo.png"
-            alt="Gelabert Stay Real Estate"
+            alt="Gelabert Homes Real Estate"
             className="h-20 w-auto object-contain"
           />
         </Link>

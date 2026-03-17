@@ -1,7 +1,7 @@
 const https = require('https');
 
 const data = JSON.stringify({
-  email: 'admin@gelabertstay.es',
+  email: 'admin@gelaberthomes.es',
   password: 'GelabertStay2024!'
 });
 

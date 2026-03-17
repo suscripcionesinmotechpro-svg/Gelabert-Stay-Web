@@ -97,7 +97,7 @@ export const FichaPropiedad = () => {
     setFormError(null);
 
     try {
-      const propertyUrl = `https://gelabertstay.es/propiedades/${property?.reference || property?.slug || property?.id}`;
+      const propertyUrl = `https://gelaberthomes.es/propiedades/${property?.reference || property?.slug || property?.id}`;
       const messageWithLink = `${formData.message}\n\n---\nConsulta sobre: ${autoTitle}\nEnlace: ${propertyUrl}`;
 
       // 1. Log en Supabase
@@ -150,14 +150,14 @@ export const FichaPropiedad = () => {
   const translatedDescription = autoDescription;
   
   // Usamos URL con slash final para mejorar compatibilidad con algunos scrapers
-  const propertyUrl = `https://gelabertstay.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${property.reference || property.slug || property.id}/`;
+  const propertyUrl = `https://gelaberthomes.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${property.reference || property.slug || property.id}/`;
   
   // Optimización de imagen para previsualización (WhatsApp prefiere < 300KB)
   const mainImg = property.main_image || (property.gallery && property.gallery.length > 0 ? property.gallery[0] : null);
   const isSupabaseImage = mainImg?.includes('supabase.co') && mainImg?.includes('object/public');
   const previewImage = isSupabaseImage
     ? mainImg!.replace('object/public', 'render/image/public') + '?width=1200&height=630&resize=contain'
-    : (mainImg || 'https://gelabertstay.es/logo.png');
+    : (mainImg || 'https://gelaberthomes.es/logo.png');
 
   const whatsappMsg = encodeURIComponent(
     i18n.language.startsWith('en')
@@ -168,20 +168,20 @@ export const FichaPropiedad = () => {
   return (
     <div className="w-full pb-20 bg-[#0F0F0F]">
       <Helmet>
-        <title>{`${translatedTitle} | ${property.city} | Gelabert Stay Real Estate`}</title>
+        <title>{`${translatedTitle} | ${property.city} | Gelabert Homes Real Estate`}</title>
         <meta name="description" content={translatedDescription?.slice(0, 160) || ''} />
         <link rel="canonical" href={propertyUrl} />
         <link rel="image_src" href={previewImage} />
         
         {/* Google / Schema.org */}
-        <meta itemProp="name" content={`${translatedTitle} | ${property.city} | Gelabert Stay`} />
+        <meta itemProp="name" content={`${translatedTitle} | ${property.city} | Gelabert Homes`} />
         <meta itemProp="description" content={translatedDescription?.slice(0, 160) || ''} />
         <meta itemProp="image" content={previewImage} />
 
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={propertyUrl} />
-        <meta property="og:title" content={`${translatedTitle} | ${t(OPERATION_LABELS[property.operation])} en ${property.city} | Gelabert Stay`} />
+        <meta property="og:title" content={`${translatedTitle} | ${t(OPERATION_LABELS[property.operation])} en ${property.city} | Gelabert Homes`} />
         <meta property="og:description" content={translatedDescription?.slice(0, 160) || ''} />
         <meta property="og:image" content={previewImage} />
         <meta property="og:image:secure_url" content={previewImage} />
@@ -189,12 +189,12 @@ export const FichaPropiedad = () => {
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:alt" content={translatedTitle} />
-        <meta property="og:site_name" content="Gelabert Stay Real Estate" />
+        <meta property="og:site_name" content="Gelabert Homes Real Estate" />
         <meta property="og:locale" content={i18n.language.startsWith('en') ? 'en_US' : 'es_ES'} />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${translatedTitle} | ${t(OPERATION_LABELS[property.operation])} en ${property.city} | Gelabert Stay`} />
+        <meta name="twitter:title" content={`${translatedTitle} | ${t(OPERATION_LABELS[property.operation])} en ${property.city} | Gelabert Homes`} />
         <meta name="twitter:description" content={translatedDescription?.slice(0, 160) || ''} />
         <meta name="twitter:image" content={previewImage} />
         <meta name="twitter:image:alt" content={translatedTitle} />
@@ -737,7 +737,7 @@ export const FichaPropiedad = () => {
             </div>
             <div className="flex items-center gap-2 text-[#666666]">
               <Mail className="w-3.5 h-3.5" />
-              <span className="font-primary text-xs">info@gelabertstay.es</span>
+              <span className="font-primary text-xs">info@gelaberthomes.es</span>
             </div>
 
           </div>
