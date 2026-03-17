@@ -67,14 +67,10 @@ export const PropertyCard = ({
   }).format(price);
 
   const card = (
-    <motion.div
-      whileHover={{ y: -8 }}
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+    <motion.div 
       className={cn(
-        "flex flex-col w-full bg-[#0A0A0A] border border-[#1F1F1F] overflow-hidden cursor-pointer group",
+        "group h-full flex flex-col bg-[#0F0F0F] border border-[#1F1F1F] overflow-hidden transition-all duration-500",
+        "hover:border-[#C9A962]/50 hover:shadow-2xl hover:shadow-[#C9A962]/5 hover:-translate-y-1",
         className
       )}
       onClick={onClick}
@@ -104,10 +100,16 @@ export const PropertyCard = ({
         
         {/* Featured Badge */}
         {isFeatured && (
-          <div className="absolute top-4 right-4 px-3 py-1 bg-[#1F1F1F] font-primary text-[#C9A962] text-[10px] font-bold uppercase flex items-center gap-1">
+          <div className="absolute top-4 right-4 px-3 py-1 bg-[#1F1F1F]/80 backdrop-blur-md border border-[#C9A962]/30 font-primary text-[#C9A962] text-[10px] font-bold uppercase flex items-center gap-1 shadow-lg">
             <span>★</span> {t('property.labels.featured')}
           </div>
         )}
+
+        {/* Price Overlay */}
+        <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-black/40 backdrop-blur-xl border-t border-white/10 flex items-center justify-between">
+          <span className="font-secondary text-2xl text-[#C9A962]">{formattedPrice}</span>
+          <span className="font-primary text-[8px] uppercase tracking-[0.2em] text-[#C9A962] font-bold">Gelabert Premium</span>
+        </div>
       </div>
 
       {/* Content Area */}
@@ -154,17 +156,11 @@ export const PropertyCard = ({
           </div>
         </div>
 
-        {/* Price & Action */}
+        {/* Action Row */}
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-[#1F1F1F]">
-          <span className="font-secondary text-2xl text-[#C9A962]">{formattedPrice}</span>
           <div className="font-primary text-[10px] uppercase tracking-[0.2em] text-[#666666] group-hover:text-[#FAF8F5] transition-colors flex items-center gap-2">
-            {t('property.labels.features.view_more')}
-            <motion.span 
-              animate={{ x: [0, 4, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-            >
-              →
-            </motion.span>
+            {t('property.labels.view_details')}
+            <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
           </div>
         </div>
       </div>

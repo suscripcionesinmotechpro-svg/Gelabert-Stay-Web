@@ -108,14 +108,38 @@ export const Home = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="mt-8 flex flex-col sm:flex-row gap-4"
           >
-            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[13px] uppercase tracking-wider hover:bg-[#D4B673] transition-colors text-center w-full sm:w-auto">
-              {t('hero.view_properties')}
+            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="px-10 py-5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[14px] uppercase tracking-[0.2em] hover:bg-[#D4B673] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-[#C9A962]/10">
+              {t('hero.hero_button')}
             </Link>
             <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/contacto`} className="px-8 py-4 border border-[#C9A962] text-[#C9A962] font-primary font-bold text-[13px] uppercase tracking-wider hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-colors text-center w-full sm:w-auto">
               {t('hero.contact_us')}
             </Link>
           </motion.div>
         </div>
+
+        {/* Scroll Indicator */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5, duration: 1 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
+        >
+          <span className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.3em] font-bold opacity-60">Scroll</span>
+          <div className="w-[1px] h-12 bg-gradient-to-b from-[#C9A962] to-transparent relative overflow-hidden">
+            <motion.div 
+              animate={{ 
+                y: [0, 48],
+                opacity: [0, 1, 0]
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="absolute top-0 left-0 w-full h-1/3 bg-white shadow-[0_0_8px_white]"
+            />
+          </div>
+        </motion.div>
       </section>
 
       {/* Services Block */}
