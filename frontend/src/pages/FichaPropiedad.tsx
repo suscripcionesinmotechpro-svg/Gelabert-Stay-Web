@@ -308,7 +308,7 @@ export const FichaPropiedad = () => {
             <div className="flex md:flex-col gap-2 md:w-1/3 overflow-x-auto md:overflow-y-auto md:max-h-[450px]">
               {allImages.map((img, i) => (
                 <button key={i} onClick={() => { setActiveImg(i); openLightbox(i); }} className={`w-20 md:w-full h-20 md:h-28 flex-shrink-0 overflow-hidden border ${i === activeImg ? 'border-[#C9A962]' : 'border-[#1F1F1F] hover:border-[#888888]'} transition-colors cursor-zoom-in`}>
-                  <img src={img} alt={`${i}`} className="w-full h-full object-cover" />
+                  <img src={img} alt={`${i}`} loading="lazy" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>

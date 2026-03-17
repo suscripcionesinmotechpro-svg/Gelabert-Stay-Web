@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Property, PropertyFilters, PropertyInsert, PropertyUpdate, PropertyStatus, CommercialStatus } from '../types/property';
+import { applyWatermark } from '../utils/watermark';
 
 // ============================================================
 // useProperties — list with optional filters (public: only published)
@@ -205,7 +206,10 @@ export const useAdminStats = () => {
 // ============================================================
 // uploadPropertyMedia — Storage helper for images, videos, and PDFs
 // ============================================================
-export const uploadPropertyMedia = async (file: File, folder = 'main'): Promise<string> => {
+export const uploadPropertyMedia = async (rawFile: File, folder = 'main'): Promise<string> => {
+  // Apply lossless watermark automatically (only affects images, leaves PDFs/Videos intact)
+  const file = await applyWatermark(rawFile);
+  
   const ext = file.name.split('.').pop()?.toLowerCase();
   const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
   

@@ -69,10 +69,10 @@ export const PropertyCard = ({
   const card = (
     <motion.div
       whileHover={{ y: -8 }}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
       className={cn(
         "flex flex-col w-full bg-[#0A0A0A] border border-[#1F1F1F] overflow-hidden cursor-pointer group",
         className
@@ -84,10 +84,11 @@ export const PropertyCard = ({
       <div className="relative w-full h-[200px] bg-[#2A2A2A] overflow-hidden">
         {imageUrl ? (
           <motion.img 
-            whileHover={{ scale: 1.05 }} 
-            transition={{ duration: 0.6 }}
+            whileHover={{ scale: 1.08 }} 
+            transition={{ duration: 0.8, ease: "easeOut" }}
             src={imageUrl} 
             alt={displayTitle} 
+            loading="lazy"
             className="w-full h-full object-cover" 
           />
         ) : (
