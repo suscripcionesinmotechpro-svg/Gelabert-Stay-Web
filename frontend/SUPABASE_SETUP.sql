@@ -127,7 +127,7 @@ CREATE OR REPLACE FUNCTION set_reference()
 RETURNS TRIGGER AS $$
 BEGIN
   IF NEW.reference IS NULL OR NEW.reference = '' THEN
-    NEW.reference := 'GS-' || UPPER(SUBSTRING(NEW.id::TEXT, 1, 8));
+    NEW.reference := 'GH-' || UPPER(SUBSTRING(NEW.id::TEXT, 1, 8));
   END IF;
   RETURN NEW;
 END;

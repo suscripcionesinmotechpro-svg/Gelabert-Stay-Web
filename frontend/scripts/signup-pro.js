@@ -7,7 +7,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 async function run() {
   const email = 'admin_pro@gelaberthomes.es';
-  const password = 'GelabertStay2024!';
+  const password = 'GelabertHomes2024!';
 
   console.log(`Attempting a completely fresh SignUp: ${email}`);
   const { data, error } = await supabase.auth.signUp({
