@@ -161,9 +161,10 @@ export default async (request: Request, context: Context) => {
       }
 
       if (typeof prop.area_m2 === 'number' && prop.area_m2 > 0) features.push(`${prop.area_m2} ${isEn ? 'sqm' : 'm²'}`);
-      if (typeof prop.bedrooms === 'number' && prop.bedrooms > 0) features.push(`${prop.bedrooms} ${isEn ? (prop.bedrooms === 1 ? 'bed' : 'beds') : 'hab'}`);
-      if (typeof prop.bathrooms === 'number' && prop.bathrooms > 0) features.push(`${prop.bathrooms} ${isEn ? (prop.bathrooms === 1 ? 'bath' : 'baths') : 'baños'}`);
+      if (typeof prop.bedrooms === 'number' && prop.bedrooms > 0) features.push(`${isEn ? 'Bed' : 'Hab.'} ${prop.bedrooms}`);
+      if (typeof prop.bathrooms === 'number' && prop.bathrooms > 0) features.push(`${isEn ? 'Baths' : 'Baños'} ${prop.bathrooms}`);
       if (prop.floor && String(prop.floor).trim() !== "") features.push(`${isEn ? 'Floor' : 'Planta'} ${prop.floor}`);
+      if (prop.orientation && String(prop.orientation).trim() !== "") features.push(`${isEn ? 'Orientation' : 'Orientación'} ${prop.orientation}`);
       
       let description = features.join(' • ');
       
