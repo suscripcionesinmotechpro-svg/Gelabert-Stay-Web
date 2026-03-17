@@ -30,17 +30,13 @@ export const applyWatermark = async (file: File): Promise<File> => {
         watermark.src = '/watermark.png'; // Make sure this is in public
 
         watermark.onload = () => {
-          // Calculate watermark dimensions
-          // Let's make it 25% of the image width, up to a max of maybe 600px
-          let wmWidth = canvas.width * 0.25;
-          if (wmWidth > 600) wmWidth = 600;
-          if (wmWidth < 150) wmWidth = 150;
+          // Let's make it 40% of the image width for a prominent center watermark
+          let wmWidth = canvas.width * 0.40;
+          if (wmWidth > 800) wmWidth = 800; // max width
+          if (wmWidth < 200) wmWidth = 200; // min width
           
           const aspectRatio = watermark.width / watermark.height;
           const wmHeight = wmWidth / aspectRatio;
-
-          // Padding from edge
-          const padding = 20;
 
           // Enable shadow for better visibility on all backgrounds
           ctx.shadowColor = 'rgba(0,0,0,0.5)';
@@ -48,12 +44,12 @@ export const applyWatermark = async (file: File): Promise<File> => {
           ctx.shadowOffsetX = 2;
           ctx.shadowOffsetY = 2;
 
-          // 85% opacity golden watermark
-          ctx.globalAlpha = 0.85;
+          // 70% opacity for center watermark (more transparent so it doesn't block the view)
+          ctx.globalAlpha = 0.70;
 
-          // Draw the watermark on the bottom right corner
-          const x = canvas.width - wmWidth - padding;
-          const y = canvas.height - wmHeight - padding;
+          // Draw the watermark exactly in the CENTER of the image
+          const x = (canvas.width - wmWidth) / 2;
+          const y = (canvas.height - wmHeight) / 2;
           
           ctx.drawImage(watermark, x, y, wmWidth, wmHeight);
 
