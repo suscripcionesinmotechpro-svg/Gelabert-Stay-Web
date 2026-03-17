@@ -145,22 +145,33 @@ export default async (request: Request, context: Context) => {
       const type = prop.property_type || 'otro';
       const typeLabel = isEn ? (typeLabels[type]?.en || typeLabels.otro.en) : (typeLabels[type]?.es || typeLabels.otro.es);
       
+      let opLabel = '';
+      if (prop.operation === 'alquiler') opLabel = isEn ? 'Rent' : 'Alquiler';
+      else if (prop.operation === 'venta') opLabel = isEn ? 'Sale' : 'Venta';
+      else if (prop.operation === 'traspaso') opLabel = isEn ? 'Transfer' : 'Traspaso';
+
       const features = [];
+      if (opLabel && typeLabel) features.push(`${opLabel} ${typeLabel}`);
+      
+      if (prop.price) {
+          const formatter = new Intl.NumberFormat(isEn ? 'en-US' : 'es-ES', { style: 'currency', currency: prop.currency || 'EUR', maximumFractionDigits: 0 });
+          const formattedPrice = formatter.format(prop.price);
+          const feeLabel = prop.operation === 'alquiler' ? (isEn ? '/month' : '/mes') : '';
+          features.push(`${formattedPrice}${feeLabel}`);
+      }
+
       if (typeof prop.area_m2 === 'number' && prop.area_m2 > 0) features.push(`${prop.area_m2} ${isEn ? 'sqm' : 'm²'}`);
-      if (typeof prop.bedrooms === 'number' && prop.bedrooms > 0) {
-          features.push(`${prop.bedrooms} ${isEn ? (prop.bedrooms === 1 ? 'bed' : 'beds') : 'hab'}`);
-      }
-      if (typeof prop.bathrooms === 'number' && prop.bathrooms > 0) {
-          features.push(`${prop.bathrooms} ${isEn ? (prop.bathrooms === 1 ? 'bath' : 'baths') : 'baños'}`);
-      }
-      if (prop.floor && String(prop.floor).trim() !== "") {
-          features.push(`${isEn ? 'Floor' : 'Planta'} ${prop.floor}`);
-      }
-      if (prop.availability && String(prop.availability).trim() !== "") {
-          features.push(`${isEn ? 'Avail' : 'Disp'}: ${prop.availability}`);
-      }
+      if (typeof prop.bedrooms === 'number' && prop.bedrooms > 0) features.push(`${prop.bedrooms} ${isEn ? (prop.bedrooms === 1 ? 'bed' : 'beds') : 'hab'}`);
+      if (typeof prop.bathrooms === 'number' && prop.bathrooms > 0) features.push(`${prop.bathrooms} ${isEn ? (prop.bathrooms === 1 ? 'bath' : 'baths') : 'baños'}`);
+      if (prop.floor && String(prop.floor).trim() !== "") features.push(`${isEn ? 'Floor' : 'Planta'} ${prop.floor}`);
       
       let description = features.join(' • ');
+      
+      const extraDesc = isEn ? (prop.short_description_en || prop.meta_description_en) : (prop.short_description || prop.meta_description);
+      if (extraDesc) {
+          description += ` | ${extraDesc}`;
+      }
+      
       description = description.trim() || title || "Gelabert Homes Real Estate";
 
       const siteLogo = "https://gelaberthomes.es/logo.png";
