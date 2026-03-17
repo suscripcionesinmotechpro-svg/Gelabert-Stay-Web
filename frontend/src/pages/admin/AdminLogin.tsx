@@ -78,7 +78,7 @@ export const AdminLogin = () => {
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="admin@gelaberthomes.es"
+              placeholder="Email"
               className="h-12 bg-[#0A0A0A] border border-[#1F1F1F] px-4 font-primary text-[#FAF8F5] outline-none focus:border-[#C9A962] transition-all text-sm rounded-none"
               autoComplete="email"
             />
