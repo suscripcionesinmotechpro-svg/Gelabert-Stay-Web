@@ -233,6 +233,7 @@ INSERT INTO public.properties (
   'Local comercial en funcionamiento en la zona más exclusiva de la Costa del Sol.',
   'Traspaso de local comercial en pleno funcionamiento ubicado en el paseo marítimo de Puerto Banús. Alta afluencia de turistas, equipamiento completo incluido.',
   'publicada', TRUE,
+  ARRAY[]::TEXT[]
 );
 
 -- =======================================================
