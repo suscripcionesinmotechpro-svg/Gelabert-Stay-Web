@@ -85,10 +85,10 @@ export const Home = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-secondary text-6xl md:text-8xl lg:text-9xl text-[#FAF8F5] leading-[0.9] tracking-tighter"
+            className="font-secondary text-5xl md:text-7xl lg:text-8xl text-[#FAF8F5] leading-[0.9] tracking-tighter"
           >
             {t('hero.hero_title')} <br/> 
-            <span className="text-[#C9A962] italic font-light block mt-4 text-4xl md:text-6xl tracking-normal">
+            <span className="text-[#C9A962] italic font-light block mt-4 text-3xl md:text-5xl tracking-normal">
               Real Estate
             </span>
           </motion.h1>
@@ -97,7 +97,7 @@ export const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="font-primary text-xl md:text-2xl text-[#DFDFE6] max-w-3xl font-light tracking-wide opacity-90"
+            className="font-primary text-base md:text-lg text-[#DFDFE6] max-w-2xl font-light tracking-wide opacity-90"
           >
             {t('hero.hero_subtitle')}
           </motion.p>
@@ -109,7 +109,7 @@ export const Home = () => {
             className="mt-8 flex flex-col sm:flex-row gap-4"
           >
             <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="px-10 py-5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[14px] uppercase tracking-[0.2em] hover:bg-[#D4B673] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-[#C9A962]/10">
-              {t('hero.hero_button')}
+              {t('hero.view_properties')}
             </Link>
             <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/contacto`} className="px-8 py-4 border border-[#C9A962] text-[#C9A962] font-primary font-bold text-[13px] uppercase tracking-wider hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-colors text-center w-full sm:w-auto">
               {t('hero.contact_us')}

@@ -107,8 +107,7 @@ export const PropertyCard = ({
 
         {/* Price Overlay */}
         <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-black/40 backdrop-blur-xl border-t border-white/10 flex items-center justify-between">
-          <span className="font-secondary text-2xl text-[#C9A962]">{formattedPrice}</span>
-          <span className="font-primary text-[8px] uppercase tracking-[0.2em] text-[#C9A962] font-bold">Gelabert Premium</span>
+          <span className="font-secondary text-2xl text-[#FAF8F5] leading-none">{formattedPrice}</span>
         </div>
       </div>
 
