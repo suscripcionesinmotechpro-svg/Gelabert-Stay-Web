@@ -27,9 +27,9 @@ def create_watermark_preview():
     # Resize watermark
     watermark = watermark.resize((wm_width, wm_height), Image.Resampling.LANCZOS)
     
-    # Apply 70% opacity
+    # Apply 90% opacity
     alpha = watermark.split()[3]
-    alpha = ImageEnhance.Brightness(alpha).enhance(0.70)
+    alpha = ImageEnhance.Brightness(alpha).enhance(0.90)
     watermark.putalpha(alpha)
     
     # We can't easily do a perfect canvas drop-shadow in pure PIL without drawing offset layers
@@ -57,8 +57,8 @@ def create_watermark_preview():
     # Paste watermark
     img.paste(watermark, (x, y), watermark)
     
-    # Save preview to artifacts
-    output_path = r"C:\Users\lenovo\.gemini\antigravity\brain\12e483c8-47e8-4b54-aa55-02a3fdc69d55\watermark_demo.png"
+    # Save preview to artifacts with a new name to avoid cache
+    output_path = r"C:\Users\lenovo\.gemini\antigravity\brain\12e483c8-47e8-4b54-aa55-02a3fdc69d55\watermark_demo_centered.png"
     img.convert("RGB").save(output_path, "PNG")
     print("Demo created at:", output_path)
 

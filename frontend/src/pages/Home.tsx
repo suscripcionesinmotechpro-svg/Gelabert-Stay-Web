@@ -80,29 +80,24 @@ export const Home = () => {
       <section className="relative w-full h-[85vh] flex flex-col items-center justify-center text-center px-6">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop')] bg-cover bg-center brightness-[0.3]" />
         
-        <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center gap-6">
-          <motion.img 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            src="/logo.png" 
-            alt="Gelabert Homes Real Estate" 
-            className="w-64 md:w-80 lg:w-96 h-auto drop-shadow-2xl mb-2 -mt-8"
-          />
+        <div className="relative z-10 max-w-5xl mx-auto flex flex-col items-center gap-8">
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="font-secondary text-5xl md:text-7xl text-[#FAF8F5] leading-tight"
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="font-secondary text-6xl md:text-8xl lg:text-9xl text-[#FAF8F5] leading-[0.9] tracking-tighter"
           >
-            {t('hero.hero_title')} <br/> <span className="text-[#C9A962] italic">Real Estate</span>
+            {t('hero.hero_title')} <br/> 
+            <span className="text-[#C9A962] italic font-light block mt-4 text-4xl md:text-6xl tracking-normal">
+              Real Estate
+            </span>
           </motion.h1>
           
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-            className="font-primary text-lg md:text-xl text-[#DFDFE6] max-w-2xl font-light"
+            transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="font-primary text-xl md:text-2xl text-[#DFDFE6] max-w-3xl font-light tracking-wide opacity-90"
           >
             {t('hero.hero_subtitle')}
           </motion.p>

@@ -44,8 +44,8 @@ export const applyWatermark = async (file: File): Promise<File> => {
           ctx.shadowOffsetX = 2;
           ctx.shadowOffsetY = 2;
 
-          // 70% opacity for center watermark (more transparent so it doesn't block the view)
-          ctx.globalAlpha = 0.70;
+          // 90% opacity for center watermark (more visible on bright backgrounds)
+          ctx.globalAlpha = 0.90;
 
           // Draw the watermark exactly in the CENTER of the image
           const x = (canvas.width - wmWidth) / 2;
