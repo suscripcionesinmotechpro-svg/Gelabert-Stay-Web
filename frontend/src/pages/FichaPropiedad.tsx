@@ -523,15 +523,17 @@ export const FichaPropiedad = () => {
               <motion.div whileHover={{ y: -5 }} className="flex flex-col items-center gap-2 p-5 bg-[#0A0A0A] border border-[#1F1F1F] hover:border-[#C9A962] transition-colors group">
                 <Layers className="w-5 h-5 text-[#C9A962] transform group-hover:scale-110 transition-transform" />
                 <p className="font-primary text-xs text-[#666666] uppercase tracking-wider">{t('property.labels.features.floor')}</p>
-                <p className="font-primary text-[#FAF8F5] font-bold text-sm">{property.floor}</p>
+                <p className="font-primary text-[#FAF8F5] font-bold text-sm">
+                  {property.floor}{(!String(property.floor).includes('º') && !String(property.floor).includes('ª') && /^\d+$/.test(String(property.floor))) ? 'º' : ''}
+                </p>
               </motion.div>
             )}
             {property.orientation && property.orientation.length > 0 && (
               <motion.div whileHover={{ y: -5 }} className="flex flex-col items-center gap-2 p-5 bg-[#0A0A0A] border border-[#1F1F1F] hover:border-[#C9A962] transition-colors group">
                 <Compass className="w-5 h-5 text-[#C9A962] transform group-hover:scale-110 transition-transform" />
-                <p className="font-primary text-xs text-[#666666] uppercase tracking-wider">{t('admin.form.fields.orientation')}</p>
+                <p className="font-primary text-xs text-[#666666] uppercase tracking-wider">{t('property.form.fields.orientation')}</p>
                 <p className="font-primary text-[#FAF8F5] font-bold text-[10px] uppercase">
-                  {property.orientation.map(o => t(`admin.form.fields.orientation_${o.toLowerCase().charAt(0)}`)).join(' / ')}
+                  {property.orientation.map(o => t(`admin.form.fields.orientation_${o.toLowerCase().charAt(0)}`)).join(' · ')}
                 </p>
               </motion.div>
             )}

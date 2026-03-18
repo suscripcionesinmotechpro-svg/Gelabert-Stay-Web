@@ -26,6 +26,7 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   track_id?: string | null;
   gallery?: string[] | null;
   floor?: string | number | null;
+  orientation?: string[] | null;
 }
 
 export const PropertyCard = ({
@@ -46,6 +47,7 @@ export const PropertyCard = ({
   description_en,
   gallery,
   floor,
+  orientation,
   ...props
 }: PropertyCardProps) => {
   const { t } = useTranslation();
@@ -190,32 +192,49 @@ export const PropertyCard = ({
         )}
 
         {/* Features Row */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[#888888] pt-1">
-          <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[#888888] pt-1 opacity-80 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1">
             <span className="font-primary text-xs font-bold text-[#FAF8F5]">{area}</span>
             <span className="font-primary text-[10px] uppercase tracking-wider">m²</span>
           </div>
           
+          <span className="text-[#444444] font-bold">·</span>
+
           {(floor !== undefined && floor !== null && floor !== '') && (
             <>
-              <div className="w-[1px] h-3 bg-[#1F1F1F]" />
-              <div className="flex items-center gap-1.5">
-                <span className="font-primary text-xs font-bold text-[#FAF8F5]">{floor}</span>
+              <div className="flex items-center gap-1">
                 <span className="font-primary text-[10px] uppercase tracking-wider">{t('property.labels.features.floor')}</span>
+                <span className="font-primary text-xs font-bold text-[#FAF8F5]">
+                  {floor}{(!String(floor).includes('º') && !String(floor).includes('ª') && /^\d+$/.test(String(floor))) ? 'º' : ''}
+                </span>
               </div>
+              <span className="text-[#444444] font-bold">·</span>
             </>
           )}
 
-          <div className="w-[1px] h-3 bg-[#1F1F1F]" />
-          <div className="flex items-center gap-1.5">
-            <span className="font-primary text-xs font-bold text-[#FAF8F5]">{bedrooms}</span>
+          <div className="flex items-center gap-1">
             <span className="font-primary text-[10px] uppercase tracking-wider">{t('property.labels.features.bedrooms')}</span>
+            <span className="font-primary text-xs font-bold text-[#FAF8F5]">{bedrooms}</span>
           </div>
-          <div className="w-[1px] h-3 bg-[#1F1F1F]" />
-          <div className="flex items-center gap-1.5">
-            <span className="font-primary text-xs font-bold text-[#FAF8F5]">{bathrooms}</span>
+
+          <span className="text-[#444444] font-bold">·</span>
+
+          <div className="flex items-center gap-1">
             <span className="font-primary text-[10px] uppercase tracking-wider">{t('property.labels.features.bathrooms')}</span>
+            <span className="font-primary text-xs font-bold text-[#FAF8F5]">{bathrooms}</span>
           </div>
+
+          {(orientation && orientation.length > 0) && (
+            <>
+              <span className="text-[#444444] font-bold">·</span>
+              <div className="flex items-center gap-1">
+                <span className="font-primary text-[10px] uppercase tracking-wider">{t('property.form.fields.orientation')}</span>
+                <span className="font-primary text-xs font-bold text-[#FAF8F5]">
+                  {orientation.join(' · ')}
+                </span>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Action Row */}

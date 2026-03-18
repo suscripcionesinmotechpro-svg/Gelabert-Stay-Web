@@ -13,7 +13,7 @@
     "year": "año"
   },
   "tags": {
-    "premium": "Inmueble Premium",
+    "premium": "Propiedad Seleccionada",
     "destacada": "Propiedad Destacada",
     "oportunidad": "Gran Oportunidad",
     "inversión": "Ideal Inversión",
@@ -24,7 +24,7 @@
     "piscina": "Piscina",
     "local comercial": "Local Comercial",
     "alta rentabilidad": "Alta Rentabilidad",
-    "lujo": "Lujo",
+    "lujo": "Calidad Superior",
     "centro histórico": "Centro Histórico",
     "obra nueva": "Obra Nueva",
     "cerca de playa": "Cerca de la Playa",
@@ -213,8 +213,8 @@
   },
   "seo": {
     "home_title": "Gelabert Homes Real Estate | Inmobiliaria en Málaga & Costa del Sol",
-    "home_description": "Especialistas en la gestión inmobiliaria en Málaga & Costa del Sol. Venta, alquiler y traspasos de propiedades, estudios y negocios de lujo.",
-    "properties_description": "Descubra nuestra selección exclusiva de inmuebles en venta, alquiler y traspaso en Málaga & Costa del Sol."
+    "home_description": "Especialistas en la gestión inmobiliaria en Málaga & Costa del Sol. Venta, alquiler y traspasos de propiedades, estudios y negocios con trato profesional.",
+    "properties_description": "Descubra nuestra amplia selección de inmuebles en venta, alquiler y traspaso en Málaga & Costa del Sol."
   },
   "footer": {
     "description": "Gestión inmobiliaria en Málaga & Costa del Sol. Especialistas en alquiler, venta y traspaso.",

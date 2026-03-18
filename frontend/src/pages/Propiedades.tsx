@@ -255,8 +255,8 @@ export const Propiedades = () => {
               show: {
                 opacity: 1,
                 transition: { 
-                  staggerChildren: 0.1,
-                  delayChildren: 0.2
+                  staggerChildren: 0.05,
+                  delayChildren: 0.1
                 }
               }
             }}
@@ -266,17 +266,17 @@ export const Propiedades = () => {
               <motion.div 
                 key={p.id}
                 variants={{
-                  hidden: { opacity: 0, scale: 0.98, y: 15 },
+                  hidden: { opacity: 0, y: 10 },
                   show: { 
                     opacity: 1, 
-                    scale: 1, 
                     y: 0, 
                     transition: { 
-                      duration: 0.5, 
-                      ease: [0.215, 0.61, 0.355, 1] 
+                      duration: 0.4, 
+                      ease: [0.25, 1, 0.5, 1] 
                     } 
                   }
                 }}
+                layout
               >
               <PropertyCard
                 title={p.title}
@@ -291,6 +291,7 @@ export const Propiedades = () => {
                 imageUrl={p.main_image ?? ''}
                 linkTo={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${p.reference || p.slug || p.id}`}
                 floor={p.floor}
+                orientation={p.orientation}
                 description={p.short_description ?? undefined}
                 description_en={p.short_description_en ?? undefined}
                 gallery={p.gallery}

@@ -13,7 +13,7 @@
     "year": "year"
   },
   "tags": {
-    "premium": "Premium Property",
+    "premium": "Selected Property",
     "destacada": "Featured Property",
     "oportunidad": "Great Opportunity",
     "inversión": "Ideal Investment",
@@ -24,7 +24,7 @@
     "piscina": "Private Pool",
     "local comercial": "Commercial Premises",
     "alta rentabilidad": "High Profitability",
-    "lujo": "Luxury Property",
+    "lujo": "Superior Quality",
     "centro histórico": "Historic Center",
     "obra nueva": "New Build",
     "cerca de playa": "Near the Beach",
@@ -213,8 +213,8 @@
   },
   "seo": {
     "home_title": "Gelabert Homes Real Estate | Real Estate in Malaga & Costa del Sol",
-    "home_description": "Experts in real estate management in Malaga & Costa del Sol. Sale, rent and transfers of properties, studios and luxury businesses.",
-    "properties_description": "Discover our exclusive selection of properties for sale, rent, and transfer in Malaga & Costa del Sol."
+    "home_description": "Experts in real estate management in Malaga & Costa del Sol. Sale, rent and transfers of properties, studios and businesses with professional service.",
+    "properties_description": "Discover our wide selection of properties for sale, rent, and transfer in Malaga & Costa del Sol."
   },
   "footer": {
     "description": "Real Estate Management in Málaga & Costa del Sol. Specialists in rent, sale and transfer.",

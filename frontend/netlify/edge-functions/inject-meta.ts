@@ -160,13 +160,31 @@ export default async (request: Request, context: Context) => {
           features.push(`${formattedPrice}${feeLabel}`);
       }
 
-      if (typeof prop.area_m2 === 'number' && prop.area_m2 > 0) features.push(`${prop.area_m2} ${isEn ? 'sqm' : 'm²'}`);
+      if (typeof prop.area_m2 === 'number' && prop.area_m2 > 0) features.push(`${prop.area_m2} m²`);
       if (typeof prop.bedrooms === 'number' && prop.bedrooms > 0) features.push(`${isEn ? 'Bed' : 'Hab.'} ${prop.bedrooms}`);
       if (typeof prop.bathrooms === 'number' && prop.bathrooms > 0) features.push(`${isEn ? 'Baths' : 'Baños'} ${prop.bathrooms}`);
-      if (prop.floor && String(prop.floor).trim() !== "") features.push(`${isEn ? 'Floor' : 'Planta'} ${prop.floor}`);
+      if (prop.floor && String(prop.floor).trim() !== "") {
+          const floorVal = String(prop.floor).trim();
+          const hasSymbol = floorVal.includes('º') || floorVal.includes('ª');
+          features.push(`${isEn ? 'Floor' : 'Planta'} ${floorVal}${(!hasSymbol && /^\d+$/.test(floorVal)) ? 'º' : ''}`);
+      }
       
       if (prop.orientation) {
-        const orient = Array.isArray(prop.orientation) ? prop.orientation.join(', ') : String(prop.orientation);
+        let orient = '';
+        if (Array.isArray(prop.orientation)) {
+            // Translate orientations if possible
+            const oLabels: Record<string, string> = isEn ? {
+                'N': 'N', 'S': 'S', 'E': 'E', 'O': 'W', 'W': 'W',
+                'Norte': 'North', 'Sur': 'South', 'Este': 'East', 'Oeste': 'West'
+            } : {
+                'N': 'N', 'S': 'S', 'E': 'E', 'O': 'O', 'W': 'O',
+                'North': 'Norte', 'South': 'Sur', 'East': 'Este', 'West': 'Oeste'
+            };
+            orient = prop.orientation.map((o: string) => oLabels[o] || o).join(', ');
+        } else {
+            orient = String(prop.orientation);
+        }
+        
         if (orient.trim() !== "") {
           features.push(`${isEn ? 'Orientation' : 'Orientación'} ${orient}`);
         }
