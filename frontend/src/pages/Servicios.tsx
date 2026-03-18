@@ -182,7 +182,7 @@ export const Servicios = () => {
           <img 
             src="https://images.unsplash.com/photo-1600607687940-c52af0493738?q=80&w=2070&auto=format&fit=crop" 
             className="w-full h-full object-cover brightness-[0.2]"
-            alt="Hero Background"
+            alt=""
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/50 to-[#050505]" />
         </motion.div>
