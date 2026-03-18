@@ -350,12 +350,30 @@ export const Servicios = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                to={`${i18n.language.startsWith('en') ? '/en' : ''}/contacto`}
-                className="flex items-center justify-center gap-3 px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-xs uppercase tracking-widest hover:brightness-110 transition-all shadow-[0_0_20px_rgba(201,169,98,0.2)]"
+              <button
+                onClick={() => cart.toggleService({
+                  id: 'tenant_search',
+                  title: t('services.tenant_search.title'),
+                  tag: t('services.tenant_search.tag'),
+                  icon: "🔑",
+                  desc: t('services.tenant_search.desc')
+                })}
+                className={`flex items-center justify-center gap-3 px-8 py-4 font-primary font-bold text-xs uppercase tracking-widest transition-all ${
+                  cart.isInCart('tenant_search')
+                    ? "bg-[#C9A962]/20 border border-[#C9A962] text-[#C9A962]"
+                    : "bg-[#C9A962] text-[#0A0A0A] hover:brightness-110 shadow-[0_0_20px_rgba(201,169,98,0.2)]"
+                }`}
               >
-                {t('services.tenants.request_search')} <ArrowRight className="w-4 h-4" />
-              </Link>
+                {cart.isInCart('tenant_search') ? (
+                  <>
+                    <CheckCircle className="w-4 h-4" /> Añadido
+                  </>
+                ) : (
+                  <>
+                    {t('services.tenants.request_search')} <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
               <Link
                 to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`}
                 className="flex items-center justify-center gap-3 px-8 py-4 border border-white/10 text-white font-primary font-bold text-xs uppercase tracking-widest hover:bg-white/5 transition-all"
