@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight } from 'lucide-react';
+import { X, ArrowRight, GitCompare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { Property } from '../types/property';
@@ -10,17 +10,16 @@ interface PropertyComparatorProps {
   onClear: () => void;
 }
 
-interface FeatureRow {
-  label: string;
-  getValue: (p: Property) => string | number | boolean | null | undefined;
-  format?: (v: string | number | boolean | null | undefined) => string;
-  highlight?: boolean;
-}
-
 const formatPrice = (price: number | null | undefined) => {
   if (!price) return '—';
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(price);
 };
+
+interface FeatureRow {
+  label: string;
+  getValue: (p: Property) => string | number | boolean | null | undefined;
+  format?: (v: string | number | boolean | null | undefined) => string;
+}
 
 export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyComparatorProps) => {
   const { i18n } = useTranslation();
@@ -28,6 +27,38 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
 
   if (properties.length === 0) return null;
 
+  // Only 1 property selected — show a non-blocking floating chip as hint
+  if (properties.length === 1) {
+    const p = properties[0];
+    return (
+      <motion.div
+        initial={{ y: 80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 80, opacity: 0 }}
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-[#0A0A0A]/95 backdrop-blur-xl border border-[#C9A962]/40 rounded-full px-5 py-3 shadow-2xl"
+      >
+        <GitCompare className="w-4 h-4 text-[#C9A962] shrink-0" />
+        <div className="flex items-center gap-2">
+          {p.main_image && (
+            <img src={p.main_image} alt="" className="w-7 h-7 rounded-full object-cover border border-white/10" />
+          )}
+          <span className="font-primary text-xs text-white/70 whitespace-nowrap">
+            <span className="text-[#C9A962] font-bold">{isEn && p.title_en ? p.title_en : p.title}</span>
+            {' '}— Selecciona otra propiedad para comparar
+          </span>
+        </div>
+        <button
+          onClick={onClear}
+          className="ml-2 text-white/30 hover:text-white transition-colors"
+          title="Cancelar"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </motion.div>
+    );
+  }
+
+  // 2-3 properties — show full comparison panel
   const ROWS: FeatureRow[] = [
     { label: 'Precio', getValue: p => p.price ?? null, format: v => formatPrice(v as number) },
     { label: 'Tipo', getValue: p => p.property_type ?? '—' },
@@ -54,19 +85,21 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 200, opacity: 0 }}
         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-        className="fixed bottom-0 left-0 right-0 z-[60] bg-[#0A0A0A]/95 backdrop-blur-xl border-t border-[#C9A962]/30 shadow-[0_-20px_60px_rgba(0,0,0,0.8)]"
+        className="fixed bottom-0 left-0 right-0 z-[60] bg-[#0A0A0A]/97 backdrop-blur-xl border-t border-[#C9A962]/30 shadow-[0_-20px_60px_rgba(0,0,0,0.8)] max-h-[60vh] overflow-y-auto"
+        style={{ backdropFilter: 'blur(20px)' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 md:px-14 py-3 border-b border-white/5">
+        <div className="flex items-center justify-between px-6 md:px-14 py-3 border-b border-white/5 sticky top-0 bg-[#0A0A0A]/95 backdrop-blur-xl z-10">
           <div className="flex items-center gap-4">
+            <GitCompare className="w-4 h-4 text-[#C9A962]" />
             <span className="font-primary text-[10px] text-[#C9A962] font-bold uppercase tracking-[0.25em]">
-              Comparando {properties.length} {properties.length === 1 ? 'propiedad' : 'propiedades'}
+              Comparando {properties.length} propiedades
             </span>
             <button
               onClick={onClear}
               className="font-primary text-[10px] text-white/30 hover:text-white/60 uppercase tracking-[0.15em] transition-colors"
             >
-              Limpiar todo
+              Limpiar
             </button>
           </div>
           <button onClick={onClear} className="text-white/30 hover:text-white transition-colors">
@@ -74,11 +107,12 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
           </button>
         </div>
 
-        {/* Property Cards Row */}
+        {/* Comparison Content */}
         <div className="px-6 md:px-14 py-4 overflow-x-auto">
           <div className="min-w-max">
-            <div className="flex gap-4 mb-4">
-              <div className="w-32 shrink-0" />
+            {/* Property header cards */}
+            <div className="flex gap-4 mb-6">
+              <div className="w-28 shrink-0" />
               {properties.map(p => (
                 <div key={p.id} className="w-52 shrink-0 relative group">
                   <button
@@ -94,7 +128,7 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
                       className="w-full h-28 object-cover rounded-sm border border-white/5"
                     />
                   )}
-                  <p className="mt-2 font-primary text-white text-xs font-bold leading-tight truncate">
+                  <p className="mt-2 font-primary text-white text-xs font-bold leading-tight line-clamp-2">
                     {isEn && p.title_en ? p.title_en : p.title}
                   </p>
                   <p className="font-primary text-[#C9A962] text-sm font-bold mt-1">
@@ -110,22 +144,22 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
               ))}
             </div>
 
-            {/* Feature rows */}
+            {/* Feature comparison rows */}
             {ROWS.map((row, i) => {
               const values = properties.map(p => row.getValue(p));
               const allSame = values.every(v => String(v) === String(values[0]));
               return (
                 <div
                   key={row.label}
-                  className={`flex gap-4 py-2 ${i % 2 === 0 ? 'bg-white/[0.02]' : ''}`}
+                  className={`flex gap-4 py-2.5 border-b border-white/[0.03] ${i % 2 === 0 ? 'bg-white/[0.02]' : ''}`}
                 >
-                  <div className="w-32 shrink-0 flex items-center">
+                  <div className="w-28 shrink-0 flex items-center">
                     <span className="font-primary text-[10px] text-white/30 uppercase tracking-[0.15em]">{row.label}</span>
                   </div>
                   {values.map((v, j) => (
                     <div key={j} className="w-52 shrink-0 flex items-center">
-                      <span className={`font-primary text-xs ${allSame ? 'text-white/50' : 'text-white font-bold'}`}>
-                        {row.format ? row.format(v) : (String(v) || '—')}
+                      <span className={`font-primary text-xs ${!allSame ? 'text-[#C9A962] font-bold' : 'text-white/50'}`}>
+                        {row.format ? row.format(v) : (v !== null && v !== undefined ? String(v) : '—')}
                       </span>
                     </div>
                   ))}
