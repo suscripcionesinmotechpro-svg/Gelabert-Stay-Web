@@ -151,8 +151,8 @@ export default async (request: Request, context: Context) => {
       else if (prop.operation === 'traspaso') opLabel = isEn ? 'Transfer' : 'Traspaso';
 
       const features = [];
-      if (opLabel && typeLabel) features.push(`${opLabel} ${typeLabel}`);
       
+      // Price is most important
       if (prop.price) {
           const formatter = new Intl.NumberFormat(isEn ? 'en-US' : 'es-ES', { style: 'currency', currency: prop.currency || 'EUR', maximumFractionDigits: 0 });
           const formattedPrice = formatter.format(prop.price);
@@ -160,9 +160,14 @@ export default async (request: Request, context: Context) => {
           features.push(`${formattedPrice}${feeLabel}`);
       }
 
+      // Type and Operation
+      if (opLabel && typeLabel) features.push(`${opLabel} ${typeLabel}`);
+
+      // Core specs
       if (typeof prop.area_m2 === 'number' && prop.area_m2 > 0) features.push(`${prop.area_m2} m²`);
-      if (typeof prop.bedrooms === 'number' && prop.bedrooms > 0) features.push(`${isEn ? 'Bed' : 'Hab.'} ${prop.bedrooms}`);
-      if (typeof prop.bathrooms === 'number' && prop.bathrooms > 0) features.push(`${isEn ? 'Baths' : 'Baños'} ${prop.bathrooms}`);
+      if (typeof prop.bedrooms === 'number' && prop.bedrooms > 0) features.push(`${isEn ? 'Bedrooms' : 'Hab.'} ${prop.bedrooms}`);
+      if (typeof prop.bathrooms === 'number' && prop.bathrooms > 0) features.push(`${isEn ? 'Bathrooms' : 'Baños'} ${prop.bathrooms}`);
+      
       if (prop.floor && String(prop.floor).trim() !== "") {
           const floorVal = String(prop.floor).trim();
           const hasSymbol = floorVal.includes('º') || floorVal.includes('ª');
@@ -172,7 +177,6 @@ export default async (request: Request, context: Context) => {
       if (prop.orientation) {
         let orient = '';
         if (Array.isArray(prop.orientation)) {
-            // Translate orientations if possible
             const oLabels: Record<string, string> = isEn ? {
                 'N': 'N', 'S': 'S', 'E': 'E', 'O': 'W', 'W': 'W',
                 'Norte': 'North', 'Sur': 'South', 'Este': 'East', 'Oeste': 'West'
@@ -194,6 +198,7 @@ export default async (request: Request, context: Context) => {
       
       const extraDesc = isEn ? (prop.short_description_en || prop.meta_description_en) : (prop.short_description || prop.meta_description);
       if (extraDesc) {
+          // If we have features, we separate with " - "
           description += ` | ${extraDesc}`;
       }
       

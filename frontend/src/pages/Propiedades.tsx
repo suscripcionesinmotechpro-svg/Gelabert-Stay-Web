@@ -137,12 +137,12 @@ export const Propiedades = () => {
             </p>
             
             {/* Tabs de Operación Visuales */}
-            <div className="flex gap-1 mt-8 bg-white/5 p-1 self-start border border-white/10 backdrop-blur-md rounded-sm">
+            <div className="flex flex-wrap md:flex-nowrap gap-1 mt-8 bg-white/5 p-1 self-start border border-white/10 backdrop-blur-md rounded-sm w-full md:w-auto">
               {OPERATIONS.map(op => (
                 <button
-                  key={op.value}
+                  key={op.label}
                   onClick={() => setOperation(op.value)}
-                  className={`px-8 py-3 font-primary text-[10px] transition-all font-bold tracking-[0.2em] uppercase rounded-sm ${
+                  className={`flex-1 sm:flex-none px-4 md:px-8 py-3 font-primary text-[9px] md:text-[10px] transition-all font-bold tracking-[0.1em] md:tracking-[0.2em] uppercase rounded-sm ${
                     operation === op.value 
                       ? 'bg-[#C9A962] text-[#0A0A0A] shadow-[0_0_20px_rgba(201,169,98,0.2)]' 
                       : 'text-white/40 hover:text-white hover:bg-white/5'

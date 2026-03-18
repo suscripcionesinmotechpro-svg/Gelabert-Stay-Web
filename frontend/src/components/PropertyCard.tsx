@@ -118,7 +118,7 @@ export const PropertyCard = ({
 
         {/* Slider Controls */}
         {images.length > 1 && (
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between px-4 pointer-events-none">
+          <div className="absolute inset-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-between px-4 pointer-events-none">
             <button 
               onClick={prevImage}
               className="p-2 rounded-full bg-black/50 backdrop-blur-md text-white hover:bg-[#C9A962] transition-colors pointer-events-auto shadow-xl border border-white/10"
