@@ -158,7 +158,7 @@ export const PropertyCard = ({
         {/* Action Row */}
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-[#1F1F1F]">
           <div className="font-primary text-[10px] uppercase tracking-[0.2em] text-[#666666] group-hover:text-[#FAF8F5] transition-colors flex items-center gap-2">
-            {t('property.labels.view_details')}
+            {t('property.labels.features.view_more')}
             <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
           </div>
         </div>

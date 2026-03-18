@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { PropertyCard } from '../components/PropertyCard';
 import { Link } from 'react-router-dom';
@@ -9,6 +9,9 @@ import { Helmet } from 'react-helmet-async';
 export const Home = () => {
   const { t, i18n } = useTranslation();
   const { properties: featuredProperties, loading } = useProperties({ is_featured: true, limit: 3 });
+  
+  const { scrollYProgress } = useScroll();
+  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, 200]);
 
   return (
     <div className="w-full pb-20">
@@ -78,17 +81,32 @@ export const Home = () => {
       </Helmet>
       {/* Hero Section */}
       <section className="relative w-full h-[85vh] flex flex-col items-center justify-center text-center px-6">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop')] bg-cover bg-center brightness-[0.3]" />
+        <motion.div 
+          style={{ 
+            backgroundImage: "url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop')",
+            y: backgroundY
+          }}
+          className="absolute inset-0 bg-cover bg-center brightness-[0.3]" 
+        />
         
         <div className="relative z-10 max-w-5xl mx-auto flex flex-col items-center gap-8">
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-secondary text-5xl md:text-7xl lg:text-8xl text-[#FAF8F5] leading-[0.9] tracking-tighter"
+            className="font-secondary text-4xl md:text-6xl lg:text-7xl text-[#FAF8F5] leading-[0.9] tracking-tighter relative group"
           >
-            {t('hero.hero_title')} <br/> 
-            <span className="text-[#C9A962] italic font-light block mt-4 text-3xl md:text-5xl tracking-normal">
+            <span className="relative inline-block">
+              {t('hero.hero_title')}
+              {/* Golden Shimmer Effect */}
+              <motion.span 
+                animate={{ x: ['100%', '-100%'] }}
+                transition={{ repeat: Infinity, duration: 3, ease: "linear", repeatDelay: 5 }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-[#C9A962]/30 to-transparent skew-x-[-20deg] pointer-events-none"
+              />
+            </span>
+            <br/> 
+            <span className="text-[#C9A962] italic font-light block mt-4 text-2xl md:text-4xl tracking-normal">
               Real Estate
             </span>
           </motion.h1>
