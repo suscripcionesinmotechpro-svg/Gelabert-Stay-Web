@@ -118,40 +118,45 @@ const ServiceCard = ({ icon, title, tag, image, desc, bullets, className = "", h
           ))}
         </ul>
 
-        {/* Add to cart button */}
-        <motion.button
-          onClick={onToggle}
-          whileTap={{ scale: 0.95 }}
-          className={`w-full flex items-center justify-center gap-2 py-3 font-primary font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 rounded-sm border ${
-            isInCart
-              ? 'bg-[#C9A962] border-[#C9A962] text-[#0A0A0A] shadow-[0_0_20px_rgba(201,169,98,0.3)]'
-              : 'bg-transparent border-white/10 text-white/40 hover:border-[#C9A962]/60 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            {isInCart ? (
-              <motion.span
-                key="selected"
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                className="flex items-center gap-2"
-              >
-                <Check className="w-3.5 h-3.5" /> Seleccionado
-              </motion.span>
-            ) : (
-              <motion.span
-                key="add"
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                className="flex items-center gap-2"
-              >
-                <Plus className="w-3.5 h-3.5" /> Añadir a mi selección
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </motion.button>
+        {/* Add to cart button with animated golden border */}
+        <div className={`relative p-[1px] rounded-sm overflow-hidden group/btn mt-auto transition-all ${isInCart ? '' : 'shadow-[0_0_20px_rgba(201,169,98,0.15)]'}`}>
+          {!isInCart && (
+            <div className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(201,169,98,0)_0%,rgba(201,169,98,0.8)_50%,rgba(201,169,98,0)_100%)]" />
+          )}
+          <motion.button
+            onClick={onToggle}
+            whileTap={{ scale: 0.98 }}
+            className={`relative w-full flex items-center justify-center gap-2 py-3.5 font-primary font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 rounded-sm ${
+              isInCart
+                ? 'bg-[#C9A962] text-[#0A0A0A] shadow-[0_0_20px_rgba(201,169,98,0.3)]'
+                : 'bg-[#0A0A0A]/90 backdrop-blur-xl text-[#C9A962] hover:bg-[#C9A962]/10 hover:text-white'
+            }`}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              {isInCart ? (
+                <motion.span
+                  key="selected"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  className="flex items-center gap-2"
+                >
+                  <Check className="w-3.5 h-3.5" /> Seleccionado
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="add"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Añadir a mi selección
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        </div>
       </div>
     </div>
     </motion.div>
@@ -350,33 +355,38 @@ export const Servicios = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={() => cart.toggleService({
-                  id: 'tenant_search',
-                  title: t('services.tenant_search.title'),
-                  tag: t('services.tenant_search.tag'),
-                  icon: "🔑",
-                  desc: t('services.tenant_search.desc')
-                })}
-                className={`flex items-center justify-center gap-3 px-8 py-4 font-primary font-bold text-xs uppercase tracking-widest transition-all ${
-                  cart.isInCart('tenant_search')
-                    ? "bg-[#C9A962]/20 border border-[#C9A962] text-[#C9A962]"
-                    : "bg-[#C9A962] text-[#0A0A0A] hover:brightness-110 shadow-[0_0_20px_rgba(201,169,98,0.2)]"
-                }`}
-              >
-                {cart.isInCart('tenant_search') ? (
-                  <>
-                    <CheckCircle className="w-4 h-4" /> Añadido
-                  </>
-                ) : (
-                  <>
-                    {t('services.tenants.request_search')} <ArrowRight className="w-4 h-4" />
-                  </>
+              <div className={`relative p-[1px] rounded-sm overflow-hidden group/btn transition-all ${cart.isInCart('tenant_search') ? '' : 'shadow-[0_0_20px_rgba(201,169,98,0.15)]'}`}>
+                {!cart.isInCart('tenant_search') && (
+                  <div className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(201,169,98,0)_0%,rgba(201,169,98,0.8)_50%,rgba(201,169,98,0)_100%)]" />
                 )}
-              </button>
+                <button
+                  onClick={() => cart.toggleService({
+                    id: 'tenant_search',
+                    title: t('services.tenant_search.title'),
+                    tag: t('services.tenant_search.tag'),
+                    icon: "🔑",
+                    desc: t('services.tenant_search.desc')
+                  })}
+                  className={`relative w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 font-primary font-bold text-xs uppercase tracking-widest transition-all rounded-sm ${
+                    cart.isInCart('tenant_search')
+                      ? "bg-[#C9A962] text-[#0A0A0A] shadow-[0_0_20px_rgba(201,169,98,0.3)]"
+                      : "bg-[#0A0A0A]/90 backdrop-blur-xl text-[#C9A962] hover:bg-[#C9A962]/10 hover:text-white"
+                  }`}
+                >
+                  {cart.isInCart('tenant_search') ? (
+                    <>
+                      <CheckCircle className="w-4 h-4" /> Añadido
+                    </>
+                  ) : (
+                    <>
+                      {t('services.tenants.request_search')} <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </div>
               <Link
                 to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`}
-                className="flex items-center justify-center gap-3 px-8 py-4 border border-white/10 text-white font-primary font-bold text-xs uppercase tracking-widest hover:bg-white/5 transition-all"
+                className="flex items-center justify-center gap-3 px-8 py-4 border border-white/10 text-white font-primary font-bold text-xs uppercase tracking-widest hover:bg-white/5 rounded-sm transition-all"
               >
                 {t('services.tenants.view_properties')}
               </Link>
