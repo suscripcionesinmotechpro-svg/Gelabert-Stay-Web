@@ -152,7 +152,10 @@ export default async (request: Request, context: Context) => {
 
       const features = [];
       
-      // Price is most important
+      // 1. Operation and Type
+      if (opLabel && typeLabel) features.push(`${opLabel} ${typeLabel}`);
+
+      // 2. Price
       if (prop.price) {
           const formatter = new Intl.NumberFormat(isEn ? 'en-US' : 'es-ES', { style: 'currency', currency: prop.currency || 'EUR', maximumFractionDigits: 0 });
           const formattedPrice = formatter.format(prop.price);
@@ -160,14 +163,16 @@ export default async (request: Request, context: Context) => {
           features.push(`${formattedPrice}${feeLabel}`);
       }
 
-      // Type and Operation
-      if (opLabel && typeLabel) features.push(`${opLabel} ${typeLabel}`);
-
-      // Core specs
+      // 3. Core specs (Area)
       if (typeof prop.area_m2 === 'number' && prop.area_m2 > 0) features.push(`${prop.area_m2} m²`);
+      
+      // 4. Bedrooms
       if (typeof prop.bedrooms === 'number' && prop.bedrooms > 0) features.push(`${isEn ? 'Bedrooms' : 'Hab.'} ${prop.bedrooms}`);
+      
+      // 5. Bathrooms
       if (typeof prop.bathrooms === 'number' && prop.bathrooms > 0) features.push(`${isEn ? 'Bathrooms' : 'Baños'} ${prop.bathrooms}`);
       
+      // 6. Floor
       if (prop.floor && String(prop.floor).trim() !== "") {
           const floorVal = String(prop.floor).trim();
           const hasSymbol = floorVal.includes('º') || floorVal.includes('ª');
