@@ -175,7 +175,7 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                           </div>
                           <button
                             onClick={() => onRemove(service.id)}
-                            className="text-white/20 hover:text-red-400 transition-colors p-1 shrink-0 opacity-0 group-hover:opacity-100"
+                            className="text-white/40 hover:text-red-400 transition-colors p-1 shrink-0 md:opacity-0 md:group-hover:opacity-100"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -243,7 +243,7 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                       <input type="hidden" name="form-name" value="service-inquiry" />
                       <input name="bot-field" className="hidden" />
 
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1.5">
                           <label className="font-primary text-[9px] text-white/30 uppercase tracking-[0.2em]">{t('services.cart.drawer_form_name')}</label>
                           <input
