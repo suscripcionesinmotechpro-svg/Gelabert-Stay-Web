@@ -183,6 +183,9 @@ export const Servicios = () => {
       id: 'compraventa',
       icon: <Building2 className="w-6 h-6 text-[#C9A962]" />,
       cartIcon: '🏠',
+      titleKey: 'services.owner_services.compra_venta.title',
+      tagKey: 'services.owner_services.compra_venta.tag',
+      descKey: 'services.owner_services.compra_venta.desc',
       title: t('services.owner_services.compra_venta.title'),
       tag: t('services.owner_services.compra_venta.tag'),
       image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1000&auto=format&fit=crop',
@@ -195,6 +198,9 @@ export const Servicios = () => {
       id: 'alquiler',
       icon: <Key className="w-6 h-6 text-[#C9A962]" />,
       cartIcon: '🔑',
+      titleKey: 'services.owner_services.alquiler.title',
+      tagKey: 'services.owner_services.alquiler.tag',
+      descKey: 'services.owner_services.alquiler.desc',
       title: t('services.owner_services.alquiler.title'),
       tag: t('services.owner_services.alquiler.tag'),
       image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1000&auto=format&fit=crop',
@@ -206,6 +212,9 @@ export const Servicios = () => {
       id: 'traspaso',
       icon: <Briefcase className="w-6 h-6 text-[#C9A962]" />,
       cartIcon: '💼',
+      titleKey: 'services.owner_services.traspaso.title',
+      tagKey: 'services.owner_services.traspaso.tag',
+      descKey: 'services.owner_services.traspaso.desc',
       title: t('services.owner_services.traspaso.title'),
       tag: t('services.owner_services.traspaso.tag'),
       image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop',
@@ -217,6 +226,9 @@ export const Servicios = () => {
       id: 'administracion',
       icon: <ShieldCheck className="w-6 h-6 text-[#C9A962]" />,
       cartIcon: '🛡️',
+      titleKey: 'services.owner_services.administracion.title',
+      tagKey: 'services.owner_services.administracion.tag',
+      descKey: 'services.owner_services.administracion.desc',
       title: t('services.owner_services.administracion.title'),
       tag: t('services.owner_services.administracion.tag'),
       image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop',
@@ -321,6 +333,9 @@ export const Servicios = () => {
               isInCart={cart.isInCart(s.id)}
               onToggle={() => cart.toggleService({
                 id: s.id,
+                titleKey: s.titleKey,
+                tagKey: s.tagKey,
+                descKey: s.descKey,
                 title: s.title,
                 tag: s.tag,
                 icon: s.cartIcon,
@@ -364,6 +379,9 @@ export const Servicios = () => {
                 <button
                   onClick={() => cart.toggleService({
                     id: 'tenant_search',
+                    titleKey: 'services.tenant_search.title',
+                    tagKey: 'services.tenant_search.tag',
+                    descKey: 'services.tenant_search.desc',
                     title: t('services.tenant_search.title'),
                     tag: t('services.tenant_search.tag'),
                     icon: "🔑",
@@ -502,8 +520,8 @@ export const Servicios = () => {
                 {cart.count}
               </motion.span>
             </div>
-            <span className="font-primary text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap">
-              {t('services.cart.view_selection')}
+            <span className="font-primary text-[10px] uppercase tracking-[0.2em] font-bold">
+              {t('services.cart.floating_view')}
             </span>
           </motion.button>
         )}

@@ -3,6 +3,9 @@ import type { ReactNode } from 'react';
 
 export interface CartService {
   id: string;
+  titleKey?: string;
+  tagKey?: string;
+  descKey?: string;
   title: string;
   tag: string;
   icon: ReactNode; // emoji string or JSX element

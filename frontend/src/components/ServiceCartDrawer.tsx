@@ -163,9 +163,15 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                             {service.icon}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-secondary text-white text-base leading-tight">{service.title}</p>
-                            <span className="font-primary text-[9px] text-[#C9A962] uppercase tracking-[0.2em] font-bold">{service.tag}</span>
-                            <p className="font-primary text-white/30 text-xs mt-1 leading-relaxed line-clamp-2">{service.desc}</p>
+                            <p className="font-secondary text-white text-base leading-tight">
+                              {service.titleKey ? t(service.titleKey) : service.title}
+                            </p>
+                            <span className="font-primary text-[9px] text-[#C9A962] uppercase tracking-[0.2em] font-bold">
+                              {service.tagKey ? t(service.tagKey) : service.tag}
+                            </span>
+                            <p className="font-primary text-white/30 text-xs mt-1 leading-relaxed line-clamp-2">
+                              {service.descKey ? t(service.descKey) : service.desc}
+                            </p>
                           </div>
                           <button
                             onClick={() => onRemove(service.id)}
