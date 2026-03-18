@@ -154,12 +154,14 @@ function buildPropHtml(baseHtml, title, description, prop, lang) {
     }
   }
 
-  // No usamos Image Transformation (render/image/public) ya que es de pago y el proyecto tiene plan Gratis.
-  // Usamos la URL pública directa con un timestamp para evitar caché agresiva.
-  const cacheBuster = `t=${Date.now()}`;
-  const previewImage = mainImage.includes('?') 
-    ? `${mainImage}&${cacheBuster}` 
-    : `${mainImage}?${cacheBuster}`;
+  // Use a stable cache key based on updated_at — NOT Date.now() (changes every build, breaks scrapers)
+  const stableCacheKey = prop.updated_at 
+    ? `v=${prop.updated_at.split('T')[0].replace(/-/g, '')}` 
+    : 'v=1';
+  
+  const imageBase = mainImage.includes('?') ? mainImage.split('?')[0] : mainImage;
+  const previewImage = `${imageBase}?${stableCacheKey}`;
+
 
   // Logging para depuración en el build
   if (!prop.main_image) {

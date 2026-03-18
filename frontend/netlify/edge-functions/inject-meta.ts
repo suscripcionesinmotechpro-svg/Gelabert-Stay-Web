@@ -211,8 +211,19 @@ export default async (request: Request, context: Context) => {
 
       const siteLogo = "https://gelaberthomes.es/logo.png";
       const mainImage = prop.main_image || (prop.gallery && prop.gallery.length > 0 ? prop.gallery[0] : siteLogo);
-      const cacheBuster = `t=${Date.now()}`;
-      const previewImage = mainImage.includes('?') ? `${mainImage}&${cacheBuster}` : `${mainImage}?${cacheBuster}`;
+      
+      // Use a STABLE cache key based on updated_at date (not Date.now() which changes every request)
+      // Social media scrapers need consistent URLs to properly cache and display images
+      const stableCacheKey = prop.updated_at 
+        ? `v=${encodeURIComponent(prop.updated_at.split('T')[0])}` 
+        : 'v=1';
+      
+      // Remove any existing cache params first, then add the stable one
+      const imageBase = mainImage.includes('?') 
+        ? mainImage.split('?')[0]  // strip existing querystring
+        : mainImage;
+      const previewImage = `${imageBase}?${stableCacheKey}`;
+
       
       const cleanTitle = (title || "").replace(/"/g, '&quot;').replace(/[\r\n]+/g, ' ').trim();
       const cleanDesc = (description || "").slice(0, 160).replace(/"/g, '&quot;').replace(/[\r\n]+/g, ' ').trim();
