@@ -370,6 +370,8 @@
     "hero": {
       "badge": "Real Estate Management",
       "title": "Do You Want to Sell or Rent Your Property?",
+      "title_1": "Interested in",
+      "title_2": "Selling or Renting?",
       "description": "Entrust your property to Gelabert Homes Real Estate. We offer you a realistic valuation, effective promotion, and agile document management in Malaga & Costa del Sol.",
       "features": {
         "valuation": "Realistic & Free Valuation",
@@ -388,6 +390,8 @@
     "hero": {
       "badge": "Personalized Attention",
       "title": "Get in touch",
+      "title_1": "Get in",
+      "title_2": "touch",
       "description": "Our team is ready to assist you. We are an online real estate agency specialized in Malaga & Costa del Sol.",
       "email": "Email",
       "phone": "Phone",

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useTranslation, Trans } from 'react-i18next';
+import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 
 interface FormData {
   name: string;
@@ -96,29 +98,34 @@ export const PropertyContactForm = () => {
 
   if (isSuccess) {
     return (
-      <div className="bg-[#1A1A1A] border border-[#C9A962]/30 p-8 text-center max-w-2xl mx-auto">
-        <h3 className="font-secondary text-2xl text-[#FAF8F5] mb-4">{t('forms.success_title')}</h3>
-        <p className="font-primary text-[#888888] mb-6">
+      <div className="p-8 text-center w-full h-full flex flex-col items-center justify-center">
+        <div className="w-16 h-16 bg-[#C9A962]/10 rounded-full flex items-center justify-center mb-6">
+          <Sparkles className="w-8 h-8 text-[#C9A962]" />
+        </div>
+        <h3 className="font-secondary text-3xl text-white mb-4">{t('forms.success_title')}</h3>
+        <p className="font-primary text-white/50 mb-10 max-w-sm leading-relaxed">
           {t('forms.success_desc')}
         </p>
-        <button 
+        <motion.button 
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => setIsSuccess(false)}
-          className="px-8 py-3 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[12px] uppercase tracking-wider hover:bg-[#D4B673] transition-colors"
+          className="px-10 py-4 bg-[#C9A962] text-black font-primary font-bold text-xs uppercase tracking-[0.2em] transition-all"
         >
           {t('forms.send_another')}
-        </button>
+        </motion.button>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-[#141414] p-8 md:p-10 border border-[#222222]">
+    <div className="w-full">
       <form 
         name="property-owners-contact" 
         method="POST" 
         data-netlify="true" 
         onSubmit={handleSubmit}
-        className="flex flex-col gap-6"
+        className="flex flex-col gap-8 w-full"
       >
         <input type="hidden" name="form-name" value="property-owners-contact" />
         <div className="hidden">
@@ -137,7 +144,7 @@ export const PropertyContactForm = () => {
               required
               value={formData.name}
               onChange={handleChange}
-              className="bg-[#0A0A0A] border border-[#222222] p-3 text-[#FAF8F5] font-primary focus:border-[#C9A962] outline-none transition-colors"
+            className="bg-black/40 border border-white/5 p-4 text-white font-primary focus:border-[#C9A962]/50 outline-none transition-all placeholder:text-white/20"
               placeholder={t('forms.name_placeholder')}
             />
           </div>
@@ -150,7 +157,7 @@ export const PropertyContactForm = () => {
               required
               value={formData.email}
               onChange={handleChange}
-              className="bg-[#0A0A0A] border border-[#222222] p-3 text-[#FAF8F5] font-primary focus:border-[#C9A962] outline-none transition-colors"
+            className="bg-black/40 border border-white/5 p-4 text-white font-primary focus:border-[#C9A962]/50 outline-none transition-all placeholder:text-white/20"
               placeholder={t('forms.email_placeholder')}
             />
           </div>
@@ -166,7 +173,7 @@ export const PropertyContactForm = () => {
               required
               value={formData.phone}
               onChange={handleChange}
-              className="bg-[#0A0A0A] border border-[#222222] p-3 text-[#FAF8F5] font-primary focus:border-[#C9A962] outline-none transition-colors"
+            className="bg-black/40 border border-white/5 p-4 text-white font-primary focus:border-[#C9A962]/50 outline-none transition-all placeholder:text-white/20"
               placeholder={t('forms.phone_placeholder')}
             />
           </div>
@@ -179,7 +186,7 @@ export const PropertyContactForm = () => {
               required
               value={formData.city}
               onChange={handleChange}
-              className="bg-[#0A0A0A] border border-[#222222] p-3 text-[#FAF8F5] font-primary focus:border-[#C9A962] outline-none transition-colors"
+            className="bg-black/40 border border-white/5 p-4 text-white font-primary focus:border-[#C9A962]/50 outline-none transition-all placeholder:text-white/20"
               placeholder={t('forms.city_placeholder')}
             />
           </div>

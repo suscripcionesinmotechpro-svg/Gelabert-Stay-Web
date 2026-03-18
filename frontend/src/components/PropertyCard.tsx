@@ -101,16 +101,16 @@ export const PropertyCard = ({
     >
       {/* Image Area with Slider */}
       <div className="relative aspect-[4/3] overflow-hidden bg-[#1A1A1A]">
-        <AnimatePresence mode="wait">
+        <AnimatePresence initial={false}>
           <motion.img
             key={currentImageIndex}
-            initial={{ opacity: 0, scale: 1.1 }}
+            initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             src={images[currentImageIndex]} 
             alt={title}
-            className="w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover"
           />
         </AnimatePresence>
 

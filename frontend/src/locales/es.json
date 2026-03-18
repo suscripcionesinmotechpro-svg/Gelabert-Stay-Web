@@ -370,6 +370,8 @@
     "hero": {
       "badge": "Gestión Inmobiliaria",
       "title": "¿Desea Vender o Alquilar su Propiedad?",
+      "title_1": "¿Desea Vender o",
+      "title_2": "Alquilar su Propiedad?",
       "description": "Confíe su inmueble a Gelabert Homes Real Estate. Le ofrecemos una tasación realista, promoción eficaz y gestión documental ágil en Málaga & Costa del Sol.",
       "features": {
         "valuation": "Tasación gratuita y realista",
@@ -388,6 +390,8 @@
     "hero": {
       "badge": "Atención Personalizada",
       "title": "Ponte en contacto",
+      "title_1": "Ponte en",
+      "title_2": "contacto",
       "description": "Nuestro equipo está listo para atenderte. Somos una inmobiliaria online especializados en Málaga & Costa del Sol.",
       "email": "Email",
       "phone": "Teléfono",

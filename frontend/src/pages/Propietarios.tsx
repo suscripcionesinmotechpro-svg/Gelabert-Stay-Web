@@ -1,8 +1,17 @@
+import { motion } from 'framer-motion';
 import { PropertyContactForm } from '../components/PropertyContactForm';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { getWhatsAppLink } from '../utils/whatsapp';
+import { Sparkles, CheckCircle2 } from 'lucide-react';
+
+const fadeUp = {
+  initial: { opacity: 0, y: 30 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+  transition: { duration: 0.6, ease: [0.215, 0.61, 0.355, 1] as any },
+};
 
 export const Propietarios = () => {
   const { t, i18n } = useTranslation();
@@ -13,7 +22,7 @@ export const Propietarios = () => {
   });
 
   return (
-    <div className="w-full h-full min-h-[90vh] bg-[#0F0F0F] p-6 md:p-20 relative overflow-hidden">
+    <div className="w-full min-h-screen flex flex-col lg:flex-row bg-[#050505] relative overflow-hidden">
       <Helmet>
         <title>{t('owners_page.seo.title')}</title>
         <meta name="description" content={t('owners_page.seo.description')} />
@@ -22,40 +31,48 @@ export const Propietarios = () => {
         <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/propietarios/" />
         <link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es/propietarios/" />
       </Helmet>
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-[#C9A962]/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2"></div>
-      
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 relative z-10 items-center">
-        <div className="flex flex-col items-start text-left gap-8">
-          <span className="font-primary text-[#C9A962] text-sm uppercase tracking-[0.3em] font-bold">
-            {t('owners_page.hero.badge')}
-          </span>
-          <h1 className="font-secondary text-5xl md:text-7xl text-[#FAF8F5] leading-tight">
-            {t('owners_page.hero.title')}
+
+      {/* Background Mesh */}
+      <div className="absolute inset-0 bg-mesh opacity-50 pointer-events-none" />
+      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-[#C9A962]/5 blur-[120px] rounded-full mix-blend-screen" />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[#C9A962]/3 blur-[100px] rounded-full mix-blend-screen" />
+
+      {/* Left Content */}
+      <div className="flex-1 relative z-10 p-8 md:p-16 lg:p-24 flex flex-col justify-center">
+        <motion.div {...(fadeUp as any)} className="max-w-xl">
+          <div className="flex items-center gap-3 mb-6">
+            <Sparkles className="w-4 h-4 text-[#C9A962]" />
+            <span className="font-primary text-[#C9A962] text-xs uppercase tracking-[0.4em] font-bold">
+              {t('owners_page.hero.badge')}
+            </span>
+          </div>
+          
+          <h1 className="font-secondary text-5xl md:text-7xl text-white mb-8 leading-[1.1]">
+            {t('owners_page.hero.title_1')}<br />
+            <span className="italic text-[#C9A962] font-light">
+              {t('owners_page.hero.title_2')}
+            </span>
           </h1>
-          <p className="font-primary text-xl text-[#888888] font-light leading-relaxed max-w-xl">
+
+          <p className="font-primary text-lg text-white/50 font-light mb-12 leading-relaxed">
             {t('owners_page.hero.description')}
           </p>
-          
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-4 text-[#FAF8F5]">
-              <div className="w-8 h-[1px] bg-[#C9A962]"></div>
-              <span className="font-primary text-sm uppercase tracking-widest">
-                {t('owners_page.hero.features.valuation')}
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-[#FAF8F5]">
-              <div className="w-8 h-[1px] bg-[#C9A962]"></div>
-              <span className="font-primary text-sm uppercase tracking-widest">
-                {t('owners_page.hero.features.promotion')}
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-[#FAF8F5]">
-              <div className="w-8 h-[1px] bg-[#C9A962]"></div>
-              <span className="font-primary text-sm uppercase tracking-widest">
-                {t('owners_page.hero.features.legal')}
-              </span>
-            </div>
+
+          <div className="space-y-6 mb-12">
+            {[
+              'valuation',
+              'promotion',
+              'legal'
+            ].map((feature) => (
+              <div key={feature} className="flex items-center gap-4 group">
+                <div className="w-6 h-6 rounded-full border border-[#C9A962]/30 flex items-center justify-center group-hover:bg-[#C9A962]/10 transition-colors">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#C9A962]" />
+                </div>
+                <span className="font-primary text-sm text-white/80 uppercase tracking-widest group-hover:text-white transition-colors">
+                  {t(`owners_page.hero.features.${feature}`)}
+                </span>
+              </div>
+            ))}
           </div>
 
           <div className="mt-4">
@@ -65,12 +82,24 @@ export const Propietarios = () => {
               label={t('owners_page.hero.whatsapp_label')}
             />
           </div>
-        </div>
+        </motion.div>
+      </div>
 
-        <div className="w-full">
-          <PropertyContactForm />
-        </div>
+      {/* Right Form Area */}
+      <div className="flex-1 relative z-10 p-8 lg:p-14 flex items-center">
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          className="w-full max-w-2xl mx-auto glass shadow-2xl overflow-hidden"
+        >
+          <div className="h-1.5 w-full bg-gradient-to-r from-transparent via-[#C9A962] to-transparent opacity-40" />
+          <div className="p-8 md:p-12 bg-black/40 backdrop-blur-xl">
+            <PropertyContactForm />
+          </div>
+        </motion.div>
       </div>
     </div>
-  )
-}
+  );
+};

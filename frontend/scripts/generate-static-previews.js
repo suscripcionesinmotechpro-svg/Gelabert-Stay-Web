@@ -150,7 +150,7 @@ function buildPropHtml(baseHtml, title, description, prop, lang) {
     if (prop.gallery && prop.gallery.length > 0) {
       mainImage = prop.gallery[0];
     } else {
-      mainImage = "https://gelaberthomes.es/logo.png";
+      mainImage = "https://gelaberthomes.es/sharing-logo.jpg";
     }
   }
 
