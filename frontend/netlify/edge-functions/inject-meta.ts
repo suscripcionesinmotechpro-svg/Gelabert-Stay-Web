@@ -164,9 +164,15 @@ export default async (request: Request, context: Context) => {
       if (typeof prop.bedrooms === 'number' && prop.bedrooms > 0) features.push(`${isEn ? 'Bed' : 'Hab.'} ${prop.bedrooms}`);
       if (typeof prop.bathrooms === 'number' && prop.bathrooms > 0) features.push(`${isEn ? 'Baths' : 'Baños'} ${prop.bathrooms}`);
       if (prop.floor && String(prop.floor).trim() !== "") features.push(`${isEn ? 'Floor' : 'Planta'} ${prop.floor}`);
-      if (prop.orientation && String(prop.orientation).trim() !== "") features.push(`${isEn ? 'Orientation' : 'Orientación'} ${prop.orientation}`);
       
-      let description = features.join(' • ');
+      if (prop.orientation) {
+        const orient = Array.isArray(prop.orientation) ? prop.orientation.join(', ') : String(prop.orientation);
+        if (orient.trim() !== "") {
+          features.push(`${isEn ? 'Orientation' : 'Orientación'} ${orient}`);
+        }
+      }
+      
+      let description = features.join(' · ');
       
       const extraDesc = isEn ? (prop.short_description_en || prop.meta_description_en) : (prop.short_description || prop.meta_description);
       if (extraDesc) {
