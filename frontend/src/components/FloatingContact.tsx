@@ -21,7 +21,7 @@ export const FloatingContact = () => {
     // propertyName is unknown without fetching, but reference is enough
   });
 
-  const phoneNumber = '+34624419992';
+  const phoneNumber = '+34611898827';
 
   return (
     // Visible on ALL devices
@@ -76,7 +76,7 @@ export const FloatingContact = () => {
                 <Phone className="w-5 h-5" />
               </div>
               <span className="font-primary text-xs font-bold uppercase tracking-widest whitespace-nowrap">
-                +34 624 419 992
+                +34 611 89 88 27
               </span>
             </motion.a>
           </motion.div>

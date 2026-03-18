@@ -16,7 +16,7 @@ export const getWhatsAppLink = ({
   context, 
   propertyRef, 
   propertyName, 
-  phoneNumber = '34624419992',
+  phoneNumber = '34611898827',
   url
 }: WhatsAppLinkProps) => {
   const baseUrl = `https://wa.me/${phoneNumber.replace(/\s+/g, '')}`;

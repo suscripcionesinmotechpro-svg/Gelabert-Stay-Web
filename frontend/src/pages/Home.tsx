@@ -5,7 +5,7 @@ import { PropertyCardSkeleton } from '../components/ui/Skeleton';
 import { Link } from 'react-router-dom';
 import { Building, Key, Briefcase, ShieldCheck, Home as HomeIcon, CheckCircle, Star } from 'lucide-react';
 import { useProperties } from '../hooks/useProperties';
-import { getWhatsAppLink } from '../utils/whatsapp';
+
 import { Helmet } from 'react-helmet-async';
 
 export const Home = () => {
@@ -221,17 +221,12 @@ export const Home = () => {
           <p className="font-primary text-[#888888] text-base leading-relaxed">
             {t('home.owners.desc')}
           </p>
-          <a 
-            href={getWhatsAppLink({ 
-              context: 'owner',
-              url: `${window.location.origin}${i18n.language.startsWith('en') ? '/en' : ''}/propietarios`
-            })}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link 
+            to={`${i18n.language.startsWith('en') ? '/en' : ''}/servicios`}
             className="self-start mt-4 px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[13px] uppercase tracking-wider hover:bg-[#D4B673] transition-colors"
           >
             {t('home.owners.button')}
-          </a>
+          </Link>
         </motion.div>
         <motion.div 
           initial={{ opacity: 0, x: 50 }}
