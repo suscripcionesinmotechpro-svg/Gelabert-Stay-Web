@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAutoTranslate } from '../hooks/useAutoTranslate';
 import { OPERATION_LABELS, type PropertyOperation } from '../types/property';
-import { ChevronLeft, ChevronRight, MessageSquare, Heart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MessageSquare, Heart, GitCompare } from 'lucide-react';
 import { getWhatsAppLink } from '../utils/whatsapp';
 import { useState } from 'react';
 
@@ -29,6 +29,9 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   orientation?: string[] | null;
   isFavorite?: boolean;
   onToggleFavorite?: (e: React.MouseEvent) => void;
+  isInCompare?: boolean;
+  onToggleCompare?: (e: React.MouseEvent) => void;
+  id?: string;
 }
 
 export const PropertyCard = ({
@@ -52,6 +55,9 @@ export const PropertyCard = ({
   orientation,
   isFavorite,
   onToggleFavorite,
+  isInCompare,
+  onToggleCompare,
+  id,
   ...props
 }: PropertyCardProps) => {
   const { t } = useTranslation();
@@ -94,7 +100,7 @@ export const PropertyCard = ({
   const whatsappLink = getWhatsAppLink({
     context: 'property',
     propertyName: title,
-    propertyRef: props['id'] as string // Assuming ID is passed as prop or use title
+    propertyRef: id ?? undefined
   });
 
   const card = (
@@ -260,6 +266,21 @@ export const PropertyCard = ({
             {t('property.labels.features.view_more')}
             <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
           </div>
+          {onToggleCompare && (
+            <button
+              onClick={onToggleCompare}
+              title={isInCompare ? 'Quitar de comparación' : 'Comparar'}
+              className={cn(
+                "p-2 rounded-sm border font-primary text-[9px] uppercase tracking-widest transition-all flex items-center gap-1",
+                isInCompare
+                  ? "bg-[#C9A962] border-[#C9A962] text-[#0A0A0A]"
+                  : "border-white/10 text-white/30 hover:border-[#C9A962] hover:text-[#C9A962]"
+              )}
+            >
+              <GitCompare className="w-3 h-3" />
+              <span className="hidden lg:inline">{isInCompare ? 'Quitar' : 'Comparar'}</span>
+            </button>
+          )}
         </div>
       </div>
     </motion.div>

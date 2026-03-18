@@ -7,6 +7,8 @@ import { cn } from '../lib/utils';
 import { Search, SlidersHorizontal, ChevronDown, ChevronUp, Heart, Map as MapIcon, List as ListIcon } from 'lucide-react';
 import { PropertiesMap } from '../components/PropertiesMap';
 import { useFavorites } from '../hooks/useFavorites';
+import { useComparator } from '../hooks/useComparator';
+import { PropertyComparator } from '../components/PropertyComparator';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
@@ -55,6 +57,7 @@ export const Propiedades = () => {
   
   const [showAdvanced, setShowAdvanced] = useState(false);
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const { compareList, addToCompare, removeFromCompare, clearCompare, isInCompare, canAdd } = useComparator();
 
   // Características adicionales
   const [filtersBool, setFiltersBool] = useState({
@@ -366,6 +369,16 @@ export const Propiedades = () => {
                   e.stopPropagation();
                   toggleFavorite(p.id);
                 }}
+                isInCompare={isInCompare(p.id)}
+                onToggleCompare={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (isInCompare(p.id)) {
+                    removeFromCompare(p.id);
+                  } else if (canAdd) {
+                    addToCompare(p);
+                  }
+                }}
               />
               </motion.div>
             ))}
@@ -375,9 +388,18 @@ export const Propiedades = () => {
 
       <div className="text-center py-4">
         <Link to="/admin/login" className="font-primary text-xs text-[#333333] hover:text-[#666666] transition-colors">
-          {t('property.labels.features.admin_panel')} →
+          {t('property.labels.features.admin_panel')} &rarr;
         </Link>
       </div>
+
+      {/* Property Comparator Panel */}
+      {compareList.length > 0 && (
+        <PropertyComparator
+          properties={compareList}
+          onRemove={removeFromCompare}
+          onClear={clearCompare}
+        />
+      )}
     </div>
   );
 };
