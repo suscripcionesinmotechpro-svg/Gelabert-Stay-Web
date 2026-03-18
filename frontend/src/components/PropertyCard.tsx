@@ -77,11 +77,11 @@ export const PropertyCard = ({
       {...props}
     >
       {/* Image Area */}
-      <div className="relative w-full h-[200px] bg-[#2A2A2A] overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden">
         {imageUrl ? (
           <motion.img 
-            whileHover={{ scale: 1.08 }} 
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
             src={imageUrl} 
             alt={displayTitle} 
             loading="lazy"

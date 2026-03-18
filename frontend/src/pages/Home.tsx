@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { PropertyCard } from '../components/PropertyCard';
+import { PropertyCardSkeleton } from '../components/ui/Skeleton';
 import { Link } from 'react-router-dom';
 import { Building, Key, Briefcase, ShieldCheck, Home as HomeIcon, Star, CheckCircle } from 'lucide-react';
 import { useProperties } from '../hooks/useProperties';
@@ -162,7 +163,15 @@ export const Home = () => {
 
       {/* Services Block */}
       <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] flex flex-col gap-12">
-        <h2 className="font-secondary text-4xl md:text-5xl text-[#FAF8F5] text-center">{t('home.services.title')}</h2>
+        <motion.h2 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="font-secondary text-4xl md:text-5xl text-[#FAF8F5] text-center"
+        >
+          {t('home.services.title')}
+        </motion.h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { title: t('home.services.rent.title'), icon: <Key className="w-8 h-8 text-[#C9A962]" />, desc: t('home.services.rent.desc') },
@@ -226,12 +235,18 @@ export const Home = () => {
 
       {/* Customers Block */}
       <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] flex flex-col gap-12 items-center">
-        <div className="text-center max-w-2xl flex flex-col gap-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center max-w-2xl flex flex-col gap-4"
+        >
           <h2 className="font-secondary text-4xl md:text-5xl text-[#FAF8F5]">{t('home.customers.title')}</h2>
           <p className="font-primary text-[#888888] text-base">
             {t('home.customers.subtitle')}
           </p>
-        </div>
+        </motion.div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
           {[
@@ -263,21 +278,27 @@ export const Home = () => {
 
       {/* Featured Properties Staggered List */}
       <section className="w-full px-6 md:px-14 py-24 bg-[#0F0F0F] flex flex-col gap-12">
-        <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-[#1F1F1F] pb-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-[#1F1F1F] pb-6"
+        >
           <div className="flex flex-col gap-2">
             <span className="font-primary text-[#C9A962] text-sm uppercase tracking-[0.2em] font-bold">{t('home.featured.badge')}</span>
             <h2 className="font-secondary text-4xl text-[#FAF8F5]">{t('home.featured.title')}</h2>
           </div>
-      <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="font-primary text-[13px] text-[#C9A962] hover:text-[#FAF8F5] transition-colors font-bold uppercase tracking-wider">
-        {t('home.featured.view_all')} →
-      </Link>
-        </div>
+          <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="font-primary text-[13px] text-[#C9A962] hover:text-[#FAF8F5] transition-colors font-bold uppercase tracking-wider">
+            {t('home.featured.view_all')} →
+          </Link>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
-            <div className="col-span-full flex justify-center py-10">
-              <div className="w-8 h-8 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
-            </div>
+            Array.from({ length: 3 }).map((_, i) => (
+              <PropertyCardSkeleton key={i} />
+            ))
           ) : featuredProperties.length > 0 ? (
             featuredProperties.map(p => (
               <PropertyCard
@@ -305,7 +326,15 @@ export const Home = () => {
 
       {/* Why Choose Us */}
       <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] flex flex-col gap-12">
-        <h2 className="font-secondary text-4xl md:text-5xl text-[#FAF8F5] text-center">{t('home.why.title')}</h2>
+        <motion.h2 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="font-secondary text-4xl md:text-5xl text-[#FAF8F5] text-center"
+        >
+          {t('home.why.title')}
+        </motion.h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto w-full">
           {[
