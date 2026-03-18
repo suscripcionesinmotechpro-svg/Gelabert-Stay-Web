@@ -1,12 +1,14 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { useRef, useState } from 'react';
 import {
   Key, Building2, Briefcase, ShieldCheck,
-  CheckCircle, Phone, ArrowRight, Star, Sparkles
+  CheckCircle, Phone, ArrowRight, Star, Sparkles, Plus, Check, ShoppingBag
 } from 'lucide-react';
+import { useServiceCart, type CartService } from '../hooks/useServiceCart';
+import { ServiceCartDrawer } from '../components/ServiceCartDrawer';
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -16,6 +18,7 @@ const fadeUp = {
 };
 
 interface ServiceCardProps {
+  id: string;
   icon: React.ReactNode;
   title: string;
   tag: string;
@@ -24,9 +27,12 @@ interface ServiceCardProps {
   bullets: string[];
   className?: string;
   highlight?: boolean;
+  cartIcon: string;
+  isInCart: boolean;
+  onToggle: () => void;
 }
 
-const ServiceCard = ({ icon, title, tag, image, desc, bullets, className = "", highlight = false }: ServiceCardProps) => {
+const ServiceCard = ({ icon, title, tag, image, desc, bullets, className = "", highlight = false, isInCart, onToggle }: ServiceCardProps) => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -41,7 +47,11 @@ const ServiceCard = ({ icon, title, tag, image, desc, bullets, className = "", h
     <motion.div
       {...(fadeUp as any)}
       onMouseMove={handleMouseMove}
-      className={`relative group overflow-hidden border border-white/5 bg-white/[0.02] backdrop-blur-xl transition-all duration-500 hover:border-[#C9A962]/40 hover:bg-white/[0.04] ${className}`}
+      className={`relative group overflow-hidden border transition-all duration-500 ${
+        isInCart 
+          ? 'border-[#C9A962]/60 bg-[#C9A962]/5 shadow-[0_0_40px_rgba(201,169,98,0.1)]' 
+          : 'border-white/5 bg-white/[0.02] backdrop-blur-xl hover:border-[#C9A962]/40 hover:bg-white/[0.04]'
+      } ${className}`}
       style={{
         ["--mouse-x" as any]: `${mousePos.x}px`,
         ["--mouse-y" as any]: `${mousePos.y}px`,
@@ -52,7 +62,9 @@ const ServiceCard = ({ icon, title, tag, image, desc, bullets, className = "", h
       <img
         src={image}
         alt={title}
-        className="w-full h-full object-cover brightness-[0.3] group-hover:brightness-[0.4] group-hover:scale-110 transition-all duration-1000"
+        className={`w-full h-full object-cover transition-all duration-1000 ${
+          isInCart ? 'brightness-[0.5] scale-105' : 'brightness-[0.3] group-hover:brightness-[0.4] group-hover:scale-110'
+        }`}
       />
       <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0A] via-transparent to-transparent opacity-80" />
     </div>
@@ -60,10 +72,21 @@ const ServiceCard = ({ icon, title, tag, image, desc, bullets, className = "", h
     {/* Shine effect */}
     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none bg-[radial-gradient(400px_circle_at_var(--mouse-x)_var(--mouse-y),rgba(201,169,98,0.1),transparent)]" />
 
+    {/* Selected overlay */}
+    {isInCart && (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="absolute inset-0 z-[1] bg-[#C9A962]/5 border-[#C9A962]/20"
+      />
+    )}
+
     {/* Content */}
     <div className="relative z-10 p-8 h-full flex flex-col">
       <div className="flex justify-between items-start mb-6">
-        <div className="p-3 bg-black/40 border border-[#C9A962]/30 backdrop-blur-md rounded-sm">
+        <div className={`p-3 backdrop-blur-md rounded-sm border transition-all duration-300 ${
+          isInCart ? 'bg-[#C9A962]/20 border-[#C9A962]/40' : 'bg-black/40 border-[#C9A962]/30'
+        }`}>
           {icon}
         </div>
         <span className={`text-[10px] font-primary font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full border ${
@@ -75,7 +98,9 @@ const ServiceCard = ({ icon, title, tag, image, desc, bullets, className = "", h
         </span>
       </div>
 
-      <h3 className="font-secondary text-2xl md:text-3xl text-white mb-4 group-hover:text-[#C9A962] transition-colors duration-300">
+      <h3 className={`font-secondary text-2xl md:text-3xl mb-4 transition-colors duration-300 ${
+        isInCart ? 'text-[#C9A962]' : 'text-white group-hover:text-[#C9A962]'
+      }`}>
         {title}
       </h3>
       
@@ -84,7 +109,7 @@ const ServiceCard = ({ icon, title, tag, image, desc, bullets, className = "", h
       </p>
 
       <div className="mt-auto pt-6 border-t border-white/10">
-        <ul className="grid grid-cols-1 gap-3">
+        <ul className="grid grid-cols-1 gap-3 mb-6">
           {bullets.slice(0, 3).map((b, i) => (
             <li key={i} className="flex items-center gap-3 font-primary text-xs text-white/50 group-hover:text-white/70 transition-colors">
               <CheckCircle className="w-3.5 h-3.5 text-[#C9A962]/60" />
@@ -92,6 +117,41 @@ const ServiceCard = ({ icon, title, tag, image, desc, bullets, className = "", h
             </li>
           ))}
         </ul>
+
+        {/* Add to cart button */}
+        <motion.button
+          onClick={onToggle}
+          whileTap={{ scale: 0.95 }}
+          className={`w-full flex items-center justify-center gap-2 py-3 font-primary font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 rounded-sm border ${
+            isInCart
+              ? 'bg-[#C9A962] border-[#C9A962] text-[#0A0A0A] shadow-[0_0_20px_rgba(201,169,98,0.3)]'
+              : 'bg-transparent border-white/10 text-white/40 hover:border-[#C9A962]/60 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {isInCart ? (
+              <motion.span
+                key="selected"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                className="flex items-center gap-2"
+              >
+                <Check className="w-3.5 h-3.5" /> Seleccionado
+              </motion.span>
+            ) : (
+              <motion.span
+                key="add"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                className="flex items-center gap-2"
+              >
+                <Plus className="w-3.5 h-3.5" /> Añadir a mi selección
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </motion.button>
       </div>
     </div>
     </motion.div>
@@ -106,46 +166,56 @@ export const Servicios = () => {
     offset: ["start start", "end end"]
   });
 
+  const cart = useServiceCart();
+
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
 
-  const serviciosPropietario = [
+  const serviciosPropietario: (Omit<CartService, 'id'> & { icon: React.ReactNode; cartIcon: string; image: string; bullets: string[]; className: string; highlight?: boolean; id: string })[] = [
     {
+      id: 'compraventa',
       icon: <Building2 className="w-6 h-6 text-[#C9A962]" />,
+      cartIcon: '🏠',
       title: t('services.owner_services.compra_venta.title'),
       tag: t('services.owner_services.compra_venta.tag'),
       image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.compra_venta.desc'),
       bullets: t('services.owner_services.compra_venta.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1 min-h-[400px]",
+      className: "md:col-span-1 md:row-span-1 min-h-[480px]",
       highlight: true
     },
     {
+      id: 'alquiler',
       icon: <Key className="w-6 h-6 text-[#C9A962]" />,
+      cartIcon: '🔑',
       title: t('services.owner_services.alquiler.title'),
       tag: t('services.owner_services.alquiler.tag'),
       image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.alquiler.desc'),
       bullets: t('services.owner_services.alquiler.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1"
+      className: "md:col-span-1 md:row-span-1 min-h-[480px]"
     },
     {
+      id: 'traspaso',
       icon: <Briefcase className="w-6 h-6 text-[#C9A962]" />,
+      cartIcon: '💼',
       title: t('services.owner_services.traspaso.title'),
       tag: t('services.owner_services.traspaso.tag'),
       image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.traspaso.desc'),
       bullets: t('services.owner_services.traspaso.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1"
+      className: "md:col-span-1 md:row-span-1 min-h-[480px]"
     },
     {
+      id: 'administracion',
       icon: <ShieldCheck className="w-6 h-6 text-[#C9A962]" />,
+      cartIcon: '🛡️',
       title: t('services.owner_services.administracion.title'),
       tag: t('services.owner_services.administracion.tag'),
       image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.administracion.desc'),
       bullets: t('services.owner_services.administracion.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1"
+      className: "md:col-span-1 md:row-span-1 min-h-[480px]"
     },
   ];
 
@@ -237,8 +307,19 @@ export const Servicios = () => {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-fr">
-          {serviciosPropietario.map((s, i) => (
-            <ServiceCard key={i} {...s} />
+          {serviciosPropietario.map((s) => (
+            <ServiceCard
+              key={s.id}
+              {...s}
+              isInCart={cart.isInCart(s.id)}
+              onToggle={() => cart.toggleService({
+                id: s.id,
+                title: s.title,
+                tag: s.tag,
+                icon: s.cartIcon,
+                desc: s.desc,
+              })}
+            />
           ))}
         </div>
       </section>
@@ -368,6 +449,54 @@ export const Servicios = () => {
           </div>
         </motion.div>
       </section>
+
+      {/* Floating Cart Button */}
+      <AnimatePresence>
+        {cart.count > 0 && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            whileTap={{ scale: 0.92 }}
+            onClick={cart.openCart}
+            className="fixed bottom-28 right-6 z-50 flex items-center gap-3 pr-5 pl-4 py-3.5 bg-[#C9A962] text-[#0A0A0A] rounded-full shadow-[0_10px_40px_rgba(201,169,98,0.4)] hover:brightness-110 transition-all"
+          >
+            <div className="relative">
+              <ShoppingBag className="w-5 h-5" />
+              <motion.span
+                key={cart.count}
+                initial={{ scale: 1.5 }}
+                animate={{ scale: 1 }}
+                className="absolute -top-2 -right-2 w-4 h-4 bg-[#0A0A0A] text-[#C9A962] text-[9px] font-bold rounded-full flex items-center justify-center font-primary"
+              >
+                {cart.count}
+              </motion.span>
+            </div>
+            <span className="font-primary text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap">
+              Ver mi selección
+            </span>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Service Cart Drawer */}
+      <ServiceCartDrawer
+        isOpen={cart.isOpen}
+        onClose={cart.closeCart}
+        cartItems={cart.cartItems}
+        onRemove={cart.removeService}
+        onClear={cart.clearCart}
+      />
+
+      {/* Hidden Netlify form for static detection */}
+      <form name="service-inquiry" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+        <input name="name" />
+        <input name="email" />
+        <input name="phone" />
+        <input name="services" />
+        <input name="message" />
+        <input name="bot-field" />
+      </form>
     </div>
   );
 };
