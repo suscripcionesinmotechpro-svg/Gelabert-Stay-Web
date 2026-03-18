@@ -28,11 +28,13 @@ interface ServiceCardProps {
   className?: string;
   highlight?: boolean;
   cartIcon: string;
-  isInCart: boolean;
-  onToggle: () => void;
 }
 
-const ServiceCard = ({ icon, title, tag, image, desc, bullets, className = "", highlight = false, isInCart, onToggle }: ServiceCardProps) => {
+const ServiceCard = ({ 
+  title, tag, icon, desc, image, bullets, highlight, className = "",
+  isInCart, onToggle 
+}: ServiceCardProps & { isInCart?: boolean; onToggle?: () => void }) => {
+  const { t } = useTranslation();
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -141,7 +143,7 @@ const ServiceCard = ({ icon, title, tag, image, desc, bullets, className = "", h
                   exit={{ opacity: 0, y: 8 }}
                   className="flex items-center gap-2"
                 >
-                  <Check className="w-3.5 h-3.5" /> Seleccionado
+                  <Check className="w-3.5 h-3.5" /> {t('services.cart.button_selected')}
                 </motion.span>
               ) : (
                 <motion.span
@@ -151,7 +153,7 @@ const ServiceCard = ({ icon, title, tag, image, desc, bullets, className = "", h
                   exit={{ opacity: 0, y: 8 }}
                   className="flex items-center gap-2"
                 >
-                  <Plus className="w-3.5 h-3.5" /> Añadir a mi selección
+                  <Plus className="w-3.5 h-3.5" /> {t('services.cart.button_add')}
                 </motion.span>
               )}
             </AnimatePresence>
@@ -375,7 +377,7 @@ export const Servicios = () => {
                 >
                   {cart.isInCart('tenant_search') ? (
                     <>
-                      <CheckCircle className="w-4 h-4" /> Añadido
+                      <CheckCircle className="w-4 h-4" /> {t('services.cart.button_selected')}
                     </>
                   ) : (
                     <>
@@ -501,7 +503,7 @@ export const Servicios = () => {
               </motion.span>
             </div>
             <span className="font-primary text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap">
-              Ver mi selección
+              {t('services.cart.view_selection')}
             </span>
           </motion.button>
         )}

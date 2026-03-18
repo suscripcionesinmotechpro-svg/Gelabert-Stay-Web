@@ -251,6 +251,38 @@
       "subtitle": "Soluciones integrales para propietarios, inversores e inquilinos en el mercado inmobiliario de la Málaga & Costa del Sol.",
       "subtitle_italic": "Sin burocracia, con resultados."
     },
+    "properties": {
+      "badge": "VENDER MI PROPIEDAD",
+      "title": "¿Pensando en vender o alquilar?",
+      "description": "Obtén una valoración gratuita y descubre el verdadero potencial de tu propiedad con nuestro equipo de expertos en la Costa del Sol.",
+      "cta": "Solicitar Valoración"
+    },
+    "cart": {
+      "button_add": "Añadir a mi selección",
+      "button_selected": "Seleccionado",
+      "button_added": "Añadido",
+      "floating_view": "Ver mi selección",
+      "drawer_title": "Tu Selección",
+      "drawer_empty": "Aún no has seleccionado ningún servicio.",
+      "drawer_empty_desc": "Selecciona los servicios que te interesan para solicitar información.",
+      "drawer_count_zero": "Sin servicios seleccionados",
+      "drawer_count_one": "{{count}} servicio elegido",
+      "drawer_count_many": "{{count}} servicios elegidos",
+      "drawer_clear": "Limpiar selección",
+      "drawer_form_title": "Tus datos",
+      "drawer_form_name": "Nombre *",
+      "drawer_form_name_placeholder": "Tu nombre",
+      "drawer_form_phone": "Teléfono *",
+      "drawer_form_email": "Email *",
+      "drawer_form_message": "Mensaje adicional (opcional)",
+      "drawer_form_message_placeholder": "¿Algún detalle adicional que quieras comentar?",
+      "drawer_form_submit": "Solicitar información",
+      "drawer_form_sending": "Enviando...",
+      "drawer_form_error": "Hubo un error. Por favor, inténtalo de nuevo o contáctanos directamente.",
+      "drawer_form_policy": "Al enviar, aceptas nuestra política de privacidad. Nunca compartiremos tus datos con terceros.",
+      "drawer_success_title": "¡Solicitud enviada!",
+      "drawer_success_desc": "Hemos recibido tu consulta. Nuestro equipo se pondrá en contacto contigo en breve."
+    },
     "owners": {
       "badge": "Para Propietarios e Inversores",
       "title": "Maximice su patrimonio",

@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingBag, Send, CheckCircle, Trash2, Sparkles, Loader2 } from 'lucide-react';
 import { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CartService } from '../hooks/useServiceCart';
 
 interface ServiceCartDrawerProps {
@@ -26,6 +27,7 @@ const inputClass = `
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
 export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClear }: ServiceCartDrawerProps) => {
+  const { t } = useTranslation();
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [formState, setFormState] = useState<FormState>('idle');
   const formRef = useRef<HTMLFormElement>(null);
@@ -110,9 +112,9 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                   <ShoppingBag className="w-5 h-5 text-[#C9A962]" />
                 </div>
                 <div>
-                  <h2 className="font-secondary text-xl text-white">Tu Selección</h2>
+                  <h2 className="font-secondary text-xl text-white">{t('services.cart.drawer_title')}</h2>
                   <p className="font-primary text-[10px] text-white/30 uppercase tracking-[0.2em]">
-                    {isEmpty ? 'Sin servicios seleccionados' : `${cartItems.length} servicio${cartItems.length > 1 ? 's' : ''} elegido${cartItems.length > 1 ? 's' : ''}`}
+                    {isEmpty ? t('services.cart.drawer_count_zero') : t(cartItems.length === 1 ? 'services.cart.drawer_count_one' : 'services.cart.drawer_count_many', { count: cartItems.length })}
                   </p>
                 </div>
               </div>
@@ -140,10 +142,10 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                         <ShoppingBag className="w-8 h-8 text-white/10" />
                       </div>
                       <p className="font-primary text-white/30 text-sm">
-                        Aún no has seleccionado ningún servicio.
+                        {t('services.cart.drawer_empty')}
                       </p>
                       <p className="font-primary text-white/20 text-xs">
-                        Selecciona los servicios que te interesan para solicitar información.
+                        {t('services.cart.drawer_empty_desc')}
                       </p>
                     </motion.div>
                   ) : (
@@ -179,7 +181,7 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                           onClick={onClear}
                           className="font-primary text-[9px] text-white/20 hover:text-white/40 uppercase tracking-widest transition-colors text-right mt-1"
                         >
-                          Limpiar selección
+                          {t('services.cart.drawer_clear')}
                         </button>
                       )}
                     </div>
@@ -194,7 +196,7 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                     <div className="h-px flex-1 bg-white/[0.05]" />
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-3 h-3 text-[#C9A962]" />
-                      <span className="font-primary text-[9px] text-[#C9A962]/60 uppercase tracking-[0.3em]">Tus datos</span>
+                      <span className="font-primary text-[9px] text-[#C9A962]/60 uppercase tracking-[0.3em]">{t('services.cart.drawer_form_title')}</span>
                     </div>
                     <div className="h-px flex-1 bg-white/[0.05]" />
                   </div>
@@ -218,9 +220,9 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                       >
                         <CheckCircle className="w-8 h-8 text-[#C9A962]" />
                       </motion.div>
-                      <h3 className="font-secondary text-2xl text-white">¡Solicitud enviada!</h3>
+                      <h3 className="font-secondary text-2xl text-white">{t('services.cart.drawer_success_title')}</h3>
                       <p className="font-primary text-white/40 text-sm">
-                        Hemos recibido tu consulta. Nuestro equipo se pondrá en contacto contigo en breve.
+                        {t('services.cart.drawer_success_desc')}
                       </p>
                     </motion.div>
                   ) : (
@@ -237,10 +239,10 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
 
                       <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1.5">
-                          <label className="font-primary text-[9px] text-white/30 uppercase tracking-[0.2em]">Nombre *</label>
+                          <label className="font-primary text-[9px] text-white/30 uppercase tracking-[0.2em]">{t('services.cart.drawer_form_name')}</label>
                           <input
                             className={inputClass}
-                            placeholder="Tu nombre"
+                            placeholder={t('services.cart.drawer_form_name_placeholder')}
                             name="name"
                             value={form.name}
                             onChange={handleChange}
@@ -248,7 +250,7 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                           />
                         </div>
                         <div className="flex flex-col gap-1.5">
-                          <label className="font-primary text-[9px] text-white/30 uppercase tracking-[0.2em]">Teléfono *</label>
+                          <label className="font-primary text-[9px] text-white/30 uppercase tracking-[0.2em]">{t('services.cart.drawer_form_phone')}</label>
                           <input
                             className={inputClass}
                             placeholder="+34 600 000 000"
@@ -262,7 +264,7 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="font-primary text-[9px] text-white/30 uppercase tracking-[0.2em]">Email *</label>
+                        <label className="font-primary text-[9px] text-white/30 uppercase tracking-[0.2em]">{t('services.cart.drawer_form_email')}</label>
                         <input
                           className={inputClass}
                           placeholder="tu@email.com"
@@ -275,11 +277,11 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="font-primary text-[9px] text-white/30 uppercase tracking-[0.2em]">Mensaje adicional (opcional)</label>
+                        <label className="font-primary text-[9px] text-white/30 uppercase tracking-[0.2em]">{t('services.cart.drawer_form_message')}</label>
                         <textarea
                           className={`${inputClass} resize-none`}
                           rows={3}
-                          placeholder="¿Algún detalle adicional que quieras comentar?"
+                          placeholder={t('services.cart.drawer_form_message_placeholder')}
                           name="message"
                           value={form.message}
                           onChange={handleChange}
@@ -288,7 +290,7 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
 
                       {formState === 'error' && (
                         <p className="font-primary text-red-400/80 text-xs text-center">
-                          Hubo un error. Por favor, inténtalo de nuevo o contáctanos directamente.
+                          {t('services.cart.drawer_form_error')}
                         </p>
                       )}
 
@@ -301,18 +303,18 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                         {formState === 'submitting' ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            Enviando...
+                            {t('services.cart.drawer_form_sending')}
                           </>
                         ) : (
                           <>
                             <Send className="w-4 h-4" />
-                            Solicitar información
+                            {t('services.cart.drawer_form_submit')}
                           </>
                         )}
                       </motion.button>
 
                       <p className="font-primary text-[9px] text-white/20 text-center leading-relaxed">
-                        Al enviar, aceptas nuestra política de privacidad. Nunca compartiremos tus datos con terceros.
+                        {t('services.cart.drawer_form_policy')}
                       </p>
                     </form>
                   )}

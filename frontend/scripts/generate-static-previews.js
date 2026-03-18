@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import sharp from 'sharp';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,6 +11,33 @@ const DIST_DIR = path.resolve(ROOT_DIR, 'dist');
 const INDEX_HTML = path.resolve(DIST_DIR, 'index.html');
 const PROPERTIES_DIR = path.resolve(DIST_DIR, 'propiedades');
 const EN_PROPERTIES_DIR = path.resolve(DIST_DIR, 'en', 'propiedades');
+const OG_IMAGES_DIR = path.resolve(DIST_DIR, 'assets', 'og-images');
+
+async function processImage(imageUrl, prop) {
+  if (!imageUrl) return null;
+  const imageBase = imageUrl.includes('?') ? imageUrl.split('?')[0] : imageUrl;
+  const propId = prop.reference || prop.id;
+  
+  try {
+    const res = await fetch(imageBase);
+    if (!res.ok) throw new Error('Failed to fetch');
+    const arrayBuffer = await res.arrayBuffer();
+    
+    const outputPath = path.join(OG_IMAGES_DIR, `${propId}.jpg`);
+    await sharp(arrayBuffer)
+      .resize(1200, 630, { fit: 'cover' })
+      .jpeg({ quality: 80, mozjpeg: true })
+      .toFile(outputPath);
+      
+    const stableCacheKey = prop.updated_at 
+      ? `v=${prop.updated_at.split('T')[0].replace(/-/g, '')}` 
+      : 'v=1';
+    return `https://gelaberthomes.es/assets/og-images/${propId}.jpg?${stableCacheKey}`;
+  } catch (err) {
+    console.log(`  [WARN] Fallo al procesar imagen para OG: ${propId} - ${err.message}`);
+    return null;
+  }
+}
 
 // Configuración de Supabase
 const SUPABASE_URL = "https://aumqjpqngmhpbwytpets.supabase.co";
@@ -56,6 +84,7 @@ async function generateStaticPreviews() {
     fs.mkdirSync(dir, { recursive: true });
   });
   fs.mkdirSync(EN_PROPERTIES_DIR, { recursive: true });
+  fs.mkdirSync(OG_IMAGES_DIR, { recursive: true });
 
   if (!fs.existsSync(INDEX_HTML)) {
     console.error('❌ Error: index.html no encontrado en dist/.');
@@ -78,6 +107,17 @@ async function generateStaticPreviews() {
     console.log(`🏠 Procesando ${properties.length} propiedades (ES & EN)...`);
 
     for (const prop of properties) {
+      // PROCESAR IMAGEN OG PRINCIPAL
+      let mainImage = prop.main_image || (prop.gallery && prop.gallery.length > 0 ? prop.gallery[0] : "");
+      let previewImage = "https://gelaberthomes.es/sharing-logo.jpg";
+      
+      if (mainImage) {
+        const processedImageUrl = await processImage(mainImage, prop);
+        if (processedImageUrl) {
+          previewImage = processedImageUrl;
+        }
+      }
+
       // --- Versión ESPAÑOL ---
       const titleEs = escapeHtml(prop.title);
       const featuresEs = [];
@@ -89,7 +129,7 @@ async function generateStaticPreviews() {
       
       const descEs = escapeHtml(featuresEs.join(' • ') || prop.description?.slice(0, 150) || "Gelabert Homes Real Estate | Málaga & Costa del Sol.");
       
-      const htmlEs = buildPropHtml(baseHtml, titleEs, descEs, prop, 'es');
+      const htmlEs = buildPropHtml(baseHtml, titleEs, descEs, prop, 'es', previewImage);
       savePropHtml(htmlEs, prop, PROPERTIES_DIR);
 
       // --- Versión INGLÉS ---
@@ -129,7 +169,7 @@ async function generateStaticPreviews() {
       
       const descEn = escapeHtml(rawDescEn || "Gelabert Homes Real Estate | Malaga & Costa del Sol.");
       
-      const htmlEn = buildPropHtml(baseHtml, titleEn, descEn, prop, 'en');
+      const htmlEn = buildPropHtml(baseHtml, titleEn, descEn, prop, 'en', previewImage);
       savePropHtml(htmlEn, prop, EN_PROPERTIES_DIR);
     }
 
@@ -142,30 +182,10 @@ async function generateStaticPreviews() {
   }
 }
 
-function buildPropHtml(baseHtml, title, description, prop, lang) {
-  let mainImage = prop.main_image || "";
-  
-  if (!mainImage) {
-    // Si no hay imagen principal, intentamos coger la primera de la galería
-    if (prop.gallery && prop.gallery.length > 0) {
-      mainImage = prop.gallery[0];
-    } else {
-      mainImage = "https://gelaberthomes.es/sharing-logo.jpg";
-    }
-  }
-
-  // Use a stable cache key based on updated_at — NOT Date.now() (changes every build, breaks scrapers)
-  const stableCacheKey = prop.updated_at 
-    ? `v=${prop.updated_at.split('T')[0].replace(/-/g, '')}` 
-    : 'v=1';
-  
-  const imageBase = mainImage.includes('?') ? mainImage.split('?')[0] : mainImage;
-  const previewImage = `${imageBase}?${stableCacheKey}`;
-
-
+function buildPropHtml(baseHtml, title, description, prop, lang, previewImage) {
   // Logging para depuración en el build
   if (!prop.main_image) {
-    console.log(`  [WARN] Propiedad ${prop.reference || prop.id} no tiene imagen principal. Usando: ${previewImage.slice(0, 50)}...`);
+    console.log(`  [WARN] Propiedad ${prop.reference || prop.id} no tiene imagen principal. Usando logo fallback.`);
   }
 
   const langPrefix = lang === 'en' ? '/en' : '';
