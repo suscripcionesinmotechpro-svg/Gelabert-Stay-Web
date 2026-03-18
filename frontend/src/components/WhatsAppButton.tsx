@@ -6,6 +6,7 @@ interface WhatsAppButtonProps {
   phoneNumber: string;
   message?: string;
   label?: string;
+  href?: string;
   className?: string;
 }
 
@@ -13,6 +14,7 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   phoneNumber,
   message,
   label,
+  href,
   className = "",
 }) => {
   const { t } = useTranslation();
@@ -21,7 +23,7 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   const finalLabel = label || t('forms.whatsapp_label');
   
   const encodedMessage = encodeURIComponent(finalMessage);
-  const whatsappUrl = `https://wa.me/${phoneNumber.replace(/\s+/g, '')}?text=${encodedMessage}`;
+  const whatsappUrl = href || `https://wa.me/${phoneNumber.replace(/\s+/g, '')}?text=${encodedMessage}`;
 
   return (
     <div className="flex flex-col gap-2">

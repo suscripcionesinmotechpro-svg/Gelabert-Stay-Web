@@ -2,9 +2,15 @@ import { PropertyContactForm } from '../components/PropertyContactForm';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
+import { getWhatsAppLink } from '../utils/whatsapp';
 
 export const Propietarios = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const ownersLink = getWhatsAppLink({
+    context: 'owner',
+    url: `${window.location.origin}${i18n.language.startsWith('en') ? '/en' : ''}/propietarios`
+  });
 
   return (
     <div className="w-full h-full min-h-[90vh] bg-[#0F0F0F] p-6 md:p-20 relative overflow-hidden">
@@ -55,7 +61,7 @@ export const Propietarios = () => {
           <div className="mt-4">
             <WhatsAppButton 
               phoneNumber="34611898827" 
-              message={t('owners_page.hero.whatsapp_message')}
+              href={ownersLink}
               label={t('owners_page.hero.whatsapp_label')}
             />
           </div>

@@ -2,9 +2,15 @@ import { GeneralContactForm } from '../components/GeneralContactForm';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
+import { getWhatsAppLink } from '../utils/whatsapp';
 
 export const Contacto = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const contactLink = getWhatsAppLink({
+    context: 'contact',
+    url: `${window.location.origin}${i18n.language.startsWith('en') ? '/en' : ''}/contacto`
+  });
 
   return (
     <div className="w-full flex-1 flex flex-col md:flex-row bg-[#0A0A0A]">
@@ -34,7 +40,7 @@ export const Contacto = () => {
             
             <WhatsAppButton 
               phoneNumber="34611898827" 
-              message={t('contact_page.hero.whatsapp_message')}
+              href={contactLink}
               label={t('contact_page.hero.whatsapp_label')}
             />
           </div>

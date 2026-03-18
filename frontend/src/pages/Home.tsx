@@ -1,18 +1,16 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { PropertyCard } from '../components/PropertyCard';
 import { PropertyCardSkeleton } from '../components/ui/Skeleton';
 import { Link } from 'react-router-dom';
-import { Building, Key, Briefcase, ShieldCheck, Home as HomeIcon, Star, CheckCircle } from 'lucide-react';
+import { Building, Key, Briefcase, ShieldCheck, Home as HomeIcon, CheckCircle, Star } from 'lucide-react';
 import { useProperties } from '../hooks/useProperties';
+import { getWhatsAppLink } from '../utils/whatsapp';
 import { Helmet } from 'react-helmet-async';
 
 export const Home = () => {
   const { t, i18n } = useTranslation();
   const { properties: featuredProperties, loading } = useProperties({ is_featured: true, limit: 3 });
-  
-  const { scrollYProgress } = useScroll();
-  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, 200]);
 
   return (
     <div className="w-full pb-20">
@@ -81,16 +79,26 @@ export const Home = () => {
         </script>
       </Helmet>
       {/* Hero Section */}
-      <section className="relative w-full h-[85vh] flex flex-col items-center justify-center text-center px-6">
-        <motion.div 
-          style={{ 
-            backgroundImage: "url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop')",
-            y: backgroundY
-          }}
-          className="absolute inset-0 bg-cover bg-center brightness-[0.3]" 
-        />
-        
-        <div className="relative z-10 max-w-5xl mx-auto flex flex-col items-center gap-8">
+      <div className="relative w-full h-[90vh] md:h-[95vh] min-h-[600px] flex items-center justify-center overflow-hidden bg-black">
+      {/* Cinematic Video Background */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover opacity-60 scale-105"
+          poster="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop"
+        >
+          <source 
+            src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-luxury-holiday-resort-and-swimming-pool-42502-large.mp4" 
+            type="video/mp4" 
+          />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#0A0A0A]" />
+      </div>
+
+      <div className="max-w-[1440px] w-full px-6 md:px-14 flex flex-col items-center text-center relative z-10">
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -159,7 +167,7 @@ export const Home = () => {
             />
           </div>
         </motion.div>
-      </section>
+      </div>
 
       {/* Services Block */}
       <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] flex flex-col gap-12">
@@ -213,9 +221,17 @@ export const Home = () => {
           <p className="font-primary text-[#888888] text-base leading-relaxed">
             {t('home.owners.desc')}
           </p>
-          <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propietarios`} className="self-start mt-4 px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[13px] uppercase tracking-wider hover:bg-[#D4B673] transition-colors">
+          <a 
+            href={getWhatsAppLink({ 
+              context: 'owner',
+              url: `${window.location.origin}${i18n.language.startsWith('en') ? '/en' : ''}/propietarios`
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="self-start mt-4 px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[13px] uppercase tracking-wider hover:bg-[#D4B673] transition-colors"
+          >
             {t('home.owners.button')}
-          </Link>
+          </a>
         </motion.div>
         <motion.div 
           initial={{ opacity: 0, x: 50 }}
@@ -314,6 +330,8 @@ export const Home = () => {
                 isFeatured={p.is_featured}
                 imageUrl={p.main_image ?? ''}
                 linkTo={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${p.reference || p.slug || p.id}`}
+                gallery={p.gallery}
+                id={p.reference || p.id}
               />
             ))
           ) : (

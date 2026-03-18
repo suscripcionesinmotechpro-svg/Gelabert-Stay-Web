@@ -282,6 +282,8 @@ export const Propiedades = () => {
                 floor={p.floor}
                 description={p.short_description ?? undefined}
                 description_en={p.short_description_en ?? undefined}
+                gallery={p.gallery}
+                id={p.reference || p.id}
               />
               </motion.div>
             ))}

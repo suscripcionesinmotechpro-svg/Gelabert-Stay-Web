@@ -1,9 +1,12 @@
-import { motion, type HTMLMotionProps } from 'framer-motion';
+import { motion, type HTMLMotionProps, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAutoTranslate } from '../hooks/useAutoTranslate';
 import { OPERATION_LABELS, type PropertyOperation } from '../types/property';
+import { ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react';
+import { getWhatsAppLink } from '../utils/whatsapp';
+import { useState } from 'react';
 
 export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   title: string;
@@ -20,6 +23,8 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   onClick?: () => void;
   description?: string;
   description_en?: string | null;
+  track_id?: string | null;
+  gallery?: string[] | null;
   floor?: string | number | null;
 }
 
@@ -39,17 +44,31 @@ export const PropertyCard = ({
   className,
   description,
   description_en,
+  gallery,
   floor,
   ...props
 }: PropertyCardProps) => {
   const { t } = useTranslation();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const { translatedText: autoTitle } = useAutoTranslate(title, title_en);
   const { translatedText: autoDescription } = useAutoTranslate(description, description_en);
 
-
   const displayTitle = autoTitle;
   const displayDescription = autoDescription;
+
+  // Combine main image with gallery
+  const images = [imageUrl, ...(gallery || [])].filter((img): img is string => !!img);
+
+  const nextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   const getBadgeColor = () => {
     switch (operation) {
@@ -60,54 +79,98 @@ export const PropertyCard = ({
     }
   };
 
-  const formattedPrice = new Intl.NumberFormat('es-ES', {
+  const formattedPrice = new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: 'EUR',
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(price);
+
+  const whatsappLink = getWhatsAppLink({
+    context: 'property',
+    propertyName: title,
+    propertyRef: props['id'] as string // Assuming ID is passed as prop or use title
+  });
 
   const card = (
     <motion.div 
       className={cn(
-        "group h-full flex flex-col bg-[#0F0F0F] border border-[#1F1F1F] overflow-hidden transition-all duration-500",
-        "hover:border-[#C9A962]/50 hover:shadow-2xl hover:shadow-[#C9A962]/5 hover:-translate-y-1",
+        "group h-full flex flex-col bg-[#0D0D0D] border border-[#1F1F1F] hover:border-[#C9A962]/40 transition-all duration-500 overflow-hidden relative rounded-2xl",
         className
       )}
-      onClick={onClick}
       {...props}
     >
-      {/* Image Area */}
-      <div className="relative aspect-[4/3] overflow-hidden">
-        {imageUrl ? (
-          <motion.img 
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
-            src={imageUrl} 
-            alt={displayTitle} 
-            loading="lazy"
-            className="w-full h-full object-cover" 
+      {/* Image Area with Slider */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-[#1A1A1A]">
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={currentImageIndex}
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            src={images[currentImageIndex]} 
+            alt={title}
+            className="w-full h-full object-cover"
           />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-[#666666]">
-            {t('common.no_image')}
+        </AnimatePresence>
+
+        {/* Slider Controls */}
+        {images.length > 1 && (
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between px-4 pointer-events-none">
+            <button 
+              onClick={prevImage}
+              className="p-2 rounded-full bg-black/50 backdrop-blur-md text-white hover:bg-[#C9A962] transition-colors pointer-events-auto shadow-xl border border-white/10"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={nextImage}
+              className="p-2 rounded-full bg-black/50 backdrop-blur-md text-white hover:bg-[#C9A962] transition-colors pointer-events-auto shadow-xl border border-white/10"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         )}
-        
+
+        {/* Slider dots */}
+        {images.length > 1 && (
+          <div className="absolute bottom-16 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none">
+            {images.slice(0, 5).map((_, i) => (
+              <div 
+                key={i} 
+                className={cn(
+                  "h-1 rounded-full transition-all duration-300",
+                  i === currentImageIndex ? "w-4 bg-[#C9A962]" : "w-1.5 bg-white/40"
+                )} 
+              />
+            ))}
+          </div>
+        )}
+
         {/* Operation Badge */}
-        <div className={cn("absolute top-4 left-4 px-3 py-1 font-primary text-[10px] font-bold tracking-[0.08em] uppercase", getBadgeColor())}>
+        <div className={cn("absolute top-4 left-4 px-3 py-1 font-primary text-[10px] font-bold tracking-[0.08em] uppercase z-10", getBadgeColor())}>
           {t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation])}
         </div>
         
         {/* Featured Badge */}
         {isFeatured && (
-          <div className="absolute top-4 right-4 px-3 py-1 bg-[#1F1F1F]/80 backdrop-blur-md border border-[#C9A962]/30 font-primary text-[#C9A962] text-[10px] font-bold uppercase flex items-center gap-1 shadow-lg">
+          <div className="absolute top-4 right-4 px-3 py-1 bg-[#1F1F1F]/80 backdrop-blur-md border border-[#C9A962]/30 font-primary text-[#C9A962] text-[10px] font-bold uppercase flex items-center gap-1 shadow-lg z-10">
             <span>★</span> {t('property.labels.featured')}
           </div>
         )}
 
         {/* Price Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-black/40 backdrop-blur-xl border-t border-white/10 flex items-center justify-between">
+        <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-black/40 backdrop-blur-xl border-t border-white/10 flex items-center justify-between z-10">
           <span className="font-secondary text-2xl text-[#FAF8F5] leading-none">{formattedPrice}</span>
+          <a 
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="p-2 bg-[#25D366] rounded-full text-black hover:scale-110 transition-transform shadow-lg"
+          >
+            <MessageSquare className="w-4 h-4 fill-current" />
+          </a>
         </div>
       </div>
 

@@ -10,6 +10,7 @@ import { Helmet } from 'react-helmet-async';
 import { PropertyMap } from '../components/PropertyMap';
 import { supabase } from '../lib/supabase';
 import { useTranslation, Trans } from 'react-i18next';
+import { getWhatsAppLink } from '../utils/whatsapp';
 
 const WhatsAppIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -159,11 +160,12 @@ export const FichaPropiedad = () => {
     ? mainImg!.replace('object/public', 'render/image/public') + '?width=1200&height=630&resize=contain'
     : (mainImg || 'https://gelaberthomes.es/logo.png');
 
-  const whatsappMsg = encodeURIComponent(
-    i18n.language.startsWith('en')
-      ? `Hello, I'm interested in the property "${translatedTitle}" (REF: ${property.reference || property.id.slice(0, 8)}). Could you give me more information? \n\nLink: ${propertyUrl}`
-      : `Hola, estoy interesado/a en la propiedad "${translatedTitle}" (REF: ${property.reference || property.id.slice(0, 8)}). ¿Podríais darme más información? \n\nEnlace: ${propertyUrl}`
-  );
+  const whatsappLink = getWhatsAppLink({
+    context: 'property',
+    propertyName: translatedTitle,
+    propertyRef: property.reference || property.id.slice(0, 8),
+    url: propertyUrl
+  });
 
   return (
     <div className="w-full pb-20 bg-[#0F0F0F]">
@@ -661,7 +663,7 @@ export const FichaPropiedad = () => {
           {/* WhatsApp */}
           <div className="flex flex-col gap-2">
             <a
-              href={`https://wa.me/34611898827?text=${whatsappMsg}`}
+              href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-3 w-full py-4 bg-[#25D366] text-white font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#1DB954] transition-colors"
