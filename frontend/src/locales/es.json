@@ -158,11 +158,11 @@
         "no_pets_allowed": "No se Aceptan Mascotas",
         "sea_views": "Vistas al Mar",
         "map_hint_public": "La ubicación en el mapa es aproximada para proteger la privacidad de la propiedad."
-      },
-      "form": {
-        "fields": {
-          "orientation": "Orientación"
-        }
+      }
+    },
+    "form": {
+      "fields": {
+        "orientation": "Orientación"
       }
     }
   },
@@ -296,7 +296,7 @@
     },
     "final_cta": {
       "title_part1": "Es momento de ",
-      "title_highlight": "elevar",
+      "title_highlight": "elevar tu éxito",
       "subtitle": "Estamos a un clic de encontrar el camino más corto hacia tu próximo éxito inmobiliario.",
       "contact_btn": "Hablar con un experto",
       "view_listings_btn": "Explorar catálogo"
