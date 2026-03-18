@@ -179,10 +179,9 @@ export const Servicios = () => {
           style={{ opacity, scale }}
           className="absolute inset-0 z-0"
         >
-          <img 
-            src="https://images.unsplash.com/photo-1600607687940-c52af0493738?q=80&w=2070&auto=format&fit=crop" 
-            className="w-full h-full object-cover brightness-[0.2]"
-            alt=""
+          <div 
+            className="w-full h-full bg-cover bg-center brightness-[0.2]"
+            style={{ backgroundImage: `url('https://images.unsplash.com/photo-1600607687940-c52af0493738?q=80&w=2070&auto=format&fit=crop')` }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/50 to-[#050505]" />
         </motion.div>
