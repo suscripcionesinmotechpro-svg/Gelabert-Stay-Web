@@ -295,7 +295,8 @@
       }
     },
     "final_cta": {
-      "title": "Es momento de {{elevate}}",
+      "title_part1": "Es momento de ",
+      "title_highlight": "elevar",
       "subtitle": "Estamos a un clic de encontrar el camino más corto hacia tu próximo éxito inmobiliario.",
       "contact_btn": "Hablar con un experto",
       "view_listings_btn": "Explorar catálogo"

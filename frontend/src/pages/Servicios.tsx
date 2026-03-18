@@ -343,12 +343,11 @@ export const Servicios = () => {
           <div className="w-12 h-12 bg-black border border-[#C9A962]/30 rounded-full flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-[#C9A962]" />
           </div>
-          <h2 className="font-secondary text-4xl md:text-7xl text-white lowercase">
-            {t('services.final_cta.title').split('{{elevate}}')[0]}
+          <h2 className="font-secondary text-4xl md:text-7xl text-white">
+            {t('services.final_cta.title_part1')}
             <span className="italic text-[#C9A962]">
-              {i18n.language.startsWith('es') ? 'elevar' : 'elevate'}
+              {t('services.final_cta.title_highlight')}
             </span>
-            {t('services.final_cta.title').split('{{elevate}}')[1]}
           </h2>
           <p className="font-primary text-[#888888] text-lg max-w-xl">
             {t('services.final_cta.subtitle')}

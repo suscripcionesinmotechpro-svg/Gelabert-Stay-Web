@@ -295,7 +295,8 @@
       }
     },
     "final_cta": {
-      "title": "Ready to {{elevate}}?",
+      "title_part1": "It's time to ",
+      "title_highlight": "elevate",
       "subtitle": "We are just one click away from finding the shortest path to your next real estate success.",
       "contact_btn": "Speak with an expert",
       "view_listings_btn": "Explore catalog"
