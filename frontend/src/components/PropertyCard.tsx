@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAutoTranslate } from '../hooks/useAutoTranslate';
 import { OPERATION_LABELS, type PropertyOperation } from '../types/property';
-import { ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MessageSquare, Heart } from 'lucide-react';
 import { getWhatsAppLink } from '../utils/whatsapp';
 import { useState } from 'react';
 
@@ -27,6 +27,8 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   gallery?: string[] | null;
   floor?: string | number | null;
   orientation?: string[] | null;
+  isFavorite?: boolean;
+  onToggleFavorite?: (e: React.MouseEvent) => void;
 }
 
 export const PropertyCard = ({
@@ -48,6 +50,8 @@ export const PropertyCard = ({
   gallery,
   floor,
   orientation,
+  isFavorite,
+  onToggleFavorite,
   ...props
 }: PropertyCardProps) => {
   const { t } = useTranslation();
@@ -148,6 +152,19 @@ export const PropertyCard = ({
             ))}
           </div>
         )}
+
+        {/* Favorite Button */}
+        <button
+          onClick={onToggleFavorite}
+          className={cn(
+            "absolute top-4 left-4 z-20 p-2 rounded-full backdrop-blur-md transition-all duration-300 border shadow-lg pointer-events-auto",
+            isFavorite 
+              ? "bg-[#C9A962] border-[#C9A962] text-[#0A0A0A]" 
+              : "bg-black/40 border-white/10 text-white hover:bg-white/20 hover:scale-110"
+          )}
+        >
+          <Heart className={cn("w-4 h-4", isFavorite && "fill-current content-['']")} />
+        </button>
 
         {/* Operation Badge */}
         <div className={cn("absolute top-4 left-4 px-3 py-1 font-primary text-[10px] font-bold tracking-[0.08em] uppercase z-10", getBadgeColor())}>

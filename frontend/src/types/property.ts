@@ -132,6 +132,8 @@ export interface PropertyFilters {
   bedrooms?: number;
   bathrooms?: number;
   keyword?: string;
+  reference?: string;
+  saved_ids?: string[];
   is_featured?: boolean;
   status?: PropertyStatus;
   commercial_status?: CommercialStatus;

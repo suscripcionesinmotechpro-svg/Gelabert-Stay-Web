@@ -58,6 +58,19 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
         );
       }
 
+      if (currentFilters?.reference) {
+        query = query.ilike('reference', `%${currentFilters.reference}%`);
+      }
+
+      if (currentFilters?.saved_ids && currentFilters.saved_ids.length > 0) {
+        query = query.in('id', currentFilters.saved_ids);
+      } else if (currentFilters?.saved_ids && currentFilters.saved_ids.length === 0) {
+        // If filtering by favorites but none saved, return empty
+        setProperties([]);
+        setLoading(false);
+        return;
+      }
+
       if (currentFilters?.limit) query = query.limit(currentFilters.limit);
 
       const { data, error: supabaseError } = await query;

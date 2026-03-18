@@ -3,7 +3,10 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useProperties } from '../hooks/useProperties';
 import { type PropertyOperation, type PropertyType, type CommercialStatus, PROPERTY_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import { PropertyCard } from '../components/PropertyCard';
-import { Search, SlidersHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
+import { cn } from '../lib/utils';
+import { Search, SlidersHorizontal, ChevronDown, ChevronUp, Heart, Map as MapIcon, List as ListIcon } from 'lucide-react';
+import { PropertiesMap } from '../components/PropertiesMap';
+import { useFavorites } from '../hooks/useFavorites';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
@@ -46,8 +49,12 @@ export const Propiedades = () => {
   const [maxPrice, setMaxPrice] = useState('');
   const [bedrooms, setBedrooms] = useState('');
   const [bathrooms, setBathrooms] = useState('');
+  const [reference, setReference] = useState('');
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
   // Características adicionales
   const [filtersBool, setFiltersBool] = useState({
@@ -75,8 +82,8 @@ export const Propiedades = () => {
 
   const clearFilters = () => {
     setOperation(''); setPropertyType(''); setCommercialStatus('');
-    setZone(''); setKeyword(''); setMinPrice(''); setMaxPrice('');
-    setBedrooms(''); setBathrooms('');
+    setZone(''); setKeyword(''); setReference(''); setMinPrice(''); setMaxPrice('');
+    setBedrooms(''); setBathrooms(''); setShowFavorites(false);
     setFiltersBool({
       has_elevator: false, is_furnished: false, has_terrace: false,
       has_parking: false, has_pool: false, air_conditioning: false, pets_allowed: false, no_pets_allowed: false
@@ -89,6 +96,8 @@ export const Propiedades = () => {
     commercial_status: commercialStatus || undefined,
     zone: zone || undefined,
     keyword: keyword || undefined,
+    reference: reference || undefined,
+    saved_ids: showFavorites ? favorites : undefined,
     min_price: minPrice ? Number(minPrice) : undefined,
     max_price: maxPrice ? Number(maxPrice) : undefined,
     bedrooms: bedrooms ? Number(bedrooms) : undefined,
@@ -180,6 +189,16 @@ export const Propiedades = () => {
             <input className={inputClass} placeholder={t('property.labels.features.min_price')} type="number" value={minPrice} onChange={e => setMinPrice(e.target.value)} />
             
             <input className={inputClass} placeholder={t('property.labels.features.max_price')} type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} />
+            
+            <input className={inputClass} placeholder={t('property.labels.features.reference_placeholder') || 'REF: GEL-XXX'} value={reference} onChange={e => setReference(e.target.value)} />
+
+            <button 
+              onClick={() => setShowFavorites(!showFavorites)}
+              className={cn(inputClass, "flex items-center justify-center gap-2 transition-all", showFavorites ? "bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]" : "")}
+            >
+              <Heart className={cn("w-4 h-4", showFavorites && "fill-current")} />
+              <span className="hidden sm:inline">{t('property.labels.features.favorites')}</span>
+            </button>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/5 pt-4">
@@ -191,9 +210,20 @@ export const Propiedades = () => {
               {showAdvanced ? t('property.labels.features.hide_advanced') : t('property.labels.features.show_advanced')}
               {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
-            <button onClick={clearFilters} className="font-primary text-white/30 text-[10px] uppercase tracking-[0.2em] font-bold hover:text-white transition-colors">
-              {t('property.labels.features.clear_filters')}
-            </button>
+            <div className="flex items-center gap-2 bg-white/5 p-1 rounded-sm border border-white/10">
+              <button 
+                onClick={() => setViewMode('list')}
+                className={cn("p-2 rounded-sm transition-all", viewMode === 'list' ? "bg-[#C9A962] text-black" : "text-white/40 hover:text-white")}
+              >
+                <ListIcon className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => setViewMode('map')}
+                className={cn("p-2 rounded-sm transition-all", viewMode === 'map' ? "bg-[#C9A962] text-black" : "text-white/40 hover:text-white")}
+              >
+                <MapIcon className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Panel Filtros Avanzados */}
@@ -278,6 +308,8 @@ export const Propiedades = () => {
               {t('property.labels.features.clear_filters')}
             </button>
           </div>
+        ) : viewMode === 'map' ? (
+          <PropertiesMap properties={properties} />
         ) : (
           <motion.div 
             initial="hidden"
@@ -320,14 +352,20 @@ export const Propiedades = () => {
                 bathrooms={p.bathrooms}
                 operation={p.operation.toUpperCase() as 'ALQUILER' | 'VENTA' | 'TRASPASO'}
                 isFeatured={p.is_featured}
-                imageUrl={p.main_image ?? ''}
+                imageUrl={p.main_image || ''}
                 linkTo={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${p.reference || p.slug || p.id}`}
                 floor={p.floor}
                 orientation={p.orientation}
-                description={p.short_description ?? undefined}
-                description_en={p.short_description_en ?? undefined}
+                description={p.short_description || undefined}
+                description_en={p.short_description_en || undefined}
                 gallery={p.gallery}
-                id={p.reference || p.id}
+                id={p.id}
+                isFavorite={isFavorite(p.id)}
+                onToggleFavorite={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleFavorite(p.id);
+                }}
               />
               </motion.div>
             ))}

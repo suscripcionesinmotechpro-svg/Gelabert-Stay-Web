@@ -107,6 +107,8 @@
         "max_price": "Precio máx (€)",
         "min_bedrooms": "Habitaciones (mín)",
         "min_bathrooms": "Baños (mín)",
+        "reference_placeholder": "Busca por referencia (GEL-XXX)",
+        "favorites": "Favoritos",
         "additional_features": "Características Adicionales",
         "amenities": "Comodidades",
         "floor": "Planta",
@@ -583,6 +585,7 @@
     "OCULTA": "Oculta"
   },
   "map": {
+    "no_properties_with_location": "No hay propiedades con ubicación para mostrar en el mapa",
     "coordinates_required": "Introduce coordenadas para ver el mapa",
     "default_popup": "Ubicación de la propiedad"
   },
@@ -772,6 +775,8 @@
         "address_city_required": "Introduce dirección y ciudad para buscar"
       }
     }
-
+  },
+  "contact": {
+    "call": "Llamar ahora"
   }
 }

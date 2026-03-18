@@ -107,6 +107,8 @@
         "max_price": "Max price (€)",
         "min_bedrooms": "Bedrooms (min)",
         "min_bathrooms": "Bathrooms (min)",
+        "reference_placeholder": "Search by reference (GEL-XXX)",
+        "favorites": "Favorites",
         "additional_features": "Additional Features",
         "amenities": "Amenities",
         "floor": "Floor",
@@ -583,6 +585,7 @@
     "OCULTA": "Hidden"
   },
   "map": {
+    "no_properties_with_location": "No properties with location to show on map",
     "coordinates_required": "Enter coordinates to view the map",
     "default_popup": "Property Location"
   },
@@ -776,6 +779,8 @@
         "address_city_required": "Enter address and city to search"
       }
     }
-
+  },
+  "contact": {
+    "call": "Call now"
   }
 }

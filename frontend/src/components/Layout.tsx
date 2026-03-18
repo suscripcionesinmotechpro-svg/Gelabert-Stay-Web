@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Footer } from './Footer';
 import { CookieBanner } from './CookieBanner';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { FloatingContact } from './FloatingContact';
 
 export const Layout = () => {
   const { t, i18n } = useTranslation();
@@ -115,6 +116,7 @@ export const Layout = () => {
       {/* Footer */}
       <Footer />
       <CookieBanner />
+      <FloatingContact />
     </div>
   );
 };
