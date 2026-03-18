@@ -106,7 +106,7 @@ export const Home = () => {
               />
             </span>
             <br/> 
-            <span className="text-[#C9A962] italic font-light block mt-4 text-2xl md:text-4xl tracking-normal">
+            <span className="text-[#C9A962] italic font-light block mt-4 text-3xl md:text-5xl tracking-normal">
               Real Estate
             </span>
           </motion.h1>
@@ -126,10 +126,10 @@ export const Home = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="mt-8 flex flex-col sm:flex-row gap-4"
           >
-            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="px-10 py-5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[14px] uppercase tracking-[0.2em] hover:bg-[#D4B673] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-[#C9A962]/10">
+            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[14px] uppercase tracking-[0.2em] hover:bg-[#D4B673] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-[#C9A962]/10">
               {t('hero.view_properties')}
             </Link>
-            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/contacto`} className="px-8 py-4 border border-[#C9A962] text-[#C9A962] font-primary font-bold text-[13px] uppercase tracking-wider hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-colors text-center w-full sm:w-auto">
+            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/contacto`} className="px-8 py-4 border border-[#C9A962]/50 text-[#C9A962] font-primary font-bold text-[14px] uppercase tracking-[0.2em] hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-all">
               {t('hero.contact_us')}
             </Link>
           </motion.div>
