@@ -254,7 +254,10 @@ export const Propiedades = () => {
               hidden: { opacity: 0 },
               show: {
                 opacity: 1,
-                transition: { staggerChildren: 0.1 }
+                transition: { 
+                  staggerChildren: 0.1,
+                  delayChildren: 0.2
+                }
               }
             }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
@@ -263,8 +266,16 @@ export const Propiedades = () => {
               <motion.div 
                 key={p.id}
                 variants={{
-                  hidden: { opacity: 0, scale: 0.95, y: 20 },
-                  show: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
+                  hidden: { opacity: 0, scale: 0.98, y: 15 },
+                  show: { 
+                    opacity: 1, 
+                    scale: 1, 
+                    y: 0, 
+                    transition: { 
+                      duration: 0.5, 
+                      ease: [0.215, 0.61, 0.355, 1] 
+                    } 
+                  }
                 }}
               >
               <PropertyCard

@@ -117,7 +117,7 @@ export const Servicios = () => {
       image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.compra_venta.desc'),
       bullets: t('services.owner_services.compra_venta.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-2 md:row-span-2 min-h-[400px]",
+      className: "md:col-span-1 md:row-span-1 min-h-[400px]",
       highlight: true
     },
     {
@@ -136,7 +136,7 @@ export const Servicios = () => {
       image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.traspaso.desc'),
       bullets: t('services.owner_services.traspaso.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-2"
+      className: "md:col-span-1 md:row-span-1"
     },
     {
       icon: <ShieldCheck className="w-6 h-6 text-[#C9A962]" />,
@@ -237,7 +237,7 @@ export const Servicios = () => {
           <div className="w-20 h-1 bg-[#C9A962] mt-2 rounded-full" />
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-3 gap-4 auto-rows-fr">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-fr">
           {serviciosPropietario.map((s, i) => (
             <ServiceCard key={i} {...s} />
           ))}
@@ -348,10 +348,14 @@ export const Servicios = () => {
             <Sparkles className="w-5 h-5 text-[#C9A962]" />
           </div>
           <h2 className="font-secondary text-4xl md:text-7xl text-white lowercase">
-            ready to <span className="italic text-[#C9A962]">elevate</span> your real estate experience?
+            {t('services.final_cta.title').split('{{elevate}}')[0]}
+            <span className="italic text-[#C9A962]">
+              {i18n.language.startsWith('es') ? 'elevar' : 'elevate'}
+            </span>
+            {t('services.final_cta.title').split('{{elevate}}')[1]}
           </h2>
           <p className="font-primary text-[#888888] text-lg max-w-xl">
-            {t('services.final_cta.description')}
+            {t('services.final_cta.subtitle')}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 mt-6">
@@ -359,13 +363,13 @@ export const Servicios = () => {
               to={`${i18n.language.startsWith('en') ? '/en' : ''}/contacto`}
               className="px-12 py-5 bg-[#C9A962] text-black font-primary font-bold text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-[0_10px_30px_rgba(201,169,98,0.2)]"
             >
-              Contact Specialist
+              {t('services.final_cta.contact_btn')}
             </Link>
             <Link
               to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`}
               className="px-12 py-5 border border-white/10 text-white font-primary font-bold text-xs uppercase tracking-widest hover:bg-white/5 hover:border-[#C9A962]/40 transition-all"
             >
-              View Listings
+              {t('services.final_cta.view_listings_btn')}
             </Link>
           </div>
         </motion.div>

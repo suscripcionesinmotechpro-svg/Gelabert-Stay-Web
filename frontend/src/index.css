@@ -66,11 +66,19 @@
   text-shadow: 0 0 20px rgba(201, 169, 98, 0.3);
 }
 
-@keyframes bounce-slow {
-  0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
-  50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+@utility animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+}
+
+@utility animation-delay-2000 {
+  animation-delay: 2s;
 }
 
 @utility animate-bounce-slow {
-  animation: bounce-slow 3s infinite;
+  animation: bounce 3s infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
