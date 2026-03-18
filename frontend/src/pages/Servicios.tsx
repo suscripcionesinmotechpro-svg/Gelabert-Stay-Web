@@ -287,18 +287,14 @@ export const Servicios = () => {
 
           <motion.div 
             {...fadeUp}
-            className="relative aspect-square md:aspect-video rounded-lg overflow-hidden border border-white/5 group shadow-2xl"
+            className="relative h-[400px] lg:h-[500px] rounded-sm overflow-hidden border border-white/5 group shadow-2xl"
           >
             <img 
-              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop" 
+              src="https://images.unsplash.com/photo-1600607687644-c7171b42498f?q=80&w=2070&auto=format&fit=crop" 
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
               alt="Hogar de calidad"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
-            <div className="absolute bottom-8 left-8 ring-1 ring-white/20 bg-black/40 backdrop-blur-xl p-6 border-l-4 border-[#C9A962]">
-              <span className="text-[#C9A962] font-primary text-[10px] uppercase font-bold tracking-widest block mb-1">{t('services.tenant_banner.tag')}</span>
-              <p className="text-white font-secondary text-2xl italic">{t('services.tenant_banner.phrase')}</p>
-            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           </motion.div>
         </div>
       </section>

@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 
-const inputClass = "h-11 bg-[#161616] border border-[#1F1F1F] px-3 font-primary text-[#888888] text-sm outline-none focus:border-[#C9A962] transition-colors";
+const inputClass = "h-11 bg-white/[0.03] border border-white/10 px-4 font-primary text-white/70 text-sm outline-none focus:border-[#C9A962] focus:bg-white/[0.05] transition-all rounded-sm placeholder:text-white/20";
 
 export const Propiedades = () => {
   const { t, i18n } = useTranslation();
@@ -97,7 +97,7 @@ export const Propiedades = () => {
   });
 
   return (
-    <div className="w-full pb-20">
+    <div className="w-full bg-[#050505] min-h-screen">
       <Helmet>
         <title>{t('seo.properties_title')} | Gelabert Homes Real Estate</title>
         <meta name="description" content={t('seo.properties_description')} />
@@ -105,47 +105,75 @@ export const Propiedades = () => {
         <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/propiedades/" />
         <link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es/propiedades/" />
       </Helmet>
-      {/* Header */}
-      <section className="w-full px-6 md:px-14 py-16 bg-[#0A0A0A] flex flex-col gap-4 border-b border-[#1F1F1F]">
-        <h1 className="font-secondary text-5xl text-[#FAF8F5]">{t('nav.properties')}</h1>
-            <p className="font-primary text-[#DFDFE6] text-xl md:text-2xl leading-relaxed max-w-4xl font-light">
+      
+      {/* Premium Mesh Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#C9A962]/5 blur-[120px] rounded-full mix-blend-screen animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#C9A962]/3 blur-[150px] rounded-full mix-blend-screen animation-delay-2000" />
+      </div>
+
+      {/* Header / Hero Section */}
+      <section className="relative h-[40vh] min-h-[400px] flex items-center overflow-hidden border-b border-white/5">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" 
+            className="w-full h-full object-cover brightness-[0.2]"
+            alt="Hero Background"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/50 to-[#050505]" />
+        </div>
+
+        <div className="relative z-10 w-full px-6 md:px-14 flex flex-col gap-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h1 className="font-secondary text-5xl md:text-7xl text-[#FAF8F5] leading-tight mb-4">
+              {t('nav.properties')}
+            </h1>
+            <p className="font-primary text-[#DFDFE6]/60 text-lg md:text-xl leading-relaxed max-w-2xl font-light">
               {t('seo.properties_description')}
             </p>
-        {/* Tabs de Operación Visuales */}
-        <div className="flex gap-1 mt-4 bg-[#0F0F0F] p-1 self-start border border-[#1F1F1F]">
-          {OPERATIONS.map(op => (
-            <button
-              key={op.value}
-              onClick={() => setOperation(op.value)}
-              className={`px-6 py-2.5 font-primary text-sm transition-all font-bold tracking-wider ${
-                operation === op.value ? 'bg-[#C9A962] text-[#0A0A0A]' : 'text-[#888888] hover:text-[#FAF8F5]'
-              }`}
-            >
-              {op.label}
-            </button>
-          ))}
+            
+            {/* Tabs de Operación Visuales */}
+            <div className="flex gap-1 mt-8 bg-white/5 p-1 self-start border border-white/10 backdrop-blur-md rounded-sm">
+              {OPERATIONS.map(op => (
+                <button
+                  key={op.value}
+                  onClick={() => setOperation(op.value)}
+                  className={`px-8 py-3 font-primary text-[10px] transition-all font-bold tracking-[0.2em] uppercase rounded-sm ${
+                    operation === op.value 
+                      ? 'bg-[#C9A962] text-[#0A0A0A] shadow-[0_0_20px_rgba(201,169,98,0.2)]' 
+                      : 'text-white/40 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {op.label}
+                </button>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Panel de Filtros */}
-      <section className="w-full px-6 md:px-14 py-6 bg-[#0A0A0A] border-b border-[#1F1F1F] sticky top-0 z-20">
-        <div className="flex flex-col gap-4">
-          
+      {/* Panel de Filtros Sticky */}
+      <section className="sticky top-0 z-30 w-full px-6 md:px-14 py-6 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 shadow-2xl">
+        <div className="max-w-7xl mx-auto flex flex-col gap-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {/* Buscador Global (Ocupa 2 columnas en pantallas muy grandes) */}
-            <div className="flex items-center gap-2 h-11 bg-[#161616] border border-[#1F1F1F] px-3 lg:col-span-2">
-              <Search className="w-4 h-4 text-[#444444] shrink-0" />
+            {/* Buscador Global */}
+            <div className="flex items-center gap-3 h-11 bg-white/[0.03] border border-white/10 px-4 lg:col-span-2 rounded-sm focus-within:border-[#C9A962] transition-colors">
+              <Search className="w-4 h-4 text-white/30 shrink-0" />
               <input 
-                className="flex-1 bg-transparent font-primary text-[#FAF8F5] text-sm outline-none placeholder:text-[#444444]"
+                className="flex-1 bg-transparent font-primary text-white text-sm outline-none placeholder:text-white/20"
                 placeholder={t('property.labels.features.search_placeholder')}
                 value={keyword}
                 onChange={e => setKeyword(e.target.value)}
               />
             </div>
             
-            {/* Filtros Básicos Principales */}
+            {/* Filtros Básicos */}
             <select className={inputClass} value={propertyType} onChange={e => setPropertyType(e.target.value as PropertyType | '')}>
-              {PROPERTY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              {PROPERTY_TYPES.map(t => <option key={t.value} value={t.value} className="bg-[#0A0A0A]">{t.label}</option>)}
             </select>
             
             <input className={inputClass} placeholder={t('property.labels.features.city_placeholder')} value={zone} onChange={e => setZone(e.target.value)} />
@@ -155,36 +183,40 @@ export const Propiedades = () => {
             <input className={inputClass} placeholder={t('property.labels.features.max_price')} type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} />
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/5 pt-4">
             <button 
               onClick={() => setShowAdvanced(!showAdvanced)} 
-              className="flex items-center gap-2 font-primary text-[#C9A962] text-sm hover:text-[#D4B673] transition-colors font-bold tracking-widest uppercase"
+              className="flex items-center gap-2 font-primary text-[#C9A962] text-[10px] hover:text-[#D4B673] transition-colors font-bold tracking-[0.2em] uppercase"
             >
-              <SlidersHorizontal className="w-4 h-4" />
+              <SlidersHorizontal className="w-3.5 h-3.5" />
               {showAdvanced ? t('property.labels.features.hide_advanced') : t('property.labels.features.show_advanced')}
               {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
-            <button onClick={clearFilters} className="font-primary text-[#666666] text-xs uppercase tracking-widest hover:text-[#FAF8F5] transition-colors">
+            <button onClick={clearFilters} className="font-primary text-white/30 text-[10px] uppercase tracking-[0.2em] font-bold hover:text-white transition-colors">
               {t('property.labels.features.clear_filters')}
             </button>
           </div>
 
           {/* Panel Filtros Avanzados */}
           {showAdvanced && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 mt-2 border-t border-[#1F1F1F] animate-fade-in">
-              <div className="flex flex-col gap-4">
-                <span className="font-primary text-xs text-[#666666] uppercase tracking-wider">{t('property.labels.features.additional_features')}</span>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-6 mt-2 border-t border-white/5"
+            >
+              <div className="flex flex-col gap-6">
+                <span className="font-primary text-[10px] text-white/30 uppercase tracking-[0.3em] font-bold">{t('property.labels.features.additional_features')}</span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <input className={inputClass} placeholder={t('property.labels.features.min_bedrooms')} type="number" value={bedrooms} onChange={e => setBedrooms(e.target.value)} />
                   <input className={inputClass} placeholder={t('property.labels.features.min_bathrooms')} type="number" value={bathrooms} onChange={e => setBathrooms(e.target.value)} />
                   <select className={`${inputClass} sm:col-span-2`} value={commercialStatus} onChange={e => setCommercialStatus(e.target.value as CommercialStatus | '')}>
-                    {COMMERCIAL_STATUSES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    {COMMERCIAL_STATUSES.map(t => <option key={t.value} value={t.value} className="bg-[#0A0A0A]">{t.label}</option>)}
                   </select>
                 </div>
               </div>
               
-              <div className="flex flex-col gap-4">
-                <span className="font-primary text-xs text-[#666666] uppercase tracking-wider">{t('property.labels.features.amenities')}</span>
+              <div className="flex flex-col gap-6">
+                <span className="font-primary text-[10px] text-white/30 uppercase tracking-[0.3em] font-bold">{t('property.labels.features.amenities')}</span>
                 <div className="flex flex-wrap gap-2">
                   {[
                     { key: 'has_elevator', label: t('property.labels.features.has_elevator') },
@@ -199,7 +231,6 @@ export const Propiedades = () => {
                     <button
                       key={key}
                       onClick={() => {
-                        // Mutually exclusive toggle for pets
                         if (key === 'pets_allowed' && !filtersBool.pets_allowed) {
                           setFiltersBool(prev => ({ ...prev, pets_allowed: true, no_pets_allowed: false }));
                         } else if (key === 'no_pets_allowed' && !filtersBool.no_pets_allowed) {
@@ -208,10 +239,10 @@ export const Propiedades = () => {
                           toggleBool(key as keyof typeof filtersBool);
                         }
                       }}
-                      className={`px-4 py-2 font-primary text-xs transition-colors border ${
+                      className={`px-4 py-2 font-primary text-[10px] uppercase font-bold tracking-widest transition-all border rounded-sm ${
                         filtersBool[key as keyof typeof filtersBool] 
-                          ? 'bg-[#C9A962]/20 border-[#C9A962] text-[#C9A962]' 
-                          : 'bg-[#161616] border-[#1F1F1F] text-[#888888] hover:border-[#444444] hover:text-[#FAF8F5]'
+                          ? 'bg-[#C9A962] border-[#C9A962] text-[#0A0A0A]' 
+                          : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30 hover:text-white'
                       }`}
                     >
                       {label}
@@ -219,17 +250,19 @@ export const Propiedades = () => {
                   ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
       </section>
 
       {/* Contenido / Listado de Propiedades */}
-      <section className="w-full px-6 md:px-14 py-8 bg-[#0F0F0F]">
+      <section className="relative z-10 w-full px-6 md:px-14 py-16 max-w-[1600px] mx-auto">
         {/* Count */}
-        <p className="font-primary text-[#666666] text-sm mb-6 flex justify-between items-center">
-          <span>{loading ? t('property.labels.features.loading') : error ? t('property.labels.features.error') : `${properties.length} ${t('property.labels.features.results')}`}</span>
-        </p>
+        <div className="flex justify-between items-center mb-10 pb-6 border-b border-white/5">
+          <p className="font-primary text-white/40 text-xs font-bold tracking-widest uppercase">
+            {loading ? t('property.labels.features.loading') : error ? t('property.labels.features.error') : `${properties.length} ${t('property.labels.features.results')}`}
+          </p>
+        </div>
 
         {loading ? (
           <div className="flex justify-center py-20">
@@ -240,9 +273,9 @@ export const Propiedades = () => {
             <p className="font-primary text-red-400 text-sm">{error}</p>
           </div>
         ) : properties.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4 bg-[#161616] border border-[#1F1F1F] rounded-sm">
-            <p className="font-primary text-[#888888] text-base">{t('property.labels.features.no_results')}</p>
-            <button onClick={clearFilters} className="px-6 py-2.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm tracking-wider uppercase hover:bg-[#D4B673] transition-colors mt-2">
+          <div className="flex flex-col items-center justify-center py-32 gap-6 bg-white/[0.02] border border-white/5 rounded-sm">
+            <p className="font-primary text-white/40 text-lg">{t('property.labels.features.no_results')}</p>
+            <button onClick={clearFilters} className="px-10 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[10px] tracking-[0.2em] uppercase hover:bg-[#D4B673] transition-all shadow-[0_0_20px_rgba(201,169,98,0.1)]">
               {t('property.labels.features.clear_filters')}
             </button>
           </div>

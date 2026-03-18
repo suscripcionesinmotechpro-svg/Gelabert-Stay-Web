@@ -157,8 +157,12 @@
         "pets_allowed": "Se Aceptan Mascotas",
         "no_pets_allowed": "No se Aceptan Mascotas",
         "sea_views": "Vistas al Mar",
-        "map_hint_public": "La ubicación en el mapa es aproximada para proteger la privacidad de la propiedad.",
-        "rent_type": "Modalidad de Alquiler"
+        "map_hint_public": "La ubicación en el mapa es aproximada para proteger la privacidad de la propiedad."
+      },
+      "form": {
+        "fields": {
+          "orientation": "Orientación"
+        }
       }
     }
   },
@@ -291,10 +295,14 @@
       }
     },
     "final_cta": {
-      "title": "¿Listo para empezar?",
-      "description": "Cuéntanos tu situación — comprar, vender, alquilar o buscar vivienda — y te daremos una respuesta clara y sin compromiso.",
-      "contact_now": "Contactar ahora",
-      "view_properties": "Ver propiedades"
+      "title": "Es momento de {{elevate}}",
+      "subtitle": "Estamos a un clic de encontrar el camino más corto hacia tu próximo éxito inmobiliario.",
+      "contact_btn": "Hablar con un experto",
+      "view_listings_btn": "Explorar catálogo"
+    },
+    "tenant_banner": {
+      "tag": "Tu Próximo Paso",
+      "phrase": "Encuentra el hogar que define tu nuevo estilo de vida."
     },
     "owner_services": {
       "compra_venta": {

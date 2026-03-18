@@ -157,8 +157,12 @@
         "pets_allowed": "Pets Allowed",
         "no_pets_allowed": "No Pets Allowed",
         "sea_views": "Sea Views",
-        "map_hint_public": "The location on the map is approximate to protect the privacy of the property.",
-        "rent_type": "Rental Type"
+        "map_hint_public": "The location on the map is approximate to protect the privacy of the property."
+      },
+      "form": {
+        "fields": {
+          "orientation": "Orientation"
+        }
       }
     }
   },
@@ -291,10 +295,14 @@
       }
     },
     "final_cta": {
-      "title": "Ready to start?",
-      "description": "Tell us about your situation — buying, selling, renting, or searching for a home — and we'll give you a clear answer without commitment.",
-      "contact_now": "Contact now",
-      "view_properties": "View properties"
+      "title": "Ready to {{elevate}}?",
+      "subtitle": "We are just one click away from finding the shortest path to your next real estate success.",
+      "contact_btn": "Speak with an expert",
+      "view_listings_btn": "Explore catalog"
+    },
+    "tenant_banner": {
+      "tag": "Your Next Step",
+      "phrase": "Find the home that defines your new lifestyle."
     },
     "owner_services": {
       "compra_venta": {
