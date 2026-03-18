@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; 
 import { Link, useSearchParams } from 'react-router-dom';
 import { useProperties } from '../hooks/useProperties';
 import { type PropertyOperation, type PropertyType, type CommercialStatus, PROPERTY_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
