@@ -154,11 +154,12 @@ export const FichaPropiedad = () => {
   const propertyUrl = `https://gelaberthomes.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${property.reference || property.slug || property.id}/`;
   
   // Optimización de imagen para previsualización (WhatsApp prefiere < 300KB)
-  const mainImg = property.main_image || (property.gallery && property.gallery.length > 0 ? property.gallery[0] : null);
+  const mainImg = property.main_image?.trim() || (property.gallery && property.gallery.length > 0 ? property.gallery.find((img: string) => img && img.trim()) || null : null);
   const isSupabaseImage = mainImg?.includes('supabase.co') && mainImg?.includes('object/public');
+  // Use sharing-logo.jpg (1200x630, proper OG size) as fallback — not logo.png (square)
   const previewImage = isSupabaseImage
-    ? mainImg!.replace('object/public', 'render/image/public') + '?width=1200&height=630&resize=contain'
-    : (mainImg || 'https://gelaberthomes.es/logo.png');
+    ? mainImg!.replace('object/public', 'render/image/public').split('?')[0] + '?width=1200&height=630&resize=contain&quality=80'
+    : (mainImg || 'https://gelaberthomes.es/sharing-logo.jpg');
 
   const whatsappLink = getWhatsAppLink({
     context: 'property',
@@ -167,11 +168,23 @@ export const FichaPropiedad = () => {
     url: propertyUrl
   });
 
+  const propertyKeywords = [
+    translatedTitle,
+    property.city,
+    property.zone,
+    t(OPERATION_LABELS[property.operation]),
+    t(PROPERTY_TYPE_LABELS[property.property_type]),
+    'Gelabert Homes',
+    'inmobiliaria Málaga'
+  ].filter(Boolean).join(', ');
+
   return (
     <div className="w-full pb-20 bg-[#0F0F0F]">
       <Helmet>
         <title>{`${translatedTitle} | ${property.city} | Gelabert Homes Real Estate`}</title>
         <meta name="description" content={translatedDescription?.slice(0, 160) || ''} />
+        <meta name="keywords" content={propertyKeywords} />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
         <link rel="canonical" href={propertyUrl} />
         <link rel="image_src" href={previewImage} />
         
@@ -182,6 +195,7 @@ export const FichaPropiedad = () => {
 
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Gelabert Homes Real Estate" />
         <meta property="og:url" content={propertyUrl} />
         <meta property="og:title" content={`${translatedTitle} | ${t(OPERATION_LABELS[property.operation])} en ${property.city} | Gelabert Homes`} />
         <meta property="og:description" content={translatedDescription?.slice(0, 160) || ''} />
@@ -191,7 +205,6 @@ export const FichaPropiedad = () => {
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:alt" content={translatedTitle} />
-        <meta property="og:site_name" content="Gelabert Homes Real Estate" />
         <meta property="og:locale" content={i18n.language.startsWith('en') ? 'en_US' : 'es_ES'} />
 
         {/* Twitter */}
@@ -206,35 +219,58 @@ export const FichaPropiedad = () => {
         <link rel="alternate" hrefLang="en" href={`https://gelaberthomes.es/en/propiedades/${property.reference || property.slug || property.id}/`} />
         <link rel="alternate" hrefLang="x-default" href={`https://gelaberthomes.es/propiedades/${property.reference || property.slug || property.id}/`} />
 
-        {/* JSON-LD Schema.org para propieades */}
+        {/* JSON-LD: RealEstateListing — Rich Results in Google */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
-            "@type": ["RealEstateListing", ['atico', 'estudio', 'loft'].includes(property.property_type) ? 'Apartment' : 'SingleFamilyResidence'],
+            "@type": "RealEstateListing",
             "name": translatedTitle,
-            "description": translatedDescription?.slice(0, 160),
+            "description": translatedDescription?.slice(0, 500),
             "image": previewImage,
             "url": propertyUrl,
+            "identifier": property.reference || property.id,
             "offers": {
               "@type": "Offer",
               "price": property.price,
               "priceCurrency": "EUR",
               "availability": "https://schema.org/InStock",
+              "priceValidUntil": new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
               "url": propertyUrl
             },
             "address": {
               "@type": "PostalAddress",
               "addressLocality": property.city,
               "addressRegion": "Andalucía",
-              "addressCountry": "ES"
+              "addressCountry": "ES",
+              ...(property.postal_code ? { "postalCode": property.postal_code } : {})
             },
-            "numberOfRooms": property.bedrooms,
-            "numberOfBathroomsTotal": property.bathrooms,
-            "floorSize": {
-              "@type": "QuantitativeValue",
-              "value": property.area_m2,
-              "unitCode": "MTK"
+            ...(property.bedrooms > 0 ? { "numberOfRooms": property.bedrooms } : {}),
+            ...(property.bathrooms > 0 ? { "numberOfBathroomsTotal": property.bathrooms } : {}),
+            ...(property.area_m2 ? { "floorSize": { "@type": "QuantitativeValue", "value": property.area_m2, "unitCode": "MTK" } } : {}),
+            "additionalProperty": [
+              ...(property.has_parking ? [{ "@type": "PropertyValue", "name": "Parking", "value": true }] : []),
+              ...(property.has_pool ? [{ "@type": "PropertyValue", "name": "Swimming Pool", "value": true }] : []),
+              ...(property.sea_views ? [{ "@type": "PropertyValue", "name": "Sea Views", "value": true }] : []),
+            ],
+            "seller": {
+              "@type": "RealEstateAgent",
+              "name": "Gelabert Homes Real Estate",
+              "url": "https://gelaberthomes.es/",
+              "telephone": "+34611898827"
             }
+          })}
+        </script>
+
+        {/* JSON-LD: BreadcrumbList — Shows page path in Google results */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://gelaberthomes.es/" },
+              { "@type": "ListItem", "position": 2, "name": "Propiedades", "item": "https://gelaberthomes.es/propiedades/" },
+              { "@type": "ListItem", "position": 3, "name": translatedTitle, "item": propertyUrl }
+            ]
           })}
         </script>
       </Helmet>

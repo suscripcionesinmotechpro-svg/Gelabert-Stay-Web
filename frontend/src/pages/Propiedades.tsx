@@ -113,9 +113,48 @@ export const Propiedades = () => {
       <Helmet>
         <title>{t('seo.properties_title')} | Gelabert Homes Real Estate</title>
         <meta name="description" content={t('seo.properties_description')} />
+        <meta name="keywords" content="propiedades en venta málaga, alquiler pisos málaga, casas en venta costa del sol, apartamentos málaga, inmuebles málaga gelabert homes" />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <link rel="canonical" href={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/propiedades/' : 'https://gelaberthomes.es/propiedades/'} />
         <link rel="alternate" hrefLang="es" href="https://gelaberthomes.es/propiedades/" />
         <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/propiedades/" />
         <link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es/propiedades/" />
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Gelabert Homes Real Estate" />
+        <meta property="og:url" content={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/propiedades/' : 'https://gelaberthomes.es/propiedades/'} />
+        <meta property="og:title" content={`${t('seo.properties_title')} | Gelabert Homes`} />
+        <meta property="og:description" content={t('seo.properties_description')} />
+        <meta property="og:image" content="https://gelaberthomes.es/sharing-logo.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Catálogo de propiedades - Gelabert Homes" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${t('seo.properties_title')} | Gelabert Homes`} />
+        <meta name="twitter:description" content={t('seo.properties_description')} />
+        <meta name="twitter:image" content="https://gelaberthomes.es/sharing-logo.jpg" />
+        {/* JSON-LD: CollectionPage */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": i18n.language.startsWith('en') ? "Properties in Malaga | Gelabert Homes" : "Propiedades en Málaga | Gelabert Homes",
+            "description": t('seo.properties_description'),
+            "url": i18n.language.startsWith('en') ? "https://gelaberthomes.es/en/propiedades/" : "https://gelaberthomes.es/propiedades/",
+            "publisher": {
+              "@type": "Organization",
+              "name": "Gelabert Homes Real Estate",
+              "url": "https://gelaberthomes.es/"
+            },
+            "breadcrumb": {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://gelaberthomes.es/" },
+                { "@type": "ListItem", "position": 2, "name": "Propiedades", "item": "https://gelaberthomes.es/propiedades/" }
+              ]
+            }
+          })}
+        </script>
       </Helmet>
       
       {/* Premium Mesh Background */}

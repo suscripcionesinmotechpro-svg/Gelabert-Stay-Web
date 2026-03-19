@@ -26,6 +26,59 @@ export const Contacto = () => {
       <Helmet>
         <title>{t('contact_page.seo.title')}</title>
         <meta name="description" content={t('contact_page.seo.description')} />
+        <meta name="keywords" content="contacto inmobiliaria málaga, gelabert homes contacto, agencia inmobiliaria málaga teléfono, inmobiliaria costa del sol contacto" />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/contacto/' : 'https://gelaberthomes.es/contacto/'} />
+        <link rel="alternate" hrefLang="es" href="https://gelaberthomes.es/contacto/" />
+        <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/contacto/" />
+        <link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es/contacto/" />
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Gelabert Homes Real Estate" />
+        <meta property="og:url" content={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/contacto/' : 'https://gelaberthomes.es/contacto/'} />
+        <meta property="og:title" content={t('contact_page.seo.title')} />
+        <meta property="og:description" content={t('contact_page.seo.description')} />
+        <meta property="og:image" content="https://gelaberthomes.es/sharing-logo.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={t('contact_page.seo.title')} />
+        <meta name="twitter:image" content="https://gelaberthomes.es/sharing-logo.jpg" />
+        {/* JSON-LD: LocalBusiness + ContactPage */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ContactPage",
+            "name": i18n.language.startsWith('en') ? "Contact Gelabert Homes Real Estate" : "Contacto - Gelabert Homes Real Estate",
+            "url": i18n.language.startsWith('en') ? "https://gelaberthomes.es/en/contacto/" : "https://gelaberthomes.es/contacto/",
+            "breadcrumb": {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://gelaberthomes.es/" },
+                { "@type": "ListItem", "position": 2, "name": "Contacto", "item": "https://gelaberthomes.es/contacto/" }
+              ]
+            },
+            "mainEntity": {
+              "@type": "RealEstateAgent",
+              "name": "Gelabert Homes Real Estate",
+              "telephone": "+34611898827",
+              "email": "info@gelaberthomes.es",
+              "url": "https://gelaberthomes.es/",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Málaga",
+                "addressRegion": "Andalucía",
+                "addressCountry": "ES"
+              },
+              "openingHoursSpecification": {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+                "opens": "09:00",
+                "closes": "19:00"
+              }
+            }
+          })}
+        </script>
       </Helmet>
 
       {/* Background Mesh */}
