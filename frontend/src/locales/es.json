@@ -387,6 +387,19 @@
           "Gestión de incidencias 24/7",
           "Optimización fiscal de rentas"
         ]
+      },
+      "seguro_impago": {
+        "title": "Seguro de Impago",
+        "tag": "GARANTÍA TOTAL",
+        "desc": "Protección integral por solo el 4,5% de la renta anual. Cobro en 5 días y defensa jurídica ilimitada.",
+        "bullets": [
+          "Protección ilimitada de rentas, suministros y comunidad",
+          "Cobro en 5 días hábiles sin demanda ni carencia",
+          "Cobertura de desocupación y hasta 3 meses tras llaves",
+          "Daños malintencionados cubiertos hasta 3.500€",
+          "Defensa jurídica y gastos judiciales ilimitados",
+          "Análisis de riesgo e intervención por ocupación ilegal"
+        ]
       }
     },
     "tenant_search": {

@@ -111,11 +111,11 @@ const ServiceCard = ({
       </p>
 
       <div className="mt-auto pt-6 border-t border-white/10">
-        <ul className="grid grid-cols-1 gap-3 mb-6">
-          {bullets.slice(0, 3).map((b, i) => (
+        <ul className={`grid gap-3 mb-6 ${bullets.length > 3 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
+          {bullets.slice(0, 6).map((b, i) => (
             <li key={i} className="flex items-center gap-3 font-primary text-xs text-white/50 group-hover:text-white/70 transition-colors">
-              <CheckCircle className="w-3.5 h-3.5 text-[#C9A962]/60" />
-              {b}
+              <CheckCircle className="w-3.5 h-3.5 text-[#C9A962]/60 shrink-0" />
+              <span className="line-clamp-2">{b}</span>
             </li>
           ))}
         </ul>
@@ -235,6 +235,21 @@ export const Servicios = () => {
       desc: t('services.owner_services.administracion.desc'),
       bullets: t('services.owner_services.administracion.bullets', { returnObjects: true }) as string[],
       className: "md:col-span-1 md:row-span-1 min-h-[480px]"
+    },
+    {
+      id: 'seguro_impago',
+      icon: <ShieldCheck className="w-6 h-6 text-[#C9A962]" />,
+      cartIcon: '🛡️',
+      titleKey: 'services.owner_services.seguro_impago.title',
+      tagKey: 'services.owner_services.seguro_impago.tag',
+      descKey: 'services.owner_services.seguro_impago.desc',
+      title: t('services.owner_services.seguro_impago.title'),
+      tag: t('services.owner_services.seguro_impago.tag'),
+      image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1000&auto=format&fit=crop',
+      desc: t('services.owner_services.seguro_impago.desc'),
+      bullets: t('services.owner_services.seguro_impago.bullets', { returnObjects: true }) as string[],
+      className: "md:col-span-2 md:row-span-1 min-h-[400px]",
+      highlight: true
     },
   ];
 

@@ -381,6 +381,19 @@
           "24/7 incident management",
           "Tax optimization of rents"
         ]
+      },
+      "seguro_impago": {
+        "title": "Rent Default Insurance",
+        "tag": "TOTAL GUARANTEE",
+        "desc": "Comprehensive protection for only 4.5% of the annual rent. Payment in 5 days and unlimited legal defense.",
+        "bullets": [
+          "Unlimited protection for rent, utilities, and community fees",
+          "Payment in 5 business days without legal claim or waiting period",
+          "Vacancy coverage and up to 3 months after key return",
+          "Malicious damages covered up to €3,500",
+          "Unlimited legal defense and judicial costs",
+          "Risk analysis and intervention for illegal squatting"
+        ]
       }
     },
     "tenant_search": {
