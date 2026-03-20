@@ -32,6 +32,7 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   isInCompare?: boolean;
   onToggleCompare?: (e: React.MouseEvent) => void;
   id?: string;
+  reference?: string;
 }
 
 export const PropertyCard = ({
@@ -58,6 +59,7 @@ export const PropertyCard = ({
   isInCompare,
   onToggleCompare,
   id,
+  reference,
   ...props
 }: PropertyCardProps) => {
   const { t } = useTranslation();
@@ -100,7 +102,7 @@ export const PropertyCard = ({
   const whatsappLink = getWhatsAppLink({
     context: 'property',
     propertyName: title,
-    propertyRef: id ?? undefined
+    propertyRef: reference || (id ? (id.length > 8 ? id.slice(0, 8) : id) : undefined)
   });
 
   const card = (

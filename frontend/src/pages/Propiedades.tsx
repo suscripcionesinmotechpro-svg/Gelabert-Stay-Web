@@ -405,6 +405,7 @@ export const Propiedades = () => {
                 description_en={p.short_description_en || undefined}
                 gallery={p.gallery}
                 id={p.id}
+                reference={p.reference ?? undefined}
                 isFavorite={isFavorite(p.id)}
                 onToggleFavorite={(e) => {
                   e.preventDefault();

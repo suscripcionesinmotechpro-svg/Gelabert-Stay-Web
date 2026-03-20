@@ -336,7 +336,8 @@ export const Home = () => {
                 imageUrl={p.main_image ?? ''}
                 linkTo={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${p.reference || p.slug || p.id}`}
                 gallery={p.gallery}
-                id={p.reference || p.id}
+                id={p.id}
+                reference={p.reference ?? undefined}
               />
             ))
           ) : (
