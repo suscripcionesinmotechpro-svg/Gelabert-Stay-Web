@@ -99,10 +99,14 @@ export const PropertyCard = ({
     maximumFractionDigits: 0
   }).format(price);
 
+  const { i18n } = useTranslation();
+  const propertyUrl = `https://gelaberthomes.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${reference || id}`;
+
   const whatsappLink = getWhatsAppLink({
     context: 'property',
     propertyName: title,
-    propertyRef: reference || (id ? (id.length > 8 ? id.slice(0, 8) : id) : undefined)
+    propertyRef: reference || (id ? (id.length > 8 ? id.slice(0, 8) : id) : undefined),
+    url: propertyUrl
   });
 
   const card = (

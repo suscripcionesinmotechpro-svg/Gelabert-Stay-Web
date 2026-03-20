@@ -151,7 +151,7 @@ export const FichaPropiedad = () => {
   const translatedDescription = autoDescription;
   
   // Usamos URL con slash final para mejorar compatibilidad con algunos scrapers
-  const propertyUrl = `https://gelaberthomes.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${property.reference || property.slug || property.id}/`;
+  const propertyUrl = `https://gelaberthomes.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${property.reference || property.slug || property.id}`;
   
   // Optimización de imagen para previsualización (WhatsApp prefiere < 300KB)
   const mainImg = property.main_image?.trim() || (property.gallery && property.gallery.length > 0 ? property.gallery.find((img: string) => img && img.trim()) || null : null);
@@ -215,9 +215,9 @@ export const FichaPropiedad = () => {
         <meta name="twitter:image:alt" content={translatedTitle} />
 
         {/* Hreflang para versionado internacional */}
-        <link rel="alternate" hrefLang="es" href={`https://gelaberthomes.es/propiedades/${property.reference || property.slug || property.id}/`} />
-        <link rel="alternate" hrefLang="en" href={`https://gelaberthomes.es/en/propiedades/${property.reference || property.slug || property.id}/`} />
-        <link rel="alternate" hrefLang="x-default" href={`https://gelaberthomes.es/propiedades/${property.reference || property.slug || property.id}/`} />
+        <link rel="alternate" hrefLang="es" href={`https://gelaberthomes.es/propiedades/${property.reference || property.slug || property.id}`} />
+        <link rel="alternate" hrefLang="en" href={`https://gelaberthomes.es/en/propiedades/${property.reference || property.slug || property.id}`} />
+        <link rel="alternate" hrefLang="x-default" href={`https://gelaberthomes.es/propiedades/${property.reference || property.slug || property.id}`} />
 
         {/* JSON-LD: RealEstateListing — Rich Results in Google */}
         <script type="application/ld+json">

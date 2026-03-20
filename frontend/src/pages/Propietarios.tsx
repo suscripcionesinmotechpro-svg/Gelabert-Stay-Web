@@ -27,9 +27,9 @@ export const Propietarios = () => {
         <title>{t('owners_page.seo.title')}</title>
         <meta name="description" content={t('owners_page.seo.description')} />
         <meta property="og:title" content={t('owners_page.seo.og_title')} />
-        <link rel="alternate" hrefLang="es" href="https://gelaberthomes.es/propietarios/" />
-        <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/propietarios/" />
-        <link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es/propietarios/" />
+        <link rel="alternate" hrefLang="es" href="https://gelaberthomes.es/propietarios" />
+        <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/propietarios" />
+        <link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es/propietarios" />
       </Helmet>
 
       {/* Background Mesh */}

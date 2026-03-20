@@ -28,14 +28,14 @@ export const Contacto = () => {
         <meta name="description" content={t('contact_page.seo.description')} />
         <meta name="keywords" content="contacto inmobiliaria málaga, gelabert homes contacto, agencia inmobiliaria málaga teléfono, inmobiliaria costa del sol contacto" />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/contacto/' : 'https://gelaberthomes.es/contacto/'} />
-        <link rel="alternate" hrefLang="es" href="https://gelaberthomes.es/contacto/" />
-        <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/contacto/" />
-        <link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es/contacto/" />
+        <link rel="canonical" href={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/contacto' : 'https://gelaberthomes.es/contacto'} />
+        <link rel="alternate" hrefLang="es" href="https://gelaberthomes.es/contacto" />
+        <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/contacto" />
+        <link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es/contacto" />
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Gelabert Homes Real Estate" />
-        <meta property="og:url" content={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/contacto/' : 'https://gelaberthomes.es/contacto/'} />
+        <meta property="og:url" content={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/contacto' : 'https://gelaberthomes.es/contacto'} />
         <meta property="og:title" content={t('contact_page.seo.title')} />
         <meta property="og:description" content={t('contact_page.seo.description')} />
         <meta property="og:image" content="https://gelaberthomes.es/sharing-logo.jpg" />
