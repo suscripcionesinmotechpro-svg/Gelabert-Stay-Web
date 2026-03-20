@@ -25,7 +25,7 @@ export const getWhatsAppLink = ({
 
   switch (context) {
     case 'property':
-      message = `Hola, estoy interesado en recibir más información sobre esta propiedad:\n\n🏠 *${propertyName || 'Propiedad'}*${propertyRef ? `\nReferencia: ${propertyRef}` : ''}\n\n🔗 ${currentUrl}`;
+      message = `Hola, me interesa la propiedad ${propertyName || 'Propiedad'} que vi en la web. Ref: ${propertyRef || ''}\n\n🔗 ${currentUrl}`;
       break;
     case 'properties_list':
       message = `Hola, acabo de ver vuestro catálogo de propiedades y me gustaría recibir más información sobre las propiedades disponibles.\n\n🔗 ${currentUrl}`;

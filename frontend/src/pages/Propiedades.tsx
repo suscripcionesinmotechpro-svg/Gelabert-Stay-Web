@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useProperties } from '../hooks/useProperties';
 import { type PropertyOperation, type PropertyType, type CommercialStatus, PROPERTY_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import { PropertyCard } from '../components/PropertyCard';
+import { PropertySkeleton } from '../components/PropertySkeleton';
 import { cn } from '../lib/utils';
 import { Search, SlidersHorizontal, ChevronDown, ChevronUp, Heart, Map as MapIcon, List as ListIcon } from 'lucide-react';
 import { PropertiesMap } from '../components/PropertiesMap';
@@ -336,8 +337,10 @@ export const Propiedades = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <PropertySkeleton key={i} />
+            ))}
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
@@ -372,13 +375,13 @@ export const Propiedades = () => {
               <motion.div 
                 key={p.id}
                 variants={{
-                  hidden: { opacity: 0, y: 10 },
+                  hidden: { opacity: 0, y: 20 },
                   show: { 
                     opacity: 1, 
                     y: 0, 
                     transition: { 
-                      duration: 0.4, 
-                      ease: [0.25, 1, 0.5, 1] 
+                      duration: 0.6, 
+                      ease: [0.16, 1, 0.3, 1] 
                     } 
                   }
                 }}

@@ -105,8 +105,10 @@ export const PropertyCard = ({
 
   const card = (
     <motion.div 
+      whileHover={{ y: -5 }}
+      transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
       className={cn(
-        "group h-full flex flex-col bg-[#0D0D0D] border border-[#1F1F1F] hover:border-[#C9A962]/40 transition-all duration-500 overflow-hidden relative rounded-2xl",
+        "group h-full flex flex-col bg-[#0D0D0D] border border-[#1F1F1F] hover:border-[#C9A962]/40 hover:shadow-2xl hover:shadow-[#C9A962]/5 transition-all duration-500 overflow-hidden relative rounded-2xl",
         className
       )}
       {...props}
