@@ -341,6 +341,25 @@ export const FichaPropiedad = () => {
                   decoding="async"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                 />
+                
+                {/* Watermark Overlay */}
+                {property.commercial_status && property.commercial_status !== 'disponible' && (
+                  <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden select-none">
+                    <div className={cn(
+                      "transform -rotate-12 scale-150 md:scale-[2] opacity-25 mix-blend-overlay",
+                      property.commercial_status === 'reservado' && "text-orange-500",
+                      property.commercial_status === 'alquilado' && "text-purple-500",
+                      property.commercial_status === 'vendido' && "text-red-500",
+                      property.commercial_status === 'traspasado' && "text-blue-500",
+                    )}>
+                      <div className="border-[8px] border-current px-8 py-3 rounded-sm flex items-center justify-center">
+                        <span className="font-secondary text-5xl md:text-7xl font-black uppercase tracking-tighter text-center leading-none">
+                          {t(COMMERCIAL_STATUS_LABELS[property.commercial_status])}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                   <Maximize className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
                 </div>

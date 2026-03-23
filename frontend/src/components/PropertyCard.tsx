@@ -210,6 +210,25 @@ export const PropertyCard = ({
           </div>
         )}
 
+        {/* Watermark Overlay */}
+        {commercialStatus && commercialStatus !== 'disponible' && (
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden select-none">
+            <div className={cn(
+              "transform -rotate-12 scale-110 opacity-40 mix-blend-overlay",
+              commercialStatus === 'reservado' && "text-orange-500",
+              commercialStatus === 'alquilado' && "text-purple-500",
+              commercialStatus === 'vendido' && "text-red-500",
+              commercialStatus === 'traspasado' && "text-blue-500",
+            )}>
+              <div className="border-[6px] border-current px-6 py-2 rounded-sm flex items-center justify-center">
+                <span className="font-secondary text-5xl font-black uppercase tracking-tighter text-center leading-none">
+                  {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Price Overlay */}
         <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-black/40 backdrop-blur-xl border-t border-white/10 flex items-center justify-between z-10">
           <span className="font-secondary text-2xl text-[#FAF8F5] leading-none">{formattedPrice}</span>
