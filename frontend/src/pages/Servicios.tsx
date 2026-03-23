@@ -340,6 +340,26 @@ export const Servicios = () => {
           <div className="w-20 h-1 bg-[#C9A962] mt-2 rounded-full" />
         </motion.div>
 
+        {/* Info Note about selection */}
+        <motion.div 
+          {...(fadeUp as any)}
+          className="max-w-4xl mx-auto mb-16 p-8 md:p-10 bg-white/[0.02] border border-[#C9A962]/20 backdrop-blur-xl rounded-sm flex flex-col md:flex-row items-center gap-8 text-center md:text-left shadow-2xl relative overflow-hidden group"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#C9A962]/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-[#C9A962]/10 transition-colors duration-700" />
+          
+          <div className="w-16 h-16 shrink-0 bg-[#C9A962] flex items-center justify-center rounded-sm shadow-[0_10px_30px_rgba(201,169,98,0.2)]">
+            <ShoppingBag className="w-7 h-7 text-[#0A0A0A]" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <h4 className="font-secondary text-[#C9A962] text-xl uppercase tracking-wider">
+              {t('services.cart.floating_view')}
+            </h4>
+            <p className="font-primary text-[#FAF8F5]/70 text-base leading-relaxed italic">
+              "{t('services.cart.note')}"
+            </p>
+          </div>
+        </motion.div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-fr">
           {serviciosPropietario.map((s) => (
             <ServiceCard

@@ -246,10 +246,11 @@
       "og_description": "Comprehensive solutions for owners, investors, and tenants."
     },
     "cart": {
-      "button_add": "Add to selection",
+      "button_add": "Add to my selection",
       "button_selected": "Selected",
       "button_added": "Added",
-      "floating_view": "View selection",
+      "note": "Add the services you're interested in to your selection. Once finished, complete the form and we will contact you as soon as possible.",
+      "floating_view": "View my selection",
       "drawer_title": "Your Selection",
       "drawer_empty": "You haven't selected any service yet.",
       "drawer_empty_desc": "Select the services you are interested in to request information.",
