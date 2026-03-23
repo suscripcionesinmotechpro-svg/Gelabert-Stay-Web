@@ -34,6 +34,9 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   onToggleCompare?: (e: React.MouseEvent) => void;
   id?: string;
   reference?: string;
+  createdAt?: string | null;
+  onTagClick?: (tag: string) => void;
+  tags?: string[] | null;
 }
 
 export const PropertyCard = ({
@@ -62,11 +65,17 @@ export const PropertyCard = ({
   onToggleCompare,
   id,
   reference,
+  createdAt,
+  onTagClick,
+  tags,
   ...props
 }: PropertyCardProps) => {
   const { t } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
+  // Logic for "New" badge (e.g., less than 7 days old)
+  const isNew = createdAt ? (new Date().getTime() - new Date(createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000 : false;
+
   const { translatedText: autoTitle } = useAutoTranslate(title, title_en);
   const { translatedText: autoDescription } = useAutoTranslate(description, description_en);
 
@@ -173,42 +182,53 @@ export const PropertyCard = ({
         <button
           onClick={onToggleFavorite}
           className={cn(
-            "absolute top-4 left-4 z-20 p-2 rounded-full backdrop-blur-md transition-all duration-300 border shadow-lg pointer-events-auto",
+            "absolute top-4 right-4 z-30 p-2 rounded-full backdrop-blur-md transition-all duration-300 border shadow-lg pointer-events-auto",
             isFavorite 
               ? "bg-[#C9A962] border-[#C9A962] text-[#0A0A0A]" 
               : "bg-black/40 border-white/10 text-white hover:bg-white/20 hover:scale-110"
           )}
         >
-          <Heart className={cn("w-4 h-4", isFavorite && "fill-current content-['']")} />
+          <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
         </button>
 
         {/* Operation Badge */}
-        <div className={cn("absolute top-4 left-4 px-3 py-1 font-primary text-[10px] font-bold tracking-[0.08em] uppercase z-10", getBadgeColor())}>
+        <div className={cn(
+          "absolute top-4 left-4 px-3 py-1 font-primary text-[10px] font-bold tracking-[0.08em] uppercase z-20 shadow-lg border border-white/10 backdrop-blur-sm",
+          getBadgeColor()
+        )}>
           {t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation])}
         </div>
         
-        {/* Featured Badge */}
-        {isFeatured && (
-          <div className={cn(
-            "absolute top-4 right-4 px-3 py-1 bg-[#1F1F1F]/80 backdrop-blur-md border border-[#C9A962]/30 font-primary text-[#C9A962] text-[10px] font-bold uppercase flex items-center gap-1 shadow-lg z-10",
-            commercialStatus && commercialStatus !== 'disponible' && "right-[110px]" // Offset if both are present
-          )}>
-            <span>★</span> {t('property.labels.featured')}
-          </div>
-        )}
+        {/* Dynamic Badges Container (Top Right) */}
+        <div className="absolute top-14 right-4 flex flex-col items-end gap-2 z-20 pointer-events-none">
+          {/* New Badge */}
+          {isNew && (
+            <div className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-bold uppercase shadow-xl border border-white/20">
+              {t('common.new')}
+            </div>
+          )}
 
-        {/* Commercial Status Badge */}
-        {commercialStatus && commercialStatus !== 'disponible' && (
-          <div className={cn(
-            "absolute top-4 right-4 px-3 py-1 bg-[#0A0A0A]/80 backdrop-blur-md border font-primary text-[10px] font-bold uppercase flex items-center gap-1 shadow-lg z-10",
-            commercialStatus === 'reservado' && "text-orange-400 border-orange-400/30",
-            commercialStatus === 'alquilado' && "text-purple-400 border-purple-400/30",
-            commercialStatus === 'vendido' && "text-red-400 border-red-400/30",
-            commercialStatus === 'traspasado' && "text-blue-400 border-blue-400/30",
-          )}>
-            {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
-          </div>
-        )}
+          {/* Featured Badge */}
+          {isFeatured && (
+            <div className="px-3 py-1 bg-[#1F1F1F]/90 backdrop-blur-md border border-[#C9A962]/40 font-primary text-[#C9A962] text-[10px] font-bold uppercase flex items-center gap-1 shadow-xl">
+              <span>★</span> {t('property.labels.featured')}
+            </div>
+          )}
+
+          {/* Commercial Status Badge */}
+          {commercialStatus && (
+            <div className={cn(
+              "px-3 py-1 bg-[#0A0A0A]/90 backdrop-blur-md border font-primary text-[10px] font-bold uppercase flex items-center gap-1 shadow-xl",
+              commercialStatus === 'disponible' && "text-green-400 border-green-400/40",
+              commercialStatus === 'reservado' && "text-orange-400 border-orange-400/40",
+              commercialStatus === 'alquilado' && "text-purple-400 border-purple-400/40",
+              commercialStatus === 'vendido' && "text-red-400 border-red-400/40",
+              commercialStatus === 'traspasado' && "text-blue-400 border-blue-400/40",
+            )}>
+              {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
+            </div>
+          )}
+        </div>
 
         {/* Watermark Overlay */}
         {commercialStatus && commercialStatus !== 'disponible' && (
@@ -304,6 +324,28 @@ export const PropertyCard = ({
             </>
           )}
         </div>
+
+        {/* Tags Row */}
+        {tags && tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {tags.slice(0, 3).map(tag => (
+              <button
+                key={tag}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onTagClick?.(tag);
+                }}
+                className="px-2 py-0.5 border border-[#1F1F1F] hover:border-[#C9A962]/50 font-primary text-[9px] uppercase tracking-wider text-[#C9A962] bg-[#C9A962]/5 transition-colors rounded-sm"
+              >
+                {t(`tags.${tag}`, tag)}
+              </button>
+            ))}
+            {tags.length > 3 && (
+              <span className="text-[9px] text-[#444444] self-center">+{tags.length - 3}</span>
+            )}
+          </div>
+        )}
 
         {/* Action Row */}
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-[#1F1F1F]">

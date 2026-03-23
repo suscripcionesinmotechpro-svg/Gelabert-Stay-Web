@@ -525,9 +525,15 @@ export const FichaPropiedad = () => {
                 {property.reference && (
                   <span className="font-primary text-xs text-[#444444]">REF: {property.reference}</span>
                 )}
-                {property.commercial_status && property.commercial_status !== 'disponible' && (
+                {property.created_at && (new Date().getTime() - new Date(property.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000 && (
+                  <span className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-bold uppercase shadow-sm">
+                    {t('common.new')}
+                  </span>
+                )}
+                {property.commercial_status && (
                   <span className={cn(
                     "px-3 py-1 font-primary text-xs font-bold uppercase shadow-sm",
+                    property.commercial_status === 'disponible' && "bg-green-400/20 text-green-400 border border-green-400/30",
                     property.commercial_status === 'reservado' && "bg-orange-400/20 text-orange-400 border border-orange-400/30",
                     property.commercial_status === 'alquilado' && "bg-purple-400/20 text-purple-400 border border-purple-400/30",
                     property.commercial_status === 'vendido' && "bg-red-400/20 text-red-400 border border-red-400/30",
@@ -537,7 +543,7 @@ export const FichaPropiedad = () => {
                   </span>
                 )}
               </div>
-              <h1 className="font-secondary text-3xl md:text-4xl text-[#FAF8F5]">{translatedTitle}</h1>
+              <h1 className="font-secondary text-2xl md:text-5xl text-[#FAF8F5] leading-tight">{translatedTitle}</h1>
               {(property.zone || property.city || property.urbanization) && (
                 <div className="flex flex-col gap-1 text-[#888888]">
                   <div className="flex items-center gap-1">

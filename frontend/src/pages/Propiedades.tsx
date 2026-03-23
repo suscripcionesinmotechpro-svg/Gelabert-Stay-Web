@@ -208,7 +208,7 @@ export const Propiedades = () => {
       </section>
 
       {/* Panel de Filtros Sticky */}
-      <section className="sticky top-0 z-30 w-full px-6 md:px-14 py-6 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 shadow-2xl">
+      <section className="sticky top-24 z-30 w-full px-6 md:px-14 py-4 md:py-6 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 shadow-2xl">
         <div className="max-w-7xl mx-auto flex flex-col gap-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {/* Buscador Global */}
@@ -407,6 +407,12 @@ export const Propiedades = () => {
                 gallery={p.gallery}
                 id={p.id}
                 reference={p.reference ?? undefined}
+                createdAt={p.created_at}
+                tags={p.tags}
+                onTagClick={(tag) => {
+                  setKeyword(tag);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 isFavorite={isFavorite(p.id)}
                 onToggleFavorite={(e) => {
                   e.preventDefault();
