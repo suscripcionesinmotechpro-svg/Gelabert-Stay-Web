@@ -3,7 +3,7 @@ import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAutoTranslate } from '../hooks/useAutoTranslate';
-import { OPERATION_LABELS, type PropertyOperation } from '../types/property';
+import { OPERATION_LABELS, type PropertyOperation, type CommercialStatus, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import { ChevronLeft, ChevronRight, MessageSquare, Heart, GitCompare } from 'lucide-react';
 import { getWhatsAppLink } from '../utils/whatsapp';
 import { useState } from 'react';
@@ -17,6 +17,7 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   bedrooms: number;
   bathrooms: number;
   operation: 'ALQUILER' | 'VENTA' | 'TRASPASO';
+  commercialStatus?: CommercialStatus;
   isFeatured?: boolean;
   imageUrl?: string;
   linkTo?: string;
@@ -44,6 +45,7 @@ export const PropertyCard = ({
   bedrooms,
   bathrooms,
   operation,
+  commercialStatus,
   isFeatured,
   imageUrl,
   linkTo,
@@ -187,8 +189,24 @@ export const PropertyCard = ({
         
         {/* Featured Badge */}
         {isFeatured && (
-          <div className="absolute top-4 right-4 px-3 py-1 bg-[#1F1F1F]/80 backdrop-blur-md border border-[#C9A962]/30 font-primary text-[#C9A962] text-[10px] font-bold uppercase flex items-center gap-1 shadow-lg z-10">
+          <div className={cn(
+            "absolute top-4 right-4 px-3 py-1 bg-[#1F1F1F]/80 backdrop-blur-md border border-[#C9A962]/30 font-primary text-[#C9A962] text-[10px] font-bold uppercase flex items-center gap-1 shadow-lg z-10",
+            commercialStatus && commercialStatus !== 'disponible' && "right-[110px]" // Offset if both are present
+          )}>
             <span>★</span> {t('property.labels.featured')}
+          </div>
+        )}
+
+        {/* Commercial Status Badge */}
+        {commercialStatus && commercialStatus !== 'disponible' && (
+          <div className={cn(
+            "absolute top-4 right-4 px-3 py-1 bg-[#0A0A0A]/80 backdrop-blur-md border font-primary text-[10px] font-bold uppercase flex items-center gap-1 shadow-lg z-10",
+            commercialStatus === 'reservado' && "text-orange-400 border-orange-400/30",
+            commercialStatus === 'alquilado' && "text-purple-400 border-purple-400/30",
+            commercialStatus === 'vendido' && "text-red-400 border-red-400/30",
+            commercialStatus === 'traspasado' && "text-blue-400 border-blue-400/30",
+          )}>
+            {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
           </div>
         )}
 

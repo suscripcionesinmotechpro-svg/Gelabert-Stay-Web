@@ -396,6 +396,7 @@ export const Propiedades = () => {
                 bedrooms={p.bedrooms}
                 bathrooms={p.bathrooms}
                 operation={p.operation.toUpperCase() as 'ALQUILER' | 'VENTA' | 'TRASPASO'}
+                commercialStatus={p.commercial_status}
                 isFeatured={p.is_featured}
                 imageUrl={p.main_image || ''}
                 linkTo={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${p.reference || p.slug || p.id}`}

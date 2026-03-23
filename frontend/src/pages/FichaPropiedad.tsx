@@ -3,7 +3,8 @@ import { useProperty, useProperties } from '../hooks/useProperties';
 import { useAutoTranslate, useAutoTranslateArray } from '../hooks/useAutoTranslate';
 import { PropertyCard } from '../components/PropertyCard';
 import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, ChevronLeft, ChevronRight, X, Check, Play, Map as MapIcon, Compass } from 'lucide-react';
-import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS } from '../types/property';
+import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
+import { cn } from '../lib/utils';
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
@@ -504,6 +505,17 @@ export const FichaPropiedad = () => {
                 </span>
                 {property.reference && (
                   <span className="font-primary text-xs text-[#444444]">REF: {property.reference}</span>
+                )}
+                {property.commercial_status && property.commercial_status !== 'disponible' && (
+                  <span className={cn(
+                    "px-3 py-1 font-primary text-xs font-bold uppercase shadow-sm",
+                    property.commercial_status === 'reservado' && "bg-orange-400/20 text-orange-400 border border-orange-400/30",
+                    property.commercial_status === 'alquilado' && "bg-purple-400/20 text-purple-400 border border-purple-400/30",
+                    property.commercial_status === 'vendido' && "bg-red-400/20 text-red-400 border border-red-400/30",
+                    property.commercial_status === 'traspasado' && "bg-blue-400/20 text-blue-400 border border-blue-400/30",
+                  )}>
+                    {t(COMMERCIAL_STATUS_LABELS[property.commercial_status])}
+                  </span>
                 )}
               </div>
               <h1 className="font-secondary text-3xl md:text-4xl text-[#FAF8F5]">{translatedTitle}</h1>
