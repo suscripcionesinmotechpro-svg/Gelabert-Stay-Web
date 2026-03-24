@@ -7,7 +7,6 @@ import { OPERATION_LABELS, type PropertyOperation, type CommercialStatus, COMMER
 import { ChevronLeft, ChevronRight, MessageSquare, Heart, GitCompare } from 'lucide-react';
 import { getWhatsAppLink } from '../utils/whatsapp';
 import { useState } from 'react';
-import { getOptimizedImage } from '../utils/images';
 
 export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   title: string;
@@ -143,7 +142,7 @@ export const PropertyCard = ({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            src={getOptimizedImage(images[currentImageIndex], { width: 600, quality: 75 })} 
+            src={images[currentImageIndex]} 
             alt={title}
             className="absolute inset-0 w-full h-full object-cover"
           />

@@ -12,7 +12,6 @@ import { PropertyMap } from '../components/PropertyMap';
 import { supabase } from '../lib/supabase';
 import { useTranslation, Trans } from 'react-i18next';
 import { getWhatsAppLink } from '../utils/whatsapp';
-import { getOptimizedImage } from '../utils/images';
 import Lightbox from "yet-another-react-lightbox";
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
@@ -52,9 +51,7 @@ export const FichaPropiedad = () => {
   };
 
   const allImages = [property?.main_image, ...(property?.gallery ?? [])].filter(Boolean) as string[];
-  const lightboxSlides = allImages.map(src => ({ 
-    src: getOptimizedImage(src, { width: 2000, quality: 90 }) 
-  }));
+  const lightboxSlides = allImages.map(src => ({ src }));
 
   // Lightbox key handling is handled internally by yet-another-react-lightbox
 
@@ -322,7 +319,7 @@ export const FichaPropiedad = () => {
             {allImages.length > 0 ? (
               <>
                 <img 
-                  src={getOptimizedImage(allImages[activeImg], { width: 1200, quality: 85 })} 
+                  src={allImages[activeImg]} 
                   alt={translatedTitle} 
                   loading="eager"
                   fetchPriority="high"
@@ -361,7 +358,7 @@ export const FichaPropiedad = () => {
             <div className="flex md:flex-col gap-2 md:w-1/3 overflow-x-auto md:overflow-y-auto md:max-h-[450px]">
               {allImages.map((img, i) => (
                 <button key={i} onClick={() => { setActiveImg(i); openLightbox(i); }} className={`w-20 md:w-full h-20 md:h-28 flex-shrink-0 overflow-hidden border ${i === activeImg ? 'border-[#C9A962]' : 'border-[#1F1F1F] hover:border-[#888888]'} transition-colors cursor-zoom-in`}>
-                  <img src={getOptimizedImage(img, { width: 300, height: 200, quality: 70 })} alt={`${i}`} loading="lazy" className="w-full h-full object-cover" />
+                  <img src={img} alt={`${i}`} loading="lazy" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
