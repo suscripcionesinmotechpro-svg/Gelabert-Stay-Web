@@ -321,8 +321,9 @@ export const Home = () => {
               <PropertyCardSkeleton key={i} />
             ))
           ) : featuredProperties.length > 0 ? (
-            featuredProperties.map(p => (
+            featuredProperties.map((p, index) => (
               <PropertyCard
+                index={index}
                 key={p.id}
                 title={p.title}
                 title_en={p.title_en || undefined}

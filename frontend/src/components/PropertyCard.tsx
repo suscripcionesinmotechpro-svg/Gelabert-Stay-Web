@@ -124,11 +124,15 @@ export const PropertyCard = ({
 
   const card = (
     <motion.div 
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 30, scale: 0.98 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: "-50px" }}
-      whileHover={{ y: -8 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: index !== undefined ? Math.min(index % 12, 12) * 0.08 : 0 }}
+      whileHover={{ y: -8, scale: 1.01 }}
+      transition={{ 
+        duration: 0.8, 
+        ease: [0.16, 1, 0.3, 1], 
+        delay: index !== undefined ? Math.min(index % 12, 12) * 0.1 : 0 
+      }}
       style={{ willChange: 'transform, opacity' }}
       className={cn(
         "group h-full flex flex-col bg-[#0D0D0D] border border-[#1F1F1F] hover:border-[#C9A962]/60 hover:shadow-2xl hover:shadow-[#C9A962]/10 transition-all duration-500 overflow-hidden relative rounded-2xl",
