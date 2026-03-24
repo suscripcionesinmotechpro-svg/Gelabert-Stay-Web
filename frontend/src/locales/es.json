@@ -161,8 +161,18 @@
         "pets_allowed": "Se Aceptan Mascotas",
         "no_pets_allowed": "No se Aceptan Mascotas",
         "sea_views": "Vistas al Mar",
+        "compare": "Comparar",
+        "remove_compare": "Quitar de comparación",
+        "remove_short": "Quitar",
         "map_hint_public": "La ubicación en el mapa es aproximada para proteger la privacidad de la propiedad."
       }
+    },
+    "comparator": {
+      "select_another": "— Selecciona otra propiedad para comparar",
+      "cancel": "Cancelar",
+      "comparing": "Comparando {{count}} propiedades",
+      "clear": "Limpiar",
+      "view_details": "Ver ficha"
     },
     "form": {
       "fields": {

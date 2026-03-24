@@ -22,7 +22,7 @@ interface FeatureRow {
 }
 
 export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyComparatorProps) => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
 
   if (properties.length === 0) return null;
@@ -44,13 +44,13 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
           )}
           <span className="font-primary text-xs text-white/70 whitespace-nowrap">
             <span className="text-[#C9A962] font-bold">{isEn && p.title_en ? p.title_en : p.title}</span>
-            {' '}— Selecciona otra propiedad para comparar
+            {' '}{t('property.comparator.select_another')}
           </span>
         </div>
         <button
           onClick={onClear}
           className="ml-2 text-white/30 hover:text-white transition-colors"
-          title="Cancelar"
+          title={t('property.comparator.cancel')}
         >
           <X className="w-4 h-4" />
         </button>
@@ -93,13 +93,13 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
           <div className="flex items-center gap-4">
             <GitCompare className="w-4 h-4 text-[#C9A962]" />
             <span className="font-primary text-[10px] text-[#C9A962] font-bold uppercase tracking-[0.25em]">
-              Comparando {properties.length} propiedades
+              {t('property.comparator.comparing', { count: properties.length })}
             </span>
             <button
               onClick={onClear}
               className="font-primary text-[10px] text-white/30 hover:text-white/60 uppercase tracking-[0.15em] transition-colors"
             >
-              Limpiar
+              {t('property.comparator.clear')}
             </button>
           </div>
           <button onClick={onClear} className="text-white/30 hover:text-white transition-colors">
@@ -138,7 +138,7 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
                     to={`${isEn ? '/en' : ''}/propiedades/${p.reference || p.slug || p.id}`}
                     className="mt-2 flex items-center gap-1 font-primary text-[9px] text-white/40 hover:text-[#C9A962] uppercase tracking-widest transition-colors"
                   >
-                    Ver ficha <ArrowRight className="w-3 h-3" />
+                    {t('property.comparator.view_details')} <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
               ))}

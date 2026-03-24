@@ -161,8 +161,18 @@
         "pets_allowed": "Pets Allowed",
         "no_pets_allowed": "No Pets Allowed",
         "sea_views": "Sea Views",
+        "compare": "Compare",
+        "remove_compare": "Remove from comparison",
+        "remove_short": "Remove",
         "map_hint_public": "The location on the map is approximate to protect the privacy of the property."
       }
+    },
+    "comparator": {
+      "select_another": "— Select another property to compare",
+      "cancel": "Cancel",
+      "comparing": "Comparing {{count}} properties",
+      "clear": "Clear",
+      "view_details": "View details"
     },
     "form": {
       "fields": {

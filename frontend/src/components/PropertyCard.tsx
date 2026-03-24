@@ -127,6 +127,7 @@ export const PropertyCard = ({
       viewport={{ once: true, margin: "-50px" }}
       whileHover={{ y: -8 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      style={{ willChange: 'transform, opacity' }}
       className={cn(
         "group h-full flex flex-col bg-[#0D0D0D] border border-[#1F1F1F] hover:border-[#C9A962]/60 hover:shadow-2xl hover:shadow-[#C9A962]/10 transition-all duration-500 overflow-hidden relative rounded-2xl",
         className
@@ -144,6 +145,8 @@ export const PropertyCard = ({
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             src={images[currentImageIndex]} 
             alt={title}
+            loading="lazy"
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover"
           />
         </AnimatePresence>
@@ -359,7 +362,7 @@ export const PropertyCard = ({
           {onToggleCompare && (
             <button
               onClick={onToggleCompare}
-              title={isInCompare ? 'Quitar de comparación' : 'Comparar'}
+              title={isInCompare ? t('property.labels.features.remove_compare') : t('property.labels.features.compare')}
               className={cn(
                 "p-2 rounded-sm border font-primary text-[9px] uppercase tracking-widest transition-all flex items-center gap-1",
                 isInCompare
@@ -368,7 +371,7 @@ export const PropertyCard = ({
               )}
             >
               <GitCompare className="w-3 h-3" />
-              <span className="hidden lg:inline">{isInCompare ? 'Quitar' : 'Comparar'}</span>
+              <span className="hidden lg:inline">{isInCompare ? t('property.labels.features.remove_short') : t('property.labels.features.compare')}</span>
             </button>
           )}
         </div>
