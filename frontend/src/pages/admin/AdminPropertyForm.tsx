@@ -67,10 +67,12 @@ export const AdminPropertyForm = () => {
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadingFloorPlan, setUploadingFloorPlan] = useState(false);
   const [newHighlight, setNewHighlight] = useState('');
+  const [latStr, setLatStr] = useState('');
+  const [lonStr, setLonStr] = useState('');
 
   useEffect(() => {
     if (isEditing && property) {
-      setForm({
+      const newForm = {
         title: property.title, operation: property.operation, property_type: property.property_type,
         price: property.price ?? undefined, currency: property.currency, city: property.city ?? '',
         zone: property.zone ?? '', address: property.address ?? '', postal_code: property.postal_code ?? '',
@@ -106,10 +108,22 @@ export const AdminPropertyForm = () => {
         ibi: property.ibi ?? undefined,
         block_staircase: property.block_staircase ?? '',
         urbanization: property.urbanization ?? '',
-      });
-
+      };
+      setForm(newForm);
+      setLatStr(property.latitude?.toString() ?? '');
+      setLonStr(property.longitude?.toString() ?? '');
     }
   }, [property, isEditing]);
+
+  // Sync string coords when form coords change (e.g. from auto-geocoding)
+  useEffect(() => {
+    if (form.latitude !== undefined && form.latitude !== null && Number(latStr) !== form.latitude) {
+      setLatStr(form.latitude.toString());
+    }
+    if (form.longitude !== undefined && form.longitude !== null && Number(lonStr) !== form.longitude) {
+      setLonStr(form.longitude.toString());
+    }
+  }, [form.latitude, form.longitude]);
 
   // Geolocalización automática con debounce
   useEffect(() => {
@@ -502,14 +516,32 @@ export const AdminPropertyForm = () => {
               <input 
                 className={inputClass} 
                 placeholder={t('admin.form.fields.lat_placeholder')} 
-                value={form.latitude ?? ''} 
-                onChange={e => set('latitude', e.target.value ? Number(e.target.value) : undefined)} 
+                value={latStr} 
+                onChange={e => {
+                  const val = e.target.value;
+                  setLatStr(val);
+                  if (val === '' || val === '-' || val === '.') {
+                    set('latitude', undefined);
+                  } else {
+                    const num = Number(val);
+                    if (!isNaN(num)) set('latitude', num);
+                  }
+                }} 
               />
               <input 
                 className={inputClass} 
                 placeholder={t('admin.form.fields.lon_placeholder')} 
-                value={form.longitude ?? ''} 
-                onChange={e => set('longitude', e.target.value ? Number(e.target.value) : undefined)} 
+                value={lonStr} 
+                onChange={e => {
+                  const val = e.target.value;
+                  setLonStr(val);
+                  if (val === '' || val === '-' || val === '.') {
+                    set('longitude', undefined);
+                  } else {
+                    const num = Number(val);
+                    if (!isNaN(num)) set('longitude', num);
+                  }
+                }} 
               />
               <button
                 id="search-map-btn"

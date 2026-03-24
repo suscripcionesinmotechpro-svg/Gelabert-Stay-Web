@@ -161,7 +161,7 @@ export const Home = () => {
           transition={{ delay: 1.5, duration: 1 }}
           className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
         >
-          <span className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.3em] font-bold opacity-60">Scroll</span>
+          <span className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.3em] font-bold opacity-60">{t('common.scroll')}</span>
           <div className="w-[1px] h-12 bg-gradient-to-b from-[#C9A962] to-transparent relative overflow-hidden">
             <motion.div 
               animate={{ 
