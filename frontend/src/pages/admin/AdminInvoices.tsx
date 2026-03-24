@@ -6,18 +6,57 @@ import { PlusCircle, Download, TrendingUp, Clock, AlertCircle, Euro, ChevronDown
 import { cn } from '../../lib/utils';
 
 const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+type PeriodType = 'year' | 'h1' | 'h2' | 'q1' | 'q2' | 'q3' | 'q4' | 'month';
 
 export const AdminInvoices = () => {
   const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1;
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  const [selectedMonth, setSelectedMonth] = useState<number | undefined>();
+  const [periodType, setPeriodType] = useState<PeriodType>('year');
+  const [selectedMonth, setSelectedMonth] = useState<number>(currentMonth);
   const [selectedStatus, setSelectedStatus] = useState<string>('todos');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const { summary, loading: loadingSummary } = useInvoiceSummary(selectedYear);
+  const getDateRange = () => {
+    if (periodType === 'year') {
+      return { start: `${selectedYear}-01-01`, end: `${selectedYear}-12-31`, label: 'Anual' };
+    }
+    if (periodType === 'h1') {
+      return { start: `${selectedYear}-01-01`, end: `${selectedYear}-06-30`, label: '1º Semestre' };
+    }
+    if (periodType === 'h2') {
+      return { start: `${selectedYear}-07-01`, end: `${selectedYear}-12-31`, label: '2º Semestre' };
+    }
+    if (periodType === 'q1') {
+      return { start: `${selectedYear}-01-01`, end: `${selectedYear}-03-31`, label: 'Q1' };
+    }
+    if (periodType === 'q2') {
+      return { start: `${selectedYear}-04-01`, end: `${selectedYear}-06-30`, label: 'Q2' };
+    }
+    if (periodType === 'q3') {
+      return { start: `${selectedYear}-07-01`, end: `${selectedYear}-09-30`, label: 'Q3' };
+    }
+    if (periodType === 'q4') {
+      return { start: `${selectedYear}-10-01`, end: `${selectedYear}-12-31`, label: 'Q4' };
+    }
+    if (periodType === 'month') {
+      const m = String(selectedMonth).padStart(2, '0');
+      const lastDay = new Date(selectedYear, selectedMonth, 0).getDate();
+      return { start: `${selectedYear}-${m}-01`, end: `${selectedYear}-${m}-${lastDay}`, label: MONTHS[selectedMonth - 1] };
+    }
+    return { start: `${selectedYear}-01-01`, end: `${selectedYear}-12-31`, label: 'Anual' };
+  };
+
+  const dateRange = getDateRange();
+
+  const { summary, loading: loadingSummary } = useInvoiceSummary({
+    startDate: dateRange.start,
+    endDate: dateRange.end
+  });
+  
   const { invoices, loading, refetch } = useInvoices({
-    year: selectedYear,
-    month: selectedMonth,
+    startDate: dateRange.start,
+    endDate: dateRange.end,
     status: selectedStatus,
   });
   const { updateStatus, deleteInvoice } = useInvoiceMutations();
@@ -43,7 +82,6 @@ export const AdminInvoices = () => {
     refetch();
   };
 
-  // Bar chart max
   const maxBarValue = Math.max(...summary.byMonth.map(m => m.total), 1);
 
   return (
@@ -52,7 +90,7 @@ export const AdminInvoices = () => {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="font-secondary text-3xl text-[#FAF8F5]">Facturación</h1>
-          <p className="font-primary text-[#666666] text-sm mt-1">Control de ingresos y facturas</p>
+          <p className="font-primary text-[#666666] text-sm mt-1">Control de ingresos e impuestos</p>
         </div>
         <Link
           to="/admin/facturas/nueva"
@@ -63,47 +101,29 @@ export const AdminInvoices = () => {
         </Link>
       </div>
 
-      {/* Year selector */}
-      <div className="flex gap-2">
-        {availableYears.map(y => (
-          <button
-            key={y}
-            onClick={() => setSelectedYear(y)}
-            className={cn(
-              'px-4 py-1.5 font-primary text-sm border transition-colors',
-              selectedYear === y
-                ? 'bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]'
-                : 'border-[#1F1F1F] text-[#888888] hover:border-[#C9A962] hover:text-[#C9A962]'
-            )}
-          >
-            {y}
-          </button>
-        ))}
-      </div>
-
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           {
-            label: `Total ${selectedYear}`,
-            value: loadingSummary ? '—' : formatCurrency(summary.totalYear),
+            label: `Ingresos (${dateRange.label})`,
+            value: loadingSummary ? '—' : formatCurrency(summary.totalPeriod),
             icon: <TrendingUp className="w-5 h-5" />,
             color: 'text-[#C9A962]',
           },
           {
-            label: 'Este mes',
-            value: loadingSummary ? '—' : formatCurrency(summary.totalMonth),
-            icon: <Euro className="w-5 h-5" />,
-            color: 'text-green-400',
-          },
-          {
-            label: 'IVA acumulado',
-            value: loadingSummary ? '—' : formatCurrency(summary.taxYear),
+            label: 'IVA Acumulado',
+            value: loadingSummary ? '—' : formatCurrency(summary.taxPeriod),
             icon: <FileText className="w-5 h-5" />,
             color: 'text-blue-400',
           },
           {
-            label: 'Pendientes',
+            label: 'IRPF Retenido',
+            value: loadingSummary ? '—' : formatCurrency(summary.irpfPeriod),
+            icon: <Euro className="w-5 h-5" />,
+            color: 'text-purple-400',
+          },
+          {
+            label: 'Pendientes de Cobro',
             value: loadingSummary ? '—' : `${summary.pendingCount} (${formatCurrency(summary.pendingAmount)})`,
             icon: summary.pendingCount > 0 ? <AlertCircle className="w-5 h-5" /> : <Clock className="w-5 h-5" />,
             color: summary.pendingCount > 0 ? 'text-yellow-400' : 'text-[#888888]',
@@ -119,14 +139,86 @@ export const AdminInvoices = () => {
         ))}
       </div>
 
-      {/* Monthly Bar Chart */}
-      {summary.byMonth.length > 0 && (
+      {/* Filters (Year, Period, Month, Status) */}
+      <div className="flex flex-wrap gap-3 items-center bg-[#0A0A0A] border border-[#1F1F1F] p-3">
+        {availableYears.map(y => (
+          <button
+            key={y}
+            onClick={() => setSelectedYear(y)}
+            className={cn(
+              'px-4 py-1.5 font-primary text-sm border transition-colors',
+              selectedYear === y
+                ? 'bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]'
+                : 'border-[#1F1F1F] text-[#888888] hover:border-[#C9A962] hover:text-[#C9A962]'
+            )}
+          >
+            {y}
+          </button>
+        ))}
+
+        <div className="w-px h-6 bg-[#1F1F1F] mx-2" />
+
+        <select
+          value={periodType}
+          onChange={e => setPeriodType(e.target.value as PeriodType)}
+          className="h-9 bg-[#111] border border-[#1F1F1F] px-3 font-primary text-sm text-[#FAF8F5] outline-none focus:border-[#C9A962]"
+        >
+          <option value="year">Todo el año (Anual)</option>
+          <optgroup label="Semestres">
+            <option value="h1">1º Semestre</option>
+            <option value="h2">2º Semestre</option>
+          </optgroup>
+          <optgroup label="Trimestres">
+            <option value="q1">1º Trimestre (Q1)</option>
+            <option value="q2">2º Trimestre (Q2)</option>
+            <option value="q3">3º Trimestre (Q3)</option>
+            <option value="q4">4º Trimestre (Q4)</option>
+          </optgroup>
+          <optgroup label="Mes">
+            <option value="month">Mes Específico...</option>
+          </optgroup>
+        </select>
+
+        {periodType === 'month' && (
+          <select
+            value={selectedMonth}
+            onChange={e => setSelectedMonth(parseInt(e.target.value))}
+            className="h-9 bg-[#111] border border-[#1F1F1F] px-3 font-primary text-sm text-[#FAF8F5] outline-none focus:border-[#C9A962]"
+          >
+            {MONTHS.map((m, i) => (
+              <option key={i} value={i + 1}>{m}</option>
+            ))}
+          </select>
+        )}
+
+        <div className="w-px h-6 bg-[#1F1F1F] mx-2" />
+
+        <select
+          value={selectedStatus}
+          onChange={e => setSelectedStatus(e.target.value)}
+          className="h-9 bg-[#111] border border-[#1F1F1F] px-3 font-primary text-sm text-[#FAF8F5] outline-none focus:border-[#C9A962]"
+        >
+          <option value="todos">Todos los estados</option>
+          {Object.entries(STATUS_LABELS).map(([val, label]) => (
+            <option key={val} value={val}>{label}</option>
+          ))}
+        </select>
+
+        <span className="font-primary text-[#666666] text-xs ml-auto">
+          {invoices.length} factura{invoices.length !== 1 ? 's' : ''} en este periodo
+        </span>
+      </div>
+
+      {/* Monthly Bar Chart (Only visually relevant if periodType is year or semester) */}
+      {summary.byMonth.length > 0 && periodType !== 'month' && (
         <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-6">
           <h2 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-wider mb-6">
-            Ingresos por Mes — {selectedYear}
+            Evolución de Ingresos — {dateRange.label} {selectedYear}
           </h2>
           <div className="flex items-end gap-2 h-32">
             {Array.from({ length: 12 }, (_, i) => i + 1).map(m => {
+              // Si el filtro es H1 y el mes es > 6, lo atenuamos o no lo mostramos.
+              // Para simplificar, mostramos los 12 meses pero solo los que entran en el byMonth tendrán datos
               const entry = summary.byMonth.find(b => b.month === m);
               const val = entry?.total || 0;
               const heightPct = (val / maxBarValue) * 100;
@@ -152,33 +244,6 @@ export const AdminInvoices = () => {
         </div>
       )}
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center">
-        <select
-          value={selectedMonth ?? ''}
-          onChange={e => setSelectedMonth(e.target.value ? parseInt(e.target.value) : undefined)}
-          className="h-9 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-primary text-sm text-[#FAF8F5] outline-none focus:border-[#C9A962]"
-        >
-          <option value="">Todos los meses</option>
-          {MONTHS.map((m, i) => (
-            <option key={i} value={i + 1}>{m}</option>
-          ))}
-        </select>
-        <select
-          value={selectedStatus}
-          onChange={e => setSelectedStatus(e.target.value)}
-          className="h-9 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-primary text-sm text-[#FAF8F5] outline-none focus:border-[#C9A962]"
-        >
-          <option value="todos">Todos los estados</option>
-          {Object.entries(STATUS_LABELS).map(([val, label]) => (
-            <option key={val} value={val}>{label}</option>
-          ))}
-        </select>
-        <span className="font-primary text-[#666666] text-xs ml-auto">
-          {invoices.length} factura{invoices.length !== 1 ? 's' : ''}
-        </span>
-      </div>
-
       {/* Table */}
       <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-x-auto">
         {loading ? (
@@ -197,7 +262,7 @@ export const AdminInvoices = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#1F1F1F]">
-                {['Nº Factura', 'Cliente', 'Concepto', 'Fecha', 'Base', 'IVA', 'Total', 'Estado', 'Acciones'].map(h => (
+                {['Nº Factura', 'Cliente', 'Serie', 'Fecha', 'Base', 'IVA', 'IRPF', 'Total', 'Estado', 'Acciones'].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-primary text-[10px] uppercase tracking-wider text-[#666666]">
                     {h}
                   </th>
@@ -208,8 +273,8 @@ export const AdminInvoices = () => {
               {invoices.map(inv => (
                 <tr key={inv.id} className="hover:bg-[#111111] transition-colors">
                   <td className="px-4 py-3 font-primary text-[#FAF8F5] text-sm font-bold">{inv.invoice_number}</td>
-                  <td className="px-4 py-3 font-primary text-[#888888] text-sm max-w-[120px] truncate">{inv.client_name}</td>
-                  <td className="px-4 py-3 font-primary text-[#888888] text-sm max-w-[150px] truncate">{inv.concept}</td>
+                  <td className="px-4 py-3 font-primary text-[#888888] text-sm max-w-[150px] truncate">{inv.client_name}</td>
+                  <td className="px-4 py-3 font-primary text-[#888888] text-sm">{inv.series || 'A'}</td>
                   <td className="px-4 py-3 font-primary text-[#888888] text-xs whitespace-nowrap">
                     {new Date(inv.invoice_date).toLocaleDateString('es-ES')}
                   </td>
@@ -217,6 +282,7 @@ export const AdminInvoices = () => {
                     {formatCurrency(inv.amount)}
                   </td>
                   <td className="px-4 py-3 font-primary text-[#888888] text-sm">{inv.tax_rate}%</td>
+                  <td className="px-4 py-3 font-primary text-[#888888] text-sm">{inv.irpf_rate}%</td>
                   <td className="px-4 py-3 font-secondary text-[#C9A962] text-sm font-bold whitespace-nowrap">
                     {formatCurrency(inv.total_amount)}
                   </td>
@@ -257,7 +323,7 @@ export const AdminInvoices = () => {
                       )}
                       <Link
                         to={`/admin/facturas/${inv.id}/editar`}
-                        title="Editar"
+                        title="Ver / Editar"
                         className="p-1.5 text-[#888888] hover:text-[#FAF8F5] transition-colors"
                       >
                         <Edit className="w-4 h-4" />

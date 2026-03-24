@@ -1,23 +1,50 @@
 export type InvoiceStatus = 'pendiente' | 'pagado' | 'vencido';
+export type PaymentMethod = 'transferencia' | 'bizum' | 'paypal' | 'efectivo' | '';
+
+export interface InvoiceItem {
+  description: string;
+  quantity: number;
+  price: number;
+}
 
 export interface Invoice {
   id: string;
   created_at: string;
+  user_id: string;
+
+  series: string;
   invoice_number: string;
+  
+  // Client
   client_name: string;
-  concept: string;
+  client_nif: string | null;
+  client_address: string | null;
+  client_zip: string | null;
+  client_city: string | null;
+  client_email: string | null;
+  client_phone: string | null;
+
+  concept: string; // Keep concept for retro-compatibility / quick mode
+  items: InvoiceItem[];
+
   amount: number; // Base imponible
   tax_rate: number; // % IVA
-  total_amount: number; // amount + taxes
-  invoice_date: string; // ISO date YYYY-MM-DD
+  irpf_rate: number; // % IRPF
+  irpf_amount: number; // IRPF amount
+  total_amount: number; // Base + IVA - IRPF
+
+  invoice_date: string;
   due_date: string | null;
   status: InvoiceStatus;
-  file_url: string | null; // PDF URL in Supabase Storage
+  
+  payment_method: PaymentMethod;
+  payment_details: string | null;
+
+  file_url: string | null;
   notes: string | null;
-  user_id: string;
 }
 
-export type InvoiceInsert = Omit<Invoice, 'id' | 'created_at' | 'user_id' | 'total_amount'>;
+export type InvoiceInsert = Omit<Invoice, 'id' | 'created_at' | 'user_id' | 'total_amount' | 'irpf_amount'>;
 
 export const STATUS_LABELS: Record<InvoiceStatus, string> = {
   pendiente: 'Pendiente',
@@ -31,12 +58,28 @@ export const STATUS_COLORS: Record<InvoiceStatus, string> = {
   vencido: 'text-red-400 bg-red-400/10 border-red-400/30',
 };
 
+export interface InvoiceSettings {
+  id: string;
+  user_id: string;
+  issuer_name: string | null;
+  issuer_nif: string | null;
+  issuer_address: string | null;
+  issuer_zip: string | null;
+  issuer_city: string | null;
+  issuer_email: string | null;
+  issuer_phone: string | null;
+  default_iban: string | null;
+  default_bizum: string | null;
+  default_paypal: string | null;
+  logo_url: string | null;
+}
+
 // Summary for dashboard stats
 export interface InvoiceSummary {
-  totalYear: number;
-  totalMonth: number;
+  totalPeriod: number;
+  taxPeriod: number;
+  irpfPeriod: number;
   pendingCount: number;
   pendingAmount: number;
-  taxYear: number;
   byMonth: { month: number; year: number; total: number }[];
 }

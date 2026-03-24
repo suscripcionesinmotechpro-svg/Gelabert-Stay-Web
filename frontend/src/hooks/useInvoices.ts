@@ -2,8 +2,14 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Invoice, InvoiceInsert, InvoiceSummary } from '../types/invoice';
 
+export interface InvoiceFilters {
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+}
+
 // ─── LIST & FILTER ──────────────────────────────────────────────────
-export const useInvoices = (filters?: { year?: number; month?: number; status?: string }) => {
+export const useInvoices = (filters?: InvoiceFilters) => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,17 +23,11 @@ export const useInvoices = (filters?: { year?: number; month?: number; status?: 
         .select('*')
         .order('invoice_date', { ascending: false });
 
-      if (filters?.year) {
-        query = query
-          .gte('invoice_date', `${filters.year}-01-01`)
-          .lte('invoice_date', `${filters.year}-12-31`);
+      if (filters?.startDate) {
+        query = query.gte('invoice_date', filters.startDate);
       }
-      if (filters?.month && filters?.year) {
-        const m = String(filters.month).padStart(2, '0');
-        const y = filters.year;
-        query = query
-          .gte('invoice_date', `${y}-${m}-01`)
-          .lte('invoice_date', `${y}-${m}-31`);
+      if (filters?.endDate) {
+        query = query.lte('invoice_date', filters.endDate);
       }
       if (filters?.status && filters.status !== 'todos') {
         query = query.eq('status', filters.status);
@@ -35,7 +35,17 @@ export const useInvoices = (filters?: { year?: number; month?: number; status?: 
 
       const { data, error: err } = await query;
       if (err) throw err;
-      setInvoices(data as Invoice[]);
+      
+      // Auto-calculate missing fields for backward compatibility if needed
+      const processedData = (data as any[]).map(inv => ({
+        ...inv,
+        irpf_rate: inv.irpf_rate || 0,
+        irpf_amount: inv.irpf_amount || 0,
+        items: inv.items || [],
+        series: inv.series || 'A',
+      }));
+
+      setInvoices(processedData as Invoice[]);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -43,73 +53,84 @@ export const useInvoices = (filters?: { year?: number; month?: number; status?: 
     }
   };
 
-  useEffect(() => { fetchInvoices(); }, [filters?.year, filters?.month, filters?.status]);
+  useEffect(() => { fetchInvoices(); }, [filters?.startDate, filters?.endDate, filters?.status]);
 
   return { invoices, loading, error, refetch: fetchInvoices };
 };
 
 // ─── SUMMARY / STATS ────────────────────────────────────────────────
-export const useInvoiceSummary = (year: number) => {
+export const useInvoiceSummary = (filters: { startDate: string; endDate: string }) => {
   const [summary, setSummary] = useState<InvoiceSummary>({
-    totalYear: 0, totalMonth: 0, pendingCount: 0, pendingAmount: 0, taxYear: 0, byMonth: []
+    totalPeriod: 0, taxPeriod: 0, irpfPeriod: 0, pendingCount: 0, pendingAmount: 0, byMonth: []
   });
   const [loading, setLoading] = useState(true);
 
+  const fetchSummary = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('invoices')
+      .select('*')
+      .gte('invoice_date', filters.startDate)
+      .lte('invoice_date', filters.endDate);
+
+    if (!data) { setLoading(false); return; }
+
+    const totalPeriod = data.reduce((s, i) => s + (i.total_amount || 0), 0);
+    const taxPeriod = data.reduce((s, i) => s + ((i.total_amount || 0) + (i.irpf_amount || 0) - (i.amount || 0)), 0);
+    const irpfPeriod = data.reduce((s, i) => s + (i.irpf_amount || 0), 0);
+    
+    const pending = data.filter(i => i.status === 'pendiente');
+    const pendingAmount = pending.reduce((s, i) => s + (i.total_amount || 0), 0);
+
+    // Group by month
+    const byMonthMap: Record<number, number> = {};
+    data.forEach(i => {
+      const m = parseInt(i.invoice_date.split('-')[1]);
+      byMonthMap[m] = (byMonthMap[m] || 0) + (i.total_amount || 0);
+    });
+    // the year could span multiple, but usually filters are within a year
+    const firstYear = parseInt(filters.startDate.split('-')[0]) || new Date().getFullYear();
+    const byMonth = Object.entries(byMonthMap).map(([m, total]) => ({
+      month: parseInt(m), year: firstYear, total
+    })).sort((a, b) => a.month - b.month);
+
+    setSummary({ totalPeriod, pendingCount: pending.length, pendingAmount, taxPeriod, irpfPeriod, byMonth });
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchSummary = async () => {
-      setLoading(true);
-      const { data } = await supabase
-        .from('invoices')
-        .select('*')
-        .gte('invoice_date', `${year}-01-01`)
-        .lte('invoice_date', `${year}-12-31`);
-
-      if (!data) { setLoading(false); return; }
-
-      const now = new Date();
-      const currentMonth = now.getMonth() + 1;
-
-      const totalYear = data.reduce((s, i) => s + (i.total_amount || 0), 0);
-      const taxYear = data.reduce((s, i) => s + ((i.total_amount || 0) - (i.amount || 0)), 0);
-      const thisMonthData = data.filter(i => {
-        const m = parseInt(i.invoice_date.split('-')[1]);
-        return m === currentMonth;
-      });
-      const totalMonth = thisMonthData.reduce((s, i) => s + (i.total_amount || 0), 0);
-      const pending = data.filter(i => i.status === 'pendiente');
-      const pendingAmount = pending.reduce((s, i) => s + (i.total_amount || 0), 0);
-
-      // Group by month
-      const byMonthMap: Record<number, number> = {};
-      data.forEach(i => {
-        const m = parseInt(i.invoice_date.split('-')[1]);
-        byMonthMap[m] = (byMonthMap[m] || 0) + (i.total_amount || 0);
-      });
-      const byMonth = Object.entries(byMonthMap).map(([m, total]) => ({
-        month: parseInt(m), year, total
-      })).sort((a, b) => a.month - b.month);
-
-      setSummary({ totalYear, totalMonth, pendingCount: pending.length, pendingAmount, taxYear, byMonth });
-      setLoading(false);
-    };
     fetchSummary();
-  }, [year]);
+  }, [filters.startDate, filters.endDate]);
 
-  return { summary, loading };
+  return { summary, loading, refetch: fetchSummary };
 };
 
 // ─── CREATE / UPDATE / DELETE ────────────────────────────────────────
 export const useInvoiceMutations = () => {
+  const calculateTotals = (data: Partial<InvoiceInsert>) => {
+    const base = Number(data.amount) || 0;
+    const ivaPct = Number(data.tax_rate) || 0;
+    const irpfPct = Number(data.irpf_rate) || 0;
+
+    const ivaAmt = base * (ivaPct / 100);
+    const irpfAmt = base * (irpfPct / 100);
+    const total = base + ivaAmt - irpfAmt;
+
+    return { total_amount: total, irpf_amount: irpfAmt };
+  };
+
   const createInvoice = async (data: InvoiceInsert) => {
-    const totalAmount = data.amount * (1 + data.tax_rate / 100);
-    const { error } = await supabase.from('invoices').insert([{ ...data, total_amount: totalAmount }]);
+    const totals = calculateTotals(data);
+    const { error } = await supabase.from('invoices').insert([{ ...data, ...totals }]);
     if (error) throw error;
   };
 
   const updateInvoice = async (id: string, data: Partial<InvoiceInsert>) => {
     const updates: any = { ...data };
-    if (data.amount !== undefined && data.tax_rate !== undefined) {
-      updates.total_amount = data.amount * (1 + data.tax_rate / 100);
+    if (data.amount !== undefined) {
+      const totals = calculateTotals({ ...data });
+      updates.total_amount = totals.total_amount;
+      updates.irpf_amount = totals.irpf_amount;
     }
     const { error } = await supabase.from('invoices').update(updates).eq('id', id);
     if (error) throw error;
