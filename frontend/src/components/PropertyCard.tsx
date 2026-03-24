@@ -37,6 +37,7 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   createdAt?: string | null;
   onTagClick?: (tag: string) => void;
   tags?: string[] | null;
+  index?: number;
 }
 
 export const PropertyCard = ({
@@ -68,6 +69,7 @@ export const PropertyCard = ({
   createdAt,
   onTagClick,
   tags,
+  index,
   ...props
 }: PropertyCardProps) => {
   const { t } = useTranslation();
@@ -126,7 +128,7 @@ export const PropertyCard = ({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       whileHover={{ y: -8 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: index !== undefined ? Math.min(index % 12, 12) * 0.08 : 0 }}
       style={{ willChange: 'transform, opacity' }}
       className={cn(
         "group h-full flex flex-col bg-[#0D0D0D] border border-[#1F1F1F] hover:border-[#C9A962]/60 hover:shadow-2xl hover:shadow-[#C9A962]/10 transition-all duration-500 overflow-hidden relative rounded-2xl",
@@ -197,16 +199,16 @@ export const PropertyCard = ({
           <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
         </button>
 
-        {/* Operation Badge */}
-        <div className={cn(
-          "absolute top-4 left-4 px-3 py-1 font-primary text-[10px] font-bold tracking-[0.08em] uppercase z-20 shadow-lg border border-white/10 glass-light",
-          getBadgeColor()
-        )}>
-          {t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation])}
-        </div>
-        
-        {/* Dynamic Badges Container (Top Right) */}
-        <div className="absolute top-14 right-4 flex flex-col items-end gap-2 z-20 pointer-events-none">
+        {/* Badges Container (Top Left, wraps horizontally) */}
+        <div className="absolute top-4 left-4 right-14 flex flex-wrap gap-2 items-start z-20 pointer-events-none">
+          {/* Operation Badge */}
+          <div className={cn(
+            "px-3 py-1 font-primary text-[10px] font-bold tracking-[0.08em] uppercase shadow-lg border border-white/10 glass-light",
+            getBadgeColor()
+          )}>
+            {t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation])}
+          </div>
+          
           {/* New Badge */}
           {isNew && (
             <div className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-bold uppercase shadow-xl border border-white/20">

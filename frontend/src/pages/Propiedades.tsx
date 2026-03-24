@@ -371,7 +371,7 @@ export const Propiedades = () => {
             }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           >
-            {properties.map(p => (
+            {properties.map((p, index) => (
               <motion.div 
                 key={p.id}
                 variants={{
@@ -388,6 +388,7 @@ export const Propiedades = () => {
                 layout
               >
               <PropertyCard
+                index={index}
                 title={p.title}
                 title_en={p.title_en ?? undefined}
                 price={p.price ?? 0}

@@ -825,8 +825,9 @@ export const FichaPropiedad = () => {
             <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="font-primary text-sm text-[#C9A962] hover:underline">{t('property.labels.features.view_more')} →</Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {similarProps.map(p => (
+            {similarProps.map((p, index) => (
               <PropertyCard
+                index={index}
                 key={p.id}
                 title={p.title}
                 title_en={p.title_en ?? undefined}
