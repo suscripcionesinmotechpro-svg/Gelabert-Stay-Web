@@ -7,6 +7,7 @@ import { OPERATION_LABELS, type PropertyOperation, type CommercialStatus, COMMER
 import { ChevronLeft, ChevronRight, MessageSquare, Heart, GitCompare } from 'lucide-react';
 import { getWhatsAppLink } from '../utils/whatsapp';
 import { useState } from 'react';
+import { getOptimizedImage } from '../utils/images';
 
 export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   title: string;
@@ -122,10 +123,13 @@ export const PropertyCard = ({
 
   const card = (
     <motion.div 
-      whileHover={{ y: -5 }}
-      transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      whileHover={{ y: -8 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "group h-full flex flex-col bg-[#0D0D0D] border border-[#1F1F1F] hover:border-[#C9A962]/40 hover:shadow-2xl hover:shadow-[#C9A962]/5 transition-all duration-500 overflow-hidden relative rounded-2xl",
+        "group h-full flex flex-col bg-[#0D0D0D] border border-[#1F1F1F] hover:border-[#C9A962]/60 hover:shadow-2xl hover:shadow-[#C9A962]/10 transition-all duration-500 overflow-hidden relative rounded-2xl",
         className
       )}
       {...props}
@@ -139,7 +143,7 @@ export const PropertyCard = ({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            src={images[currentImageIndex]} 
+            src={getOptimizedImage(images[currentImageIndex], { width: 600, quality: 75 })} 
             alt={title}
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -150,13 +154,13 @@ export const PropertyCard = ({
           <div className="absolute inset-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-between px-4 pointer-events-none">
             <button 
               onClick={prevImage}
-              className="p-2 rounded-full bg-black/50 backdrop-blur-md text-white hover:bg-[#C9A962] transition-colors pointer-events-auto shadow-xl border border-white/10"
+              className="p-2 rounded-full glass-deep text-white hover:bg-[#C9A962] transition-colors pointer-events-auto shadow-xl border border-white/10"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button 
               onClick={nextImage}
-              className="p-2 rounded-full bg-black/50 backdrop-blur-md text-white hover:bg-[#C9A962] transition-colors pointer-events-auto shadow-xl border border-white/10"
+              className="p-2 rounded-full glass-deep text-white hover:bg-[#C9A962] transition-colors pointer-events-auto shadow-xl border border-white/10"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -182,10 +186,10 @@ export const PropertyCard = ({
         <button
           onClick={onToggleFavorite}
           className={cn(
-            "absolute top-4 right-4 z-30 p-2 rounded-full backdrop-blur-md transition-all duration-300 border shadow-lg pointer-events-auto",
+            "absolute top-4 right-4 z-30 p-2 rounded-full glass-deep transition-all duration-300 border shadow-lg pointer-events-auto",
             isFavorite 
               ? "bg-[#C9A962] border-[#C9A962] text-[#0A0A0A]" 
-              : "bg-black/40 border-white/10 text-white hover:bg-white/20 hover:scale-110"
+              : "border-white/10 text-white hover:bg-white/20 hover:scale-110"
           )}
         >
           <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
@@ -193,7 +197,7 @@ export const PropertyCard = ({
 
         {/* Operation Badge */}
         <div className={cn(
-          "absolute top-4 left-4 px-3 py-1 font-primary text-[10px] font-bold tracking-[0.08em] uppercase z-20 shadow-lg border border-white/10 backdrop-blur-sm",
+          "absolute top-4 left-4 px-3 py-1 font-primary text-[10px] font-bold tracking-[0.08em] uppercase z-20 shadow-lg border border-white/10 glass-light",
           getBadgeColor()
         )}>
           {t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation])}
@@ -210,7 +214,7 @@ export const PropertyCard = ({
 
           {/* Featured Badge */}
           {isFeatured && (
-            <div className="px-3 py-1 bg-[#1F1F1F]/90 backdrop-blur-md border border-[#C9A962]/40 font-primary text-[#C9A962] text-[10px] font-bold uppercase flex items-center gap-1 shadow-xl">
+            <div className="px-3 py-1 glass-deep border border-[#C9A962]/40 font-primary text-[#C9A962] text-[10px] font-bold uppercase flex items-center gap-1 shadow-xl">
               <span>★</span> {t('property.labels.featured')}
             </div>
           )}
@@ -218,7 +222,7 @@ export const PropertyCard = ({
           {/* Commercial Status Badge */}
           {commercialStatus && (
             <div className={cn(
-              "px-3 py-1 bg-[#0A0A0A]/90 backdrop-blur-md border font-primary text-[10px] font-bold uppercase flex items-center gap-1 shadow-xl",
+              "px-3 py-1 glass-deep border font-primary text-[10px] font-bold uppercase flex items-center gap-1 shadow-xl",
               commercialStatus === 'disponible' && "text-green-400 border-green-400/40",
               commercialStatus === 'reservado' && "text-orange-400 border-orange-400/40",
               commercialStatus === 'alquilado' && "text-purple-400 border-purple-400/40",
@@ -250,7 +254,7 @@ export const PropertyCard = ({
         )}
 
         {/* Price Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-black/40 backdrop-blur-xl border-t border-white/10 flex items-center justify-between z-10">
+        <div className="absolute bottom-0 left-0 right-0 px-4 py-3 glass-deep border-t border-white/5 flex items-center justify-between z-10">
           <span className="font-secondary text-2xl text-[#FAF8F5] leading-none">{formattedPrice}</span>
           <a 
             href={whatsappLink}

@@ -25,7 +25,7 @@ export const Layout = () => {
   return (
     <div className="min-h-screen flex flex-col w-full bg-[#0F0F0F] text-[#FAF8F5] overflow-x-hidden">
       {/* Navbar */}
-      <header className="fixed top-0 w-full h-24 bg-[#0F0F0F]/90 backdrop-blur-md border-b border-[#1F1F1F] z-50 flex items-center justify-between px-6 md:px-14">
+      <header className="fixed top-0 left-0 right-0 h-24 glass-deep z-50 flex items-center justify-between px-6 md:px-14">
         {/* Logo */}
         <Link to={langPrefix || '/'} className="flex items-center">
           <img

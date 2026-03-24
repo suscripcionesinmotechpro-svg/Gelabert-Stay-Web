@@ -145,10 +145,10 @@ export const Home = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="mt-8 flex flex-col sm:flex-row gap-4"
           >
-            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="px-6 py-3.5 sm:px-8 sm:py-4 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[14px] uppercase tracking-[0.2em] hover:bg-[#D4B673] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-[#C9A962]/10">
+            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="px-5 py-2.5 sm:px-7 sm:py-3.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[13px] uppercase tracking-[0.2em] hover:bg-[#D4B673] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-[#C9A962]/10">
               {t('hero.view_properties')}
             </Link>
-            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/contacto`} className="px-6 py-3.5 sm:px-8 sm:py-4 border border-[#C9A962]/50 text-[#C9A962] font-primary font-bold text-[14px] uppercase tracking-[0.2em] hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-all">
+            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/contacto`} className="px-5 py-2.5 sm:px-7 sm:py-3.5 border border-[#C9A962]/50 text-[#C9A962] font-primary font-bold text-[13px] uppercase tracking-[0.2em] hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-all">
               {t('hero.contact_us')}
             </Link>
           </motion.div>
@@ -233,7 +233,7 @@ export const Home = () => {
           </p>
           <Link 
             to={`${i18n.language.startsWith('en') ? '/en' : ''}/servicios`}
-            className="self-start mt-4 px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[13px] uppercase tracking-wider hover:bg-[#D4B673] transition-colors"
+            className="self-start mt-4 px-7 py-3.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[13px] uppercase tracking-wider hover:bg-[#D4B673] transition-colors"
           >
             {t('home.owners.button')}
           </Link>
@@ -292,7 +292,7 @@ export const Home = () => {
           ))}
         </div>
         
-        <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="mt-8 px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[13px] uppercase tracking-wider hover:bg-[#D4B673] transition-colors">
+        <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="mt-8 px-7 py-3.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[13px] uppercase tracking-wider hover:bg-[#D4B673] transition-colors">
           {t('home.customers.button')}
         </Link>
       </section>

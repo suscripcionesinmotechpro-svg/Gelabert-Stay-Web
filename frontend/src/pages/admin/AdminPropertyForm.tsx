@@ -6,6 +6,7 @@ import type { PropertyInsert, PropertyOperation, PropertyType, PropertyStatus, C
 import { AVAILABLE_TAGS, OPERATION_LABELS, PROPERTY_TYPE_LABELS, COMMERCIAL_STATUS_LABELS, STATUS_LABELS } from '../../types/property';
 import { X, Save, Eye, ChevronLeft, Plus, Upload } from 'lucide-react';
 import { SortableImageGallery } from '../../components/admin/SortableImageGallery';
+import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PropertyMap } from '../../components/PropertyMap';
 
 const inputClass = "w-full h-10 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
@@ -746,7 +747,11 @@ export const AdminPropertyForm = () => {
         <h2 className={sectionHeaderClass}>{t('admin.form.sections.commercial')}</h2>
         <div className="flex flex-col gap-2">
           <label className={labelClass}>{t('admin.form.fields.long_desc')}</label>
-          <textarea className={`${inputClass} h-48 py-2.5 resize-none`} placeholder={t('admin.form.fields.long_desc_placeholder')} value={form.description ?? ''} onChange={e => set('description', e.target.value)} />
+          <RichTextEditor 
+            content={form.description ?? ''} 
+            onChange={v => set('description', v)} 
+            placeholder={t('admin.form.fields.long_desc_placeholder')}
+          />
         </div>
         {/* Highlights */}
         <div className="grid grid-cols-1 gap-6 pb-4 border-b border-[#1F1F1F]">

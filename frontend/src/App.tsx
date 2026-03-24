@@ -11,6 +11,8 @@ import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminPropertiesList } from './pages/admin/AdminPropertiesList';
 import { AdminPropertyForm } from './pages/admin/AdminPropertyForm';
+import { AdminInvoices } from './pages/admin/AdminInvoices';
+import { AdminInvoiceForm } from './pages/admin/AdminInvoiceForm';
 import { AvisoLegal } from './pages/legal/AvisoLegal';
 import { Privacidad } from './pages/legal/Privacidad';
 import { Cookies } from './pages/legal/Cookies';
@@ -58,6 +60,9 @@ function App() {
         <Route path="propiedades" element={<AdminPropertiesList />} />
         <Route path="propiedades/nueva" element={<AdminPropertyForm />} />
         <Route path="propiedades/:id/editar" element={<AdminPropertyForm />} />
+        <Route path="facturas" element={<AdminInvoices />} />
+        <Route path="facturas/nueva" element={<AdminInvoiceForm />} />
+        <Route path="facturas/:id/editar" element={<AdminInvoiceForm />} />
       </Route>
       </Routes>
     </>

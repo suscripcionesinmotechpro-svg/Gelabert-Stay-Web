@@ -2,16 +2,22 @@ import { useParams, Link } from 'react-router-dom';
 import { useProperty, useProperties } from '../hooks/useProperties';
 import { useAutoTranslate, useAutoTranslateArray } from '../hooks/useAutoTranslate';
 import { PropertyCard } from '../components/PropertyCard';
-import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, ChevronLeft, ChevronRight, X, Check, Play, Map as MapIcon, Compass } from 'lucide-react';
+import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass } from 'lucide-react';
 import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import { cn } from '../lib/utils';
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { PropertyMap } from '../components/PropertyMap';
 import { supabase } from '../lib/supabase';
 import { useTranslation, Trans } from 'react-i18next';
 import { getWhatsAppLink } from '../utils/whatsapp';
+import { getOptimizedImage } from '../utils/images';
+import Lightbox from "yet-another-react-lightbox";
+import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import "yet-another-react-lightbox/styles.css";
+import "yet-another-react-lightbox/plugins/thumbnails.css";
 
 const WhatsAppIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -45,30 +51,12 @@ export const FichaPropiedad = () => {
     setLightboxOpen(true);
   };
 
-  const closeLightbox = () => setLightboxOpen(false);
-
   const allImages = [property?.main_image, ...(property?.gallery ?? [])].filter(Boolean) as string[];
+  const lightboxSlides = allImages.map(src => ({ 
+    src: getOptimizedImage(src, { width: 2000, quality: 90 }) 
+  }));
 
-  const goPrev = useCallback(() => {
-    if (allImages.length === 0) return;
-    setLightboxIdx(prev => (prev - 1 + allImages.length) % allImages.length);
-  }, [allImages.length]);
-
-  const goNext = useCallback(() => {
-    if (allImages.length === 0) return;
-    setLightboxIdx(prev => (prev + 1) % allImages.length);
-  }, [allImages.length]);
-
-  useEffect(() => {
-    if (!lightboxOpen) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowLeft') goPrev();
-      if (e.key === 'ArrowRight') goNext();
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [lightboxOpen, goPrev, goNext]);
+  // Lightbox key handling is handled internally by yet-another-react-lightbox
 
   const { properties: similar } = useProperties({
     operation: property?.operation,
@@ -334,7 +322,7 @@ export const FichaPropiedad = () => {
             {allImages.length > 0 ? (
               <>
                 <img 
-                  src={allImages[activeImg]} 
+                  src={getOptimizedImage(allImages[activeImg], { width: 1200, quality: 85 })} 
                   alt={translatedTitle} 
                   loading="eager"
                   fetchPriority="high"
@@ -373,7 +361,7 @@ export const FichaPropiedad = () => {
             <div className="flex md:flex-col gap-2 md:w-1/3 overflow-x-auto md:overflow-y-auto md:max-h-[450px]">
               {allImages.map((img, i) => (
                 <button key={i} onClick={() => { setActiveImg(i); openLightbox(i); }} className={`w-20 md:w-full h-20 md:h-28 flex-shrink-0 overflow-hidden border ${i === activeImg ? 'border-[#C9A962]' : 'border-[#1F1F1F] hover:border-[#888888]'} transition-colors cursor-zoom-in`}>
-                  <img src={img} alt={`${i}`} loading="lazy" className="w-full h-full object-cover" />
+                  <img src={getOptimizedImage(img, { width: 300, height: 200, quality: 70 })} alt={`${i}`} loading="lazy" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -438,70 +426,13 @@ export const FichaPropiedad = () => {
       </section>
 
       {/* LIGHTBOX */}
-      {lightboxOpen && allImages.length > 0 && (
-        <div
-          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center"
-          onClick={closeLightbox}
-        >
-          {/* Close button */}
-          <button
-            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
-            onClick={closeLightbox}
-          >
-            <X className="w-8 h-8" />
-          </button>
-
-          {/* Counter */}
-          <span className="absolute top-4 left-1/2 -translate-x-1/2 font-primary text-sm text-white/50">
-            {lightboxIdx + 1} / {allImages.length}
-          </span>
-
-          {/* Prev arrow */}
-          {allImages.length > 1 && (
-            <button
-              className="absolute left-4 md:left-8 p-3 text-white/60 hover:text-white transition-colors bg-black/40 hover:bg-black/70 rounded-full z-10"
-              onClick={e => { e.stopPropagation(); goPrev(); }}
-            >
-              <ChevronLeft className="w-8 h-8" />
-            </button>
-          )}
-
-          {/* Main image */}
-          <img
-            src={allImages[lightboxIdx]}
-            alt={`Imagen ${lightboxIdx + 1}`}
-            className="max-w-[90vw] max-h-[88vh] object-contain select-none drop-shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          />
-
-          {/* Next arrow */}
-          {allImages.length > 1 && (
-            <button
-              className="absolute right-4 md:right-8 p-3 text-white/60 hover:text-white transition-colors bg-black/40 hover:bg-black/70 rounded-full z-10"
-              onClick={e => { e.stopPropagation(); goNext(); }}
-            >
-              <ChevronRight className="w-8 h-8" />
-            </button>
-          )}
-
-          {/* Thumbnail strip */}
-          {allImages.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto max-w-[90vw] px-4">
-              {allImages.map((img, i) => (
-                <button
-                  key={i}
-                  onClick={e => { e.stopPropagation(); setLightboxIdx(i); }}
-                  className={`flex-shrink-0 w-14 h-10 border-2 overflow-hidden transition-all ${
-                    i === lightboxIdx ? 'border-[#C9A962] opacity-100' : 'border-transparent opacity-50 hover:opacity-80'
-                  }`}
-                >
-                  <img src={img} alt={`t${i}`} className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      <Lightbox
+        open={lightboxOpen}
+        close={() => setLightboxOpen(false)}
+        index={lightboxIdx}
+        slides={lightboxSlides}
+        plugins={[Thumbnails, Zoom]}
+      />
 
       {/* Content + Sidebar */}
       <section className="w-full px-6 md:px-14 flex flex-col lg:flex-row gap-8">
@@ -623,9 +554,10 @@ export const FichaPropiedad = () => {
           {translatedDescription && (
             <div className="flex flex-col gap-4 pt-4 border-t border-[#1F1F1F]">
               <h2 className="font-secondary text-2xl text-[#FAF8F5]">{t('property.labels.features.description')}</h2>
-              <p className="font-primary text-[#888888] text-base leading-relaxed whitespace-pre-line">
-                {translatedDescription}
-              </p>
+              <div 
+                className="font-primary text-[#888888] text-base leading-relaxed rich-text"
+                dangerouslySetInnerHTML={{ __html: translatedDescription || '' }}
+              />
             </div>
           )}
 
