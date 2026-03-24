@@ -124,14 +124,14 @@ export const PropertyCard = ({
 
   const card = (
     <motion.div 
-      initial={{ opacity: 0, y: 30, scale: 0.98 }}
+      initial={{ opacity: 0, y: 50, scale: 0.95 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: "-50px" }}
       whileHover={{ y: -8, scale: 1.01 }}
       transition={{ 
-        duration: 0.8, 
+        duration: 1.2, 
         ease: [0.16, 1, 0.3, 1], 
-        delay: index !== undefined ? Math.min(index % 12, 12) * 0.1 : 0 
+        delay: index !== undefined ? Math.min(index % 12, 12) * 0.2 : 0.1 
       }}
       style={{ willChange: 'transform, opacity' }}
       className={cn(
