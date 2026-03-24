@@ -113,7 +113,7 @@ export const Home = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-secondary text-4xl md:text-6xl lg:text-7xl text-[#FAF8F5] leading-[0.9] tracking-tighter relative group"
+            className="font-secondary text-[2.8rem] md:text-[4.2rem] lg:text-[4.9rem] text-[#FAF8F5] leading-[0.9] tracking-tighter relative group"
           >
             <span className="relative inline-block">
               {t('hero.hero_title')}
@@ -125,7 +125,7 @@ export const Home = () => {
               />
             </span>
             <br/> 
-            <span className="text-[#C9A962] italic font-light block mt-4 text-3xl md:text-5xl tracking-normal">
+            <span className="text-[#C9A962] italic font-light block mt-4 text-[2.3rem] md:text-[3.3rem] tracking-normal">
               Real Estate
             </span>
           </motion.h1>
@@ -145,10 +145,10 @@ export const Home = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="mt-8 flex flex-col sm:flex-row gap-4"
           >
-            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[14px] uppercase tracking-[0.2em] hover:bg-[#D4B673] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-[#C9A962]/10">
+            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`} className="px-6 py-3.5 sm:px-8 sm:py-4 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[14px] uppercase tracking-[0.2em] hover:bg-[#D4B673] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-[#C9A962]/10">
               {t('hero.view_properties')}
             </Link>
-            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/contacto`} className="px-8 py-4 border border-[#C9A962]/50 text-[#C9A962] font-primary font-bold text-[14px] uppercase tracking-[0.2em] hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-all">
+            <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/contacto`} className="px-6 py-3.5 sm:px-8 sm:py-4 border border-[#C9A962]/50 text-[#C9A962] font-primary font-bold text-[14px] uppercase tracking-[0.2em] hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-all">
               {t('hero.contact_us')}
             </Link>
           </motion.div>
