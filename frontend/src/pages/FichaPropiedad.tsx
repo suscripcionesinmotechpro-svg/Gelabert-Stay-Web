@@ -551,10 +551,16 @@ export const FichaPropiedad = () => {
           {translatedDescription && (
             <div className="flex flex-col gap-4 pt-4 border-t border-[#1F1F1F]">
               <h2 className="font-secondary text-2xl text-[#FAF8F5]">{t('property.labels.features.description')}</h2>
-              <div 
-                className="font-primary text-[#888888] text-base leading-relaxed rich-text"
-                dangerouslySetInnerHTML={{ __html: translatedDescription || '' }}
-              />
+              {/<[a-z][\s\S]*>/i.test(translatedDescription) ? (
+                <div 
+                  className="font-primary text-[#888888] text-base leading-relaxed rich-text"
+                  dangerouslySetInnerHTML={{ __html: translatedDescription }}
+                />
+              ) : (
+                <div className="font-primary text-[#888888] text-base leading-relaxed whitespace-pre-wrap">
+                  {translatedDescription}
+                </div>
+              )}
             </div>
           )}
 

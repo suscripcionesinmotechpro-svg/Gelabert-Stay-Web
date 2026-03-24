@@ -80,7 +80,7 @@ export const PropertyCard = ({
   const { translatedText: autoDescription } = useAutoTranslate(description, description_en);
 
   const displayTitle = autoTitle;
-  const displayDescription = autoDescription;
+  const displayDescription = autoDescription ? autoDescription.replace(/<[^>]*>?/gm, '') : '';
 
   // Combine main image with gallery
   const images = [imageUrl, ...(gallery || [])].filter((img): img is string => !!img);
