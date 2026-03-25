@@ -268,6 +268,16 @@ export const AdminTenantDetail = () => {
                         <p className="font-primary text-sm text-[#FAF8F5] font-semibold mt-0.5">{item.value}</p>
                       </div>
                     ))}
+                    <div>
+                      <p className="font-primary text-[#666] text-[11px] uppercase tracking-wider mb-1">Propiedad vinculada</p>
+                      {displayContract.property_id ? (
+                        <Link to={`/admin/propiedades/${displayContract.property_id}/editar`} className="font-primary text-sm text-[#C9A962] hover:underline font-semibold">
+                          {displayContract.property_label || 'Propiedad'}
+                        </Link>
+                      ) : (
+                        <p className="font-primary text-sm text-[#FAF8F5] font-semibold">{displayContract.property_label || '-'}</p>
+                      )}
+                    </div>
                   </div>
 
                   {displayContract.notes && (

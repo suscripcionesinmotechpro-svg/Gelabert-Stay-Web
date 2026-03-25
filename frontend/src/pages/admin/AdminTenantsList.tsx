@@ -140,10 +140,18 @@ export const AdminTenantsList = () => {
                         <span className={`font-primary text-[10px] px-2 py-0.5 border rounded-full ${CONTRACT_STATUS_COLORS[contract.status]}`}>
                           {CONTRACT_STATUS_LABELS[contract.status]}
                         </span>
-                        <span className="flex items-center gap-1 font-primary text-[10px] text-[#444]">
-                          <Calendar className="w-3 h-3" />
-                          {new Date(contract.end_date).toLocaleDateString('es-ES')}
-                        </span>
+                        <div className="flex flex-col items-end">
+                          {contract.property_id ? (
+                            <Link to={`/admin/propiedades/${contract.property_id}/editar`} className="font-primary text-sm text-[#C9A962] hover:underline" onClick={(e) => e.stopPropagation()}>
+                              {contract.property_label || 'Piso activo'}
+                            </Link>
+                          ) : (
+                            <span className="font-primary text-sm text-[#FAF8F5]">{contract.property_label || 'Piso activo'}</span>
+                          )}
+                          <span className="font-primary text-xs text-[#666]">
+                            Hasta {new Date(contract.end_date).toLocaleDateString('es-ES')}
+                          </span>
+                        </div>
                       </>
                     ) : (
                       <span className="font-primary text-[10px] text-[#444]">Sin contrato</span>
