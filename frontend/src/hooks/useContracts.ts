@@ -86,9 +86,14 @@ export const useContract = (id?: string) => {
 // ─── MUTATIONS ───────────────────────────────────────────────────────────────
 export const useContractMutations = () => {
   const createContract = async (data: ContractInsert): Promise<string> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Usuario no autenticado');
+
+    const payload = { ...data, user_id: user.id };
+
     const { data: inserted, error } = await supabase
       .from('contracts')
-      .insert([data])
+      .insert([payload])
       .select('id')
       .single();
     if (error) throw error;

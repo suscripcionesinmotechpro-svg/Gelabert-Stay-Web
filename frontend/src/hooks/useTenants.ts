@@ -58,9 +58,13 @@ export const useTenant = (id?: string) => {
 // ─── MUTATIONS ───────────────────────────────────────────────────────────────
 export const useTenantMutations = () => {
   const createTenant = async (data: TenantInsert): Promise<string> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Usuario no autenticado');
+
+    const payload = { ...data, user_id: user.id };
     const { data: inserted, error } = await supabase
       .from('tenants')
-      .insert([data])
+      .insert([payload])
       .select('id')
       .single();
     if (error) throw error;
