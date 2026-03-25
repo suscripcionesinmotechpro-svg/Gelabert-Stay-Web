@@ -12,6 +12,13 @@ const emptyTenant: TenantInsert = {
   avatar_color: '#C9A962',
 };
 
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="font-primary text-[11px] uppercase tracking-wider text-[#666]">{label}</label>
+    {children}
+  </div>
+);
+
 export const AdminTenantForm = () => {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
@@ -73,13 +80,6 @@ export const AdminTenantForm = () => {
       </div>
     );
   }
-
-  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div className="flex flex-col gap-1.5">
-      <label className="font-primary text-[11px] uppercase tracking-wider text-[#666]">{label}</label>
-      {children}
-    </div>
-  );
 
   const inputClass = "bg-[#0A0A0A] border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2.5 font-primary text-sm focus:outline-none focus:border-[#C9A962] transition-colors placeholder-[#444]";
 

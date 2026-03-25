@@ -28,6 +28,13 @@ const emptyContract: Omit<ContractInsert, 'tenant_id'> = {
   notes: '',
 };
 
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="font-primary text-[11px] uppercase tracking-wider text-[#666]">{label}</label>
+    {children}
+  </div>
+);
+
 export const AdminContractForm = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
@@ -147,13 +154,6 @@ export const AdminContractForm = () => {
   }
 
   const inputClass = "bg-[#0A0A0A] border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2.5 font-primary text-sm focus:outline-none focus:border-[#C9A962] transition-colors placeholder-[#444] w-full";
-  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div className="flex flex-col gap-1.5">
-      <label className="font-primary text-[11px] uppercase tracking-wider text-[#666]">{label}</label>
-      {children}
-    </div>
-  );
-
   const saved = Boolean(contractId);
 
   return (
