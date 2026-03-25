@@ -55,35 +55,61 @@ export const AdminDashboard = () => {
               const days = daysUntilExpiry(c.end_date);
               const isUrgent = days <= 30;
               return (
-                <Link
-                  key={c.id}
-                  to={`/admin/inquilinos/${c.tenant_id}`}
-                  className="flex items-center justify-between gap-3 px-4 py-3 bg-[#0A0A0A] border border-[#1F1F1F] hover:border-orange-500/30 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <CalendarClock className={`w-4 h-4 flex-shrink-0 ${isUrgent ? 'text-red-400' : 'text-orange-400'}`} />
-                    <div>
-                      <p className="font-primary text-sm text-[#FAF8F5] font-semibold">
-                        {(c.tenant as any)?.first_name} {(c.tenant as any)?.last_name}
-                      </p>
-                      {c.property_label && (
-                        c.property_id ? (
-                          <Link to={`/admin/propiedades/${c.property_id}/editar`} className="font-primary text-xs text-[#C9A962] hover:underline" onClick={(e) => e.stopPropagation()}>
-                            {c.property_label}
-                          </Link>
-                        ) : (
-                          <p className="font-primary text-xs text-[#555]">{c.property_label}</p>
-                        )
+                <div key={c.id} className="flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] hover:border-orange-500/30 transition-colors group">
+                  <Link
+                    to={`/admin/inquilinos/${c.tenant_id}`}
+                    className="flex items-start sm:items-center justify-between gap-3 px-4 py-3"
+                  >
+                    <div className="flex items-start sm:items-center gap-3">
+                      <CalendarClock className={`w-4 h-4 flex-shrink-0 mt-0.5 sm:mt-0 ${isUrgent ? 'text-red-400' : 'text-orange-400'}`} />
+                      <div className="flex flex-col gap-0.5">
+                        <p className="font-primary text-sm text-[#FAF8F5] font-semibold group-hover:text-orange-400 transition-colors">
+                          {(c.tenant as any)?.first_name} {(c.tenant as any)?.last_name}
+                        </p>
+                        {c.property_label && (
+                          c.property_id ? (
+                            <Link to={`/admin/propiedades/${c.property_id}/editar`} className="font-primary text-xs text-[#C9A962] hover:underline" onClick={(e) => e.stopPropagation()}>
+                              {c.property_label}
+                            </Link>
+                          ) : (
+                            <p className="font-primary text-xs text-[#555]">{c.property_label}</p>
+                          )
+                        )}
+                      </div>
+                    </div>
+                    <span className={`font-primary text-xs px-2.5 py-1 border rounded-full flex-shrink-0 ${
+                      isUrgent ? 'text-red-400 bg-red-400/10 border-red-400/30'
+                      : 'text-orange-400 bg-orange-400/10 border-orange-400/30'
+                    }`}>
+                      {days <= 0 ? 'Expirado' : `${days} días`}
+                    </span>
+                  </Link>
+
+                  {/* Landlord Data in Alert */}
+                  {(c.landlord_name || c.landlord_phone || c.landlord_email) && (
+                    <div className="px-4 pb-3 pt-1 border-t border-[#1A1A1A] mt-1 mx-2 flex flex-col sm:flex-row sm:items-center gap-x-6 gap-y-2">
+                      <span className="font-primary text-[10px] uppercase tracking-wider text-[#555] font-semibold">Propietario:</span>
+                      
+                      {c.landlord_name && (
+                        <span className="font-primary text-xs text-[#FAF8F5]">
+                          {c.landlord_name}
+                        </span>
+                      )}
+                      
+                      {c.landlord_phone && (
+                        <span className="font-primary text-xs text-[#888] flex items-center gap-1">
+                          📞 {c.landlord_phone}
+                        </span>
+                      )}
+                      
+                      {c.landlord_email && (
+                        <span className="font-primary text-xs text-[#888] flex items-center gap-1">
+                          ✉️ {c.landlord_email}
+                        </span>
                       )}
                     </div>
-                  </div>
-                  <span className={`font-primary text-xs px-2.5 py-1 border rounded-full flex-shrink-0 ${
-                    isUrgent ? 'text-red-400 bg-red-400/10 border-red-400/30'
-                    : 'text-orange-400 bg-orange-400/10 border-orange-400/30'
-                  }`}>
-                    {days <= 0 ? 'Expirado' : `${days} días`}
-                  </span>
-                </Link>
+                  )}
+                </div>
               );
             })}
           </div>

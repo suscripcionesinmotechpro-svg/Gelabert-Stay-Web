@@ -148,6 +148,15 @@ export const AdminTenantsList = () => {
                           <span className="font-primary text-xs text-[#666]">
                             Hasta {new Date(contract.end_date).toLocaleDateString('es-ES')}
                           </span>
+                          
+                          {/* Landlord quick view */}
+                          {(contract.landlord_name || contract.landlord_phone) && (
+                            <div className="flex flex-col items-end mt-1 pt-1 border-t border-[#1A1A1A]">
+                              <span className="font-primary text-[10px] uppercase tracking-wider text-[#555] mb-0.5">Propietario</span>
+                              {contract.landlord_name && <span className="font-primary text-xs text-[#888]">{contract.landlord_name}</span>}
+                              {contract.landlord_phone && <span className="font-primary text-[10px] text-[#666]">{contract.landlord_phone}</span>}
+                            </div>
+                          )}
                         </div>
                       </>
                     ) : (
