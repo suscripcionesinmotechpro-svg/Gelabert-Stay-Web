@@ -139,7 +139,7 @@ export const AdminTenantsList = () => {
                         </span>
                         <div className="flex flex-col items-end">
                           {contract.property_id ? (
-                            <Link to={`/admin/propiedades/${contract.property_id}/editar`} className="font-primary text-sm text-[#C9A962] hover:underline" onClick={(e) => e.stopPropagation()}>
+                            <Link to={`/propiedades/${contract.property_id}`} target="_blank" rel="noopener noreferrer" className="font-primary text-sm text-[#C9A962] hover:underline" onClick={(e) => e.stopPropagation()}>
                               {contract.property_label || 'Piso activo'}
                             </Link>
                           ) : (

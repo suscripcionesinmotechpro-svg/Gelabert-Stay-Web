@@ -68,8 +68,14 @@ export const AdminDashboard = () => {
                         </p>
                         {c.property_label && (
                           c.property_id ? (
-                            <Link to={`/admin/propiedades/${c.property_id}/editar`} className="font-primary text-xs text-[#C9A962] hover:underline" onClick={(e) => e.stopPropagation()}>
-                              {c.property_label}
+                      <Link
+                        to={`/propiedades/${c.property_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-primary text-sm text-[#C9A962] hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {c.property_label}
                             </Link>
                           ) : (
                             <p className="font-primary text-xs text-[#555]">{c.property_label}</p>

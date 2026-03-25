@@ -114,7 +114,8 @@ serve(async (req) => {
                 Ver Inquilino
               </a>
               ${c.property_id ? `
-                <a href="https://gelaberthomes.es/admin/propiedades/${c.property_id}/editar" 
+                <a href="https://gelaberthomes.es/propiedades/${c.property_id}" 
+                   target="_blank"
                    style="background-color: white; color: #0A0A0A; border: 1px solid #dddddd; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px; margin-left: 10px;">
                   Ver Propiedad
                  </a>
