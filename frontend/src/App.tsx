@@ -13,6 +13,10 @@ import { AdminPropertiesList } from './pages/admin/AdminPropertiesList';
 import { AdminPropertyForm } from './pages/admin/AdminPropertyForm';
 import { AdminInvoices } from './pages/admin/AdminInvoices';
 import { AdminInvoiceForm } from './pages/admin/AdminInvoiceForm';
+import { AdminTenantsList } from './pages/admin/AdminTenantsList';
+import { AdminTenantForm } from './pages/admin/AdminTenantForm';
+import { AdminTenantDetail } from './pages/admin/AdminTenantDetail';
+import { AdminContractForm } from './pages/admin/AdminContractForm';
 import { AvisoLegal } from './pages/legal/AvisoLegal';
 import { Privacidad } from './pages/legal/Privacidad';
 import { Cookies } from './pages/legal/Cookies';
@@ -63,6 +67,12 @@ function App() {
         <Route path="facturas" element={<AdminInvoices />} />
         <Route path="facturas/nueva" element={<AdminInvoiceForm />} />
         <Route path="facturas/:id/editar" element={<AdminInvoiceForm />} />
+        <Route path="inquilinos" element={<AdminTenantsList />} />
+        <Route path="inquilinos/nuevo" element={<AdminTenantForm />} />
+        <Route path="inquilinos/:id" element={<AdminTenantDetail />} />
+        <Route path="inquilinos/:id/editar" element={<AdminTenantForm />} />
+        <Route path="contratos/nuevo" element={<AdminContractForm />} />
+        <Route path="contratos/:id/editar" element={<AdminContractForm />} />
       </Route>
       </Routes>
     </>

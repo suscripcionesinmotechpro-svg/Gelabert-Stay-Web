@@ -1,11 +1,19 @@
 import { Link } from 'react-router-dom';
 import { useAdminStats } from '../../hooks/useProperties';
+import { useExpiringContracts, useContracts } from '../../hooks/useContracts';
+import { useTenants } from '../../hooks/useTenants';
 import { useTranslation, Trans } from 'react-i18next';
-import { Building2, Eye, FileText, TrendingUp, PlusCircle, List } from 'lucide-react';
+import { Building2, Eye, FileText, TrendingUp, PlusCircle, List, Users, AlertTriangle, CalendarClock } from 'lucide-react';
+import { daysUntilExpiry } from '../../types/tenant';
 
 export const AdminDashboard = () => {
   const { stats, loading } = useAdminStats();
   const { t } = useTranslation();
+  const { tenants } = useTenants();
+  const { contracts } = useContracts();
+  const { contracts: expiring } = useExpiringContracts(60);
+
+  const activeContracts = contracts.filter(c => c.status === 'active').length;
 
   const statCards = [
     { label: t('admin.dashboard.stats.total'), value: stats.total, icon: <Building2 className="w-5 h-5" />, color: 'text-[#C9A962]' },
@@ -33,7 +41,50 @@ export const AdminDashboard = () => {
         </Link>
       </div>
 
-      {/* Stats Grid */}
+      {/* Expiry Alert */}
+      {expiring.length > 0 && (
+        <div className="bg-orange-500/5 border border-orange-500/20 p-5 flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-orange-400" />
+            <p className="font-primary text-orange-400 font-bold text-sm uppercase tracking-wider">
+              {expiring.length === 1 ? '1 contrato próximo a vencer' : `${expiring.length} contratos próximos a vencer`}
+            </p>
+          </div>
+          <div className="flex flex-col gap-2">
+            {expiring.map(c => {
+              const days = daysUntilExpiry(c.end_date);
+              const isUrgent = days <= 30;
+              return (
+                <Link
+                  key={c.id}
+                  to={`/admin/inquilinos/${c.tenant_id}`}
+                  className="flex items-center justify-between gap-3 px-4 py-3 bg-[#0A0A0A] border border-[#1F1F1F] hover:border-orange-500/30 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <CalendarClock className={`w-4 h-4 flex-shrink-0 ${isUrgent ? 'text-red-400' : 'text-orange-400'}`} />
+                    <div>
+                      <p className="font-primary text-sm text-[#FAF8F5] font-semibold">
+                        {(c.tenant as any)?.first_name} {(c.tenant as any)?.last_name}
+                      </p>
+                      {c.property_label && (
+                        <p className="font-primary text-xs text-[#555]">{c.property_label}</p>
+                      )}
+                    </div>
+                  </div>
+                  <span className={`font-primary text-xs px-2.5 py-1 border rounded-full flex-shrink-0 ${
+                    isUrgent ? 'text-red-400 bg-red-400/10 border-red-400/30'
+                    : 'text-orange-400 bg-orange-400/10 border-orange-400/30'
+                  }`}>
+                    {days <= 0 ? 'Expirado' : `${days} días`}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Property Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {statCards.map((stat, i) => (
           <div key={i} className="bg-[#0A0A0A] border border-[#1F1F1F] p-5 flex flex-col gap-3">
@@ -50,31 +101,39 @@ export const AdminDashboard = () => {
         ))}
       </div>
 
+      {/* Tenant Stats */}
+      <div className="grid grid-cols-2 gap-4">
+        <Link to="/admin/inquilinos" className="bg-[#0A0A0A] border border-[#1F1F1F] hover:border-[#C9A962]/30 transition-colors p-5 flex flex-col gap-3">
+          <div className="flex items-center gap-2 text-[#C9A962]">
+            <Users className="w-5 h-5" />
+            <span className="font-primary text-xs uppercase tracking-wider text-[#666]">Inquilinos</span>
+          </div>
+          <p className="font-secondary text-4xl text-[#C9A962]">{tenants.length}</p>
+        </Link>
+        <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-5 flex flex-col gap-3">
+          <div className="flex items-center gap-2 text-teal-400">
+            <CalendarClock className="w-5 h-5" />
+            <span className="font-primary text-xs uppercase tracking-wider text-[#666]">Contratos Activos</span>
+          </div>
+          <p className="font-secondary text-4xl text-teal-400">{activeContracts}</p>
+        </div>
+      </div>
+
       {/* Quick Actions */}
       <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-6 flex flex-col gap-4">
         <h2 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-wider">{t('admin.dashboard.quick_actions.title')}</h2>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Link
-            to="/admin/propiedades/nueva"
-            className="flex items-center gap-2 px-4 py-3 border border-[#C9A962] text-[#C9A962] font-primary text-sm hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-all"
-          >
-            <PlusCircle className="w-4 h-4" />
-            {t('admin.dashboard.quick_actions.add_property')}
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+          <Link to="/admin/propiedades/nueva" className="flex items-center gap-2 px-4 py-3 border border-[#C9A962] text-[#C9A962] font-primary text-sm hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-all">
+            <PlusCircle className="w-4 h-4" /> {t('admin.dashboard.quick_actions.add_property')}
           </Link>
-          <Link
-            to="/admin/propiedades"
-            className="flex items-center gap-2 px-4 py-3 border border-[#1F1F1F] text-[#888888] font-primary text-sm hover:border-[#FAF8F5] hover:text-[#FAF8F5] transition-all"
-          >
-            <List className="w-4 h-4" />
-            {t('admin.dashboard.quick_actions.view_all')}
+          <Link to="/admin/propiedades" className="flex items-center gap-2 px-4 py-3 border border-[#1F1F1F] text-[#888888] font-primary text-sm hover:border-[#FAF8F5] hover:text-[#FAF8F5] transition-all">
+            <List className="w-4 h-4" /> {t('admin.dashboard.quick_actions.view_all')}
           </Link>
-          <a
-            href="/propiedades"
-            target="_blank"
-            className="flex items-center gap-2 px-4 py-3 border border-[#1F1F1F] text-[#888888] font-primary text-sm hover:border-[#FAF8F5] hover:text-[#FAF8F5] transition-all"
-          >
-            <Eye className="w-4 h-4" />
-            {t('admin.dashboard.quick_actions.view_public')}
+          <Link to="/admin/inquilinos/nuevo" className="flex items-center gap-2 px-4 py-3 border border-[#1F1F1F] text-[#888888] font-primary text-sm hover:border-[#FAF8F5] hover:text-[#FAF8F5] transition-all">
+            <Users className="w-4 h-4" /> Nuevo Inquilino
+          </Link>
+          <a href="/propiedades" target="_blank" className="flex items-center gap-2 px-4 py-3 border border-[#1F1F1F] text-[#888888] font-primary text-sm hover:border-[#FAF8F5] hover:text-[#FAF8F5] transition-all">
+            <Eye className="w-4 h-4" /> {t('admin.dashboard.quick_actions.view_public')}
           </a>
         </div>
       </div>
