@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTenants } from '../../hooks/useTenants';
 import { useContracts } from '../../hooks/useContracts';
@@ -10,8 +10,16 @@ import { CONTRACT_STATUS_COLORS, CONTRACT_STATUS_LABELS, daysUntilExpiry } from 
 import type { Contract } from '../../types/tenant';
 
 export const AdminTenantsList = () => {
-  const [search, setSearch] = useState('');
-  const { tenants, loading } = useTenants(search);
+  const [inputValue, setInputValue] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce: only trigger API search 350ms after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(inputValue), 350);
+    return () => clearTimeout(timer);
+  }, [inputValue]);
+
+  const { tenants, loading } = useTenants(debouncedSearch);
   const { contracts } = useContracts();
 
   // Map tenant_id → active contract
@@ -50,8 +58,8 @@ export const AdminTenantsList = () => {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
         <input
           type="text"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
+          value={inputValue}
+          onChange={e => setInputValue(e.target.value)}
           placeholder="Buscar por nombre, DNI o email…"
           className="w-full bg-[#0A0A0A] border border-[#1F1F1F] text-[#FAF8F5] pl-10 pr-4 py-3 font-primary text-sm focus:outline-none focus:border-[#C9A962] transition-colors placeholder-[#444]"
         />
@@ -67,9 +75,9 @@ export const AdminTenantsList = () => {
           <div className="flex flex-col items-center justify-center py-16 gap-3 text-[#444]">
             <Users className="w-10 h-10" />
             <p className="font-primary text-sm">
-              {search ? 'No se encontraron inquilinos' : 'Aún no hay inquilinos registrados'}
+              {debouncedSearch ? 'No se encontraron inquilinos' : 'Aún no hay inquilinos registrados'}
             </p>
-            {!search && (
+            {!debouncedSearch && (
               <Link to="/admin/inquilinos/nuevo" className="text-[#C9A962] text-sm hover:underline">
                 Añadir el primero
               </Link>
