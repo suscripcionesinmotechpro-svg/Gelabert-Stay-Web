@@ -280,6 +280,44 @@ export const AdminTenantDetail = () => {
                     </div>
                   </div>
 
+                  {/* Landlord details */}
+                  {(displayContract.landlord_name || displayContract.landlord_email || displayContract.landlord_phone) && (
+                    <div className="border-t border-[#1F1F1F] pt-4 mt-2 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="col-span-2 sm:col-span-4 mb-2">
+                        <p className="font-primary text-[10px] uppercase tracking-wider text-[#555] font-semibold">Datos del Propietario</p>
+                      </div>
+                      {displayContract.landlord_name && (
+                        <div>
+                          <p className="font-primary text-[10px] text-[#555] uppercase tracking-wider">Nombre / DNI</p>
+                          <p className="font-primary text-sm text-[#FAF8F5] font-semibold mt-0.5">
+                            {displayContract.landlord_name}
+                            {displayContract.landlord_dni && <span className="text-[#888] font-normal text-xs ml-1">({displayContract.landlord_dni})</span>}
+                          </p>
+                        </div>
+                      )}
+                      {displayContract.landlord_phone && (
+                        <div>
+                          <p className="font-primary text-[10px] text-[#555] uppercase tracking-wider">Teléfono</p>
+                          <p className="font-primary text-sm text-[#FAF8F5] font-semibold mt-0.5">{displayContract.landlord_phone}</p>
+                        </div>
+                      )}
+                      {displayContract.landlord_email && (
+                        <div className="col-span-2 sm:col-span-1">
+                          <p className="font-primary text-[10px] text-[#555] uppercase tracking-wider">Email</p>
+                          <p className="font-primary text-sm text-[#FAF8F5] font-semibold mt-0.5 truncate" title={displayContract.landlord_email}>
+                            {displayContract.landlord_email}
+                          </p>
+                        </div>
+                      )}
+                      {displayContract.landlord_address && (
+                        <div className="col-span-2 sm:col-span-4 mt-1">
+                          <p className="font-primary text-[10px] text-[#555] uppercase tracking-wider">Dirección postal</p>
+                          <p className="font-primary text-sm text-[#FAF8F5] font-semibold mt-0.5">{displayContract.landlord_address}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {displayContract.notes && (
                     <p className="font-primary text-sm text-[#666] border-t border-[#1A1A1A] pt-3">{displayContract.notes}</p>
                   )}

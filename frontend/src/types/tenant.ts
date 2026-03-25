@@ -47,7 +47,15 @@ export interface Contract {
   currency: string;
   status: ContractStatus;
   notes: string | null;
-  // joined
+  
+  // Datos del Propietario (Landlord)
+  landlord_name: string | null;
+  landlord_dni: string | null;
+  landlord_phone: string | null;
+  landlord_email: string | null;
+  landlord_address: string | null;
+
+  // Joined relations
   tenant?: Tenant;
 }
 

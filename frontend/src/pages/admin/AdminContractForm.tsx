@@ -26,6 +26,11 @@ const emptyContract: Omit<ContractInsert, 'tenant_id'> = {
   currency: 'EUR',
   status: 'active',
   notes: '',
+  landlord_name: '',
+  landlord_dni: '',
+  landlord_phone: '',
+  landlord_email: '',
+  landlord_address: '',
 };
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -74,6 +79,11 @@ export const AdminContractForm = () => {
         currency: contract.currency,
         status: contract.status,
         notes: contract.notes ?? '',
+        landlord_name: contract.landlord_name ?? '',
+        landlord_dni: contract.landlord_dni ?? '',
+        landlord_phone: contract.landlord_phone ?? '',
+        landlord_email: contract.landlord_email ?? '',
+        landlord_address: contract.landlord_address ?? '',
       });
     }
   }, [contract, isEdit]);
@@ -277,6 +287,35 @@ export const AdminContractForm = () => {
             <textarea className={`${inputClass} resize-none`} rows={3} value={form.notes || ''}
               onChange={e => set('notes', e.target.value)} placeholder="Observaciones sobre el contrato…" />
           </Field>
+        </div>
+
+        {/* Landlord Details */}
+        <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-6 flex flex-col gap-5">
+          <h2 className="font-primary font-bold text-xs uppercase tracking-wider text-[#666]">Datos del Propietario</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Nombre Completo">
+              <input type="text" className={inputClass} value={form.landlord_name || ''}
+                onChange={e => set('landlord_name', e.target.value)} placeholder="Ej. Ana Belén Robles" />
+            </Field>
+            <Field label="DNI / NIE">
+              <input type="text" className={inputClass} value={form.landlord_dni || ''}
+                onChange={e => set('landlord_dni', e.target.value)} placeholder="Ej. 12345678Z" />
+            </Field>
+            <Field label="Teléfono">
+              <input type="text" className={inputClass} value={form.landlord_phone || ''}
+                onChange={e => set('landlord_phone', e.target.value)} placeholder="+34 600..." />
+            </Field>
+            <Field label="Email">
+              <input type="email" className={inputClass} value={form.landlord_email || ''}
+                onChange={e => set('landlord_email', e.target.value)} placeholder="ana@email.com" />
+            </Field>
+            <div className="sm:col-span-2">
+              <Field label="Dirección Postal">
+                <input type="text" className={inputClass} value={form.landlord_address || ''}
+                  onChange={e => set('landlord_address', e.target.value)} placeholder="Calle Falsa 123, Madrid" />
+              </Field>
+            </div>
+          </div>
         </div>
 
         <div className="flex gap-3">
