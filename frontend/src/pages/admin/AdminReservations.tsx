@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useProperties } from '../../hooks/useProperties';
 import { usePropertyContracts } from '../../hooks/useContracts';
 import type { Property } from '../../types/property';
@@ -9,6 +10,7 @@ import { ChevronDown, ChevronUp, PlusCircle, Users } from 'lucide-react';
 const today = new Date().toISOString().split('T')[0];
 
 const PropertyRow = ({ property }: { property: Property }) => {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const { contracts, loading } = usePropertyContracts(property.id);
 
@@ -46,7 +48,7 @@ const PropertyRow = ({ property }: { property: Property }) => {
 
         {/* Commercial status */}
         <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-sm w-fit ${COMMERCIAL_STATUS_COLORS[property.commercial_status]}`}>
-          {COMMERCIAL_STATUS_LABELS[property.commercial_status]}
+          {t(COMMERCIAL_STATUS_LABELS[property.commercial_status])}
         </span>
 
         {/* Current occupant */}
