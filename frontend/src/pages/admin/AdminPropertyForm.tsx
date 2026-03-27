@@ -304,19 +304,20 @@ export const AdminPropertyForm = () => {
       console.log('[DEBUG] Enviando datos a Supabase:', data);
 
       if (isEditing && id) {
-        // En update, el id va en el WHERE, no necesariamente en el body (aunque suele dar igual)
-        // pero por limpieza lo quitamos del data
         delete data.id; 
         await updateProperty(id, data);
       } else {
-        // En insert, nunca enviamos id si es autogenerado
         delete data.id;
         await createProperty(data);
       }
       
-      navigate(`/admin/propiedades`);
+      setSaving(false);
+      navigate('/admin/propiedades');
     } catch (err: any) {
-      console.error('[Save Error Detail]', err);
+      console.error('[DATABASE_ERROR] Error al guardar propiedad:', err);
+      if (err.code === '42703') {
+        console.error('[CRITICAL] Columna inexistente en la base de datos. Por favor, ejecuta el script de migración SQL proporcionado.');
+      }
       const errorMessage = err.message || err.details || t('admin.form.errors.save_error');
       const errorCode = err.code ? ` (${err.code})` : '';
       setError(`${errorMessage}${errorCode}`);

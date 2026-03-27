@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarjetas Gelabert Homes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #D4AF37;
+            --dark: #121212;
+            --light-gold: rgba(212, 175, 55, 0.1);
+        }
+
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            padding: 50px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .card {
+            width: 85mm;
+            height: 55mm;
+            background-color: var(--dark);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: white;
+            display: flex;
+            padding: 30px;
+            box-sizing: border-box;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        /* Watermark - Identical on both sides */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 70%;
+            opacity: 0.1;
+            z-index: 0;
+            background-image: url('../public/logo.png'); /* Logo original */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            pointer-events: none;
+        }
+
+        /* Front Side */
+        .front {
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .front-logo {
+            width: 80%;
+            max-height: 50%;
+            object-fit: contain;
+            margin-bottom: 15px;
+            z-index: 1;
+        }
+
+        /* Back Side */
+        .back {
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .contact-header {
+            z-index: 1;
+        }
+
+        .name {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: 1px;
+            color: var(--gold);
+        }
+
+        .title {
+            font-size: 14px;
+            font-weight: 300;
+            margin: 5px 0 0 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 300;
+            z-index: 1;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            color: var(--gold);
+            width: 16px;
+        }
+
+        .back-logo-mini {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 40px;
+            opacity: 0.8;
+            z-index: 1;
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .card { box-shadow: none; border: 1px solid #ddd; page-break-after: always; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- FRONT SIDE -->
+    <div class="card front">
+        <div class="watermark"></div>
+        <img src="../public/logo.png" alt="Gelabert Homes Logo" class="front-logo">
+    </div>
+
+    <!-- BACK SIDE -->
+    <div class="card back">
+        <div class="watermark"></div>
+        
+        <div class="contact-header">
+            <h1 class="name">Jose Carlos Delgado</h1>
+            <p class="title">Director / CEO</p>
+        </div>
+
+        <div class="contact-details">
+            <div class="detail-item">
+                <span class="icon">📞</span>
+                <span>+34 611 89 88 27</span>
+            </div>
+            <div class="detail-item">
+                <span class="icon">✉️</span>
+                <span>info@gelaberthomes.es</span>
+            </div>
+            <div class="detail-item">
+                <span class="icon">🌐</span>
+                <span>gelaberthomes.com</span>
+            </div>
+        </div>
+
+        <img src="../public/logo.png" alt="GH" class="back-logo-mini">
+    </div>
+
+</body>
+</html>
