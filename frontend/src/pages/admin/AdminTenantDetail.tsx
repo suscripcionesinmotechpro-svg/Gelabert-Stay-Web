@@ -208,18 +208,26 @@ export const AdminTenantDetail = () => {
             </div>
           ) : (
             <>
-              {/* Contract tabs if multiple */}
-              {contracts.length > 1 && (
-                <div className="flex gap-2 flex-wrap">
-                  {contracts.map(c => (
-                    <button key={c.id}
-                      onClick={() => setSelectedContractId(c.id)}
-                      className={`font-primary text-xs px-3 py-1.5 border transition-colors ${displayContract?.id === c.id ? 'border-[#C9A962] text-[#C9A962]' : 'border-[#1F1F1F] text-[#666] hover:border-[#333] hover:text-[#FAF8F5]'}`}>
-                      {new Date(c.start_date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })} — {new Date(c.end_date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {/* Contract tabs if multiple (deduplicated by dates/property) */}
+              {(() => {
+                const uniqueContracts = Array.from(new Map(
+                  contracts.map(c => [`${c.start_date}-${c.end_date}-${c.property_id}`, c])
+                ).values());
+                
+                if (uniqueContracts.length <= 1) return null;
+                
+                return (
+                  <div className="flex gap-2 flex-wrap">
+                    {uniqueContracts.map(c => (
+                      <button key={c.id}
+                        onClick={() => setSelectedContractId(c.id)}
+                        className={`font-primary text-xs px-3 py-1.5 border transition-colors ${displayContract?.id === c.id ? 'border-[#C9A962] text-[#C9A962]' : 'border-[#1F1F1F] text-[#666] hover:border-[#333] hover:text-[#FAF8F5]'}`}>
+                        {new Date(c.start_date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })} — {new Date(c.end_date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
 
               {displayContract && (
                 <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-5 flex flex-col gap-4">
