@@ -11,9 +11,12 @@ import {
 import type { ContractInsert, DocumentType } from '../../types/tenant';
 import { DOCUMENT_TYPE_LABELS } from '../../types/tenant';
 
-const DOC_TYPES: DocumentType[] = [
-  'contrato_arrendamiento', 'documento_reserva', 'encargo_servicios',
-  'ficha_visita', 'dni', 'otro',
+const TENANT_DOC_TYPES: DocumentType[] = [
+  'dni', 'contrato_arrendamiento', 'documento_reserva', 'encargo_servicios', 'ficha_visita', 'otro'
+];
+
+const OWNER_DOC_TYPES: DocumentType[] = [
+  'dni', 'nota_simple', 'factura_electricidad', 'factura_agua', 'factura_wifi', 'recibo_ibi', 'recibo_comunidad', 'otro'
 ];
 
 const emptyContract: Omit<ContractInsert, 'tenant_id'> = {
@@ -24,6 +27,7 @@ const emptyContract: Omit<ContractInsert, 'tenant_id'> = {
   monthly_rent: null,
   deposit: null,
   currency: 'EUR',
+  address: '',
   status: 'active',
   notes: '',
   landlord_name: '',
@@ -39,6 +43,53 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
     {children}
   </div>
 );
+
+const DocUploadBox = ({ 
+  docType, documents, uploadingType, onUpload, onDelete 
+}: { 
+  docType: DocumentType; 
+  documents: any[]; 
+  uploadingType: DocumentType | null; 
+  onUpload: (dt: DocumentType) => void; 
+  onDelete: (id: string, path: string) => void;
+}) => {
+  const isUploading = uploadingType === docType;
+  return (
+    <div className="border border-[#1A1A1A] p-4 flex flex-col gap-2">
+      <p className="font-primary text-sm text-[#FAF8F5] font-semibold">{DOCUMENT_TYPE_LABELS[docType]}</p>
+      {documents.map(doc => (
+        <div key={doc.id} className="flex items-center gap-2">
+          <FileText className="w-3.5 h-3.5 text-[#C9A962] flex-shrink-0" />
+          <a
+            href={doc.file_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-primary text-[11px] text-[#888] hover:text-[#FAF8F5] truncate flex-1 flex items-center gap-1"
+          >
+            {doc.file_name} <ExternalLink className="w-3 h-3 flex-shrink-0" />
+          </a>
+          <button
+            onClick={() => onDelete(doc.id, doc.file_path)}
+            className="text-[#444] hover:text-red-400 transition-colors flex-shrink-0"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      ))}
+      <button
+        onClick={() => onUpload(docType)}
+        disabled={isUploading}
+        className="flex items-center gap-1.5 text-[#555] hover:text-[#C9A962] font-primary text-xs transition-colors disabled:opacity-50 mt-1"
+      >
+        {isUploading
+          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          : <Upload className="w-3.5 h-3.5" />
+        }
+        {documents.length > 0 ? 'Añadir otro' : 'Subir PDF'}
+      </button>
+    </div>
+  );
+};
 
 export const AdminContractForm = () => {
   const { id } = useParams<{ id: string }>();
@@ -77,6 +128,7 @@ export const AdminContractForm = () => {
         monthly_rent: contract.monthly_rent,
         deposit: contract.deposit,
         currency: contract.currency,
+        address: contract.address ?? '',
         status: contract.status,
         notes: contract.notes ?? '',
         landlord_name: contract.landlord_name ?? '',
@@ -227,6 +279,18 @@ export const AdminContractForm = () => {
               </select>
             </Field>
           </div>
+          <div className="mt-2">
+            <Field label="Dirección EXACTA del alquiler *">
+              <input 
+                type="text" 
+                className={inputClass} 
+                value={form.address || ''}
+                onChange={e => set('address', e.target.value)} 
+                placeholder="Ej. Calle Mayor 1, 2ºB, Madrid"
+                required
+              />
+            </Field>
+          </div>
         </div>
 
         {/* Dates */}
@@ -343,46 +407,40 @@ export const AdminContractForm = () => {
           </div>
 
           {/* Doc type grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {DOC_TYPES.map(docType => {
-              const existing = documents.filter(d => d.document_type === docType);
-              const isUploading = uploadingType === docType;
-              return (
-                <div key={docType} className="border border-[#1A1A1A] p-4 flex flex-col gap-2">
-                  <p className="font-primary text-sm text-[#FAF8F5] font-semibold">{DOCUMENT_TYPE_LABELS[docType]}</p>
-                  {existing.map(doc => (
-                    <div key={doc.id} className="flex items-center gap-2">
-                      <FileText className="w-3.5 h-3.5 text-[#C9A962] flex-shrink-0" />
-                      <a
-                        href={doc.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-primary text-[11px] text-[#888] hover:text-[#FAF8F5] truncate flex-1 flex items-center gap-1"
-                      >
-                        {doc.file_name} <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                      </a>
-                      <button
-                        onClick={() => handleDeleteDoc(doc.id, doc.file_path)}
-                        className="text-[#444] hover:text-red-400 transition-colors flex-shrink-0"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    onClick={() => triggerUpload(docType)}
-                    disabled={isUploading}
-                    className="flex items-center gap-1.5 text-[#555] hover:text-[#C9A962] font-primary text-xs transition-colors disabled:opacity-50 mt-1"
-                  >
-                    {isUploading
-                      ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      : <Upload className="w-3.5 h-3.5" />
-                    }
-                    {existing.length > 0 ? 'Añadir otro' : 'Subir PDF'}
-                  </button>
-                </div>
-              );
-            })}
+          <div className="flex flex-col gap-8">
+            {/* Tenant Section */}
+            <div>
+              <h3 className="font-primary font-bold text-[10px] uppercase tracking-widest text-[#444] mb-3 border-b border-[#1A1A1A] pb-1">Documentación del INQUILINO</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {TENANT_DOC_TYPES.map(docType => (
+                  <DocUploadBox 
+                    key={docType}
+                    docType={docType}
+                    documents={documents.filter(d => d.document_type === docType && d.category === 'tenant')}
+                    uploadingType={uploadingType}
+                    onUpload={triggerUpload}
+                    onDelete={handleDeleteDoc}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Owner Section */}
+            <div>
+              <h3 className="font-primary font-bold text-[10px] uppercase tracking-widest text-[#444] mb-3 border-b border-[#1A1A1A] pb-1">Documentación del PROPIETARIO</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {OWNER_DOC_TYPES.map(docType => (
+                  <DocUploadBox 
+                    key={docType}
+                    docType={docType}
+                    documents={documents.filter(d => d.document_type === docType && d.category === 'owner')}
+                    uploadingType={uploadingType}
+                    onUpload={triggerUpload}
+                    onDelete={handleDeleteDoc}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
 
           <input

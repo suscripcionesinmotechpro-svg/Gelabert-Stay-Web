@@ -14,9 +14,12 @@ import {
 } from '../../types/tenant';
 import type { DocumentType } from '../../types/tenant';
 
-const DOC_TYPES: DocumentType[] = [
-  'contrato_arrendamiento', 'documento_reserva', 'encargo_servicios',
-  'ficha_visita', 'dni', 'otro',
+const TENANT_DOC_TYPES: DocumentType[] = [
+  'dni', 'contrato_arrendamiento', 'documento_reserva', 'encargo_servicios', 'ficha_visita', 'otro'
+];
+
+const OWNER_DOC_TYPES: DocumentType[] = [
+  'dni', 'nota_simple', 'factura_electricidad', 'factura_agua', 'factura_wifi', 'recibo_ibi', 'recibo_comunidad', 'otro'
 ];
 
 export const AdminTenantDetail = () => {
@@ -273,6 +276,7 @@ export const AdminTenantDetail = () => {
                       { label: 'Fin', value: new Date(displayContract.end_date).toLocaleDateString('es-ES') },
                       { label: 'Renta / mes', value: displayContract.monthly_rent ? `${displayContract.monthly_rent.toLocaleString('es-ES')} €` : '—' },
                       { label: 'Fianza', value: displayContract.deposit ? `${displayContract.deposit.toLocaleString('es-ES')} €` : '—' },
+                      { label: 'Dirección EXACTA', value: displayContract.address || '—' },
                     ].map(item => (
                       <div key={item.label}>
                         <p className="font-primary text-[10px] text-[#555] uppercase tracking-wider">{item.label}</p>
@@ -344,7 +348,7 @@ export const AdminTenantDetail = () => {
                         <div className="flex justify-center py-4"><div className="w-4 h-4 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" /></div>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {DOC_TYPES.map(docType => {
+                          {TENANT_DOC_TYPES.map(docType => {
                             const existing = documents.filter(d => d.document_type === docType && (d.category === 'tenant' || !d.category));
                             const isUploading = uploadingType === docType && pendingDocType?.category === 'tenant';
                             return (
@@ -391,7 +395,7 @@ export const AdminTenantDetail = () => {
                         <div className="flex justify-center py-4"><div className="w-4 h-4 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" /></div>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {DOC_TYPES.map(docType => {
+                          {OWNER_DOC_TYPES.map(docType => {
                             const existing = documents.filter(d => d.document_type === docType && d.category === 'owner');
                             const isUploading = uploadingType === docType && pendingDocType?.category === 'owner';
                             return (

@@ -10,6 +10,12 @@ export type DocumentType =
   | 'documento_reserva'
   | 'encargo_servicios'
   | 'ficha_visita'
+  | 'nota_simple'
+  | 'factura_electricidad'
+  | 'factura_agua'
+  | 'factura_wifi'
+  | 'recibo_ibi'
+  | 'recibo_comunidad'
   | 'otro';
 
 // ─── TENANT ─────────────────────────────────────
@@ -45,6 +51,7 @@ export interface Contract {
   monthly_rent: number | null;
   deposit: number | null;
   currency: string;
+  address: string | null;
   status: ContractStatus;
   notes: string | null;
   
@@ -95,6 +102,12 @@ export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
   documento_reserva: 'Documento de Reserva',
   encargo_servicios: 'Encargo de Servicios',
   ficha_visita: 'Ficha de Visita',
+  nota_simple: 'Nota Simple',
+  factura_electricidad: 'Última Factura Electricidad',
+  factura_agua: 'Última Factura Agua',
+  factura_wifi: 'Última Factura WIFI',
+  recibo_ibi: 'Recibo Último Pago IBI',
+  recibo_comunidad: 'Recibo Último Pago Comunidad',
   otro: 'Otro Documento',
 };
 
