@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { useTranslation } from 'react-i18next';
 import {
-  LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X, Receipt, Users
+  LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X, Receipt, Users, CalendarDays
 } from 'lucide-react';
 
 export const AdminLayout = () => {
@@ -19,6 +19,8 @@ export const AdminLayout = () => {
     { to: `/admin/propiedades/nueva`, icon: <PlusCircle className="w-4 h-4" />, label: "Nueva Propiedad" },
     { to: `/admin/facturas`, icon: <Receipt className="w-4 h-4" />, label: "Facturación" },
     { to: `/admin/inquilinos`, icon: <Users className="w-4 h-4" />, label: "Inquilinos" },
+    { to: `/admin/reservas`, icon: <CalendarDays className="w-4 h-4" />, label: "Reservas" },
+
   ];
 
   useEffect(() => {

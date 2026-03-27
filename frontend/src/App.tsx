@@ -24,6 +24,7 @@ const AdminTenantsList = lazy(() => import('./pages/admin/AdminTenantsList').the
 const AdminTenantForm = lazy(() => import('./pages/admin/AdminTenantForm').then(m => ({ default: m.AdminTenantForm })));
 const AdminTenantDetail = lazy(() => import('./pages/admin/AdminTenantDetail').then(m => ({ default: m.AdminTenantDetail })));
 const AdminContractForm = lazy(() => import('./pages/admin/AdminContractForm').then(m => ({ default: m.AdminContractForm })));
+const AdminReservations = lazy(() => import('./pages/admin/AdminReservations').then(m => ({ default: m.AdminReservations })));
 
 // Legal
 const AvisoLegal = lazy(() => import('./pages/legal/AvisoLegal').then(m => ({ default: m.AvisoLegal })));
@@ -82,6 +83,8 @@ function App() {
           <Route path="inquilinos/:id/editar" element={<AdminTenantForm />} />
           <Route path="contratos/nuevo" element={<AdminContractForm />} />
           <Route path="contratos/:id/editar" element={<AdminContractForm />} />
+          <Route path="reservas" element={<AdminReservations />} />
+
         </Route>
         </Routes>
       </Suspense>

@@ -103,8 +103,10 @@ export const AdminPropertyForm = () => {
   const [newHighlight, setNewHighlight] = useState('');
   const [latStr, setLatStr] = useState('');
   const [lonStr, setLonStr] = useState('');
+  const [formReady, setFormReady] = useState(!isEditing); // true immediately for new props
 
   useEffect(() => {
+    setFormReady(false);
     if (isEditing && property) {
       const newForm = {
         title: property.title, operation: property.operation, property_type: property.property_type,
@@ -146,6 +148,7 @@ export const AdminPropertyForm = () => {
       setForm(newForm);
       setLatStr(property.latitude?.toString() ?? '');
       setLonStr(property.longitude?.toString() ?? '');
+      setFormReady(true);
     }
   }, [property, isEditing]);
 
@@ -792,9 +795,10 @@ export const AdminPropertyForm = () => {
         <h2 className={sectionHeaderClass}>{t('admin.form.sections.commercial')}</h2>
         <div className="flex flex-col gap-2">
           <label className={labelClass}>{t('admin.form.fields.long_desc')}</label>
-          <RichTextEditor 
-            content={form.description ?? ''} 
-            onChange={v => set('description', v)} 
+          <RichTextEditor
+            key={formReady ? 'ready' : 'loading'}
+            content={form.description ?? ''}
+            onChange={v => set('description', v)}
             placeholder={t('admin.form.fields.long_desc_placeholder')}
           />
         </div>
