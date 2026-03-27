@@ -6,7 +6,7 @@ import { useTenantDocuments, uploadTenantDocument, deleteTenantDocument, getSign
 import {
   ArrowLeft, Edit3, PlusCircle, Trash2, FileText, Upload,
   ExternalLink, Loader2, AlertTriangle, Home, Phone,
-  Mail, MapPin, BadgeCheck
+  Mail, MapPin, BadgeCheck, Users
 } from 'lucide-react';
 import {
   DOCUMENT_TYPE_LABELS, CONTRACT_STATUS_COLORS, CONTRACT_STATUS_LABELS,
@@ -33,7 +33,7 @@ export const AdminTenantDetail = () => {
 
   const { documents, loading: loadingDocs, refetch: refetchDocs } = useTenantDocuments(displayContract?.id);
   const [uploadingType, setUploadingType] = useState<DocumentType | null>(null);
-  const [pendingDocType, setPendingDocType] = useState<DocumentType | null>(null);
+  const [pendingDocType, setPendingDocType] = useState<{ type: DocumentType, category: 'tenant' | 'owner' } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -50,21 +50,24 @@ export const AdminTenantDetail = () => {
     catch (e: any) { setError(e.message); }
   };
 
-  const triggerUpload = (docType: DocumentType) => {
-    setPendingDocType(docType);
+  const triggerUpload = (docType: DocumentType, category: 'tenant' | 'owner') => {
+    setPendingDocType({ type: docType, category });
     fileInputRef.current?.click();
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !pendingDocType || !displayContract?.id) return;
-    setUploadingType(pendingDocType);
+    setUploadingType(pendingDocType.type);
     try {
-      await uploadTenantDocument(displayContract.id, file, pendingDocType);
+      await uploadTenantDocument(displayContract.id, file, pendingDocType.type, pendingDocType.category);
       await refetchDocs();
     } catch (err: any) { setError(err.message); }
     finally { setUploadingType(null); setPendingDocType(null); e.target.value = ''; }
   };
+
+  // ... (handleDownload, handleDeleteDoc, loading/null checks remain the same) ...
+  // [Skipping lines 69-105 for brevity in this manual-like view, but they will be preserved]
 
   const handleDownload = async (docId: string, filePath: string, url: string, name: string) => {
     setDownloading(docId);
@@ -323,48 +326,101 @@ export const AdminTenantDetail = () => {
                   )}
 
                   {/* Documents */}
-                  <div className="border-t border-[#1A1A1A] pt-4 flex flex-col gap-3">
-                    <p className="font-primary text-[10px] uppercase tracking-wider text-[#555] font-semibold">Documentación</p>
-                    {loadingDocs ? (
-                      <div className="flex justify-center py-4"><div className="w-4 h-4 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" /></div>
-                    ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {DOC_TYPES.map(docType => {
-                          const existing = documents.filter(d => d.document_type === docType);
-                          const isUploading = uploadingType === docType;
-                          return (
-                            <div key={docType} className="border border-[#1A1A1A] p-3 flex flex-col gap-2">
-                              <p className="font-primary text-xs text-[#888] font-semibold">{DOCUMENT_TYPE_LABELS[docType]}</p>
-                              {existing.map(doc => (
-                                <div key={doc.id} className="flex items-center gap-1.5">
-                                  <FileText className="w-3 h-3 text-[#C9A962] flex-shrink-0" />
-                                  <button
-                                    onClick={() => handleDownload(doc.id, doc.file_path, doc.file_url, doc.file_name)}
-                                    disabled={downloading === doc.id}
-                                    className="font-primary text-[10px] text-[#666] hover:text-[#FAF8F5] truncate flex-1 text-left flex items-center gap-1 transition-colors"
-                                  >
-                                    {downloading === doc.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <ExternalLink className="w-2.5 h-2.5 flex-shrink-0" />}
-                                    {doc.file_name}
-                                  </button>
-                                  <button onClick={() => handleDeleteDoc(doc.id, doc.file_path)}
-                                    className="text-[#333] hover:text-red-400 transition-colors flex-shrink-0">
-                                    <Trash2 className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              ))}
-                              <button
-                                onClick={() => triggerUpload(docType)}
-                                disabled={isUploading}
-                                className="flex items-center gap-1 text-[#444] hover:text-[#C9A962] font-primary text-[10px] transition-colors disabled:opacity-50"
-                              >
-                                {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
-                                {existing.length > 0 ? 'Añadir otro' : 'Subir PDF'}
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+                  <div className="border-t border-[#1A1A1A] pt-4 flex flex-col gap-6">
+                    {/* Tenant Section */}
+                    <div className="flex flex-col gap-3">
+                      <p className="font-primary text-[10px] uppercase tracking-wider text-[#C9A962] font-semibold flex items-center gap-2">
+                        <Users className="w-3 h-3" /> Documentación Inquilino
+                      </p>
+                      {loadingDocs ? (
+                        <div className="flex justify-center py-4"><div className="w-4 h-4 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" /></div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {DOC_TYPES.map(docType => {
+                            const existing = documents.filter(d => d.document_type === docType && (d.category === 'tenant' || !d.category));
+                            const isUploading = uploadingType === docType && pendingDocType?.category === 'tenant';
+                            return (
+                              <div key={docType} className="border border-[#1A1A1A] p-3 flex flex-col gap-2 bg-[#050505]">
+                                <p className="font-primary text-xs text-[#888] font-semibold">{DOCUMENT_TYPE_LABELS[docType]}</p>
+                                {existing.map(doc => (
+                                  <div key={doc.id} className="flex items-center gap-1.5">
+                                    <FileText className="w-3 h-3 text-[#C9A962] flex-shrink-0" />
+                                    <button
+                                      onClick={() => handleDownload(doc.id, doc.file_path, doc.file_url, doc.file_name)}
+                                      disabled={downloading === doc.id}
+                                      className="font-primary text-[10px] text-[#666] hover:text-[#FAF8F5] truncate flex-1 text-left flex items-center gap-1 transition-colors"
+                                    >
+                                      {downloading === doc.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <ExternalLink className="w-2.5 h-2.5 flex-shrink-0" />}
+                                      {doc.file_name}
+                                    </button>
+                                    <button onClick={() => handleDeleteDoc(doc.id, doc.file_path)}
+                                      className="text-[#333] hover:text-red-400 transition-colors flex-shrink-0">
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                                <button
+                                  onClick={() => triggerUpload(docType, 'tenant')}
+                                  disabled={isUploading}
+                                  className="flex items-center gap-1 text-[#444] hover:text-[#C9A962] font-primary text-[10px] transition-colors disabled:opacity-50"
+                                >
+                                  {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                                  {existing.length > 0 ? 'Añadir otro' : 'Subir PDF'}
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Landlord Section */}
+                    <div className="flex flex-col gap-3 pt-2 border-t border-[#121212]">
+                      <p className="font-primary text-[10px] uppercase tracking-wider text-[#C9A962] font-semibold flex items-center gap-2">
+                        <BadgeCheck className="w-3 h-3" /> Documentación Propietario
+                      </p>
+                      {loadingDocs ? (
+                        <div className="flex justify-center py-4"><div className="w-4 h-4 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" /></div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {DOC_TYPES.map(docType => {
+                            const existing = documents.filter(d => d.document_type === docType && d.category === 'owner');
+                            const isUploading = uploadingType === docType && pendingDocType?.category === 'owner';
+                            return (
+                              <div key={docType} className="border border-[#1A1A1A] p-3 flex flex-col gap-2 bg-[#050505]">
+                                <p className="font-primary text-xs text-[#888] font-semibold">{DOCUMENT_TYPE_LABELS[docType]}</p>
+                                {existing.map(doc => (
+                                  <div key={doc.id} className="flex items-center gap-1.5">
+                                    <FileText className="w-3 h-3 text-[#C9A962] flex-shrink-0" />
+                                    <button
+                                      onClick={() => handleDownload(doc.id, doc.file_path, doc.file_url, doc.file_name)}
+                                      disabled={downloading === doc.id}
+                                      className="font-primary text-[10px] text-[#666] hover:text-[#FAF8F5] truncate flex-1 text-left flex items-center gap-1 transition-colors"
+                                    >
+                                      {downloading === doc.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <ExternalLink className="w-2.5 h-2.5 flex-shrink-0" />}
+                                      {doc.file_name}
+                                    </button>
+                                    <button onClick={() => handleDeleteDoc(doc.id, doc.file_path)}
+                                      className="text-[#333] hover:text-red-400 transition-colors flex-shrink-0">
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                                <button
+                                  onClick={() => triggerUpload(docType, 'owner')}
+                                  disabled={isUploading}
+                                  className="flex items-center gap-1 text-[#444] hover:text-[#C9A962] font-primary text-[10px] transition-colors disabled:opacity-50"
+                                >
+                                  {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                                  {existing.length > 0 ? 'Añadir otro' : 'Subir PDF'}
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
                     <input ref={fileInputRef} type="file" accept=".pdf,image/*" className="hidden" onChange={handleFileChange} />
                   </div>
                 </div>

@@ -6,7 +6,7 @@ import { useAutoTranslate } from '../hooks/useAutoTranslate';
 import { OPERATION_LABELS, type PropertyOperation, type CommercialStatus, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import { ChevronLeft, ChevronRight, MessageSquare, Heart, GitCompare } from 'lucide-react';
 import { getWhatsAppLink } from '../utils/whatsapp';
-import { useState } from 'react';
+import { useState, useMemo, memo } from 'react';
 
 export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   title: string;
@@ -40,7 +40,7 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   index?: number;
 }
 
-export const PropertyCard = ({
+export const PropertyCard = memo(({
   title,
   title_en,
   price,
@@ -75,8 +75,11 @@ export const PropertyCard = ({
   const { t } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
-  // Logic for "New" badge (e.g., less than 7 days old)
-  const isNew = createdAt ? (new Date().getTime() - new Date(createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000 : false;
+  // Logic for "New" badge (memoized)
+  const isNew = useMemo(() => 
+    createdAt ? (new Date().getTime() - new Date(createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000 : false,
+    [createdAt]
+  );
 
   const { translatedText: autoTitle } = useAutoTranslate(title, title_en);
   const { translatedText: autoDescription } = useAutoTranslate(description, description_en);
@@ -106,11 +109,14 @@ export const PropertyCard = ({
     }
   };
 
-  const formattedPrice = new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-    maximumFractionDigits: 0
-  }).format(price);
+  const formattedPrice = useMemo(() => 
+    new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: 'EUR',
+      maximumFractionDigits: 0
+    }).format(price),
+    [price]
+  );
 
   const { i18n } = useTranslation();
   const propertyUrl = `https://gelaberthomes.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${reference || id}`;
@@ -129,9 +135,9 @@ export const PropertyCard = ({
       viewport={{ once: true, margin: "-50px" }}
       whileHover={{ y: -8, scale: 1.01 }}
       transition={{ 
-        duration: 1.2, 
+        duration: 0.8, 
         ease: [0.16, 1, 0.3, 1], 
-        delay: index !== undefined ? Math.min(index % 12, 12) * 0.2 : 0.1 
+        delay: index !== undefined ? Math.min(index % 8, 8) * 0.1 : 0.05 
       }}
       style={{ willChange: 'transform, opacity' }}
       className={cn(
@@ -390,4 +396,6 @@ export const PropertyCard = ({
   }
 
   return card;
-};
+});
+
+PropertyCard.displayName = 'PropertyCard';

@@ -62,12 +62,15 @@ export interface Contract {
 export type ContractInsert = Omit<Contract, 'id' | 'created_at' | 'user_id' | 'tenant'>;
 
 // ─── DOCUMENT ───────────────────────────────────
+export type DocumentCategory = 'tenant' | 'owner';
+
 export interface TenantDocument {
   id: string;
   uploaded_at: string;
   user_id: string;
   contract_id: string;
   document_type: DocumentType;
+  category: DocumentCategory;
   file_name: string;
   file_url: string;
   file_path: string;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import type { TenantDocument, DocumentType } from '../types/tenant';
+import type { TenantDocument, DocumentType, DocumentCategory } from '../types/tenant';
 
 const BUCKET = 'tenant-docs';
 
@@ -30,7 +30,8 @@ export const useTenantDocuments = (contractId?: string) => {
 export const uploadTenantDocument = async (
   contractId: string,
   file: File,
-  docType: DocumentType
+  docType: DocumentType,
+  category: DocumentCategory = 'tenant'
 ): Promise<TenantDocument> => {
   const timestamp = Date.now();
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -55,6 +56,7 @@ export const uploadTenantDocument = async (
     .insert([{
       contract_id: contractId,
       document_type: docType,
+      category,
       file_name: file.name,
       file_url: fileUrl,
       file_path: path,

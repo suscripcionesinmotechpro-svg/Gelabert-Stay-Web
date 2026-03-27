@@ -3,6 +3,10 @@ import { supabase } from '../lib/supabase';
 import type { Property, PropertyFilters, PropertyInsert, PropertyUpdate, PropertyStatus, CommercialStatus } from '../types/property';
 import { applyWatermark } from '../utils/watermark';
 
+// Memory cache to avoid redundant fetches and flickering
+const propertiesCache: Record<string, { data: Property[]; timestamp: number }> = {};
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 // ============================================================
 // useProperties — list with optional filters (public: only published)
 // ============================================================
@@ -13,8 +17,19 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
 
   // stringify filters para evitar loops de re-renderizados por referencias de objeto literales
   const filtersString = JSON.stringify(filters);
+  const cacheKey = `${adminMode ? 'admin' : 'public'}-${filtersString}`;
 
-  const fetchProperties = useCallback(async () => {
+  const fetchProperties = useCallback(async (ignoreCache = false) => {
+    // Check cache first
+    if (!ignoreCache && propertiesCache[cacheKey]) {
+      const cached = propertiesCache[cacheKey];
+      if (Date.now() - cached.timestamp < CACHE_TTL) {
+        setProperties(cached.data);
+        setLoading(false);
+        return;
+      }
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -75,13 +90,21 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
 
       const { data, error: supabaseError } = await query;
       if (supabaseError) throw supabaseError;
-      setProperties(data as Property[]);
+      
+      const propertiesData = data as Property[];
+      setProperties(propertiesData);
+
+      // Save to cache
+      propertiesCache[cacheKey] = {
+        data: propertiesData,
+        timestamp: Date.now()
+      };
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar propiedades');
     } finally {
       setLoading(false);
     }
-  }, [filtersString, adminMode]);
+  }, [filtersString, cacheKey]);
 
   useEffect(() => {
     fetchProperties();
