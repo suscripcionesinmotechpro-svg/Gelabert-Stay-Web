@@ -215,7 +215,7 @@ export const AdminTenantDetail = () => {
                     <button key={c.id}
                       onClick={() => setSelectedContractId(c.id)}
                       className={`font-primary text-xs px-3 py-1.5 border transition-colors ${displayContract?.id === c.id ? 'border-[#C9A962] text-[#C9A962]' : 'border-[#1F1F1F] text-[#666] hover:border-[#333] hover:text-[#FAF8F5]'}`}>
-                      {new Date(c.start_date).getFullYear()} — {CONTRACT_STATUS_LABELS[c.status]}
+                      {new Date(c.start_date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })} — {new Date(c.end_date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                     </button>
                   ))}
                 </div>

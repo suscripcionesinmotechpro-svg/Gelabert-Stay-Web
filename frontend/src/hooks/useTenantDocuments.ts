@@ -51,9 +51,13 @@ export const uploadTenantDocument = async (
   const fileUrl = urlData?.signedUrl ?? '';
 
   // Insert DB record
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Usuario no autenticado');
+
   const { data: inserted, error: dbErr } = await supabase
     .from('tenant_documents')
     .insert([{
+      user_id: user.id,
       contract_id: contractId,
       document_type: docType,
       category,
