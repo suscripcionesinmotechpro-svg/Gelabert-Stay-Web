@@ -112,3 +112,34 @@ export const useContractMutations = () => {
 
   return { createContract, updateContract, deleteContract };
 };
+
+// ─── CONTRACTS FOR A PROPERTY (History) ──────────────────────────────────────
+export const usePropertyContracts = (propertyId?: string) => {
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchPropertyHistory = useCallback(async () => {
+    if (!propertyId) { setLoading(false); return; }
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: err } = await supabase
+        .from('contracts')
+        .select(`*, tenant:tenants(id, first_name, last_name, dni, email, phone)`)
+        .eq('property_id', propertyId)
+        .order('start_date', { ascending: false });
+
+      if (err) throw err;
+      setContracts(data as Contract[]);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [propertyId]);
+
+  useEffect(() => { fetchPropertyHistory(); }, [fetchPropertyHistory]);
+
+  return { contracts, loading, error, refetch: fetchPropertyHistory };
+};

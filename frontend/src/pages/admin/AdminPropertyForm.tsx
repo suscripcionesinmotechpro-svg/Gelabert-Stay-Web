@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useProperty, usePropertyMutations, uploadPropertyMedia } from '../../hooks/useProperties';
+import { usePropertyContracts } from '../../hooks/useContracts';
 import type { PropertyInsert, PropertyOperation, PropertyType, PropertyStatus, CommercialStatus } from '../../types/property';
 import { AVAILABLE_TAGS, OPERATION_LABELS, PROPERTY_TYPE_LABELS, COMMERCIAL_STATUS_LABELS, STATUS_LABELS } from '../../types/property';
-import { X, Save, Eye, ChevronLeft, Plus, Upload } from 'lucide-react';
+import { X, Save, Eye, ChevronLeft, Plus, Upload, ExternalLink } from 'lucide-react';
 import { SortableImageGallery } from '../../components/admin/SortableImageGallery';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PropertyMap } from '../../components/PropertyMap';
@@ -26,6 +27,38 @@ const ToggleField = ({ label, checked, onChange }: { label: string; checked: boo
     <span className="font-primary text-xs text-[#888888] uppercase tracking-wide">{label}</span>
   </label>
 );
+
+const ContractHistory = ({ propertyId }: { propertyId: string }) => {
+  const { contracts, loading } = usePropertyContracts(propertyId);
+
+  if (loading) return <div className="py-8 text-center"><div className="w-6 h-6 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin mx-auto" /></div>;
+  if (!contracts.length) return <div className="py-8 text-center text-[#666666] text-xs italic bg-[#0A0A0A] border border-[#1F1F1F]">No hay historial de contratos para esta propiedad.</div>;
+
+  return (
+    <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-x-auto">
+      <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr] gap-4 px-4 py-3 border-b border-[#1F1F1F] min-w-[600px]">
+        <span className="text-[10px] text-[#444444] uppercase font-bold tracking-wider">Inquilino</span>
+        <span className="text-[10px] text-[#444444] uppercase font-bold tracking-wider">Inicio</span>
+        <span className="text-[10px] text-[#444444] uppercase font-bold tracking-wider">Fin</span>
+        <span className="text-[10px] text-[#444444] uppercase font-bold tracking-wider">Renta</span>
+        <span className="text-[10px] text-[#444444] uppercase font-bold tracking-wider">Estado</span>
+      </div>
+      {contracts.map(c => (
+        <div key={c.id} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr] gap-4 px-4 py-4 border-b border-[#1F1F1F] items-center hover:bg-[#0F0F0F] transition-colors min-w-[600px]">
+          <Link to={`/admin/inquilinos/${c.tenant_id}`} className="text-sm font-bold text-[#FAF8F5] hover:text-[#C9A962] transition-colors truncate">
+            {c.tenant?.first_name} {c.tenant?.last_name}
+          </Link>
+          <span className="text-xs text-[#888888]">{new Date(c.start_date).toLocaleDateString()}</span>
+          <span className="text-xs text-[#888888]">{new Date(c.end_date).toLocaleDateString()}</span>
+          <span className="text-xs text-[#C9A962] font-secondary">€{c.monthly_rent}</span>
+          <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-sm w-fit ${c.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>
+            {c.status === 'active' ? 'Activo' : 'Finalizado'}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 
 const DEFAULT_FORM: Partial<PropertyInsert> = {
@@ -356,6 +389,17 @@ export const AdminPropertyForm = () => {
             <Save className="w-4 h-4" />
             {t('admin.form.save_draft')}
           </button>
+          {isEditing && property?.status === 'publicada' && (
+            <a
+              href={`/propiedades/${property.slug || property.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2.5 border border-[#1F1F1F] text-[#888888] font-primary text-sm hover:border-[#FAF8F5] hover:text-[#FAF8F5] transition-all"
+            >
+              <ExternalLink className="w-4 h-4" />
+              {t('admin.properties.view_on_web')}
+            </a>
+          )}
           <button
             onClick={() => handleSave('publicada')}
             disabled={saving}
@@ -850,6 +894,14 @@ export const AdminPropertyForm = () => {
           </div>
         </div>
       </div>
+
+      {/* HISTORIAL DE ALQUILERES */}
+      {isEditing && (
+        <div className="flex flex-col gap-5">
+          <h2 className={sectionHeaderClass}>Historial de Alquileres / Reservas</h2>
+          <ContractHistory propertyId={id!} />
+        </div>
+      )}
 
       {/* SEO */}
       <div className={sectionClass}>

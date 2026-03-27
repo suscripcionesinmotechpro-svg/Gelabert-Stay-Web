@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
 import { useContractMutations, useContract } from '../../hooks/useContracts';
 import { useTenants } from '../../hooks/useTenants';
 import { useProperties } from '../../hooks/useProperties';
@@ -160,6 +161,26 @@ export const AdminContractForm = () => {
 
     setSaving(true); setError(null);
     try {
+      // 1. Check for overlapping contracts for the same property
+      if (form.property_id) {
+        const { data: overlaps, error: overlapErr } = await supabase
+          .from('contracts')
+          .select('id, start_date, end_date')
+          .eq('property_id', form.property_id)
+          .neq('id', id || '')
+          .filter('start_date', 'lte', form.end_date)
+          .filter('end_date', 'gte', form.start_date);
+
+        if (overlapErr) throw overlapErr;
+
+        if (overlaps && overlaps.length > 0) {
+          if (!confirm('Esta propiedad ya tiene un contrato activo en ese periodo. ¿Deseas continuar de todas formas?')) {
+            setSaving(false);
+            return;
+          }
+        }
+      }
+
       const payload: ContractInsert = { ...form, tenant_id: tenantId };
       if (isEdit && id) {
         await updateContract(id, payload);
