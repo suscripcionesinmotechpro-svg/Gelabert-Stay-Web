@@ -2,6 +2,33 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Contract, ContractInsert } from '../types/tenant';
 
+// Helper to deduplicate contracts (handles cases where same contract or tenant was inserted twice)
+// It scores the contracts to ensure we keep the one the user actually filled out data for.
+const dedupContracts = (contracts: Contract[]): Contract[] => {
+  const map = new Map<string, Contract>();
+  for (const c of contracts) {
+    const tenantName = c.tenant ? `${c.tenant.first_name}-${c.tenant.last_name}` : c.tenant_id;
+    const key = `${c.start_date}-${c.end_date}-${c.property_id || ''}-${tenantName}`;
+    
+    if (map.has(key)) {
+      const existing = map.get(key)!;
+      const getScore = (ctr: Contract) => 
+        (ctr.address ? 1 : 0) + 
+        (ctr.monthly_rent ? 1 : 0) + 
+        (ctr.landlord_name ? 1 : 0) + 
+        (ctr.notes ? 1 : 0) +
+        (ctr.deposit ? 1 : 0);
+      
+      if (getScore(c) > getScore(existing)) {
+        map.set(key, c);
+      }
+    } else {
+      map.set(key, c);
+    }
+  }
+  return Array.from(map.values());
+};
+
 // ─── LIST ALL (with tenant join) ─────────────────────────────────────────────
 export const useContracts = (tenantId?: string) => {
   const [contracts, setContracts] = useState<Contract[]>([]);
@@ -21,7 +48,7 @@ export const useContracts = (tenantId?: string) => {
 
       const { data, error: err } = await query;
       if (err) throw err;
-      setContracts(data as Contract[]);
+      setContracts(dedupContracts(data as Contract[]));
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -55,7 +82,7 @@ export const useExpiringContracts = (days = 60) => {
       .lte('end_date', futureStr)
       .order('end_date', { ascending: true })
       .then(({ data }) => {
-        setContracts((data || []) as Contract[]);
+        setContracts(dedupContracts((data || []) as Contract[]));
         setLoading(false);
       });
   }, [days]);
@@ -131,7 +158,7 @@ export const usePropertyContracts = (propertyId?: string) => {
         .order('start_date', { ascending: false });
 
       if (err) throw err;
-      setContracts(data as Contract[]);
+      setContracts(dedupContracts(data as Contract[]));
     } catch (e: any) {
       setError(e.message);
     } finally {

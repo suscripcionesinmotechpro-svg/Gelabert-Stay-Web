@@ -437,7 +437,7 @@ export const AdminContractForm = () => {
                   <DocUploadBox 
                     key={docType}
                     docType={docType}
-                    documents={documents.filter(d => d.document_type === docType && d.category === 'tenant')}
+                    documents={documents.filter(d => d.document_type === docType && (d.category === 'tenant' || !d.category))}
                     uploadingType={uploadingType}
                     onUpload={triggerUpload}
                     onDelete={handleDeleteDoc}
