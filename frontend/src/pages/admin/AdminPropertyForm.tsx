@@ -170,10 +170,19 @@ export const AdminPropertyForm = () => {
       try {
         const queryParts = [form.address, form.city, "Málaga", "España"].filter(Boolean);
         const query = encodeURIComponent(queryParts.join(', '));
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`);
-        const data = await res.json();
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1&email=admin@gelaberthomes.es`);
+        let data = await res.json();
         
-        if (data && data[0]) {
+        // Fallback: Si no encuentra resultados y la dirección tiene comas (ej: "Calle, El Molinillo"), intentar solo con la calle principal
+        if ((!data || data.length === 0) && form.address?.includes(',')) {
+          const fallbackAddress = form.address.split(',')[0].trim();
+          const fallbackQueryParts = [fallbackAddress, form.city, "Málaga", "España"].filter(Boolean);
+          const fallbackQuery = encodeURIComponent(fallbackQueryParts.join(', '));
+          const fallbackRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${fallbackQuery}&limit=1&email=admin@gelaberthomes.es`);
+          data = await fallbackRes.json();
+        }
+
+        if (data && data.length > 0 && data[0]) {
           const newLat = Number(data[0].lat);
           const newLon = Number(data[0].lon);
           
@@ -333,7 +342,15 @@ export const AdminPropertyForm = () => {
         }
       });
 
-      // 5. Eliminar campos que NO deben ir en la mutación o que Postgres genera
+      // 5. Limpieza de video_url por si el usuario pega un iframe
+      if (data.video_url && data.video_url.includes('<iframe')) {
+        const srcMatch = data.video_url.match(/src="([^"]+)"/);
+        if (srcMatch && srcMatch[1]) {
+          data.video_url = srcMatch[1];
+        }
+      }
+
+      // 6. Eliminar campos que NO deben ir en la mutación o que Postgres genera
       delete data.created_at;
       delete data.updated_at;
       
@@ -603,9 +620,19 @@ export const AdminPropertyForm = () => {
                   try {
                     const queryParts = [form.address, form.city, "Málaga", "España"].filter(Boolean);
                     const query = encodeURIComponent(queryParts.join(', '));
-                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`);
-                    const data = await res.json();
-                    if (data && data[0]) {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1&email=admin@gelaberthomes.es`);
+                    let data = await res.json();
+                    
+                    // Fallback
+                    if ((!data || data.length === 0) && form.address?.includes(',')) {
+                      const fallbackAddress = form.address.split(',')[0].trim();
+                      const fallbackQueryParts = [fallbackAddress, form.city, "Málaga", "España"].filter(Boolean);
+                      const fallbackQuery = encodeURIComponent(fallbackQueryParts.join(', '));
+                      const fallbackRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${fallbackQuery}&limit=1&email=admin@gelaberthomes.es`);
+                      data = await fallbackRes.json();
+                    }
+
+                    if (data && data.length > 0 && data[0]) {
                       set('latitude', Number(data[0].lat));
                       set('longitude', Number(data[0].lon));
                     } else {
