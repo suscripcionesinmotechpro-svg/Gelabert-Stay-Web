@@ -5,7 +5,7 @@ import { useProperty, usePropertyMutations, uploadPropertyMedia } from '../../ho
 import { usePropertyContracts } from '../../hooks/useContracts';
 import type { PropertyInsert, PropertyOperation, PropertyType, PropertyStatus, CommercialStatus } from '../../types/property';
 import { AVAILABLE_TAGS, OPERATION_LABELS, PROPERTY_TYPE_LABELS, COMMERCIAL_STATUS_LABELS, STATUS_LABELS } from '../../types/property';
-import { X, Save, Eye, ChevronLeft, Plus, Upload, ExternalLink } from 'lucide-react';
+import { X, Save, Eye, ChevronLeft, Plus, Upload, ExternalLink, Sparkles } from 'lucide-react';
 import { SortableImageGallery } from '../../components/admin/SortableImageGallery';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PropertyMap } from '../../components/PropertyMap';
@@ -15,6 +15,20 @@ const selectClass = "w-full h-10 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-
 const labelClass = "font-primary text-xs text-[#666666] uppercase tracking-wider mb-1";
 const sectionClass = "bg-[#0A0A0A] border border-[#1F1F1F] p-6 flex flex-col gap-5";
 const sectionHeaderClass = "font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-wider pb-3 border-b border-[#1F1F1F]";
+
+// Helpers para SEO
+const slugify = (text: string) => {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
+    .replace(/[^a-z0-9]+/g, '-')     // Quitar caracteres no alfanuméricos
+    .replace(/^-+|-+$/g, '');       // Limpiar guiones al inicio/final
+};
+
+const stripHTML = (html: string) => {
+  return html.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
+};
 
 const ToggleField = ({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) => (
   <label className="flex items-center gap-4 cursor-pointer select-none">
@@ -258,6 +272,40 @@ export const AdminPropertyForm = () => {
     }
   };
 
+  const generateSEOMetadata = () => {
+    if (!form.title) return;
+    
+    // 1. Slug: Titulo + Ciudad
+    const finalSlug = slugify(`${form.title} ${form.city || ''}`);
+    
+    // 2. Meta Title: [Titulo] en [Ciudad] | Gelabert Homes
+    const brandSuffix = " | Gelabert Homes Real Estate";
+    const citySuffix = form.city ? ` en ${form.city}` : "";
+    const finalMetaTitle = `${form.title}${citySuffix}${brandSuffix}`;
+    
+    // 3. Meta Description: Short desc o stripping main desc
+    let finalMetaDesc = "";
+    if (form.short_description) {
+      finalMetaDesc = form.short_description;
+    } else if (form.description) {
+      finalMetaDesc = stripHTML(form.description);
+    } else {
+      finalMetaDesc = `Descubre esta exclusiva propiedad: ${form.title}${citySuffix}. Contacta con Gelabert Homes para más información.`;
+    }
+    
+    // Truncar si es necesario
+    if (finalMetaDesc.length > 155) {
+      finalMetaDesc = finalMetaDesc.substring(0, 152) + "...";
+    }
+
+    setForm(prev => ({
+      ...prev,
+      slug: prev.slug || finalSlug,
+      meta_title: prev.meta_title || finalMetaTitle,
+      meta_description: prev.meta_description || finalMetaDesc
+    }));
+  };
+
   const handleFloorPlanUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -308,14 +356,16 @@ export const AdminPropertyForm = () => {
       // 1. Clonar el estado para limpieza
       const data: any = { ...form };
       
-      // Auto-generar slug si no hay uno
+      // Auto-generar SEO si faltan datos críticos
       if (!data.slug && data.title) {
-        data.slug = data.title
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
-          .replace(/[^a-z0-9]+/g, '-')     // Quitar caracteres no alfanuméricos
-          .replace(/^-+|-+$/g, '');       // Limpiar guiones al inicio/final
+        data.slug = slugify(`${data.title} ${data.city || ''}`);
+      }
+      if (!data.meta_title && data.title) {
+        data.meta_title = `${data.title}${data.city ? ` en ${data.city}` : ""} | Gelabert Homes Real Estate`;
+      }
+      if (!data.meta_description && (data.short_description || data.description)) {
+        const descSource = data.short_description || stripHTML(data.description || '');
+        data.meta_description = descSource.length > 155 ? descSource.substring(0, 152) + "..." : descSource;
       }
 
       // 2. Establecer el estado de publicación si se ha pasado
@@ -936,7 +986,17 @@ export const AdminPropertyForm = () => {
 
       {/* SEO */}
       <div className={sectionClass}>
-        <h2 className={sectionHeaderClass}>{t('admin.form.sections.seo')}</h2>
+        <div className="flex items-center justify-between border-b border-[#1F1F1F] pb-3">
+          <h2 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-wider">{t('admin.form.sections.seo')}</h2>
+          <button 
+            type="button"
+            onClick={generateSEOMetadata}
+            className="flex items-center gap-2 text-[10px] text-[#C9A962] uppercase font-bold hover:text-[#FAF8F5] transition-colors bg-[#C9A962]/5 px-3 py-1.5 border border-[#C9A962]/20 rounded-full"
+          >
+            <Sparkles className="w-3 h-3" />
+            {t('admin.form.auto_generate_seo', { defaultValue: 'Auto-generar SEO' })}
+          </button>
+        </div>
         <div className="flex flex-col gap-2">
           <label className={labelClass}>{t('admin.form.fields.slug')} ({t('admin.form.fields.slug_hint')})</label>
           <input className={inputClass} placeholder={t('admin.form.fields.slug_placeholder')} value={form.slug ?? ''} onChange={e => set('slug', e.target.value)} />
