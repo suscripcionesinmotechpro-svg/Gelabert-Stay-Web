@@ -142,6 +142,22 @@ export const FichaPropiedad = () => {
   const seoTitle = property.meta_title || `${translatedTitle} | ${property.city} | Gelabert Homes Real Estate`;
   const seoDescription = property.meta_description || (translatedDescription ? translatedDescription.replace(/<[^>]*>/g, '').slice(0, 160) : '');
   
+  // Título estructurado para compartir (OpenGraph / WhatsApp)
+  // Ej: "Alquiler Piso · Málaga · 800 €/mes · 40 m² · Baños 1 · Planta 5º"
+  const formatPrice = (price: number | null, operation: string) => {
+    if (!price) return null;
+    return `${price.toLocaleString('es-ES')} €${operation === 'alquiler' ? '/mes' : ''}`;
+  };
+
+  const sharingTitleStr = [
+    `${property.operation.charAt(0).toUpperCase() + property.operation.slice(1)} ${t(PROPERTY_TYPE_LABELS[property.property_type])}`,
+    property.city,
+    formatPrice(property.price, property.operation),
+    property.area_m2 ? `${property.area_m2} m²` : null,
+    property.bathrooms ? `Baños ${property.bathrooms}` : null,
+    property.floor ? `Planta ${property.floor}` : null
+  ].filter(Boolean).join(' · ');
+
   // Usamos URL con slash final para mejorar compatibilidad con algunos scrapers
   const propertyUrl = `https://gelaberthomes.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${property.reference || property.slug || property.id}`;
   
@@ -189,22 +205,22 @@ export const FichaPropiedad = () => {
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Gelabert Homes Real Estate" />
         <meta property="og:url" content={propertyUrl} />
-        <meta property="og:title" content={seoTitle} />
+        <meta property="og:title" content={sharingTitleStr} />
         <meta property="og:description" content={seoDescription} />
         <meta property="og:image" content={previewImage} />
         <meta property="og:image:secure_url" content={previewImage} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/jpeg" />
-        <meta property="og:image:alt" content={translatedTitle} />
+        <meta property="og:image:alt" content={sharingTitleStr} />
         <meta property="og:locale" content={i18n.language.startsWith('en') ? 'en_US' : 'es_ES'} />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:title" content={sharingTitleStr} />
         <meta name="twitter:description" content={seoDescription} />
         <meta name="twitter:image" content={previewImage} />
-        <meta name="twitter:image:alt" content={translatedTitle} />
+        <meta name="twitter:image:alt" content={sharingTitleStr} />
 
         {/* Hreflang para versionado internacional */}
         <link rel="alternate" hrefLang="es" href={`https://gelaberthomes.es/propiedades/${property.reference || property.slug || property.id}`} />
