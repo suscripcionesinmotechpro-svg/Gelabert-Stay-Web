@@ -43,6 +43,7 @@ export const FichaPropiedad = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [solvencyAccepted, setSolvencyAccepted] = useState(false);
   const [activeTab, setActiveTab] = useState<'fotos' | 'video' | 'plano' | 'ubicacion'>('fotos');
 
   const openLightbox = (idx: number) => {
@@ -98,8 +99,9 @@ export const FichaPropiedad = () => {
               phone: formData.phone,
               message: messageWithLink,
               property_id: property.id,
-              inquiry_type: 'general',
+              inquiry_type: property.operation === 'alquiler' ? 'alquiler' : 'general',
               privacy_accepted: privacyAccepted,
+              solvency_accepted: property.operation === 'alquiler' ? solvencyAccepted : null,
               accepted_at: new Date().toISOString(),
               status: 'nuevo'
             }
@@ -135,6 +137,10 @@ export const FichaPropiedad = () => {
 
   const translatedTitle = autoTitle;
   const translatedDescription = autoDescription;
+
+  // SEO Fallbacks
+  const seoTitle = property.meta_title || `${translatedTitle} | ${property.city} | Gelabert Homes Real Estate`;
+  const seoDescription = property.meta_description || (translatedDescription ? translatedDescription.replace(/<[^>]*>/g, '').slice(0, 160) : '');
   
   // Usamos URL con slash final para mejorar compatibilidad con algunos scrapers
   const propertyUrl = `https://gelaberthomes.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${property.reference || property.slug || property.id}`;
@@ -167,24 +173,24 @@ export const FichaPropiedad = () => {
   return (
     <div className="w-full pb-20 bg-[#0F0F0F]">
       <Helmet>
-        <title>{`${translatedTitle} | ${property.city} | Gelabert Homes Real Estate`}</title>
-        <meta name="description" content={translatedDescription?.slice(0, 160) || ''} />
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDescription} />
         <meta name="keywords" content={propertyKeywords} />
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <link rel="canonical" href={propertyUrl} />
         <link rel="image_src" href={previewImage} />
         
         {/* Google / Schema.org */}
-        <meta itemProp="name" content={`${translatedTitle} | ${property.city} | Gelabert Homes`} />
-        <meta itemProp="description" content={translatedDescription?.slice(0, 160) || ''} />
+        <meta itemProp="name" content={seoTitle} />
+        <meta itemProp="description" content={seoDescription} />
         <meta itemProp="image" content={previewImage} />
 
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Gelabert Homes Real Estate" />
         <meta property="og:url" content={propertyUrl} />
-        <meta property="og:title" content={`${translatedTitle} | ${t(OPERATION_LABELS[property.operation])} en ${property.city} | Gelabert Homes`} />
-        <meta property="og:description" content={translatedDescription?.slice(0, 160) || ''} />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDescription} />
         <meta property="og:image" content={previewImage} />
         <meta property="og:image:secure_url" content={previewImage} />
         <meta property="og:image:width" content="1200" />
@@ -195,8 +201,8 @@ export const FichaPropiedad = () => {
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${translatedTitle} | ${t(OPERATION_LABELS[property.operation])} en ${property.city} | Gelabert Homes`} />
-        <meta name="twitter:description" content={translatedDescription?.slice(0, 160) || ''} />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={seoDescription} />
         <meta name="twitter:image" content={previewImage} />
         <meta name="twitter:image:alt" content={translatedTitle} />
 
@@ -756,22 +762,59 @@ export const FichaPropiedad = () => {
                   className="bg-[#161616] border border-[#1F1F1F] px-3 py-2.5 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444] resize-none" 
                 />
                 
-                <div className="flex items-start gap-2 mt-1">
-                  <input
-                    type="checkbox"
-                    id="property_privacy_accepted"
-                    name="privacy_accepted"
-                    required
-                    checked={privacyAccepted}
-                    onChange={(e) => setPrivacyAccepted(e.target.checked)}
-                    className="mt-1 w-3.5 h-3.5 accent-[#C9A962] bg-[#161616] border-[#1F1F1F] cursor-pointer"
-                  />
-                  <label htmlFor="property_privacy_accepted" className="text-[#888888] text-[11px] font-primary leading-tight cursor-pointer">
-                    <Trans 
-                      i18nKey="property.labels.features.accept_privacy"
-                      components={[<Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/privacidad`} target="_blank" rel="noopener noreferrer" className="text-[#C9A962] hover:underline" />]}
+                {/* Legal Disclaimer Block */}
+                <div className="mt-2 p-3 bg-white/5 border border-white/10 rounded-sm">
+                  <p className="text-[10px] text-[#888888] leading-relaxed font-primary uppercase tracking-wider">
+                    {property.operation === 'alquiler' 
+                      ? t('forms.legal_disclaimers.rentals') 
+                      : t('forms.legal_disclaimers.general')
+                    }
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-2 mt-2">
+                  <div className="flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      id="property_privacy_accepted"
+                      name="privacy_accepted"
+                      required
+                      checked={privacyAccepted}
+                      onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                      className="mt-1 w-3.5 h-3.5 accent-[#C9A962] bg-[#161616] border-[#1F1F1F] cursor-pointer"
                     />
-                  </label>
+                    <label htmlFor="property_privacy_accepted" className="text-[#888888] text-[11px] font-primary leading-tight cursor-pointer">
+                      <Trans 
+                        i18nKey="forms.privacy_accept"
+                        components={[
+                          <Link 
+                            key="privacy-link"
+                            to={`${i18n.language.startsWith('en') ? '/en' : ''}/privacidad`} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-[#C9A962] hover:underline" 
+                          />
+                        ]}
+                      />
+                    </label>
+                  </div>
+
+                  {property.operation === 'alquiler' && (
+                    <div className="flex items-start gap-2">
+                      <input
+                        type="checkbox"
+                        id="property_solvency_accepted"
+                        name="solvency_accepted"
+                        required
+                        checked={solvencyAccepted}
+                        onChange={(e) => setSolvencyAccepted(e.target.checked)}
+                        className="mt-1 w-3.5 h-3.5 accent-[#C9A962] bg-[#161616] border-[#1F1F1F] cursor-pointer"
+                      />
+                      <label htmlFor="property_solvency_accepted" className="text-[#888888] text-[11px] font-primary leading-tight cursor-pointer">
+                        {t('forms.solvency_accept')}
+                      </label>
+                    </div>
+                  )}
                 </div>
 
                 {formError && (
@@ -780,8 +823,8 @@ export const FichaPropiedad = () => {
 
                 <button 
                   type="submit" 
-                  disabled={isSubmitting || !privacyAccepted}
-                  className={`h-10 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm uppercase transition-colors ${isSubmitting || !privacyAccepted ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#D4B673]'}`}
+                  disabled={isSubmitting || !privacyAccepted || (property.operation === 'alquiler' && !solvencyAccepted)}
+                  className={`h-10 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm uppercase transition-colors ${isSubmitting || !privacyAccepted || (property.operation === 'alquiler' && !solvencyAccepted) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#D4B673]'}`}
                 >
                   {isSubmitting ? t('property.labels.features.sending') : t('property.labels.features.send')}
                 </button>

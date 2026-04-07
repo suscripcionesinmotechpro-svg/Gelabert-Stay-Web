@@ -142,7 +142,12 @@ export const useProperty = (idOrSlug: string | undefined, adminMode = false) => 
           query = query.eq('status', 'publicada');
         }
 
-        const { data, error: supabaseError } = await query.maybeSingle();
+        // Ordenar por más reciente y limitar a 1 para evitar errores si hay duplicados accidentales
+        const { data, error: supabaseError } = await query
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
         if (supabaseError) throw supabaseError;
         setProperty(data as Property | null);
       } catch (err) {
@@ -183,8 +188,52 @@ export const usePropertyMutations = () => {
   };
 
   const deleteProperty = async (id: string): Promise<void> => {
-    const { error } = await supabase.from('properties').delete().eq('id', id);
-    if (error) throw error;
+    // 1. Obtener la propiedad primero para conocer sus archivos
+    const { data: property } = await supabase
+      .from('properties')
+      .select('main_image, gallery, video_url, floor_plan')
+      .eq('id', id)
+      .maybeSingle();
+
+    // 2. Borrar el registro de la base de datos
+    const { error: dbError } = await supabase.from('properties').delete().eq('id', id);
+    if (dbError) throw dbError;
+
+    // 3. Limpiar archivos del Storage si existen
+    if (property) {
+      const filesToDelete: string[] = [];
+      const extractPath = (url: string | null) => {
+        if (!url) return null;
+        const parts = url.split('property-images/');
+        return parts.length > 1 ? parts[1] : null;
+      };
+
+      if (property.main_image) {
+        const path = extractPath(property.main_image);
+        if (path) filesToDelete.push(path);
+      }
+      
+      if (property.gallery && Array.isArray(property.gallery)) {
+        property.gallery.forEach((url: string) => {
+          const path = extractPath(url);
+          if (path) filesToDelete.push(path);
+        });
+      }
+
+      if (property.video_url) {
+        const path = extractPath(property.video_url);
+        if (path) filesToDelete.push(path);
+      }
+
+      if (property.floor_plan) {
+        const path = extractPath(property.floor_plan);
+        if (path) filesToDelete.push(path);
+      }
+
+      if (filesToDelete.length > 0) {
+        await supabase.storage.from('property-images').remove(filesToDelete);
+      }
+    }
   };
 
   const changeStatus = async (id: string, status: PropertyStatus): Promise<void> => {

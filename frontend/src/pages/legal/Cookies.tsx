@@ -4,8 +4,21 @@ import { useTranslation } from 'react-i18next';
 export const Cookies = () => {
   const { t } = useTranslation();
 
+  const renderBold = (text: string) => {
+    if (!text) return null;
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, i) => {
+      if (typeof part === 'string' && part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} className="text-[#C9A962]">{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
+
+  const sections = t('legal.cookies.sections', { returnObjects: true }) as any[];
+
   return (
-    <div className="min-h-screen bg-[#0F0F0F] pt-32 pb-20 px-6 md:px-20 font-primary">
+    <div className="min-h-screen bg-[#0F0F0F] pt-32 pb-20 px-6 md:px-20 font-primary text-[#888888]">
       <Helmet>
         <title>{t('legal.cookies.seo_title')}</title>
       </Helmet>
@@ -15,41 +28,42 @@ export const Cookies = () => {
           {t('legal.cookies.title')}
         </h1>
         
-        <section className="space-y-8 text-[#888888] leading-relaxed">
-          <div className="bg-[#161616] p-8 border border-[#1F1F1F] rounded-sm">
-            <h2 className="text-[#FAF8F5] text-xl font-bold mb-4 uppercase tracking-widest">
-              {t('legal.cookies.section1.title')}
-            </h2>
-            <p>{t('legal.cookies.section1.content')}</p>
-          </div>
+        <div className="space-y-12 leading-relaxed">
+          {Array.isArray(sections) && sections.map((section, index) => (
+            <section key={index} className={`${index === 0 ? 'bg-[#161616] p-8 border border-[#1F1F1F] rounded-sm' : 'space-y-4'}`}>
+              <h2 className="text-[#FAF8F5] text-xl font-bold mb-4 uppercase tracking-widest">
+                {section.title}
+              </h2>
+              
+              <div className="space-y-4">
+                {section.content && (
+                  <p className="whitespace-pre-line">{renderBold(section.content)}</p>
+                )}
 
-          <div>
-            <h2 className="text-[#FAF8F5] text-xl font-bold mb-4 uppercase tracking-widest">
-              {t('legal.cookies.section2.title')}
-            </h2>
-            <p>{t('legal.cookies.section2.content')}</p>
-            <ul className="mt-4 space-y-4">
-              <li>
-                <strong className="text-[#FAF8F5]">{t('legal.cookies.section2.types.technical.title')}</strong> {t('legal.cookies.section2.types.technical.content')}
-              </li>
-              <li>
-                <strong className="text-[#FAF8F5]">{t('legal.cookies.section2.types.analysis.title')}</strong> {t('legal.cookies.section2.types.analysis.content')}
-              </li>
-            </ul>
-          </div>
+                {section.subsections && (
+                  <div className="space-y-6 mt-6">
+                    {section.subsections.map((sub: any, i: number) => (
+                      <div key={i} className="border-l-2 border-[#C9A962] pl-6 py-1">
+                        <h3 className="text-[#FAF8F5] font-bold mb-2">{sub.title}</h3>
+                        <p>{renderBold(sub.content)}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-          <div>
-            <h2 className="text-[#FAF8F5] text-xl font-bold mb-4 uppercase tracking-widest">
-              {t('legal.cookies.section3.title')}
-            </h2>
-            <p>{t('legal.cookies.section3.content')}</p>
-            <ul className="mt-4 space-y-2 list-disc list-inside">
-              {(t('legal.cookies.section3.browsers', { returnObjects: true }) as string[]).map((browser, index) => (
-                <li key={index}>{browser}</li>
-              ))}
-            </ul>
-          </div>
-        </section>
+                {section.items && (
+                  <ul className="space-y-2">
+                    {section.items.map((item: string, i: number) => (
+                      <li key={i} className="flex gap-2">
+                        <span>{renderBold(item)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </section>
+          ))}
+        </div>
       </div>
     </div>
   );

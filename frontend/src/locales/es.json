@@ -472,98 +472,292 @@
     "notice": {
       "seo_title": "Aviso Legal | Gelabert Homes Real Estate",
       "title": "Aviso Legal",
-      "section1": {
-        "title": "1. Información General",
-        "content": "En cumplimiento con el deber de información recogido en el artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y del Comercio Electrónico (LSSI-CE), se facilitan los siguientes datos:",
-        "owner": "Titular:",
-        "address": "Domicilio:",
-        "address_val": "Málaga & Costa del Sol (Inmobiliaria Online)",
-        "email": "Email:",
-        "phone": "Teléfono:"
-      },
-      "section2": {
-        "title": "2. Condiciones de Uso",
-        "content": "El acceso y uso de este sitio web atribuye la condición de USUARIO, que acepta, desde dicho acceso y/o uso, las Condiciones Generales de Uso aquí reflejadas."
-      },
-      "section3": {
-        "title": "3. Propiedad Intelectual",
-        "content": "GELABERT HOMES REAL ESTATE por sí o como cesionaria, es titular de todos los derechos de propiedad intelectual e industrial de su página web, así como de los elementos contenidos en la misma (imágenes, sonido, audio, vídeo, software o textos; marcas o logotipos, combinaciones de colores, estructura y diseño)."
-      },
-      "section4": {
-        "title": "4. Exclusión de Responsabilidad",
-        "content": "El titular no se hace responsable, en ningún caso, de los daños y perjuicios de cualquier naturaleza que pudieran ocasionar, a título enunciativo: errores u omisiones en los contenidos, falta de disponibilidad del portal o la transmisión de virus o programas maliciosos o lesivos en los contenidos, a pesar de haber adoptado todas las medidas tecnológicas necesarias para evitarlo."
-      }
+      "sections": [
+        {
+          "title": "1. Datos identificativos",
+          "content": "En cumplimiento del deber de información previsto en el artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico, se informa a los usuarios de este sitio web de los siguientes datos identificativos del titular:",
+          "items": [
+            "**Titular:** Gelabert Homes Real Estate",
+            "**Actividad:** Inmobiliaria online",
+            "**Ámbito de actuación:** Málaga y Costa del Sol",
+            "**Correo electrónico:** info@gelaberthomes.es",
+            "**Teléfono:** +34 611 89 88 27"
+          ]
+        },
+        {
+          "title": "2. Objeto",
+          "content": "El presente sitio web tiene por objeto ofrecer información sobre los servicios prestados por Gelabert Homes Real Estate, así como facilitar a los usuarios información sobre inmuebles, servicios inmobiliarios, formularios de contacto y canales de comunicación profesional.\n\nEl acceso, navegación y uso de este sitio web atribuye la condición de usuario e implica la aceptación plena y sin reservas del presente Aviso Legal."
+        },
+        {
+          "title": "3. Condiciones de uso",
+          "content": "El usuario se compromete a utilizar este sitio web, sus contenidos y servicios de conformidad con la ley, la buena fe, el orden público y el presente Aviso Legal.\n\nQueda expresamente prohibido:",
+          "bullets": [
+            "Realizar actividades ilícitas, ilegales o contrarias a la buena fe y al orden público.",
+            "Dañar, inutilizar, sobrecargar o deteriorar el sitio web o impedir su normal utilización.",
+            "Introducir virus, malware o cualquier otro sistema susceptible de causar daños en los sistemas del titular, de sus proveedores o de terceros.",
+            "Intentar acceder sin autorización a áreas restringidas, sistemas o bases de datos.",
+            "Reproducir, copiar, distribuir, transformar o poner a disposición de terceros los contenidos del sitio web sin autorización expresa del titular, salvo en los casos legalmente permitidos."
+          ]
+        },
+        {
+          "title": "4. Propiedad intelectual e industrial",
+          "content": "Todos los contenidos del sitio web, incluyendo, entre otros, textos, imágenes, fotografías, vídeos, diseños, logotipos, marcas, estructura, apariencia, código fuente y demás elementos, son titularidad de Gelabert Homes Real Estate o se utilizan con autorización suficiente, y están protegidos por la normativa vigente en materia de propiedad intelectual e industrial.\n\nQueda prohibida la reproducción, distribución, comunicación pública, transformación, extracción, reutilización o cualquier otra forma de explotación, total o parcial, de los contenidos de este sitio web sin autorización previa y por escrito del titular, salvo que ello esté legalmente permitido.\n\nEl acceso a este sitio web no implica cesión, transmisión, licencia ni renuncia de derechos sobre dichos contenidos."
+        },
+        {
+          "title": "5. Exclusión de responsabilidad",
+          "content": "Gelabert Homes Real Estate procura que la información contenida en este sitio web sea clara, actualizada y útil. No obstante, no garantiza la inexistencia de errores, la actualización permanente de todos los contenidos ni la disponibilidad continua del sitio web.\n\nGelabert Homes Real Estate no será responsable, en la medida permitida por la ley, de los daños y perjuicios que pudieran derivarse de:",
+          "bullets": [
+            "errores u omisiones en los contenidos,",
+            "falta de disponibilidad del sitio web,",
+            "interrupciones en el funcionamiento,",
+            "presencia de virus, malware o programas maliciosos, pese a haber adoptado las medidas técnicas razonables para evitarlos,",
+            "uso indebido del sitio web por parte del usuario,",
+            "decisiones tomadas por el usuario a partir de la información publicada en la web."
+          ]
+        },
+        {
+          "title": "6. Enlaces externos",
+          "content": "En caso de que este sitio web incluya enlaces a páginas de terceros, dichos enlaces tendrán una finalidad meramente informativa o de referencia.\n\nGelabert Homes Real Estate no controla ni asume responsabilidad alguna sobre los contenidos, políticas, condiciones de uso o prácticas de privacidad de sitios web de terceros."
+        },
+        {
+          "title": "7. Protección de datos",
+          "content": "Los datos personales que puedan recabarse a través de este sitio web serán tratados conforme a lo dispuesto en la normativa vigente en materia de protección de datos personales.\n\nPara más información, el usuario puede consultar la correspondiente Política de Privacidad."
+        },
+        {
+          "title": "8. Cookies",
+          "content": "Este sitio web puede utilizar cookies propias y de terceros para fines técnicos, analíticos o de personalización.\n\nPara obtener información detallada sobre su uso, el usuario puede consultar la correspondiente Política de Cookies."
+        },
+        {
+          "title": "9. Comunicaciones comerciales",
+          "content": "Gelabert Homes Real Estate no enviará comunicaciones comerciales por medios electrónicos sin contar con una base legal adecuada, de conformidad con la legislación aplicable."
+        },
+        {
+          "title": "10. Modificaciones",
+          "content": "Gelabert Homes Real Estate se reserva el derecho a modificar, actualizar o eliminar en cualquier momento y sin previo aviso los contenidos del sitio web, así como el presente Aviso Legal."
+        },
+        {
+          "title": "11. Legislación aplicable y jurisdicción",
+          "content": "La relación entre el titular del sitio web y el usuario se regirá por la legislación española vigente.\n\nPara cualquier controversia que pudiera derivarse del acceso o uso de este sitio web, las partes se someterán a los Juzgados y Tribunales competentes conforme a la normativa aplicable."
+        },
+        {
+          "title": "12. Contacto",
+          "content": "Para cualquier consulta relacionada con este sitio web, puede contactar con:",
+          "items": [
+            "**Gelabert Homes Real Estate**",
+            "**Email:** info@gelaberthomes.es",
+            "**Teléfono:** +34 611 89 88 27"
+          ]
+        }
+      ]
     },
     "privacy": {
       "seo_title": "Política de Privacidad | Gelabert Homes Real Estate",
       "title": "Política de Privacidad",
-      "section1": {
-        "title": "1. Responsable del Tratamiento",
-        "content": "GELABERT HOMES REAL ESTATE informa a los interesados de que sus datos de carácter personal serán tratados de conformidad con el Reglamento (UE) 2016/679 (RGPD) y la Ley Orgánica 3/2018 (LOPDGDD).",
-        "responsible": "Responsable:",
-        "purpose": "Finalidad:",
-        "purpose_val": "Gestión de consultas inmobiliarias, servicios para propietarios, inquilinos y demandantes de vivienda."
-      },
-      "section2": {
-        "title": "2. Datos Recabados",
-        "content": "A través de nuestros formularios recogemos: nombre, correo electrónico, teléfono y detalles de la propiedad o consulta. El tratamiento de estos datos se basa en el consentimiento del interesado al marcar la casilla de aceptación."
-      },
-      "section3": {
-        "title": "3. Derechos del Usuario",
-        "content": "Cualquier persona tiene derecho a obtener confirmación sobre si estamos tratando sus datos. Los interesados tienen derecho a:",
-        "rights": [
-          "Acceder a sus datos personales.",
-          "Solicitar la rectificación de datos inexactos.",
-          "Solicitar su supresión cuando ya no sean necesarios.",
-          "Oponerse al tratamiento de sus datos."
-        ],
-        "exercise": "Para ejercer estos derechos, envíe un correo a info@gelaberthomes.es adjuntando copia de su DNI."
-      },
-      "section4": {
-        "title": "4. Conservación de Datos",
-        "content": "Los datos se conservarán mientras se mantenga la relación comercial o durante los años necesarios para cumplir con las obligaciones legales."
-      }
+      "sections": [
+        {
+          "title": "1. Responsable del tratamiento",
+          "content": "En cumplimiento del Reglamento (UE) 2016/679, General de Protección de Datos, y de la Ley Orgánica 3/2018, de Protección de Datos Personales y garantía de los derechos digitales, se informa al usuario de que los datos personales facilitados a través de este sitio web, por correo electrónico, teléfono, WhatsApp u otros canales de contacto serán tratados por:",
+          "items": [
+            "**Responsable del tratamiento:** Gelabert Homes Real Estate",
+            "**Actividad:** Inmobiliaria online",
+            "**Ámbito de actuación:** Málaga y Costa del Sol",
+            "**Correo electrónico de contacto:** info@gelaberthomes.es",
+            "**Teléfono:** +34 611 89 88 27"
+          ]
+        },
+        {
+          "title": "2. Qué datos tratamos",
+          "content": "Gelabert Homes Real Estate podrá tratar, según el caso, las siguientes categorías de datos personales:",
+          "bullets": [
+            "Datos identificativos: nombre, apellidos, DNI, NIE, pasaporte.",
+            "Datos de contacto: correo electrónico, teléfono y, en su caso, dirección postal.",
+            "Datos relativos al inmueble: localización, características, precio, imágenes, documentación y detalles relacionados con la operación.",
+            "Datos económicos, laborales y de solvencia: contrato de trabajo, nóminas, declaración de la renta, vida laboral y documentación similar necesaria para evaluar candidaturas o tramitar operaciones.",
+            "Datos derivados de la relación comercial o contractual.",
+            "Datos contenidos en consultas, correos, llamadas, formularios o mensajes enviados por el usuario.",
+            "Datos de navegación, en los términos indicados en la Política de Cookies."
+          ]
+        },
+        {
+          "title": "3. Finalidades del tratamiento",
+          "content": "Los datos personales serán tratados para las siguientes finalidades:",
+          "subsections": [
+            { "title": "a) Atención de consultas", "content": "Atender solicitudes de información, resolver consultas y gestionar el contacto con usuarios interesados en inmuebles o servicios inmobiliarios." },
+            { "title": "b) Gestión de servicios inmobiliarios", "content": "Gestionar servicios relacionados con la intermediación inmobiliaria, tanto en alquiler como en compraventa, así como la relación con propietarios, compradores, vendedores, arrendadores, arrendatarios o interesados." },
+            { "title": "c) Gestión precontractual y contractual", "content": "Tramitar reservas, visitas, ofertas, candidaturas, arras, contratos, anexos y demás actuaciones necesarias antes o durante una operación inmobiliaria." },
+            { "title": "d) Estudio de solvencia", "content": "Solicitar, revisar y valorar documentación identificativa, económica y laboral para analizar la capacidad y solvencia de una persona interesada en una operación inmobiliaria." },
+            { "title": "e) Publicación y promoción de inmuebles", "content": "Gestionar la promoción y difusión de inmuebles en la web propia y en portales inmobiliarios como Idealista, Fotocasa, Pisos.com u otros similares." },
+            { "title": "f) Seguimiento comercial", "content": "Mantener comunicaciones relacionadas con inmuebles de interés, oportunidades inmobiliarias, visitas, disponibilidad y seguimiento profesional de operaciones." },
+            { "title": "g) Cumplimiento de obligaciones legales", "content": "Cumplir obligaciones legales, administrativas, fiscales, contables o atender requerimientos de autoridades competentes." }
+          ]
+        },
+        {
+          "title": "4. Base jurídica del tratamiento",
+          "content": "La base jurídica para el tratamiento de los datos personales será, según el caso:",
+          "bullets": [
+            "**El consentimiento del interesado**, cuando facilite voluntariamente sus datos o acepte tratamientos concretos.",
+            "**La aplicación de medidas precontractuales**, cuando el tratamiento sea necesario para atender una solicitud del interesado antes de formalizar una operación.",
+            "**La ejecución de una relación contractual**, cuando el tratamiento sea necesario para prestar un servicio o gestionar una operación inmobiliaria.",
+            "**El cumplimiento de obligaciones legales**, cuando exista una obligación normativa aplicable.",
+            "**El interés legítimo**, cuando resulte necesario para la gestión profesional de la actividad, la seguridad del sitio web o la defensa frente a reclamaciones, siempre dentro de los límites legales."
+          ]
+        },
+        {
+          "title": "5. Carácter obligatorio o facultativo de los datos",
+          "content": "Los datos solicitados en formularios o procesos de gestión podrán ser obligatorios o voluntarios. Los campos obligatorios serán necesarios para poder atender la solicitud, gestionar una visita, estudiar una candidatura o tramitar una operación.\n\nLa negativa a facilitar determinados datos podrá impedir la correcta prestación del servicio o la atención de la solicitud del usuario."
+        },
+        {
+          "title": "6. Conservación de los datos",
+          "content": "Los datos personales se conservarán durante el tiempo necesario para cumplir con la finalidad para la que fueron recabados y, posteriormente, durante los plazos legalmente exigidos o necesarios para atender posibles responsabilidades.\n\nCon carácter general:",
+          "bullets": [
+            "Los datos de consultas se conservarán durante el tiempo necesario para su gestión y seguimiento razonable.",
+            "Los datos vinculados a operaciones inmobiliarias se conservarán mientras exista relación precontractual o contractual y durante los plazos legales aplicables.",
+            "La documentación de solvencia se conservará durante el tiempo estrictamente necesario para evaluar la candidatura y, en su caso, durante la vigencia de la relación y los plazos de responsabilidad.",
+            "Los datos para comunicaciones comerciales se conservarán hasta que el usuario retire su consentimiento o se oponga al tratamiento.",
+            "Los datos sujetos a obligación legal se conservarán durante los plazos exigidos por la normativa correspondiente."
+          ]
+        },
+        {
+          "title": "7. Destinatarios de los datos",
+          "content": "Los datos personales podrán ser comunicados o resultar accesibles, cuando sea necesario, a:",
+          "bullets": [
+            "propietarios, arrendadores, arrendatarios, compradores, vendedores o interesados implicados en la operación,",
+            "portales inmobiliarios y plataformas de publicación de inmuebles,",
+            "gestorías, asesorías, despachos jurídicos, notarías, registros, entidades financieras o aseguradoras, cuando proceda,",
+            "proveedores tecnológicos y de servicios que actúen como encargados del tratamiento,",
+            "administraciones públicas, juzgados, tribunales y autoridades competentes cuando exista obligación legal."
+          ],
+          "note": "No se venderán datos personales a terceros."
+        },
+        {
+          "title": "8. Transferencias internacionales de datos",
+          "content": "En caso de utilizar herramientas, plataformas o proveedores tecnológicos situados fuera del Espacio Económico Europeo o con infraestructuras ubicadas fuera de dicho espacio, Gelabert Homes Real Estate adoptará las garantías adecuadas exigidas por la normativa vigente."
+        },
+        {
+          "title": "9. Derechos del usuario",
+          "content": "El usuario puede ejercer en cualquier momento los siguientes derechos:",
+          "bullets": [
+            "Derecho de acceso.",
+            "Derecho de rectificación.",
+            "Derecho de supresión.",
+            "Derecho de oposición.",
+            "Derecho a la limitación del tratamiento.",
+            "Derecho a la portabilidad de los datos, cuando proceda.",
+            "Derecho a retirar el consentimiento en cualquier momento.",
+            "Derecho a no ser objeto de decisiones automatizadas, cuando proceda."
+          ],
+          "exercise": "Para ejercer estos derechos, el usuario podrá enviar una solicitud a: **info@gelaberthomes.es**\n\nLa solicitud deberá identificar al solicitante e indicar claramente el derecho que desea ejercer. Cuando resulte necesario, podrá solicitarse información adicional razonable para verificar la identidad del solicitante."
+        },
+        {
+          "title": "10. Derecho a reclamar ante la autoridad de control",
+          "content": "Si el usuario considera que sus datos no están siendo tratados conforme a la normativa vigente, podrá presentar una reclamación ante la Agencia Española de Protección de Datos."
+        },
+        {
+          "title": "11. Comunicaciones comerciales",
+          "content": "Gelabert Homes Real Estate podrá remitir comunicaciones comerciales relacionadas con inmuebles, servicios o novedades del sector cuando exista consentimiento del usuario o una base legal suficiente.\n\nEl usuario podrá oponerse en cualquier momento al envío de comunicaciones comerciales mediante solicitud dirigida a info@gelaberthomes.es."
+        },
+        {
+          "title": "12. Redes sociales, mensajería y portales externos",
+          "content": "Gelabert Homes Real Estate podrá utilizar redes sociales, mensajería instantánea y portales inmobiliarios como canales de comunicación y promoción.\n\nLa interacción del usuario a través de estas plataformas quedará también sujeta a las condiciones y políticas de privacidad propias de cada una de ellas."
+        },
+        {
+          "title": "13. Seguridad",
+          "content": "Gelabert Homes Real Estate adopta medidas técnicas y organizativas razonables para proteger los datos personales frente a pérdida, acceso no autorizado, alteración o tratamiento indebido.\n\nNo obstante, el usuario debe ser consciente de que la seguridad absoluta en Internet no puede garantizarse."
+        },
+        {
+          "title": "14. Menores de edad",
+          "content": "Este sitio web y los servicios de Gelabert Homes Real Estate no están dirigidos específicamente a menores de edad. En caso de facilitarse datos de menores, deberá hacerse por quien ostente su representación legal, cuando sea legalmente procedente."
+        },
+        {
+          "title": "15. Cookies",
+          "content": "Este sitio web puede utilizar cookies propias y de terceros. Para más información, el usuario puede consultar la correspondiente Política de Cookies."
+        },
+        {
+          "title": "16. Cambios en esta política",
+          "content": "Gelabert Homes Real Estate se reserva el derecho a modificar la presente Política de Privacidad para adaptarla a novedades legislativas, criterios de autoridades de control o cambios en su actividad."
+        },
+        {
+          "title": "17. Contacto",
+          "content": "Para cualquier consulta relacionada con esta Política de Privacidad, puede contactar en:",
+          "items": [
+            "**Gelabert Homes Real Estate**",
+            "**Email:** info@gelaberthomes.es",
+            "**Teléfono:** +34 611 89 88 27"
+          ]
+        }
+      ]
     },
     "cookies": {
       "seo_title": "Política de Cookies | Gelabert Homes Real Estate",
       "title": "Política de Cookies",
-      "section1": {
-        "title": "¿Qué son las cookies?",
-        "content": "Una cookie es un pequeño fichero que se descarga en su ordenador al acceder a determinadas páginas web. Las cookies permiten a una página web, entre otras cosas, almacenar y recuperar información sobre los hábitos de navegación de un usuario o de su equipo."
-      },
-      "section2": {
-        "title": "Cookies utilizadas en este sitio",
-        "content": "Este sitio web utiliza las siguientes cookies:",
-        "types": {
-          "technical": {
-            "title": "Cookies Técnicas:",
-            "content": "Son aquellas que permiten al usuario la navegación a través de una página web y la utilización de las diferentes opciones o servicios que en ella existan."
-          },
-          "analysis": {
-            "title": "Cookies de Análisis:",
-            "content": "Son aquellas que, tratadas por nosotros o por terceros (como Google Analytics), nos permiten cuantificar el número de usuarios y realizar la medición y análisis estadístico de la utilización que hacen los usuarios del servicio ofertado."
-          }
+      "sections": [
+        {
+          "title": "1. Qué son las cookies",
+          "content": "Las cookies son pequeños archivos de texto que un sitio web puede almacenar en el dispositivo del usuario cuando visita una página. Sirven para permitir o facilitar la navegación, recordar preferencias, obtener información estadística o personalizar ciertos contenidos, entre otras finalidades."
+        },
+        {
+          "title": "2. Qué tipos de cookies puede utilizar este sitio web",
+          "content": "Este sitio web puede utilizar cookies propias y de terceros, según su finalidad:",
+          "subsections": [
+            { "title": "a) Cookies técnicas o necesarias", "content": "Son aquellas imprescindibles para permitir la navegación por el sitio web y el uso de sus funciones básicas, como controlar el tráfico, identificar la sesión, recordar elementos integrados o gestionar preferencias técnicas.\n\nEstas cookies no requieren consentimiento cuando se limitan a finalidades estrictamente técnicas o necesarias." },
+            { "title": "b) Cookies de personalización", "content": "Permiten recordar determinadas características o preferencias del usuario, como idioma, tipo de navegador o configuración regional, cuando ello resulte aplicable." },
+            { "title": "c) Cookies de análisis o medición", "content": "Permiten cuantificar el número de usuarios y realizar análisis estadísticos sobre el uso del sitio web, con el fin de mejorar los servicios ofrecidos y la experiencia de navegación." },
+            { "title": "d) Cookies publicitarias o de marketing", "content": "Permiten gestionar espacios publicitarios o realizar seguimiento del comportamiento del usuario para mostrar anuncios relevantes o adaptados a sus hábitos de navegación.\n\nEstas cookies solo se utilizarán si el usuario las acepta expresamente." }
+          ]
+        },
+        {
+          "title": "3. Base legal para el uso de cookies",
+          "content": "La base legal para el uso de cookies técnicas o necesarias es el interés legítimo del titular en posibilitar el funcionamiento correcto del sitio web.\n\nLa base legal para el uso de cookies analíticas, de personalización no necesarias, publicitarias o de marketing será el consentimiento del usuario, otorgado a través del sistema de gestión de cookies o banner correspondiente."
+        },
+        {
+          "title": "4. Cookies propias y de terceros",
+          "content": "Este sitio web puede utilizar tanto cookies propias como cookies de terceros.\n\nLas cookies de terceros son aquellas enviadas al dispositivo del usuario desde un dominio o equipo gestionado por una entidad distinta del titular del sitio web, como por ejemplo servicios de analítica, mapas, vídeos incrustados, chat, redes sociales o publicidad."
+        },
+        {
+          "title": "5. Gestión del consentimiento",
+          "content": "Al acceder a este sitio web, el usuario podrá aceptar, rechazar o configurar el uso de cookies no necesarias a través del sistema habilitado para ello.\n\nEl usuario podrá modificar su elección en cualquier momento desde el panel o sistema de configuración de cookies disponible en el sitio web, si estuviera habilitado.\n\nLa retirada del consentimiento no afectará a la licitud del uso de cookies basado en el consentimiento previo a su retirada."
+        },
+        {
+          "title": "6. Conservación",
+          "content": "Las cookies se conservarán durante el tiempo imprescindible para cumplir su finalidad. En el caso de cookies basadas en consentimiento, dicho consentimiento deberá poder ser retirado por el usuario en cualquier momento.\n\nLos plazos concretos de duración podrán variar en función del tipo de cookie y del proveedor correspondiente."
+        },
+        {
+          "title": "7. Cómo desactivar o eliminar cookies desde el navegador",
+          "content": "El usuario puede permitir, bloquear o eliminar las cookies instaladas en su dispositivo mediante la configuración de las opciones del navegador que utilice.\n\nLa desactivación de determinadas cookies puede afectar al correcto funcionamiento de algunas partes del sitio web."
+        },
+        {
+          "title": "8. Posible uso futuro de cookies",
+          "content": "Gelabert Homes Real Estate podrá utilizar cookies técnicas y, en su caso, cookies analíticas, de personalización o publicitarias en función de las herramientas que se integren en la web.\n\nEn caso de utilizar cookies no necesarias, se recabará previamente el consentimiento del usuario conforme a la normativa aplicable."
+        },
+        {
+          "title": "9. Actualizaciones de la Política de Cookies",
+          "content": "Gelabert Homes Real Estate se reserva el derecho a modificar la presente Política de Cookies para adaptarla a cambios normativos, técnicos o funcionales del sitio web."
+        },
+        {
+          "title": "10. Contacto",
+          "content": "Para cualquier consulta relacionada con la presente Política de Cookies, puede contactar en:",
+          "items": [
+            "**Gelabert Homes Real Estate**",
+            "**Email:** info@gelaberthomes.es",
+            "**Teléfono:** +34 611 89 88 27"
+          ]
         }
-      },
-      "section3": {
-        "title": "Cómo desactivar las cookies",
-        "content": "Usted puede permitir, bloquear o eliminar las cookies instaladas en su equipo mediante la configuración de las opciones del navegador instalado en su ordenador.",
-        "browsers": [
-          "Google Chrome",
-          "Mozilla Firefox",
-          "Internet Explorer/Edge",
-          "Safari"
-        ]
-      }
+      ]
     }
   },
   "cookie_banner": {
     "title": "Tu privacidad nos importa",
-    "description": "Utilizamos cookies propias y de terceros para mejorar tu experiencia de navegación, ofrecerte contenidos adaptados a tus intereses y realizar labores analíticas. Puedes aceptar todas las cookies o configurar tus preferencias. Consulta nuestra <1>Política de Cookies</1>.",
+    "description": "Este sitio web utiliza cookies propias y de terceros para fines técnicos, analíticos y de personalización. Puedes aceptar todas las cookies, rechazarlas o configurar tus preferencias. Para más información, consulte nuestra <0>Política de Cookies</0>.",
     "only_necessary": "Solo necesarias",
     "accept_all": "Aceptar todas"
   },
   "forms": {
+    "legal_disclaimers": {
+      "general": "Responsable: Gelabert Homes Real Estate. Finalidad: Atender su solicitud de información y seguimiento comercial. Legitimación: Consentimiento del interesado. Destinatarios: No se cederán datos a terceros, salvo obligación legal o necesidad del servicio. Derechos: Acceso, rectificación, supresión y otros derechos explicados en la Política de Privacidad.",
+      "owners": "Responsable: Gelabert Homes Real Estate. Finalidad: Gestión de servicios para propietarios e intermediación inmobiliaria. Legitimación: Medidas precontractuales y consentimiento. Destinatarios: Interesados legítimos y portales inmobiliarios para promoción. Derechos: info@gelaberthomes.es.",
+      "rentals": "Responsable: Gelabert Homes Real Estate. Finalidad: Evaluación de candidaturas de alquiler y estudio de solvencia. Legitimación: Medidas precontractuales y consentimiento. Destinatarios: Propietarios y arrendadores del inmueble. Derechos: Ver Política de Privacidad.",
+      "whatsapp": "Chat protegido por nuestra Política de Privacidad. Responsable: Gelabert Homes Real Estate. Finalidad: Respuesta rápida a consultas."
+    },
     "name": "Nombre Completo *",
     "name_placeholder": "Ej: Manuel Ruiz",
     "email": "Email *",
@@ -574,7 +768,8 @@
     "city_placeholder": "Ej: Málaga, Marbella...",
     "message": "Mensaje *",
     "message_placeholder": "Por favor, detalle lo más posible su solicitud para que podamos responderle con la mayor exactitud...",
-    "privacy_accept": "He leído y acepto la <0>Política de Privacidad</0> y el tratamiento de mis datos personales para gestionar mi consulta. *",
+    "privacy_accept": "He leído y acepto la <0>Política de Privacidad</0> y el tratamiento de mis datos personales según el descargo de responsabilidad anterior. *",
+    "solvency_accept": "Autorizo el tratamiento de mis datos económicos y laborales para el estudio de solvencia relacionado con esta solicitud de alquiler. *",
     "whatsapp_label": "Contactar por WhatsApp",
     "whatsapp_placeholder_msg": "Hola, me gustaría recibir más información.",
     "whatsapp_privacy": "Chat protegido por nuestra <0>Política de Privacidad</0>",

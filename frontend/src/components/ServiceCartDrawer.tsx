@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingBag, Send, CheckCircle, Trash2, Sparkles, Loader2 } from 'lucide-react';
 import { useState, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import type { CartService } from '../hooks/useServiceCart';
 
 interface ServiceCartDrawerProps {
@@ -27,9 +28,10 @@ const inputClass = `
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
 export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClear }: ServiceCartDrawerProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [formState, setFormState] = useState<FormState>('idle');
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   const isEmpty = cartItems.length === 0;
@@ -294,6 +296,33 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                         />
                       </div>
 
+                      {/* Legal Disclaimer */}
+                      <div className="bg-white/[0.02] border border-white/[0.05] p-4 rounded-sm">
+                        <p className="font-primary text-[10px] text-white/40 leading-relaxed text-justify">
+                          {t('forms.legal_disclaimers.owners')}
+                        </p>
+                      </div>
+
+                      {/* Privacy Checkbox */}
+                      <div className="flex items-start gap-3 mt-1">
+                        <input
+                          type="checkbox"
+                          id="privacy-cart"
+                          checked={privacyAccepted}
+                          onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                          className="mt-1 shrink-0 accent-[#C9A962]"
+                          required
+                        />
+                        <label htmlFor="privacy-cart" className="font-primary text-[11px] text-white/50 leading-snug cursor-pointer hover:text-white/70 transition-colors">
+                          <Trans 
+                            i18nKey="forms.owner_inquiry.privacy_accept" 
+                            components={{ 
+                              1: <Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/privacidad`} target="_blank" className="text-[#C9A962] hover:underline" /> 
+                            }} 
+                          />
+                        </label>
+                      </div>
+
                       {formState === 'error' && (
                         <p className="font-primary text-red-400/80 text-xs text-center">
                           {t('services.cart.drawer_form_error')}
@@ -302,9 +331,9 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
 
                       <motion.button
                         type="submit"
-                        disabled={formState === 'submitting'}
+                        disabled={formState === 'submitting' || !privacyAccepted}
                         whileTap={{ scale: 0.98 }}
-                        className="relative mt-2 flex items-center justify-center gap-3 px-8 py-5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[10px] uppercase tracking-[0.25em] hover:brightness-110 transition-all disabled:opacity-70 shadow-[0_10px_40px_rgba(201,169,98,0.2)] hover:shadow-[0_10px_40px_rgba(201,169,98,0.4)]"
+                        className="relative mt-2 flex items-center justify-center gap-3 px-8 py-5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[10px] uppercase tracking-[0.25em] hover:brightness-110 transition-all disabled:opacity-50 shadow-[0_10px_40px_rgba(201,169,98,0.2)] hover:shadow-[0_10px_40px_rgba(201,169,98,0.4)]"
                       >
                         {formState === 'submitting' ? (
                           <>

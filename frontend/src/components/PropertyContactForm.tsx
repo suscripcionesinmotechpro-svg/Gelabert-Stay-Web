@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useTranslation, Trans } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface FormData {
   name: string;
@@ -14,7 +15,7 @@ interface FormData {
 }
 
 export const PropertyContactForm = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -233,20 +234,38 @@ export const PropertyContactForm = () => {
           ></textarea>
         </div>
 
-        <div className="flex items-start gap-3 mt-4">
-          <input
-            type="checkbox"
-            id="privacy_accepted_owner"
-            name="privacy_accepted"
-            required
-            checked={privacyAccepted}
-            onChange={(e) => setPrivacyAccepted(e.target.checked)}
-            className="mt-1 w-4 h-4 accent-[#C9A962] bg-[#0A0A0A] border-[#222222] cursor-pointer"
-          />
-          <label htmlFor="privacy_accepted_owner" className="text-[#888888] text-[11px] font-primary leading-tight">
-            <Trans i18nKey="forms.owner_inquiry.privacy_accept">
-              He leído y acepto la <a href="/privacidad" target="_blank" rel="noopener noreferrer" className="text-[#C9A962] hover:underline">Política de Privacidad</a> y el tratamiento de mis datos para gestionar mi solicitud de servicios. *
-            </Trans>
+        {/* Legal Disclaimer Block */}
+        <div className="mt-4 p-4 bg-white/5 border border-white/10 rounded-sm">
+          <p className="text-[10px] text-[#888888] leading-relaxed font-primary uppercase tracking-wider mb-2">
+            {t('forms.legal_disclaimers.owners')}
+          </p>
+        </div>
+
+        <div className="flex items-start gap-4 mt-2">
+          <div className="pt-1">
+            <input
+              type="checkbox"
+              id="privacy_accepted_owner"
+              name="privacy_accepted"
+              required
+              checked={privacyAccepted}
+              onChange={(e) => setPrivacyAccepted(e.target.checked)}
+              className="w-4 h-4 accent-[#C9A962] bg-black/40 border-white/10 cursor-pointer"
+            />
+          </div>
+          <label htmlFor="privacy_accepted_owner" className="text-[#888888] text-[11px] font-primary leading-tight cursor-pointer">
+            <Trans 
+              i18nKey="forms.privacy_accept"
+              components={[
+                <Link 
+                  key="privacy-link"
+                  to={`${i18n.language.startsWith('en') ? '/en' : ''}/privacidad`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-[#C9A962] hover:underline"
+                />
+              ]}
+            />
           </label>
         </div>
 

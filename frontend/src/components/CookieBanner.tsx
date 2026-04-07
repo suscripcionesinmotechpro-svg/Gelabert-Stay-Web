@@ -46,44 +46,53 @@ export const CookieBanner = () => {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed bottom-0 left-0 right-0 z-[9999] p-4 md:p-6 pointer-events-none"
+          transition={{ type: 'spring', damping: 30, stiffness: 200 }}
+          className="fixed bottom-6 left-6 right-6 z-[9999] pointer-events-none flex justify-center"
         >
-          <div className="max-w-7xl mx-auto pointer-events-auto">
-            <div className="bg-[#121212] border border-[#C9A962]/20 backdrop-blur-xl p-6 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 relative">
+          <div className="w-full max-w-6xl pointer-events-auto">
+            <div className="relative overflow-hidden rounded-2xl bg-[#0F0F0F]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 group">
+              {/* Decorative gradient border */}
+              <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#C9A962]/40 to-transparent" />
+              
               <button 
                 onClick={() => setIsVisible(false)}
-                className="absolute top-4 right-4 text-[#444444] hover:text-[#C9A962] transition-colors"
+                className="absolute top-4 right-4 text-[#444444] hover:text-[#C9A962] transition-all duration-300 transform hover:rotate-90 p-1"
                 aria-label={t('common.close') || 'Cerrar'}
               >
                 <X size={18} />
               </button>
-
-              <div className="flex items-center gap-4 flex-1">
-                <div className="hidden md:flex w-12 h-12 items-center justify-center bg-[#C9A962]/10 rounded-full shrink-0">
-                  <Cookie className="text-[#C9A962]" size={24} />
+ 
+              <div className="flex items-start gap-6 flex-1">
+                <div className="hidden lg:flex w-14 h-14 items-center justify-center bg-[#C9A962]/5 rounded-xl border border-[#C9A962]/20 shrink-0 group-hover:scale-110 transition-transform duration-500">
+                  <Cookie className="text-[#C9A962] drop-shadow-[0_0_8px_rgba(201,169,98,0.5)]" size={28} />
                 </div>
-                <div>
-                  <h4 className="text-[#FAF8F5] font-secondary text-lg mb-1">{t('cookie_banner.title')}</h4>
-                  <p className="text-[#888888] font-primary text-sm leading-relaxed max-w-3xl">
-                    <Trans i18nKey="cookie_banner.description">
-                      Utilizamos cookies propias y de terceros para mejorar tu experiencia de navegación, ofrecerte contenidos adaptados a tus intereses y realizar labores analíticas. 
-                      Puedes aceptar todas las cookies o configurar tus preferencias. Consulta nuestra <Link to={`${langPrefix}/cookies`} className="text-[#C9A962] hover:underline">Política de Cookies</Link>.
-                    </Trans>
+                <div className="space-y-2">
+                  <h4 className="text-white font-secondary text-xl font-light tracking-wide">{t('cookie_banner.title')}</h4>
+                  <p className="text-[#888888] font-primary text-[13px] leading-relaxed max-w-3xl font-light">
+                    <Trans 
+                      i18nKey="cookie_banner.description"
+                      components={[
+                        <Link 
+                          key="cookies-link"
+                          to={`${langPrefix}/cookies`} 
+                          className="text-[#C9A962] hover:text-[#D4B673] underline underline-offset-4 decoration-[#C9A962]/30 hover:decoration-[#C9A962] transition-all"
+                        />
+                      ]}
+                    />
                   </p>
                 </div>
               </div>
-
-              <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full md:w-auto">
+ 
+              <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full md:w-auto">
                 <button
                   onClick={handleDecline}
-                  className="w-full sm:w-auto px-6 py-2.5 text-[#888888] hover:text-[#FAF8F5] font-primary text-[11px] uppercase tracking-widest transition-colors"
+                  className="w-full sm:w-auto px-6 py-3 text-[#666666] hover:text-white font-primary text-[10px] uppercase tracking-[0.2em] transition-all duration-300 border border-white/5 hover:border-white/10 rounded-lg"
                 >
                   {t('cookie_banner.only_necessary')}
                 </button>
                 <button
                   onClick={handleAccept}
-                  className="w-full sm:w-auto px-10 py-3 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[11px] uppercase tracking-widest hover:bg-[#D4B673] transition-all shadow-lg"
+                  className="w-full sm:w-auto px-10 py-3.5 bg-[#C9A962] text-black font-primary font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-[#D4B673] transition-all duration-300 rounded-lg shadow-[0_8px_20px_-8px_rgba(201,169,98,0.4)]"
                 >
                   {t('cookie_banner.accept_all')}
                 </button>
