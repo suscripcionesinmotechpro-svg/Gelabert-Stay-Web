@@ -3,7 +3,9 @@ import { X, ShoppingBag, Send, CheckCircle, Trash2, Sparkles, Loader2 } from 'lu
 import { useState, useRef } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import type { CartService } from '../hooks/useServiceCart';
+
 
 interface ServiceCartDrawerProps {
   isOpen: boolean;
@@ -49,6 +51,28 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
     const fullMessage = `SERVICIOS SOLICITADOS:\n${serviceList}\n\nMENSAJE ADICIONAL:\n${form.message || 'Sin mensaje adicional.'}`;
 
     try {
+      // 1. Enviar a Supabase para registro interno
+      const { error: supabaseError } = await supabase
+        .from('inquiries')
+        .insert([
+          {
+            name: form.name,
+            email: form.email,
+            phone: form.phone,
+            inquiry_type: 'servicio',
+            message: fullMessage,
+            privacy_accepted: privacyAccepted,
+            accepted_at: new Date().toISOString(),
+            status: 'nuevo'
+          }
+        ]);
+
+      if (supabaseError) {
+        console.error('Error insertando en Supabase:', supabaseError);
+        // Continuamos de todas formas para intentar Netlify
+      }
+
+      // 2. Enviar a Netlify Forms
       const data = new URLSearchParams();
       data.append('form-name', 'service-inquiry');
       data.append('bot-field', '');
@@ -57,6 +81,7 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
       data.append('phone', form.phone);
       data.append('services', serviceList);
       data.append('message', fullMessage);
+      data.append('privacy_accepted', 'Aceptado (SI)');
 
       const res = await fetch('/', {
         method: 'POST',
