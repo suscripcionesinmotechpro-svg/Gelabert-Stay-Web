@@ -7,6 +7,7 @@ import { OPERATION_LABELS, type PropertyOperation, type CommercialStatus, COMMER
 import { ChevronLeft, ChevronRight, MessageSquare, Heart, GitCompare, Images } from 'lucide-react';
 import { getWhatsAppLink } from '../utils/whatsapp';
 import { useState, useMemo, memo } from 'react';
+import { PremiumImage } from './PremiumImage';
 
 export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   title: string;
@@ -149,18 +150,21 @@ export const PropertyCard = memo(({
       {/* Image Area with Slider */}
       <div className="relative aspect-[4/3] overflow-hidden bg-[#1A1A1A]">
         <AnimatePresence initial={false}>
-          <motion.img
+          <motion.div
             key={currentImageIndex}
             initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            src={images[currentImageIndex]} 
-            alt={title}
-            loading="lazy"
-            decoding="async"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+            className="absolute inset-0"
+          >
+            <PremiumImage
+              src={images[currentImageIndex]} 
+              alt={title}
+              className="w-full h-full object-cover"
+              wrapperClassName="w-full h-full"
+            />
+          </motion.div>
         </AnimatePresence>
 
         {/* Slider Controls */}

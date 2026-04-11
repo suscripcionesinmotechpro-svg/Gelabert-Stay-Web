@@ -41,19 +41,19 @@ export const Propiedades = () => {
       label: t(labelKey),
     })),
   ];
-  const [searchParams] = useSearchParams();
-  const initialOperation = (searchParams.get('operation') as PropertyOperation) || '';
-  const [operation, setOperation] = useState<PropertyOperation | ''>(initialOperation);
-  const [propertyType, setPropertyType] = useState<PropertyType | ''>('');
-  const [commercialStatus, setCommercialStatus] = useState<CommercialStatus | ''>('');
-  const [zone, setZone] = useState('');
-  const [keyword, setKeyword] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [bedrooms, setBedrooms] = useState('');
-  const [bathrooms, setBathrooms] = useState('');
-  const [reference, setReference] = useState('');
-  const [showFavorites, setShowFavorites] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const [operation, setOperation] = useState<PropertyOperation | ''>((searchParams.get('operation') as PropertyOperation) || '');
+  const [propertyType, setPropertyType] = useState<PropertyType | ''>((searchParams.get('property_type') as PropertyType) || '');
+  const [commercialStatus, setCommercialStatus] = useState<CommercialStatus | ''>((searchParams.get('commercial_status') as CommercialStatus) || '');
+  const [zone, setZone] = useState(searchParams.get('zone') || '');
+  const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
+  const [minPrice, setMinPrice] = useState(searchParams.get('min_price') || '');
+  const [maxPrice, setMaxPrice] = useState(searchParams.get('max_price') || '');
+  const [bedrooms, setBedrooms] = useState(searchParams.get('bedrooms') || '');
+  const [bathrooms, setBathrooms] = useState(searchParams.get('bathrooms') || '');
+  const [reference, setReference] = useState(searchParams.get('reference') || '');
+  const [showFavorites, setShowFavorites] = useState(searchParams.get('favorites') === 'true');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -62,23 +62,42 @@ export const Propiedades = () => {
 
   // Características adicionales
   const [filtersBool, setFiltersBool] = useState({
-    has_elevator: false,
-    is_furnished: false,
-    has_terrace: false,
-    has_parking: false,
-    has_pool: false,
-    air_conditioning: false,
-    pets_allowed: false,
-    no_pets_allowed: false,
+    has_elevator: searchParams.get('has_elevator') === 'true',
+    is_furnished: searchParams.get('is_furnished') === 'true',
+    has_terrace: searchParams.get('has_terrace') === 'true',
+    has_parking: searchParams.get('has_parking') === 'true',
+    has_pool: searchParams.get('has_pool') === 'true',
+    air_conditioning: searchParams.get('air_conditioning') === 'true',
+    pets_allowed: searchParams.get('pets_allowed') === 'true',
+    no_pets_allowed: searchParams.get('no_pets_allowed') === 'true',
   });
 
-  // Efecto para actualizar cuando cambian los query parameters estando ya en la página
+  // Efecto para sincronizar filtros hacia la URL
   useEffect(() => {
-    const op = searchParams.get('operation') as PropertyOperation | null;
-    if (op) {
-      setOperation(op);
-    }
-  }, [searchParams]);
+    const timeout = setTimeout(() => {
+      const params = new URLSearchParams();
+      if (operation) params.set('operation', operation);
+      if (propertyType) params.set('property_type', propertyType);
+      if (commercialStatus) params.set('commercial_status', commercialStatus);
+      if (zone) params.set('zone', zone);
+      if (keyword) params.set('keyword', keyword);
+      if (minPrice) params.set('min_price', minPrice);
+      if (maxPrice) params.set('max_price', maxPrice);
+      if (bedrooms) params.set('bedrooms', bedrooms);
+      if (bathrooms) params.set('bathrooms', bathrooms);
+      if (reference) params.set('reference', reference);
+      if (showFavorites) params.set('favorites', 'true');
+      Object.entries(filtersBool).forEach(([k, v]) => {
+        if (v) params.set(k, 'true');
+      });
+      setSearchParams(params, { replace: true });
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [
+    operation, propertyType, commercialStatus, zone, keyword, minPrice, maxPrice,
+    bedrooms, bathrooms, reference, showFavorites, filtersBool, setSearchParams
+  ]);
 
   const toggleBool = (key: keyof typeof filtersBool) => {
     setFiltersBool(prev => ({ ...prev, [key]: !prev[key] }));
@@ -94,7 +113,7 @@ export const Propiedades = () => {
     });
   };
 
-  const { properties, loading, error } = useProperties({
+  const { properties, loading, loadingMore, hasMore, loadMore, error } = useProperties({
     operation: operation || undefined,
     property_type: propertyType || undefined,
     commercial_status: commercialStatus || undefined,
@@ -433,6 +452,30 @@ export const Propiedades = () => {
               />
               </motion.div>
             ))}
+          </motion.div>
+        )}
+
+        {/* Load More Button */}
+        {hasMore && viewMode === 'list' && !loading && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex justify-center mt-16 pb-8"
+          >
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="px-12 py-4 border border-[#C9A962] text-[#C9A962] font-primary font-bold text-[10px] tracking-[0.2em] uppercase hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 backdrop-blur-sm"
+            >
+              {loadingMore ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  <span>Cargando...</span>
+                </>
+              ) : (
+                <span>Cargar Más Resultados</span>
+              )}
+            </button>
           </motion.div>
         )}
       </section>

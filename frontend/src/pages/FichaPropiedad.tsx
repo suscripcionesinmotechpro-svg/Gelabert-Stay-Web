@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useProperty, useProperties } from '../hooks/useProperties';
 import { useAutoTranslate, useAutoTranslateArray } from '../hooks/useAutoTranslate';
 import { PropertyCard } from '../components/PropertyCard';
+import { PremiumImage } from '../components/PremiumImage';
 import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass, Copy, CheckCheck, Send } from 'lucide-react';
 import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import { cn } from '../lib/utils';
@@ -362,13 +363,11 @@ export const FichaPropiedad = () => {
           >
             {allImages.length > 0 ? (
               <>
-                <img 
+                <PremiumImage 
                   src={allImages[activeImg]} 
                   alt={translatedTitle} 
-                  loading="eager"
-                  fetchPriority="high"
-                  decoding="async"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                  className="transition-transform duration-500 group-hover:scale-105" 
+                  wrapperClassName="w-full h-full"
                 />
                 
                 {/* Watermark Overlay */}
@@ -401,8 +400,8 @@ export const FichaPropiedad = () => {
           {allImages.length > 1 && (
             <div className="flex md:flex-col gap-2 md:w-1/3 overflow-x-auto md:overflow-y-auto md:max-h-[450px]">
               {allImages.map((img, i) => (
-                <button key={i} onClick={() => { setActiveImg(i); openLightbox(i); }} className={`w-20 md:w-full h-20 md:h-28 flex-shrink-0 overflow-hidden border ${i === activeImg ? 'border-[#C9A962]' : 'border-[#1F1F1F] hover:border-[#888888]'} transition-colors cursor-zoom-in`}>
-                  <img src={img} alt={`${i}`} loading="lazy" className="w-full h-full object-cover" />
+                <button key={i} onClick={() => { setActiveImg(i); openLightbox(i); }} className={`w-20 md:w-full h-20 md:h-28 flex-shrink-0 overflow-hidden border ${i === activeImg ? 'border-[#C9A962]' : 'border-[#1F1F1F] hover:border-[#888888]'} transition-colors cursor-zoom-in relative`}>
+                  <PremiumImage src={img} alt={`${i}`} wrapperClassName="w-full h-full" />
                 </button>
               ))}
             </div>

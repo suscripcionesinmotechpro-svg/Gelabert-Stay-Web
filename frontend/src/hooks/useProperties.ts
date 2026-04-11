@@ -4,7 +4,7 @@ import type { Property, PropertyFilters, PropertyInsert, PropertyUpdate, Propert
 import { applyWatermark } from '../utils/watermark';
 
 // Memory cache to avoid redundant fetches and flickering
-const propertiesCache: Record<string, { data: Property[]; timestamp: number }> = {};
+const propertiesCache: Record<string, { data: Property[]; timestamp: number; page: number; hasMore: boolean }> = {};
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 // ============================================================
@@ -13,25 +13,38 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   // stringify filters para evitar loops de re-renderizados por referencias de objeto literales
   const filtersString = JSON.stringify(filters);
   const cacheKey = `${adminMode ? 'admin' : 'public'}-${filtersString}`;
 
-  const fetchProperties = useCallback(async (ignoreCache = false) => {
-    // Check cache first
-    if (!ignoreCache && propertiesCache[cacheKey]) {
+  const currentLimit = filters?.limit || 12;
+
+  const fetchProperties = useCallback(async (isLoadMore = false) => {
+    // Check cache first if not loading more
+    if (!isLoadMore && propertiesCache[cacheKey]) {
       const cached = propertiesCache[cacheKey];
       if (Date.now() - cached.timestamp < CACHE_TTL) {
         setProperties(cached.data);
+        setPage(cached.page);
+        setHasMore(cached.hasMore);
         setLoading(false);
         return;
       }
     }
 
-    setLoading(true);
+    if (isLoadMore) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
+    
     setError(null);
+
     try {
       const currentFilters = filtersString ? JSON.parse(filtersString) : undefined;
       
@@ -83,34 +96,62 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
         // If filtering by favorites but none saved, return empty
         setProperties([]);
         setLoading(false);
+        setLoadingMore(false);
         return;
       }
 
-      if (currentFilters?.limit) query = query.limit(currentFilters.limit);
+      const currentPage = isLoadMore ? page + 1 : 0;
+      const start = currentPage * currentLimit;
+      const end = start + currentLimit - 1;
+      
+      query = query.range(start, end);
 
       const { data, error: supabaseError } = await query;
       if (supabaseError) throw supabaseError;
       
       const propertiesData = data as Property[];
-      setProperties(propertiesData);
+      const fetchedFullPage = propertiesData.length === currentLimit;
+      
+      let newData = propertiesData;
+      if (isLoadMore) {
+        newData = [...properties, ...propertiesData];
+      }
+      
+      setProperties(newData);
+      setPage(currentPage);
+      setHasMore(fetchedFullPage);
 
       // Save to cache
       propertiesCache[cacheKey] = {
-        data: propertiesData,
+        data: newData,
+        page: currentPage,
+        hasMore: fetchedFullPage,
         timestamp: Date.now()
       };
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar propiedades');
     } finally {
-      setLoading(false);
+      if (isLoadMore) {
+        setLoadingMore(false);
+      } else {
+        setLoading(false);
+      }
     }
-  }, [filtersString, cacheKey]);
+  }, [filtersString, cacheKey, page, properties, currentLimit, adminMode]);
 
+  // Si los filtros cambian (not catch by page update), we start from page 0
   useEffect(() => {
-    fetchProperties();
-  }, [fetchProperties]);
+    fetchProperties(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtersString, adminMode]);
 
-  return { properties, loading, error, refetch: fetchProperties };
+  const loadMore = () => {
+    if (!loading && !loadingMore && hasMore) {
+      fetchProperties(true);
+    }
+  };
+
+  return { properties, loading, loadingMore, hasMore, loadMore, error, refetch: () => fetchProperties(false) };
 };
 
 // ============================================================
