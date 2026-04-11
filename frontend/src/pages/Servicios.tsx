@@ -498,16 +498,16 @@ export const Servicios = () => {
       {/* Final Premium CTA */}
       <section className="relative w-full py-40 flex flex-col items-center justify-center overflow-hidden">
         {/* Cinematic Background */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 overflow-hidden">
           <img 
-            src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=2000&auto=format&fit=crop" 
-            className="w-full h-full object-cover opacity-20 brightness-[0.4]"
+            src="https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=2000&auto=format&fit=crop" 
+            className="w-full h-full object-cover opacity-40 brightness-[0.7] scale-105"
             alt=""
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-transparent to-[#050505]" />
         </div>
         
-        <div className="absolute inset-0 bg-[#C9A962]/[0.02] mix-blend-overlay z-[1]" />
+        <div className="absolute inset-0 bg-[#C9A962]/[0.05] mix-blend-overlay z-[1]" />
         
         <motion.div 
           {...fadeUp}

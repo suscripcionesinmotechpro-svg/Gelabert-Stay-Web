@@ -33,17 +33,17 @@ export const Propietarios = () => {
       </Helmet>
 
       {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <img 
           src="https://images.unsplash.com/photo-1600607687940-c52af0493738?q=80&w=2000&auto=format&fit=crop" 
-          className="w-full h-full object-cover opacity-20 brightness-[0.5]"
+          className="w-full h-full object-cover opacity-40 brightness-[0.7] scale-105"
           alt=""
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-[#050505] via-[#050505]/70 to-[#050505]/95" />
+        <div className="absolute inset-0 bg-gradient-to-l from-[#050505] via-[#050505]/60 to-[#050505]/90" />
       </div>
 
       {/* Background Mesh */}
-      <div className="absolute inset-0 bg-mesh opacity-30 pointer-events-none z-[1]" />
+      <div className="absolute inset-0 bg-mesh opacity-20 pointer-events-none z-[1]" />
       <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-[#C9A962]/5 blur-[120px] rounded-full mix-blend-screen z-[1]" />
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[#C9A962]/3 blur-[100px] rounded-full mix-blend-screen z-[1]" />
 
