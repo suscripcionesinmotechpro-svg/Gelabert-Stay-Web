@@ -83,12 +83,13 @@ export const Contacto = () => {
 
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0 overflow-hidden">
+        {/* Imagen: Agente inmobiliario atendiedo a clientes en reunión */}
         <img 
-          src="https://images.unsplash.com/photo-1582408921715-18e7806365c1?q=80&w=2000&auto=format&fit=crop" 
-          className="w-full h-full object-cover opacity-40 brightness-[0.8] scale-105"
+          src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2000&auto=format&fit=crop" 
+          className="w-full h-full object-cover opacity-35 brightness-[0.7] scale-105"
           alt=""
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/70 to-[#050505]/90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/60 to-[#050505]/85" />
       </div>
 
       {/* Background Mesh */}

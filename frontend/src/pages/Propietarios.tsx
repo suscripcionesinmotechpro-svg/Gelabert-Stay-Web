@@ -34,12 +34,13 @@ export const Propietarios = () => {
 
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0 overflow-hidden">
+        {/* Imagen: Villa de lujo exterior con piscina — propiedad de alta gama del propietario */}
         <img 
-          src="https://images.unsplash.com/photo-1600607687940-c52af0493738?q=80&w=2000&auto=format&fit=crop" 
-          className="w-full h-full object-cover opacity-40 brightness-[0.7] scale-105"
+          src="https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=2000&auto=format&fit=crop" 
+          className="w-full h-full object-cover opacity-40 brightness-[0.65] scale-105"
           alt=""
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-[#050505] via-[#050505]/60 to-[#050505]/90" />
+        <div className="absolute inset-0 bg-gradient-to-l from-[#050505] via-[#050505]/55 to-[#050505]/85" />
       </div>
 
       {/* Background Mesh */}

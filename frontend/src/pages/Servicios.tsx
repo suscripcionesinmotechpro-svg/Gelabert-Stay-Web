@@ -285,7 +285,7 @@ export const Servicios = () => {
         >
           <div 
             className="w-full h-full bg-cover bg-center brightness-[0.2]"
-            style={{ backgroundImage: `url('https://images.unsplash.com/photo-1600607687940-c52af0493738?q=80&w=2070&auto=format&fit=crop')` }}
+            style={{ backgroundImage: `url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop')` }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/50 to-[#050505]" />
         </motion.div>
@@ -499,9 +499,10 @@ export const Servicios = () => {
       <section className="relative w-full py-40 flex flex-col items-center justify-center overflow-hidden">
         {/* Cinematic Background */}
         <div className="absolute inset-0 z-0 overflow-hidden">
+          {/* Imagen: Vivienda de lujo moderna con piscina / exterior propiedad premium */}
           <img 
-            src="https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=2000&auto=format&fit=crop" 
-            className="w-full h-full object-cover opacity-40 brightness-[0.7] scale-105"
+            src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=2000&auto=format&fit=crop" 
+            className="w-full h-full object-cover opacity-40 brightness-[0.65] scale-105"
             alt=""
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-transparent to-[#050505]" />
