@@ -44,9 +44,9 @@ export const Layout = () => {
         {/* Logo */}
         <Link to={langPrefix || '/'} className="flex items-center">
           <img
-            src="/logo.png"
+            src="/watermark.png"
             alt="Gelabert Homes Real Estate"
-            className="h-20 w-auto object-contain"
+            className="h-16 md:h-18 w-auto object-contain drop-shadow-[0_0_10px_rgba(201,169,98,0.2)]"
           />
         </Link>
 

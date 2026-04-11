@@ -25,106 +25,116 @@ export const Footer = () => {
   const langPrefix = i18n.language.startsWith('en') ? '/en' : '';
 
   return (
-    <footer className="w-full bg-[#0A0A0A] border-t border-[#1F1F1F] mt-auto">
+    <footer className="relative w-full bg-[#050505] border-t border-white/5 mt-auto overflow-hidden">
+      {/* Background Glow */}
+      <div className="absolute pointer-events-none inset-0 z-0">
+        <div className="absolute -top-[150px] left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-[#C9A962]/5 blur-[120px] rounded-full mix-blend-screen" />
+      </div>
 
-      {/* Golden top accent line */}
-      <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-[#C9A962]/40 to-transparent" />
-
-      <div className="py-16 px-6 md:px-14 flex flex-col md:flex-row justify-between gap-12">
-
-        {/* Brand */}
-        <div className="flex flex-col gap-5 max-w-xs">
-          <img
-            src="/logo.png"
-            alt="Gelabert Homes Real Estate"
-            className="h-24 w-auto object-contain self-start"
-          />
-          <p className="font-primary text-sm text-[#888888] leading-relaxed">
+      <div className="relative z-10 pt-20 pb-12 px-6 md:px-14 flex flex-col lg:flex-row justify-between gap-16">
+        
+        {/* Brand & Hours Card */}
+        <div className="flex flex-col gap-8 max-w-sm">
+          <Link to={langPrefix || '/'}>
+            <img
+              src="/watermark.png"
+              alt="Gelabert Homes Real Estate"
+              className="h-20 sm:h-24 w-auto object-contain self-start drop-shadow-[0_0_15px_rgba(201,169,98,0.15)]"
+            />
+          </Link>
+          <p className="font-primary text-sm text-[#888888] leading-relaxed max-w-xs font-light">
             {t('footer.description')}
           </p>
-          {/* Horario */}
-          <div className="flex flex-col gap-1">
-            <span className="font-primary text-[10px] text-[#666666] uppercase tracking-[0.2em] font-bold">
-              {t('footer.hours_label') || 'Horario de atención'}
+
+          {/* Horario Premium Card */}
+          <div className="bg-white/[0.02] border border-white/5 p-5 rounded-sm backdrop-blur-sm relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-1 h-full bg-[#C9A962]/40 group-hover:bg-[#C9A962] transition-colors" />
+            <span className="block font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.2em] font-bold mb-4">
+              {t('footer.hours_label') || 'Horario de Atención'}
             </span>
-            <span className="font-primary text-xs text-[#888888]">
-              {t('footer.hours_weekdays') || 'Lun – Vie · 9:00 – 19:00'}
-            </span>
-            <span className="font-primary text-xs text-[#888888]">
-              {t('footer.hours_weekend') || 'Sáb · 10:00 – 14:00'}
-            </span>
-          </div>
-          {/* Social links */}
-          <div className="flex items-center gap-3 pt-1">
-            <a
-              href="https://instagram.com/gelaberthomes"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-9 h-9 glass border border-[#1F1F1F] flex items-center justify-center text-[#888888] hover:text-[#C9A962] hover:border-[#C9A962]/40 transition-all"
-              aria-label="Instagram"
-            >
-              <InstagramIcon />
-            </a>
-            <a
-              href="https://facebook.com/gelaberthomes"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-9 h-9 glass border border-[#1F1F1F] flex items-center justify-center text-[#888888] hover:text-[#C9A962] hover:border-[#C9A962]/40 transition-all"
-              aria-label="Facebook"
-            >
-              <FacebookIcon />
-            </a>
-            <a
-              href="https://wa.me/34611898827"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-9 h-9 glass border border-[#1F1F1F] flex items-center justify-center text-[#888888] hover:text-[#25D366] hover:border-[#25D366]/40 transition-all"
-              aria-label="WhatsApp"
-            >
-              <WhatsAppIcon />
-            </a>
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                <span className="font-primary text-[12px] text-[#666666] tracking-wide">{t('footer.hours_weekdays')?.split('·')[0].trim() || 'Lun – Vie'}</span>
+                <span className="font-primary text-[13px] text-white/80 font-medium">9:00 <span className="text-[#C9A962]">/</span> 19:00</span>
+              </div>
+              <div className="flex justify-between items-center pt-1">
+                <span className="font-primary text-[12px] text-[#666666] tracking-wide">{t('footer.hours_weekend')?.split('·')[0].trim() || 'Sábados'}</span>
+                <span className="font-primary text-[13px] text-[#D4B673] font-medium tracking-wide">10:00 <span className="text-white/20">/</span> 14:00</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Services */}
-        <div className="flex flex-col gap-4">
-          <h4 className="font-primary text-[13px] font-bold text-[#FAF8F5] uppercase tracking-wider">{t('footer.services')}</h4>
-          <Link to={`${langPrefix}/propiedades?operation=alquiler`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] transition-colors">{t('footer.rent')}</Link>
-          <Link to={`${langPrefix}/propiedades?operation=venta`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] transition-colors">{t('footer.sale')}</Link>
-          <Link to={`${langPrefix}/propiedades?operation=traspaso`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] transition-colors">{t('footer.transfers')}</Link>
-          <Link to={`${langPrefix}/servicios`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] transition-colors">{t('footer.all_services')}</Link>
-          <Link to={`${langPrefix}/propietarios`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] transition-colors">{t('footer.for_owners') || 'Para propietarios'}</Link>
-        </div>
+        {/* Links Grid */}
+        <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-12 lg:gap-8 pt-4">
+          
+          {/* Services */}
+          <div className="flex flex-col gap-5">
+            <h4 className="font-primary text-[11px] font-bold text-white/90 uppercase tracking-[0.2em]">{t('footer.services')}</h4>
+            <div className="flex flex-col gap-3">
+              <Link to={`${langPrefix}/propiedades?operation=alquiler`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] hover:translate-x-1 transition-all">{t('footer.rent')}</Link>
+              <Link to={`${langPrefix}/propiedades?operation=venta`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] hover:translate-x-1 transition-all">{t('footer.sale')}</Link>
+              <Link to={`${langPrefix}/propiedades?operation=traspaso`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] hover:translate-x-1 transition-all">{t('footer.transfers')}</Link>
+              <Link to={`${langPrefix}/servicios`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] hover:translate-x-1 transition-all">{t('footer.all_services')}</Link>
+              <Link to={`${langPrefix}/propietarios`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] hover:translate-x-1 transition-all">{t('footer.for_owners') || 'Para propietarios'}</Link>
+            </div>
+          </div>
 
-        {/* Contact */}
-        <div className="flex flex-col gap-4">
-          <h4 className="font-primary text-[13px] font-bold text-[#FAF8F5] uppercase tracking-wider">{t('footer.contact')}</h4>
-          <p className="font-primary text-sm text-[#888888]">{t('footer.location')}</p>
-          <p className="font-primary text-sm text-[#C9A962] font-semibold">{t('footer.online_estate')}</p>
-          <a href="tel:+34611898827" className="font-primary text-sm text-[#888888] hover:text-[#C9A962] transition-colors">
-            +34 611 89 88 27
-          </a>
-          <a href="mailto:info@gelaberthomes.es" className="font-primary text-sm text-[#888888] hover:text-[#C9A962] transition-colors">
-            info@gelaberthomes.es
-          </a>
-        </div>
+          {/* Contact */}
+          <div className="flex flex-col gap-5">
+            <h4 className="font-primary text-[11px] font-bold text-white/90 uppercase tracking-[0.2em]">{t('footer.contact')}</h4>
+            <div className="flex flex-col gap-4">
+              <div>
+                <p className="font-primary text-[10px] text-[#666666] uppercase tracking-widest">{t('footer.location')}</p>
+                <p className="font-primary text-sm text-[#C9A962] mt-1">{t('footer.online_estate')}</p>
+              </div>
+              <div>
+                <p className="font-primary text-[10px] text-[#666666] uppercase tracking-widest">Email</p>
+                <a href="mailto:info@gelaberthomes.es" className="font-primary text-sm text-[#888888] hover:text-white mt-1 block transition-colors">
+                  info@gelaberthomes.es
+                </a>
+              </div>
+              <div>
+                <p className="font-primary text-[10px] text-[#666666] uppercase tracking-widest">WhatsApp / Llama</p>
+                <a href="tel:+34611898827" className="font-primary text-sm text-white hover:text-[#C9A962] mt-1 block transition-colors tracking-wide">
+                  +34 611 89 88 27
+                </a>
+              </div>
+            </div>
+          </div>
 
-        {/* Legal */}
-        <div className="flex flex-col gap-4">
-          <h4 className="font-primary text-[13px] font-bold text-[#FAF8F5] uppercase tracking-wider">{t('footer.legal')}</h4>
-          <Link to={`${langPrefix}/aviso-legal`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] transition-colors">{t('footer.legal_notice')}</Link>
-          <Link to={`${langPrefix}/privacidad`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] transition-colors">{t('footer.privacy_policy')}</Link>
-          <Link to={`${langPrefix}/cookies`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] transition-colors">{t('footer.cookies_policy')}</Link>
+          {/* Legal & Socials */}
+          <div className="flex flex-col gap-5">
+            <h4 className="font-primary text-[11px] font-bold text-white/90 uppercase tracking-[0.2em]">{t('footer.legal')}</h4>
+            <div className="flex flex-col gap-3">
+              <Link to={`${langPrefix}/aviso-legal`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] hover:translate-x-1 transition-all">{t('footer.legal_notice')}</Link>
+              <Link to={`${langPrefix}/privacidad`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] hover:translate-x-1 transition-all">{t('footer.privacy_policy')}</Link>
+              <Link to={`${langPrefix}/cookies`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] hover:translate-x-1 transition-all">{t('footer.cookies_policy')}</Link>
+            </div>
+            
+            <h4 className="font-primary text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] mt-6">Redes Sociales</h4>
+            <div className="flex items-center gap-3">
+              <a href="https://instagram.com/gelaberthomes" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-[#888888] hover:text-[#C9A962] hover:border-[#C9A962]/40 hover:bg-[#C9A962]/5 transition-all group">
+                <span className="group-hover:scale-110 transition-transform"><InstagramIcon /></span>
+              </a>
+              <a href="https://facebook.com/gelaberthomes" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-[#888888] hover:text-[#C9A962] hover:border-[#C9A962]/40 hover:bg-[#C9A962]/5 transition-all group">
+                <span className="group-hover:scale-110 transition-transform"><FacebookIcon /></span>
+              </a>
+              <a href="https://wa.me/34611898827" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-[#888888] hover:text-[#25D366] hover:border-[#25D366]/40 hover:bg-[#25D366]/5 transition-all group">
+                <span className="group-hover:scale-110 transition-transform"><WhatsAppIcon /></span>
+              </a>
+            </div>
+          </div>
         </div>
 
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-[#1F1F1F] py-5 px-6 md:px-14 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <span className="font-primary text-[11px] text-[#555555] text-center">
+      <div className="relative z-10 border-t border-white/5 py-6 px-6 md:px-14 flex flex-col md:flex-row items-center justify-between gap-4 bg-black/20">
+        <span className="font-primary text-xs text-[#555555] tracking-wide">
           © {new Date().getFullYear()} Gelabert Homes Real Estate · {t('footer.all_rights') || 'Todos los derechos reservados'}
         </span>
-        <span className="font-primary text-[11px] text-[#444444]">
+        <span className="font-primary text-[10px] text-[#444444] uppercase tracking-widest font-bold">
           {t('footer.made_in') || 'Málaga, España 🇪🇸'}
         </span>
       </div>
