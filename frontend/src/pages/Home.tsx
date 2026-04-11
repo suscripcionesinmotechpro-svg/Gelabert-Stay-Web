@@ -286,8 +286,22 @@ export const Home = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="w-full px-6 md:px-14 py-20 bg-[#050505] border-y border-[#1F1F1F]">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
+      <section className="relative w-full px-6 md:px-14 py-28 overflow-hidden">
+        {/* Cinematic background: Vue aérienne de Málaga et la Costa del Sol */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1534430480872-3498386e7856?q=80&w=2070&auto=format&fit=crop"
+            className="w-full h-full object-cover opacity-25 brightness-[0.5] scale-105"
+            alt=""
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A] via-[#050505]/80 to-[#0A0A0A]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/60 via-transparent to-[#050505]/60" />
+        </div>
+        {/* Línea dorada decorativa */}
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C9A962]/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C9A962]/40 to-transparent" />
+        <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
           {[
             { value: 2, suffix: '+', label: t('home.stats.years') || 'Años de experiencia', decimals: 0 },
             { value: 200, suffix: '+', label: t('home.stats.properties') || 'Propiedades', decimals: 0 },
@@ -300,13 +314,13 @@ export const Home = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
               className={`flex flex-col items-center gap-2 text-center ${
-                i < 3 ? 'lg:border-r lg:border-[#1F1F1F]' : ''
+                i < 3 ? 'lg:border-r lg:border-[#C9A962]/10' : ''
               }`}
             >
-              <span className="font-secondary text-4xl md:text-5xl text-[#C9A962] leading-none">
+              <span className="font-secondary text-5xl md:text-6xl text-[#C9A962] leading-none drop-shadow-[0_0_20px_rgba(201,169,98,0.3)]">
                 <AnimatedCounter target={stat.value} suffix={stat.suffix} decimals={stat.decimals} />
               </span>
-              <span className="font-primary text-[#888888] text-sm uppercase tracking-wider">{stat.label}</span>
+              <span className="font-primary text-white/50 text-xs uppercase tracking-widest">{stat.label}</span>
             </motion.div>
           ))}
         </div>
@@ -409,36 +423,69 @@ export const Home = () => {
       </section>
 
       {/* Why Choose Us */}
-      <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] flex flex-col gap-12">
-        <motion.h2 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="font-secondary text-4xl md:text-5xl text-[#FAF8F5] text-center"
-        >
-          {t('home.why.title')}
-        </motion.h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto w-full">
-          {[
-            t('home.why.item1'),
-            t('home.why.item2'),
-            t('home.why.item3'),
-            t('home.why.item4'),
-            t('home.why.item5'),
-            t('home.why.item6')
-          ].map((why, i) => (
-            <div key={i} className="flex items-center gap-4 p-6 border border-[#1F1F1F] bg-[#0F0F0F]">
-              <CheckCircle className="w-6 h-6 text-[#C9A962] shrink-0" />
-              <span className="font-primary text-[#FAF8F5] font-bold">{why}</span>
-            </div>
-          ))}
+      <section className="relative w-full px-6 md:px-14 py-32 overflow-hidden">
+        {/* Cinematic background: Villa de lujo interior de diseño */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop"
+            className="w-full h-full object-cover opacity-30 brightness-[0.55] scale-105"
+            alt=""
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0F0F0F] via-[#0A0A0A]/75 to-[#0F0F0F]" />
+        </div>
+        <div className="relative z-10 flex flex-col gap-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center flex flex-col items-center gap-3"
+          >
+            <h2 className="font-secondary text-4xl md:text-5xl text-[#FAF8F5]">
+              {t('home.why.title')}
+            </h2>
+            <div className="w-16 h-[2px] bg-gradient-to-r from-transparent via-[#C9A962] to-transparent" />
+          </motion.div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto w-full">
+            {[
+              t('home.why.item1'),
+              t('home.why.item2'),
+              t('home.why.item3'),
+              t('home.why.item4'),
+              t('home.why.item5'),
+              t('home.why.item6')
+            ].map((why, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="flex items-center gap-4 p-6 border border-white/5 bg-black/40 backdrop-blur-md hover:border-[#C9A962]/40 hover:bg-black/60 transition-all duration-300 group"
+              >
+                <CheckCircle className="w-5 h-5 text-[#C9A962] shrink-0 group-hover:scale-110 transition-transform" />
+                <span className="font-primary text-white/80 text-sm font-bold group-hover:text-white transition-colors">{why}</span>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className="w-full px-6 md:px-14 py-24 bg-[#0F0F0F] flex flex-col gap-12">
+      <section className="relative w-full px-6 md:px-14 py-24 overflow-hidden">
+        {/* Cinematic background: Skyline urbano de noche */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop"
+            className="w-full h-full object-cover opacity-20 brightness-[0.4] scale-110"
+            alt=""
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A] via-[#0F0F0F]/85 to-[#0A0A0A]" />
+        </div>
+        <div className="relative z-10 flex flex-col gap-12">
         <div className="text-center flex flex-col gap-3">
           <span className="font-primary text-[#C9A962] text-xs uppercase tracking-[0.3em] font-bold">{t('home.testimonials.badge') || 'Lo que dicen nuestros clientes'}</span>
           <h2 className="font-secondary text-4xl md:text-5xl text-[#FAF8F5]">{t('home.testimonials.title')}</h2>
@@ -485,6 +532,56 @@ export const Home = () => {
             </motion.div>
           ))}
         </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section — Cinematic */}
+      <section className="relative w-full py-40 flex flex-col items-center justify-center overflow-hidden">
+        {/* Imagen: Atardecer sobre el mar en la Costa del Sol */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=2070&auto=format&fit=crop"
+            className="w-full h-full object-cover opacity-45 brightness-[0.6] scale-105"
+            alt=""
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A] via-transparent to-[#0A0A0A]" />
+          <div className="absolute inset-0 bg-[#C9A962]/[0.04] mix-blend-overlay" />
+        </div>
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C9A962]/30 to-transparent" />
+        
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: [0.215, 0.61, 0.355, 1] }}
+          className="relative z-10 text-center px-6 max-w-3xl flex flex-col items-center gap-8"
+        >
+          <div className="w-12 h-12 border border-[#C9A962]/30 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-md">
+            <Star className="w-5 h-5 text-[#C9A962]" />
+          </div>
+          <h2 className="font-secondary text-4xl md:text-7xl text-white leading-[1.05]">
+            {t('home.why.title') || 'Tu próximo hogar'}{' '}
+            <span className="italic text-[#C9A962] font-light">te espera</span>
+          </h2>
+          <p className="font-primary text-white/50 text-lg max-w-xl leading-relaxed">
+            {t('hero.hero_subtitle')}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-5 mt-4">
+            <Link
+              to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`}
+              className="px-12 py-5 bg-[#C9A962] text-black font-primary font-bold text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-[0_10px_30px_rgba(201,169,98,0.25)]"
+            >
+              {t('hero.view_properties')}
+            </Link>
+            <Link
+              to={`${i18n.language.startsWith('en') ? '/en' : ''}/contacto`}
+              className="px-12 py-5 border border-white/20 text-white font-primary font-bold text-xs uppercase tracking-widest hover:bg-white/5 hover:border-[#C9A962]/50 transition-all"
+            >
+              {t('hero.contact_us')}
+            </Link>
+          </div>
+        </motion.div>
       </section>
     </div>
   );
