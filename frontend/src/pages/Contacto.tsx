@@ -81,10 +81,20 @@ export const Contacto = () => {
         </script>
       </Helmet>
 
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2000&auto=format&fit=crop" 
+          className="w-full h-full object-cover opacity-20 brightness-[0.6]"
+          alt=""
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/80 to-[#050505]/95" />
+      </div>
+
       {/* Background Mesh */}
-      <div className="absolute inset-0 bg-mesh opacity-50 pointer-events-none" />
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#C9A962]/5 blur-[120px] rounded-full mix-blend-screen" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#C9A962]/3 blur-[100px] rounded-full mix-blend-screen" />
+      <div className="absolute inset-0 bg-mesh opacity-30 pointer-events-none z-[1]" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#C9A962]/5 blur-[120px] rounded-full mix-blend-screen z-[1]" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#C9A962]/3 blur-[100px] rounded-full mix-blend-screen z-[1]" />
 
       {/* Left Content */}
       <div className="flex-1 relative z-10 p-8 md:p-16 lg:p-24 flex flex-col justify-center">
