@@ -287,12 +287,11 @@ export const Home = () => {
 
       {/* Stats Section */}
       <section className="w-full px-6 md:px-14 py-20 bg-[#050505] border-y border-[#1F1F1F]">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
           {[
-            { value: 15, suffix: '+', label: t('home.stats.years') || 'Años de experiencia', decimals: 0 },
-            { value: 200, suffix: '+', label: t('home.stats.properties') || 'Propiedades gestionadas', decimals: 0 },
-            { value: 500, suffix: '+', label: t('home.stats.clients') || 'Clientes satisfechos', decimals: 0 },
-            { value: 4.9, suffix: '★', label: t('home.stats.rating') || 'Valoración media', decimals: 1 },
+            { value: 2, suffix: '+', label: t('home.stats.years') || 'Años de experiencia', decimals: 0 },
+            { value: 200, suffix: '+', label: t('home.stats.properties') || 'Propiedades', decimals: 0 },
+            { value: 500, suffix: '+', label: t('home.stats.clients') || 'Clientes contentos', decimals: 0 },
           ].map((stat, i) => (
             <motion.div
               key={i}

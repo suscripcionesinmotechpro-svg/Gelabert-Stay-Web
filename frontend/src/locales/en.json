@@ -227,6 +227,11 @@
       "item1": { "name": "Maria Gomez", "role": "Owner", "text": "Gelabert Homes Real Estate has been managing my tourist apartment for a year now and the peace of mind they give me is priceless. Highly recommended." },
       "item2": { "name": "Carlos Ruiz", "role": "Buyer", "text": "We found our dream home thanks to their excellent property portfolio. The treatment was impeccable from start to finish." },
       "item3": { "name": "Laura Sanchez", "role": "Tenant", "text": "Very professional in the rental contract management. They solved all my doubts and the whole process was super agile." }
+    },
+    "stats": {
+      "years": "Years of experience",
+      "properties": "Properties",
+      "clients": "Happy clients"
     }
   },
   "seo": {
@@ -236,18 +241,24 @@
   },
   "footer": {
     "description": "Real Estate Management in Málaga & Costa del Sol. Specialists in rent, sale and transfer.",
+    "hours_label": "Business Hours",
+    "hours_weekdays": "Mon – Fri · 9:00 AM – 7:00 PM",
+    "hours_weekend": "Sat · 10:00 AM – 2:00 PM",
     "services": "Services",
     "rent": "Rent",
     "sale": "Sale",
     "transfers": "Transfers",
     "all_services": "All services",
+    "for_owners": "For Owners",
     "contact": "Contact",
     "location": "Málaga & Costa del Sol",
     "online_estate": "Online Real Estate",
     "legal": "Legal",
     "legal_notice": "Legal Notice",
     "privacy_policy": "Privacy Policy",
-    "cookies_policy": "Cookies Policy"
+    "cookies_policy": "Cookies Policy",
+    "all_rights": "All rights reserved",
+    "made_in": "Málaga, Spain 🇪🇸"
   },
   "services": {
     "seo": {
