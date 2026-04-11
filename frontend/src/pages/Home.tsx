@@ -561,7 +561,7 @@ export const Home = () => {
             <Star className="w-5 h-5 text-[#C9A962]" />
           </div>
           <h2 className="font-secondary text-4xl md:text-7xl text-white leading-[1.05]">
-            {t('home.why.title') || 'Tu próximo hogar'}{' '}
+            {t('home.cta_title', { defaultValue: 'Tu próximo hogar' })}{' '}
             <span className="italic text-[#C9A962] font-light">te espera</span>
           </h2>
           <p className="font-primary text-white/50 text-lg max-w-xl leading-relaxed">
