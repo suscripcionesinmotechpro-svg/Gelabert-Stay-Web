@@ -642,6 +642,8 @@ export const FichaPropiedad = () => {
                 { label: t('property.labels.features.has_patio'), value: property.has_patio },
                 { label: t('property.labels.features.pets_allowed'), value: property.pets_allowed },
                 { label: t('property.labels.features.sea_views'), value: property.sea_views },
+                { label: t('property.labels.features.has_wardrobes'), value: property.has_wardrobes },
+                { label: t('property.labels.features.has_fireplace'), value: property.has_fireplace },
               ].filter(f => f.value === true).map(feat => (
                 <div key={feat.label} className="flex items-center gap-3 p-3 bg-[#0A0A0A] border border-[#1F1F1F]">
                   <Check className="w-4 h-4 text-green-400" />

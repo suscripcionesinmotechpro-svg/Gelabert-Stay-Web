@@ -72,6 +72,8 @@ export interface Property {
   pets_allowed: boolean;
   air_conditioning: boolean;
   garden: boolean;
+  has_wardrobes: boolean;
+  has_fireplace: boolean;
   property_condition: string | null;
   availability: string | null;
   rent_type: RentType | null;
@@ -155,6 +157,8 @@ export interface PropertyFilters {
   no_pets_allowed?: boolean;
   air_conditioning?: boolean;
   garden?: boolean;
+  has_wardrobes?: boolean;
+  has_fireplace?: boolean;
 }
 
 export const OPERATION_LABELS: Record<PropertyOperation, string> = {
@@ -224,4 +228,9 @@ export const AVAILABLE_TAGS = [
   'piscina',
   'local comercial',
   'alta rentabilidad',
+  'lujo',
+  'centro histórico',
+  'cerca de playa',
+  'primera línea',
+  'obra nueva',
 ];

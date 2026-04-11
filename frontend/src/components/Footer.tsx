@@ -76,7 +76,6 @@ export const Footer = () => {
               <Link to={`${langPrefix}/propiedades?operation=venta`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] hover:translate-x-1 transition-all">{t('footer.sale')}</Link>
               <Link to={`${langPrefix}/propiedades?operation=traspaso`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] hover:translate-x-1 transition-all">{t('footer.transfers')}</Link>
               <Link to={`${langPrefix}/servicios`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] hover:translate-x-1 transition-all">{t('footer.all_services')}</Link>
-              <Link to={`${langPrefix}/propietarios`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] hover:translate-x-1 transition-all">{t('footer.for_owners') || 'Para propietarios'}</Link>
             </div>
           </div>
 

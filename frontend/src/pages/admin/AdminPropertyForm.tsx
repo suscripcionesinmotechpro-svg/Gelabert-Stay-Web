@@ -84,7 +84,7 @@ const DEFAULT_FORM: Partial<PropertyInsert> = {
   has_parking: false, parking_included: true, parking_price: undefined,
   has_storage: false, has_pool: false,
   heating: false, has_patio: false, is_exterior: false, sea_views: false, pets_allowed: false,
-  air_conditioning: false, garden: false,
+  air_conditioning: false, garden: false, has_wardrobes: false, has_fireplace: false,
   property_condition: '', availability: '',
   short_description: '', description: '', highlights: [], 
   tags: [],
@@ -136,6 +136,7 @@ export const AdminPropertyForm = () => {
         heating: property.heating ?? false, has_patio: property.has_patio ?? false, is_exterior: property.is_exterior ?? false,
         sea_views: property.sea_views ?? false, pets_allowed: property.pets_allowed ?? false,
         air_conditioning: property.air_conditioning ?? false, garden: property.garden ?? false,
+        has_wardrobes: property.has_wardrobes ?? false, has_fireplace: property.has_fireplace ?? false,
         property_condition: property.property_condition ?? '', availability: property.availability ?? '',
         short_description: property.short_description ?? '', description: property.description ?? '',
         highlights: property.highlights ?? [],
@@ -863,6 +864,8 @@ export const AdminPropertyForm = () => {
           <ToggleField label={t('property.labels.features.has_patio')} checked={form.has_patio ?? false} onChange={v => set('has_patio', v)} />
           <ToggleField label={t('property.labels.features.pets_allowed')} checked={form.pets_allowed ?? false} onChange={v => set('pets_allowed', v)} />
           <ToggleField label={t('property.labels.features.sea_views')} checked={form.sea_views ?? false} onChange={v => set('sea_views', v)} />
+          <ToggleField label={t('property.labels.features.has_wardrobes')} checked={form.has_wardrobes ?? false} onChange={v => set('has_wardrobes', v)} />
+          <ToggleField label={t('property.labels.features.has_fireplace')} checked={form.has_fireplace ?? false} onChange={v => set('has_fireplace', v)} />
         </div>
 
       </div>
