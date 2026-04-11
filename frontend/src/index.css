@@ -103,3 +103,53 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ─── Shimmer loading effect (for skeleton screens) ─── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@utility animate-shimmer {
+  background: linear-gradient(90deg, #141414 25%, #222222 50%, #141414 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* ─── Gold gradient text ─── */
+@utility text-gradient-gold {
+  background: linear-gradient(135deg, #B8902A 0%, #E8C97A 40%, #C9A962 70%, #9A7832 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Animated gold glow pulse (for featured badges, CTAs) ─── */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 169, 98, 0); }
+  50% { box-shadow: 0 0 20px 4px rgba(201, 169, 98, 0.18); }
+}
+
+@utility animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* ─── Subtle noise overlay for depth on hero / dark sections ─── */
+@utility bg-noise {
+  position: relative;
+}
+
+/* ─── Smooth page-fade transition (already used via framer-motion) ─── */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Scrollbar hide utility ─── */
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

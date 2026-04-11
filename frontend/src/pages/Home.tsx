@@ -1,12 +1,41 @@
-import { motion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { PropertyCard } from '../components/PropertyCard';
 import { PropertyCardSkeleton } from '../components/ui/Skeleton';
 import { Link } from 'react-router-dom';
 import { Building, Key, Briefcase, ShieldCheck, Home as HomeIcon, CheckCircle, Star } from 'lucide-react';
 import { useProperties } from '../hooks/useProperties';
+import { useRef, useState, useEffect } from 'react';
 
 import { Helmet } from 'react-helmet-async';
+
+// Animated counter component — uses RAF-based easing, fully type-safe
+const AnimatedCounter = ({ target, suffix = '', decimals = 0 }: { target: number; suffix?: string; decimals?: number }) => {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!isInView) return;
+    const duration = 2000; // ms
+    const startTime = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(eased * target);
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+
+    requestAnimationFrame(tick);
+  }, [isInView, target]);
+
+  const display = decimals > 0 ? count.toFixed(decimals) : Math.floor(count).toString();
+
+  return <span ref={ref}>{display}{suffix}</span>;
+};
 
 export const Home = () => {
   const { t, i18n } = useTranslation();
@@ -256,6 +285,34 @@ export const Home = () => {
         </motion.div>
       </section>
 
+      {/* Stats Section */}
+      <section className="w-full px-6 md:px-14 py-20 bg-[#050505] border-y border-[#1F1F1F]">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0">
+          {[
+            { value: 15, suffix: '+', label: t('home.stats.years') || 'Años de experiencia', decimals: 0 },
+            { value: 200, suffix: '+', label: t('home.stats.properties') || 'Propiedades gestionadas', decimals: 0 },
+            { value: 500, suffix: '+', label: t('home.stats.clients') || 'Clientes satisfechos', decimals: 0 },
+            { value: 4.9, suffix: '★', label: t('home.stats.rating') || 'Valoración media', decimals: 1 },
+          ].map((stat, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className={`flex flex-col items-center gap-2 text-center ${
+                i < 3 ? 'lg:border-r lg:border-[#1F1F1F]' : ''
+              }`}
+            >
+              <span className="font-secondary text-4xl md:text-5xl text-[#C9A962] leading-none">
+                <AnimatedCounter target={stat.value} suffix={stat.suffix} decimals={stat.decimals} />
+              </span>
+              <span className="font-primary text-[#888888] text-sm uppercase tracking-wider">{stat.label}</span>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
       {/* Customers Block */}
       <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] flex flex-col gap-12 items-center">
         <motion.div 
@@ -383,7 +440,10 @@ export const Home = () => {
 
       {/* Testimonials */}
       <section className="w-full px-6 md:px-14 py-24 bg-[#0F0F0F] flex flex-col gap-12">
-        <h2 className="font-secondary text-4xl md:text-5xl text-[#FAF8F5] text-center">{t('home.testimonials.title')}</h2>
+        <div className="text-center flex flex-col gap-3">
+          <span className="font-primary text-[#C9A962] text-xs uppercase tracking-[0.3em] font-bold">{t('home.testimonials.badge') || 'Lo que dicen nuestros clientes'}</span>
+          <h2 className="font-secondary text-4xl md:text-5xl text-[#FAF8F5]">{t('home.testimonials.title')}</h2>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto w-full">
           {[
@@ -391,16 +451,39 @@ export const Home = () => {
             { name: t('home.testimonials.item2.name'), role: t('home.testimonials.item2.role'), text: t('home.testimonials.item2.text') },
             { name: t('home.testimonials.item3.name'), role: t('home.testimonials.item3.role'), text: t('home.testimonials.item3.text') }
           ].map((test, i) => (
-            <div key={i} className="flex flex-col gap-6 p-8 border border-[#1F1F1F] bg-[#0A0A0A]">
-              <div className="flex gap-1 text-[#C9A962]">
-                {[1,2,3,4,5].map(star => <Star key={star} className="w-4 h-4 fill-current" />)}
+            <motion.div 
+              key={i} 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.12 }}
+              className="flex flex-col gap-5 p-8 border border-[#1F1F1F] bg-[#0A0A0A] hover:border-[#C9A962]/30 transition-colors group"
+            >
+              {/* Stars */}
+              <div className="flex gap-0.5">
+                {[1,2,3,4,5].map(star => <Star key={star} className="w-3.5 h-3.5 fill-[#C9A962] text-[#C9A962]" />)}
               </div>
-              <p className="font-primary text-[#888888] text-sm italic leading-relaxed">"{test.text}"</p>
-              <div className="mt-auto pt-4">
-                <p className="font-primary text-[#FAF8F5] font-bold">{test.name}</p>
-                <p className="font-primary text-[#C9A962] text-xs uppercase tracking-wider mt-1">{test.role}</p>
+              {/* Quote */}
+              <p className="font-primary text-[#888888] text-sm italic leading-relaxed flex-1">&ldquo;{test.text}&rdquo;</p>
+              {/* Author */}
+              <div className="flex items-center gap-3 pt-4 border-t border-[#1F1F1F]">
+                {/* Avatar with initials */}
+                <div className="w-10 h-10 rounded-full bg-[#C9A962]/15 border border-[#C9A962]/30 flex items-center justify-center shrink-0 group-hover:bg-[#C9A962]/20 transition-colors">
+                  <span className="font-secondary text-[#C9A962] text-sm font-bold">
+                    {test.name.split(' ').map((n: string) => n[0]).slice(0, 2).join('')}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <p className="font-primary text-[#FAF8F5] font-bold text-sm">{test.name}</p>
+                  <p className="font-primary text-[#C9A962] text-[11px] uppercase tracking-wider">{test.role}</p>
+                </div>
+                {/* Verified badge */}
+                <div className="ml-auto flex items-center gap-1 px-2 py-1 bg-green-400/10 border border-green-400/20 rounded-sm">
+                  <CheckCircle className="w-3 h-3 text-green-400" />
+                  <span className="font-primary text-[9px] text-green-400 uppercase tracking-wider font-bold">{t('home.testimonials.verified') || 'Verificado'}</span>
+                </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>

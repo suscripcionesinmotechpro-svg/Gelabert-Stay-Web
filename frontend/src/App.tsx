@@ -30,6 +30,7 @@ const AdminReservations = lazy(() => import('./pages/admin/AdminReservations').t
 const AvisoLegal = lazy(() => import('./pages/legal/AvisoLegal').then(m => ({ default: m.AvisoLegal })));
 const Privacidad = lazy(() => import('./pages/legal/Privacidad').then(m => ({ default: m.Privacidad })));
 const Cookies = lazy(() => import('./pages/legal/Cookies').then(m => ({ default: m.Cookies })));
+const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
 
 function App() {
   const location = useLocation();
@@ -86,6 +87,9 @@ function App() {
           <Route path="reservas" element={<AdminReservations />} />
 
         </Route>
+
+        {/* 404 catch-all */}
+        <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </>

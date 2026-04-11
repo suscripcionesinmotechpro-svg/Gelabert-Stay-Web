@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Lock } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Footer } from './Footer';
 import { CookieBanner } from './CookieBanner';
@@ -12,6 +12,16 @@ export const Layout = () => {
   const { t, i18n } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(totalHeight > 0 ? (window.scrollY / totalHeight) * 100 : 0);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const langPrefix = i18n.language.startsWith('en') ? '/en' : '';
   const navLinks = [
@@ -26,6 +36,11 @@ export const Layout = () => {
     <div className="min-h-screen flex flex-col w-full bg-[#0F0F0F] text-[#FAF8F5] overflow-x-hidden">
       {/* Navbar */}
       <header className="fixed top-0 left-0 right-0 h-24 glass-deep z-50 flex items-center justify-between px-6 md:px-14">
+        {/* Scroll progress bar */}
+        <div 
+          className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#C9A962]/80 via-[#C9A962] to-[#D4B673] transition-all duration-75 ease-linear"
+          style={{ width: `${scrollProgress}%` }}
+        />
         {/* Logo */}
         <Link to={langPrefix || '/'} className="flex items-center">
           <img

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAutoTranslate } from '../hooks/useAutoTranslate';
 import { OPERATION_LABELS, type PropertyOperation, type CommercialStatus, COMMERCIAL_STATUS_LABELS } from '../types/property';
-import { ChevronLeft, ChevronRight, MessageSquare, Heart, GitCompare } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MessageSquare, Heart, GitCompare, Images } from 'lucide-react';
 import { getWhatsAppLink } from '../utils/whatsapp';
 import { useState, useMemo, memo } from 'react';
 
@@ -264,6 +264,14 @@ export const PropertyCard = memo(({
                 </span>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Photo count badge */}
+        {images.length > 1 && (
+          <div className="absolute bottom-14 left-3 z-20 px-2 py-0.5 glass-deep rounded-sm flex items-center gap-1 pointer-events-none">
+            <Images className="w-3 h-3 text-white/60" />
+            <span className="font-primary text-[10px] text-white/80 font-bold">{images.length}</span>
           </div>
         )}
 

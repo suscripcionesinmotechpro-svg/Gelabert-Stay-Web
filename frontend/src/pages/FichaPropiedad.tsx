@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useProperty, useProperties } from '../hooks/useProperties';
 import { useAutoTranslate, useAutoTranslateArray } from '../hooks/useAutoTranslate';
 import { PropertyCard } from '../components/PropertyCard';
-import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass } from 'lucide-react';
+import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass, Copy, CheckCheck, Send } from 'lucide-react';
 import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import { cn } from '../lib/utils';
 import { useState } from 'react';
@@ -45,6 +45,14 @@ export const FichaPropiedad = () => {
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [solvencyAccepted, setSolvencyAccepted] = useState(false);
   const [activeTab, setActiveTab] = useState<'fotos' | 'video' | 'plano' | 'ubicacion'>('fotos');
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(propertyUrl).then(() => {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2500);
+    });
+  };
 
   const openLightbox = (idx: number) => {
     setLightboxIdx(idx);
@@ -140,8 +148,7 @@ export const FichaPropiedad = () => {
 
   // SEO Fallbacks
   const seoTitle = property.meta_title || `${translatedTitle} | ${property.city} | Gelabert Homes Real Estate`;
-  const seoDescription = property.meta_description || (translatedDescription ? translatedDescription.replace(/<[^>]*>/g, '').slice(0, 160) : '');
-  
+
   // Título estructurado para compartir (OpenGraph / WhatsApp)
   // Ej: "Alquiler Piso · Málaga · 800 €/mes · 40 m² · Baños 1 · Planta 5º"
   const formatPrice = (price: number | null, operation: string) => {
@@ -157,6 +164,21 @@ export const FichaPropiedad = () => {
     property.bathrooms ? `Baños ${property.bathrooms}` : null,
     property.floor ? `Planta ${property.floor}` : null
   ].filter(Boolean).join(' · ');
+
+  // Build a rich feature snippet for og:description — shows characteristics, not free text
+  const featureSnippet = [
+    property.area_m2 ? `${property.area_m2} m²` : null,
+    property.bedrooms > 0 ? `${property.bedrooms} hab.` : null,
+    property.bathrooms > 0 ? `${property.bathrooms} baños` : null,
+    property.has_parking ? 'Parking' : null,
+    property.has_pool ? 'Piscina' : null,
+    property.sea_views ? 'Vistas al mar' : null,
+    property.has_terrace ? 'Terraza' : null,
+    property.zone || property.city,
+  ].filter(Boolean).join(' · ');
+
+  const seoDescription = property.meta_description
+    || (featureSnippet ? `${sharingTitleStr} — ${featureSnippet}` : (translatedDescription ? translatedDescription.replace(/<[^>]*>/g, '').slice(0, 160) : ''));
 
   // Usamos URL con slash final para mejorar compatibilidad con algunos scrapers
   const propertyUrl = `https://gelaberthomes.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${property.reference || property.slug || property.id}`;
@@ -698,7 +720,7 @@ export const FichaPropiedad = () => {
         </div>
 
         {/* Sidebar */}
-        <div className="lg:w-80 shrink-0 flex flex-col gap-4">
+        <div className="lg:w-80 shrink-0 flex flex-col gap-4" id="contact-form">
           {/* WhatsApp */}
           <div className="flex flex-col gap-2">
             <a
@@ -856,8 +878,67 @@ export const FichaPropiedad = () => {
             </div>
 
           </div>
+
+          {/* Share Buttons */}
+          <div className="flex flex-col gap-2 pt-2">
+            <span className="font-primary text-[10px] text-[#666666] uppercase tracking-[0.2em] font-bold">{t('common.share') || 'Compartir'}</span>
+            <div className="flex gap-2">
+              <button
+                onClick={handleCopyLink}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 py-2.5 border font-primary text-[11px] uppercase tracking-wider font-bold transition-all",
+                  linkCopied
+                    ? "border-green-400 text-green-400 bg-green-400/10"
+                    : "border-[#1F1F1F] text-[#888888] hover:border-[#C9A962] hover:text-[#C9A962]"
+                )}
+              >
+                {linkCopied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {linkCopied ? (t('common.copied') || '¡Copiado!') : (t('common.copy_link') || 'Copiar enlace')}
+              </button>
+              <a
+                href={`mailto:?subject=${encodeURIComponent(seoTitle)}&body=${encodeURIComponent(`${seoTitle}\n\n${featureSnippet}\n\n${propertyUrl}`)}`}
+                className="px-3 py-2.5 border border-[#1F1F1F] text-[#888888] hover:border-[#C9A962] hover:text-[#C9A962] transition-all flex items-center justify-center"
+                title={t('common.share_email') || 'Compartir por email'}
+              >
+                <Send className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
         </div>
       </section>
+
+      {/* ===== MOBILE STICKY CTA BAR ===== */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+        <div className="glass-deep border-t border-white/10 px-4 py-3 flex items-center gap-3">
+          {/* Price */}
+          <div className="flex flex-col min-w-0">
+            {property.price ? (
+              <span className="font-secondary text-[#C9A962] text-lg leading-none">
+                €{property.price.toLocaleString('es-ES')}
+              </span>
+            ) : null}
+            {property.operation === 'alquiler' && (
+              <span className="font-primary text-white/40 text-[10px]">/mes</span>
+            )}
+          </div>
+          {/* WhatsApp */}
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 py-3 bg-[#25D366] text-white font-primary font-bold text-[11px] uppercase tracking-wider text-center rounded-sm hover:bg-[#1DB954] transition-colors"
+          >
+            WhatsApp
+          </a>
+          {/* Scroll to form */}
+          <button
+            onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            className="flex-1 py-3 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[11px] uppercase tracking-wider text-center rounded-sm hover:bg-[#D4B673] transition-colors"
+          >
+            {t('property.labels.features.inquiry') || 'Solicitar info'}
+          </button>
+        </div>
+      </div>
 
       {/* Map Section */}
       {property.latitude && property.longitude && (
