@@ -284,8 +284,8 @@ export const Servicios = () => {
           className="absolute inset-0 z-0"
         >
           <div 
-            className="w-full h-full bg-cover bg-center brightness-[0.2]"
-            style={{ backgroundImage: `url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop')` }}
+            className="w-full h-full bg-cover bg-center brightness-[0.25]"
+            style={{ backgroundImage: `url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2070&auto=format&fit=crop')` }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/50 to-[#050505]" />
         </motion.div>

@@ -34,9 +34,9 @@ export const Propietarios = () => {
 
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {/* Imagen: Villa de lujo exterior con piscina — propiedad de alta gama del propietario */}
+        {/* Imagen: Villa de lujo con fachada blanca, piscina y palmeras — estilo mediterráneo premium */}
         <img 
-          src="https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=2000&auto=format&fit=crop" 
+          src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2000&auto=format&fit=crop" 
           className="w-full h-full object-cover opacity-40 brightness-[0.65] scale-105"
           alt=""
         />
