@@ -557,9 +557,6 @@ export const Home = () => {
           transition={{ duration: 0.8, ease: [0.215, 0.61, 0.355, 1] }}
           className="relative z-10 text-center px-6 max-w-3xl flex flex-col items-center gap-8"
         >
-          <div className="w-12 h-12 border border-[#C9A962]/30 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-md">
-            <Star className="w-5 h-5 text-[#C9A962]" />
-          </div>
           <h2 className="font-secondary text-4xl md:text-7xl text-white leading-[1.05]">
             {t('home.cta_title', { defaultValue: 'Tu próximo hogar' })}{' '}
             <span className="italic text-[#C9A962] font-light">te espera</span>
