@@ -160,18 +160,18 @@ export const Propiedades = () => {
       
       {/* Premium Mesh Background */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#C9A962]/5 blur-[120px] rounded-full mix-blend-screen animate-pulse" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#C9A962]/3 blur-[150px] rounded-full mix-blend-screen animation-delay-2000" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#C9A962]/10 blur-[120px] rounded-full mix-blend-screen animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#C9A962]/5 blur-[150px] rounded-full mix-blend-screen animation-delay-2000" />
       </div>
 
       {/* Header / Hero Section */}
       <section className="relative h-[40vh] min-h-[400px] flex items-center overflow-hidden border-b border-white/5">
         <div className="absolute inset-0 z-0">
           <div 
-            className="w-full h-full bg-cover bg-center brightness-[0.2]"
-            style={{ backgroundImage: `url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop')` }}
+            className="w-full h-full bg-cover bg-center brightness-[0.45] transform scale-105 transition-transform duration-1000 ease-in-out"
+            style={{ backgroundImage: `url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop')` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/50 to-[#050505]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/30 via-[#050505]/70 to-[#050505]" />
         </div>
 
         <div className="relative z-10 w-full px-6 md:px-14 flex flex-col gap-6">

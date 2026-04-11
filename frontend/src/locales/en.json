@@ -224,9 +224,11 @@
     },
     "testimonials": {
       "title": "What our clients say",
-      "item1": { "name": "Maria Gomez", "role": "Owner", "text": "Gelabert Homes Real Estate has been managing my tourist apartment for a year now and the peace of mind they give me is priceless. Highly recommended." },
-      "item2": { "name": "Carlos Ruiz", "role": "Buyer", "text": "We found our dream home thanks to their excellent property portfolio. The treatment was impeccable from start to finish." },
-      "item3": { "name": "Laura Sanchez", "role": "Tenant", "text": "Very professional in the rental contract management. They solved all my doubts and the whole process was super agile." }
+      "badge": "Success Stories",
+      "item1": { "name": "Maria Gomez", "role": "Owner", "text": "I've been with Gelabert Homes for a year managing the rental of my apartment and it's completely hands-off for me. Real peace of mind and quick problem solving. 100% recommended." },
+      "item2": { "name": "Carlos Ruiz", "role": "Buyer", "text": "We were looking for months until we found them. They showed us options that were a perfect fit and stayed with us through all the buying paperwork. Exceptional service." },
+      "item3": { "name": "Laura Sanchez", "role": "Tenant", "text": "We rented with them a couple of months ago. Everything was clear from the start, no hidden clauses. Great communication and a very transparent contract." },
+      "verified": "Verified Client"
     },
     "stats": {
       "years": "Years of experience",
