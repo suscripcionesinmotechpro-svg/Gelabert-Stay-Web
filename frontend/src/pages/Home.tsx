@@ -303,9 +303,9 @@ export const Home = () => {
         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C9A962]/40 to-transparent" />
         <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
           {[
-            { value: 2, suffix: '+', label: t('home.stats.years') || 'Años de experiencia', decimals: 0 },
-            { value: 200, suffix: '+', label: t('home.stats.properties') || 'Propiedades', decimals: 0 },
-            { value: 500, suffix: '+', label: t('home.stats.clients') || 'Clientes contentos', decimals: 0 },
+            { value: 3, suffix: '+', label: t('home.stats.years') || 'Años de experiencia', decimals: 0 },
+            { value: 150, suffix: '+', label: t('home.stats.properties') || 'Propiedades', decimals: 0 },
+            { value: 350, suffix: '+', label: t('home.stats.clients') || 'Clientes contentos', decimals: 0 },
           ].map((stat, i) => (
             <motion.div
               key={i}

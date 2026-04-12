@@ -177,7 +177,7 @@ export const Contacto = () => {
               <p className="font-primary text-[10px] text-white/25 leading-relaxed">
                 <span className="text-[#C9A962]/50 font-bold uppercase tracking-wider">Información básica sobre protección de datos · </span>
                 <strong className="text-white/30">Responsable:</strong> Gelabert Homes Real Estate.{' '}
-                <strong className="text-white/30">Finalidad:</strong> Gestión de consultas e intermediación inmobiliaria.{' '}
+                <strong className="text-white/30">Finalidad:</strong> Gestión de servicios para propietarios e inquilinos, de intermediación inmobiliaria.{' '}
                 <strong className="text-white/30">Legitimación:</strong> Medidas precontractuales y consentimiento.{' '}
                 <strong className="text-white/30">Destinatarios:</strong> Interesados legítimos y portales inmobiliarios para promoción.{' '}
                 <strong className="text-white/30">Derechos:</strong>{' '}
