@@ -142,6 +142,7 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     // Only sum projected fixed expenses for months that have already started/passed
     // unless the entire period is in the future.
     const totalProjectedFixed = Object.entries(byMonthMap).reduce((s, [monthKey, m]) => {
+      // Comparison: monthKey (YYYY-MM) <= currentMonthKey (YYYY-MM)
       if (isFuturePeriod || monthKey <= currentMonthKey) {
         return s + m.projectedFixed;
       }
@@ -159,12 +160,16 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
 
     const byMonth = Object.entries(byMonthMap).map(([key, vals]) => {
       const [year, month] = key.split('-').map(Number);
+      // For chart: only include projections for past/current months
+      const isPastOrCurrent = isFuturePeriod || key <= currentMonthKey;
+      const effectiveFixed = isPastOrCurrent ? vals.projectedFixed : 0;
+      
       return {
         month, 
         year, 
-        total: vals.income - (vals.expenses + vals.projectedFixed), 
+        total: vals.income - (vals.expenses + effectiveFixed), 
         income: vals.income,
-        expenses: vals.expenses + vals.projectedFixed
+        expenses: vals.expenses + effectiveFixed
       };
     }).sort((a, b) => (a.year * 12 + a.month) - (b.year * 12 + b.month));
 

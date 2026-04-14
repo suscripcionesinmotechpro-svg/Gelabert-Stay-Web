@@ -55,7 +55,7 @@ export const AdminInvoices = () => {
       'q3': { start: `${selectedYear}-07-01`, end: `${selectedYear}-09-30`, label: 'Q3' },
       'q4': { start: `${selectedYear}-10-01`, end: `${selectedYear}-12-31`, label: 'Q4' },
       'year': { start: `${selectedYear}-01-01`, end: `${selectedYear}-12-31`, label: 'Anual' },
-      'month': { start: `${selectedYear}-01-01`, end: `${selectedYear}-12-31`, label: 'Anual' }
+      'month': { start: `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-01`, end: `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${new Date(selectedYear, selectedMonth, 0).getDate()}`, label: MONTHS[selectedMonth - 1] }
     };
     return mapping[periodType] || mapping['year'];
   };
@@ -115,7 +115,9 @@ export const AdminInvoices = () => {
   });
 
   const [editingFixedId, setEditingFixedId] = useState<string | null>(null);
+  const [editingFixedData, setEditingFixedData] = useState<any>(null);
   const [editingIssuerId, setEditingIssuerId] = useState<string | null>(null);
+  const [editingIssuerData, setEditingIssuerData] = useState<any>(null);
 
   const handleSaveFixedExpense = async () => {
     if (!newFixedExpense.name || newFixedExpense.amount <= 0) return;
@@ -124,9 +126,11 @@ export const AdminInvoices = () => {
     setNewFixedExpense({ name: '', amount: 0, category: 'General', day_of_month: 1, is_active: true });
   };
 
-  const handleUpdateFixedExpense = async (id: string, data: any) => {
-    await updateFixedExpense(id, data);
+  const handleUpdateFixedExpense = async (id: string) => {
+    if (!editingFixedData) return;
+    await updateFixedExpense(id, editingFixedData);
     setEditingFixedId(null);
+    setEditingFixedData(null);
   };
 
   const handleSaveIssuer = async () => {
@@ -140,11 +144,12 @@ export const AdminInvoices = () => {
     }
   };
 
-  const handleUpdateIssuer = async (id: string, data: any) => {
-    await updateIssuer(id, data);
+  const handleUpdateIssuer = async (id: string) => {
+    if (!editingIssuerData) return;
+    await updateIssuer(id, editingIssuerData);
     setEditingIssuerId(null);
+    setEditingIssuerData(null);
   };
-
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl">
@@ -196,8 +201,9 @@ export const AdminInvoices = () => {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {[
           {
-            label: `Balance Neto`,
+            label: `Balance Periodo`,
             value: loadingSummary ? '—' : formatCurrency(summary.totalPeriod),
+            subValue: `En ${dateRange.label} ${selectedYear}`,
             icon: <Calculator className="w-5 h-5" />,
             color: summary.totalPeriod >= 0 ? 'text-[#C9A962] border-[#C9A962]/50 bg-[#C9A962]/5' : 'text-red-400 border-red-400/30 bg-red-400/5',
           },
@@ -232,13 +238,13 @@ export const AdminInvoices = () => {
               <span className="font-primary text-[10px] uppercase tracking-wider text-[#666666]">{stat.label}</span>
             </div>
             <p className={cn("font-secondary text-2xl leading-tight", stat.color && !stat.color.includes('bg-') ? stat.color : "")}>{stat.value}</p>
+            {stat.subValue && <p className="text-[10px] text-[#555] font-primary uppercase tracking-tighter mt-1">{stat.subValue}</p>}
           </div>
         ))}
       </div>
 
-      {(activeTab === 'invoices' || activeTab === 'variable_expenses') ? (
+      {activeTab === 'invoices' || activeTab === 'variable_expenses' ? (
         <div className="flex flex-col gap-6">
-          {/* Filters & Actions */}
           <div className="flex flex-wrap gap-4 items-center justify-between">
             <div className="flex flex-wrap gap-3 items-center bg-[#0A0A0A] border border-[#1F1F1F] p-3">
               {availableYears.map(y => (
@@ -312,7 +318,6 @@ export const AdminInvoices = () => {
             </Link>
           </div>
 
-          {/* Table */}
           <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-x-auto">
             {loading ? (
               <div className="flex items-center justify-center py-16">
@@ -456,32 +461,23 @@ export const AdminInvoices = () => {
                           <td className="px-6 py-4">
                             <input 
                               className={inputClass} 
-                              value={expense.name} 
-                              onChange={e => {
-                                const newData = { ...expense, name: e.target.value };
-                                setFixedExpenses(fixedExpenses.map(f => f.id === expense.id ? newData : f));
-                              }} 
+                              value={editingFixedData?.name || ''} 
+                              onChange={e => setEditingFixedData({ ...editingFixedData, name: e.target.value })} 
                             />
                           </td>
                           <td className="px-6 py-4">
                             <input 
                               className={inputClass} 
-                              value={expense.category} 
-                              onChange={e => {
-                                const newData = { ...expense, category: e.target.value };
-                                setFixedExpenses(fixedExpenses.map(f => f.id === expense.id ? newData : f));
-                              }} 
+                              value={editingFixedData?.category || ''} 
+                              onChange={e => setEditingFixedData({ ...editingFixedData, category: e.target.value })} 
                             />
                           </td>
                           <td className="px-6 py-4 text-center">
                             <input 
                               type="number" 
                               className={cn(inputClass, "w-16 mx-auto text-center")} 
-                              value={expense.day_of_month} 
-                              onChange={e => {
-                                const newData = { ...expense, day_of_month: parseInt(e.target.value) || 1 };
-                                setFixedExpenses(fixedExpenses.map(f => f.id === expense.id ? newData : f));
-                              }} 
+                              value={editingFixedData?.day_of_month || 1} 
+                              onChange={e => setEditingFixedData({ ...editingFixedData, day_of_month: parseInt(e.target.value) || 1 })} 
                             />
                           </td>
                           <td className="px-6 py-4 text-right">
@@ -489,18 +485,15 @@ export const AdminInvoices = () => {
                               type="number" 
                               step="0.01" 
                               className={cn(inputClass, "w-24 ml-auto text-right")} 
-                              value={expense.amount} 
-                              onChange={e => {
-                                const newData = { ...expense, amount: parseFloat(e.target.value) || 0 };
-                                setFixedExpenses(fixedExpenses.map(f => f.id === expense.id ? newData : f));
-                              }} 
+                              value={editingFixedData?.amount || 0} 
+                              onChange={e => setEditingFixedData({ ...editingFixedData, amount: parseFloat(e.target.value) || 0 })} 
                             />
                           </td>
                           <td className="px-6 py-4 text-center">
-                            <Check className="w-5 h-5 text-[#C9A962] mx-auto cursor-pointer" onClick={() => handleUpdateFixedExpense(expense.id, expense)} />
+                            <Check className="w-5 h-5 text-[#C9A962] mx-auto cursor-pointer" onClick={() => handleUpdateFixedExpense(expense.id)} />
                           </td>
                           <td className="px-6 py-4 text-right">
-                            <X className="w-5 h-5 text-[#444] cursor-pointer" onClick={() => setEditingFixedId(null)} />
+                            <X className="w-5 h-5 text-[#444] cursor-pointer" onClick={() => { setEditingFixedId(null); setEditingFixedData(null); }} />
                           </td>
                         </>
                       ) : (
@@ -524,7 +517,7 @@ export const AdminInvoices = () => {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <button onClick={() => setEditingFixedId(expense.id)} className="text-[#444] hover:text-[#FAF8F5] transition-colors">
+                              <button onClick={() => { setEditingFixedId(expense.id); setEditingFixedData(expense); }} className="text-[#444] hover:text-[#FAF8F5] transition-colors">
                                 <Edit className="w-4 h-4" />
                               </button>
                               <button onClick={() => deleteFixedExpense(expense.id)} className="text-[#444] hover:text-red-400 transition-colors">
@@ -594,27 +587,22 @@ export const AdminInvoices = () => {
                 {issuers.length === 0 && !isAddingIssuer ? (
                   <tr><td colSpan={5} className="px-6 py-12 text-center text-[#444] text-xs uppercase italic">No hay emisores registrados</td></tr>
                 ) : (
-                  issuers.map(issuer => (
+                  issuers.map((issuer) => (
+                    <tr key={issuer.id} className="border-b border-[#1F1F1F] hover:bg-[#1A1A1A] transition-colors">
                       {editingIssuerId === issuer.id ? (
                         <>
                           <td className="px-6 py-4">
                             <input 
                               className={inputClass} 
-                              value={issuer.name} 
-                              onChange={e => {
-                                const newData = { ...issuer, name: e.target.value };
-                                setIssuers(issuers.map(is => is.id === issuer.id ? newData : is));
-                              }} 
+                              value={editingIssuerData?.name || ''} 
+                              onChange={e => setEditingIssuerData({ ...editingIssuerData, name: e.target.value })} 
                             />
                           </td>
                           <td className="px-6 py-4">
                             <input 
                               className={inputClass} 
-                              value={issuer.nif || ''} 
-                              onChange={e => {
-                                const newData = { ...issuer, nif: e.target.value };
-                                setIssuers(issuers.map(is => is.id === issuer.id ? newData : is));
-                              }} 
+                              value={editingIssuerData?.nif || ''} 
+                              onChange={e => setEditingIssuerData({ ...editingIssuerData, nif: e.target.value })} 
                             />
                           </td>
                           <td className="px-6 py-4">
@@ -622,11 +610,14 @@ export const AdminInvoices = () => {
                               <input 
                                 className={cn(inputClass, "h-8")} 
                                 placeholder="Ciudad" 
-                                value={issuer.city || ''} 
-                                onChange={e => {
-                                  const newData = { ...issuer, city: e.target.value };
-                                  setIssuers(issuers.map(is => is.id === issuer.id ? newData : is));
-                                }} 
+                                value={editingIssuerData?.city || ''} 
+                                onChange={e => setEditingIssuerData({ ...editingIssuerData, city: e.target.value })} 
+                              />
+                              <input 
+                                className={cn(inputClass, "h-8 text-[10px]")} 
+                                placeholder="C.P." 
+                                value={editingIssuerData?.zip || ''} 
+                                onChange={e => setEditingIssuerData({ ...editingIssuerData, zip: e.target.value })} 
                               />
                             </div>
                           </td>
@@ -635,18 +626,21 @@ export const AdminInvoices = () => {
                               <input 
                                 className={cn(inputClass, "h-8")} 
                                 placeholder="Email" 
-                                value={issuer.email || ''} 
-                                onChange={e => {
-                                  const newData = { ...issuer, email: e.target.value };
-                                  setIssuers(issuers.map(is => is.id === issuer.id ? newData : is));
-                                }} 
+                                value={editingIssuerData?.email || ''} 
+                                onChange={e => setEditingIssuerData({ ...editingIssuerData, email: e.target.value })} 
+                              />
+                              <input 
+                                className={cn(inputClass, "h-8 text-[10px]")} 
+                                placeholder="Teléfono" 
+                                value={editingIssuerData?.phone || ''} 
+                                onChange={e => setEditingIssuerData({ ...editingIssuerData, phone: e.target.value })} 
                               />
                             </div>
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2 text-[#C9A962]">
-                              <button onClick={() => handleUpdateIssuer(issuer.id, issuer)}><Check className="w-5 h-5" /></button>
-                              <button onClick={() => setEditingIssuerId(null)} className="text-[#444]"><X className="w-5 h-5" /></button>
+                              <button onClick={() => handleUpdateIssuer(issuer.id)}><Check className="w-5 h-5" /></button>
+                              <button onClick={() => { setEditingIssuerId(null); setEditingIssuerData(null); }} className="text-[#444]"><X className="w-5 h-5" /></button>
                             </div>
                           </td>
                         </>
@@ -685,7 +679,7 @@ export const AdminInvoices = () => {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <button onClick={() => setEditingIssuerId(issuer.id)} className="text-[#444] hover:text-[#FAF8F5] transition-colors">
+                              <button onClick={() => { setEditingIssuerId(issuer.id); setEditingIssuerData(issuer); }} className="text-[#444] hover:text-[#FAF8F5] transition-colors">
                                 <Edit className="w-4 h-4" />
                               </button>
                               <button onClick={() => deleteIssuer(issuer.id)} className="text-[#444] hover:text-red-400 transition-colors">
@@ -696,8 +690,6 @@ export const AdminInvoices = () => {
                         </>
                       )}
                     </tr>
-                  ))
-     </tr>
                   ))
                 )}
               </tbody>
