@@ -62,7 +62,16 @@ export const useInvoices = (filters?: InvoiceFilters) => {
 // ─── SUMMARY / STATS ────────────────────────────────────────────────
 export const useInvoiceSummary = (filters: { startDate: string; endDate: string }) => {
   const [summary, setSummary] = useState<InvoiceSummary>({
-    totalPeriod: 0, taxPeriod: 0, irpfPeriod: 0, pendingCount: 0, pendingAmount: 0, income: 0, expenses: 0, byMonth: []
+    totalPeriod: 0, 
+    taxPeriod: 0, 
+    irpfPeriod: 0, 
+    pendingCount: 0, 
+    pendingAmount: 0, 
+    income: 0, 
+    variableExpenses: 0,
+    fixedExpenses: 0,
+    totalExpenses: 0,
+    byMonth: []
   });
   const [loading, setLoading] = useState(true);
 
@@ -79,7 +88,7 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     const incomes = data.filter(i => i.type === 'income' || !i.type);
     const expenses = data.filter(i => i.type === 'expense');
 
-    // Fetch Fixed Expenses
+    // Fetch Fixed Expenses (Global for now, or we could filter by active)
     const { data: fixedData } = await supabase
       .from('accounting_fixed_expenses')
       .select('amount')
@@ -87,26 +96,28 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     
     const monthlyFixedSum = (fixedData || []).reduce((s, f) => s + (Number(f.amount) || 0), 0);
     
-    // Simple month calculation between dates
+    // Calculate months in period
     const start = new Date(filters.startDate);
     const end = new Date(filters.endDate);
     const monthDiff = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
     const totalFixedForPeriod = monthlyFixedSum * Math.max(1, monthDiff);
 
     const invoiceIncome = incomes.reduce((s, i) => s + (i.total_amount || 0), 0);
-    const invoiceExpenses = expenses.reduce((s, i) => s + (i.total_amount || 0), 0);
+    const invoiceVariableExpenses = expenses.reduce((s, i) => s + (i.total_amount || 0), 0);
+    const totalExpenses = invoiceVariableExpenses + totalFixedForPeriod;
 
-    const totalPeriod = invoiceIncome - invoiceExpenses - totalFixedForPeriod;
-    const taxPeriod = incomes.reduce((s, i) => s + ((i.total_amount || 0) + (i.irpf_amount || 0) - (i.amount || 0)), 0);
-    const irpfPeriod = incomes.reduce((s, i) => s + (i.irpf_amount || 0), 0);
+    const netBalance = invoiceIncome - totalExpenses;
+    
+    // Calculate taxes (IVA y IRPF) - Usually shown for income invoices or as a balance
+    // For now we'll sum the IVA and IRPF from all relevant invoices in the period
+    const taxPeriod = data.reduce((s, i) => s + ((i.total_amount || 0) + (i.irpf_amount || 0) - (i.amount || 0)), 0);
+    const irpfPeriod = data.reduce((s, i) => s + (i.irpf_amount || 0), 0);
     
     const pending = incomes.filter(i => i.status === 'pendiente');
     const pendingAmount = pending.reduce((s, i) => s + (i.total_amount || 0), 0);
 
     // Group by month
     const byMonthMap: Record<number, { income: number; expenses: number }> = {};
-    
-    // Initialize all 12 months for the selected year
     for (let m = 1; m <= 12; m++) {
       byMonthMap[m] = { income: 0, expenses: 0 };
     }
@@ -127,19 +138,21 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     const byMonth = Object.entries(byMonthMap).map(([m, vals]) => ({
       month: parseInt(m), 
       year: firstYear, 
-      total: vals.income - vals.expenses - monthlyFixedSum, 
+      total: vals.income - (vals.expenses + monthlyFixedSum), 
       income: vals.income,
       expenses: vals.expenses + monthlyFixedSum
     })).sort((a, b) => a.month - b.month);
 
     setSummary({ 
-      totalPeriod, 
+      totalPeriod: netBalance, 
       pendingCount: pending.length, 
       pendingAmount, 
       taxPeriod, 
       irpfPeriod, 
       income: invoiceIncome,
-      expenses: invoiceExpenses + totalFixedForPeriod,
+      variableExpenses: invoiceVariableExpenses,
+      fixedExpenses: totalFixedForPeriod,
+      totalExpenses,
       byMonth 
     });
     setLoading(false);

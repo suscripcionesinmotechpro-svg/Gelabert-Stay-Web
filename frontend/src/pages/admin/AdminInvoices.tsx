@@ -6,8 +6,9 @@ import { STATUS_COLORS, STATUS_LABELS, type InvoiceStatus } from '../../types/in
 import { 
   PlusCircle, Download, TrendingUp, Clock, AlertCircle, 
   ChevronDown, Trash2, Edit, FileText, ArrowUpRight, 
-  ArrowDownRight, Calculator, Check, X
+  ArrowDownRight, Calculator, Check, X, Building2, Mail, Phone, MapPin
 } from 'lucide-react';
+import { useIssuers } from '../../hooks/useIssuers';
 import { cn } from '../../lib/utils';
 
 const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -17,7 +18,7 @@ const cardClass = "bg-[#0A0A0A] border border-[#1F1F1F] p-5 flex flex-col gap-2"
 const inputClass = "w-full h-10 bg-[#0F0F0F] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
 
 export const AdminInvoices = () => {
-  const [activeTab, setActiveTab] = useState<'invoices' | 'fixed_expenses'>('invoices');
+  const [activeTab, setActiveTab] = useState<'invoices' | 'variable_expenses' | 'fixed_expenses' | 'issuers'>('invoices');
   
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
@@ -25,7 +26,6 @@ export const AdminInvoices = () => {
   const [periodType, setPeriodType] = useState<PeriodType>('year');
   const [selectedMonth, setSelectedMonth] = useState<number>(currentMonth);
   const [selectedStatus, setSelectedStatus] = useState<string>('todos');
-  const [selectedType, setSelectedType] = useState<string>('todos');
 
   const [isAddingFixed, setIsAddingFixed] = useState(false);
   const [newFixedExpense, setNewFixedExpense] = useState({
@@ -47,7 +47,6 @@ export const AdminInvoices = () => {
       const lastDay = new Date(selectedYear, selectedMonth, 0).getDate();
       return { start: `${selectedYear}-${m}-01`, end: `${selectedYear}-${m}-${lastDay}`, label: MONTHS[selectedMonth - 1] };
     }
-    // ... basic mapping for other period types simplified for brevity or keeping original
     const mapping: Record<PeriodType, any> = {
       'h1': { start: `${selectedYear}-01-01`, end: `${selectedYear}-06-30`, label: '1º Semestre' },
       'h2': { start: `${selectedYear}-07-01`, end: `${selectedYear}-12-31`, label: '2º Semestre' },
@@ -56,7 +55,7 @@ export const AdminInvoices = () => {
       'q3': { start: `${selectedYear}-07-01`, end: `${selectedYear}-09-30`, label: 'Q3' },
       'q4': { start: `${selectedYear}-10-01`, end: `${selectedYear}-12-31`, label: 'Q4' },
       'year': { start: `${selectedYear}-01-01`, end: `${selectedYear}-12-31`, label: 'Anual' },
-      'month': { start: `${selectedYear}-01-01`, end: `${selectedYear}-12-31`, label: 'Anual' } // Fallback
+      'month': { start: `${selectedYear}-01-01`, end: `${selectedYear}-12-31`, label: 'Anual' }
     };
     return mapping[periodType] || mapping['year'];
   };
@@ -75,8 +74,9 @@ export const AdminInvoices = () => {
   });
 
   const filteredInvoices = invoices.filter(inv => {
-    if (selectedType === 'todos') return true;
-    return inv.type === selectedType;
+    if (activeTab === 'invoices') return inv.type === 'income' || !inv.type;
+    if (activeTab === 'variable_expenses') return inv.type === 'expense';
+    return true;
   });
 
   const { updateStatus, deleteInvoice } = useInvoiceMutations();
@@ -108,6 +108,30 @@ export const AdminInvoices = () => {
     setNewFixedExpense({ name: '', amount: 0, category: 'General', day_of_month: 1, is_active: true });
   };
 
+  const { issuers, createIssuer, deleteIssuer } = useIssuers();
+  const [isAddingIssuer, setIsAddingIssuer] = useState(false);
+  const [newIssuer, setNewIssuer] = useState({
+    name: '',
+    nif: '',
+    address: '',
+    zip: '',
+    city: '',
+    email: '',
+    phone: '',
+    is_default: false
+  });
+
+  const handleSaveIssuer = async () => {
+    if (!newIssuer.name) return;
+    try {
+      await createIssuer(newIssuer);
+      setIsAddingIssuer(false);
+      setNewIssuer({ name: '', nif: '', address: '', zip: '', city: '', email: '', phone: '', is_default: false });
+    } catch (err) {
+      console.error('Error saving issuer:', err);
+    }
+  };
+
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl">
@@ -116,56 +140,78 @@ export const AdminInvoices = () => {
         <div>
           <h1 className="font-secondary text-4xl text-[#FAF8F5]">Contabilidad</h1>
           <p className="font-primary text-[#666666] text-sm mt-2">
-            Control de ingresos, gastos facturados y costes fijos
+            Gestión unificada de ingresos, gastos y directorio fiscal
           </p>
         </div>
         
-        <div className="flex bg-[#0A0A0A] border border-[#1F1F1F] p-1 h-11 self-start md:self-auto">
+        <div className="flex bg-[#0A0A0A] border border-[#1F1F1F] p-1 h-11 self-start md:self-auto overflow-x-auto no-scrollbar">
           <button 
             onClick={() => setActiveTab('invoices')}
-            className={`px-6 h-full font-primary text-xs uppercase tracking-widest font-bold transition-all ${
+            className={`px-6 h-full font-primary text-[10px] uppercase tracking-widest font-bold transition-all whitespace-nowrap ${
               activeTab === 'invoices' ? 'bg-[#C9A962] text-[#0A0A0A]' : 'text-[#888888] hover:text-[#FAF8F5]'
             }`}
           >
             Facturación
           </button>
           <button 
+            onClick={() => setActiveTab('variable_expenses')}
+            className={`px-6 h-full font-primary text-[10px] uppercase tracking-widest font-bold transition-all whitespace-nowrap ${
+              activeTab === 'variable_expenses' ? 'bg-[#C9A962] text-[#0A0A0A]' : 'text-[#888888] hover:text-[#FAF8F5]'
+            }`}
+          >
+            Gastos Variables
+          </button>
+          <button 
             onClick={() => setActiveTab('fixed_expenses')}
-            className={`px-6 h-full font-primary text-xs uppercase tracking-widest font-bold transition-all ${
+            className={`px-6 h-full font-primary text-[10px] uppercase tracking-widest font-bold transition-all whitespace-nowrap ${
               activeTab === 'fixed_expenses' ? 'bg-[#C9A962] text-[#0A0A0A]' : 'text-[#888888] hover:text-[#FAF8F5]'
             }`}
           >
             Gastos Fijos
           </button>
+          <button 
+            onClick={() => setActiveTab('issuers')}
+            className={`px-6 h-full font-primary text-[10px] uppercase tracking-widest font-bold transition-all whitespace-nowrap ${
+              activeTab === 'issuers' ? 'bg-[#C9A962] text-[#0A0A0A]' : 'text-[#888888] hover:text-[#FAF8F5]'
+            }`}
+          >
+            Emisores
+          </button>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {[
           {
-            label: `Balance Neto (${dateRange.label})`,
+            label: `Balance Neto`,
             value: loadingSummary ? '—' : formatCurrency(summary.totalPeriod),
-            icon: <TrendingUp className="w-5 h-5" />,
+            icon: <Calculator className="w-5 h-5" />,
             color: summary.totalPeriod >= 0 ? 'text-[#C9A962] border-[#C9A962]/50 bg-[#C9A962]/5' : 'text-red-400 border-red-400/30 bg-red-400/5',
           },
           {
-            label: `Total Ingresos`,
+            label: `Ingresos`,
             value: loadingSummary ? '—' : formatCurrency(summary.income || 0),
             icon: <ArrowUpRight className="w-5 h-5" />,
             color: 'text-green-400',
           },
           {
-            label: 'Total Gastos (+ Fijos)',
-            value: loadingSummary ? '—' : formatCurrency(summary.expenses || 0),
+            label: 'Total Gastos',
+            value: loadingSummary ? '—' : formatCurrency(summary.totalExpenses || 0),
             icon: <ArrowDownRight className="w-5 h-5" />,
             color: 'text-red-400',
           },
           {
-            label: 'Pendientes de Cobro',
-            value: loadingSummary ? '—' : formatCurrency(summary.pendingAmount),
-            icon: summary.pendingCount > 0 ? <AlertCircle className="w-5 h-5" /> : <Clock className="w-5 h-5" />,
-            color: summary.pendingCount > 0 ? 'text-yellow-400' : 'text-[#888888]',
+            label: 'IVA Acumulado',
+            value: loadingSummary ? '—' : formatCurrency(summary.taxPeriod),
+            icon: <TrendingUp className="w-5 h-5" />,
+            color: 'text-blue-400',
+          },
+          {
+            label: 'IRPF Acumulado',
+            value: loadingSummary ? '—' : formatCurrency(summary.irpfPeriod),
+            icon: <TrendingUp className="w-5 h-5" />,
+            color: 'text-purple-400',
           },
         ].map((stat, i) => (
           <div key={i} className={cn(cardClass, stat.color && !stat.color.includes('bg-') ? '' : stat.color)}>
@@ -175,10 +221,7 @@ export const AdminInvoices = () => {
             </div>
             <p className={cn("font-secondary text-2xl leading-tight", stat.color && !stat.color.includes('bg-') ? stat.color : "")}>{stat.value}</p>
           </div>
-        ))}
-      </div>
-
-      {activeTab === 'invoices' ? (
+        ))}      { (activeTab === 'invoices' || activeTab === 'variable_expenses') ? (
         <div className="flex flex-col gap-6">
           {/* Filters & Actions */}
           <div className="flex flex-wrap gap-4 items-center justify-between">
@@ -240,15 +283,9 @@ export const AdminInvoices = () => {
                 ))}
               </select>
 
-              <select
-                value={selectedType}
-                onChange={e => setSelectedType(e.target.value)}
-                className="h-9 bg-[#111] border border-[#1F1F1F] px-3 font-primary text-sm text-[#FAF8F5] outline-none focus:border-[#C9A962]"
-              >
-                <option value="todos">Todos los tipos</option>
-                <option value="income">Solo Ingresos</option>
-                <option value="expense">Solo Gastos</option>
-              </select>
+              {/* In the unified view, we might want to hide the type selector if the tab already implies it, 
+                  but for now we'll keep it for flexibility or remove it if redundant. 
+                  Actually, let's auto-filter based on activeTab. */}
             </div>
 
             <Link
@@ -269,13 +306,13 @@ export const AdminInvoices = () => {
             ) : filteredInvoices.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-4">
                 <FileText className="w-12 h-12 text-[#333333]" />
-                <p className="font-primary text-[#666666] text-sm">No hay facturas para los filtros seleccionados</p>
+                <p className="font-primary text-[#666666] text-sm">No hay facturas para esta sección</p>
               </div>
             ) : (
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-[#1F1F1F]">
-                    {['Tipo', 'Nº Factura', 'Cliente', 'Serie', 'Fecha', 'Base', 'IVA', 'IRPF', 'Total', 'Estado', 'Acciones'].map(h => (
+                    {['Nº Factura', 'Cliente', 'Serie', 'Fecha', 'Base', 'IVA', 'IRPF', 'Total', 'Estado', 'Acciones'].map(h => (
                       <th key={h} className="px-4 py-3 text-left font-primary text-[10px] uppercase tracking-wider text-[#666666]">
                         {h}
                       </th>
@@ -285,16 +322,6 @@ export const AdminInvoices = () => {
                 <tbody className="divide-y divide-[#1F1F1F]">
                   {filteredInvoices.map(inv => (
                     <tr key={inv.id} className="hover:bg-[#111111] transition-colors">
-                      <td className="px-4 py-3">
-                        <span className={cn(
-                          'px-2 py-0.5 rounded-full text-[9px] font-primary font-bold uppercase tracking-wider border',
-                          inv.type === 'expense' 
-                            ? 'text-red-400 border-red-400/30 bg-red-400/5' 
-                            : 'text-green-400 border-green-400/30 bg-green-400/5'
-                        )}>
-                          {inv.type === 'expense' ? 'Gasto' : 'Ingreso'}
-                        </span>
-                      </td>
                       <td className="px-4 py-3 font-primary text-[#FAF8F5] text-sm font-bold">{inv.invoice_number}</td>
                       <td className="px-4 py-3 font-primary text-[#888888] text-sm max-w-[150px] truncate">{inv.client_name}</td>
                       <td className="px-4 py-3 font-primary text-[#888888] text-sm">{inv.series || 'A'}</td>
@@ -353,8 +380,7 @@ export const AdminInvoices = () => {
             )}
           </div>
         </div>
-      ) : (
-        /* Fixed Expenses Content */
+      ) : activeTab === 'fixed_expenses' ? (
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -437,6 +463,106 @@ export const AdminInvoices = () => {
             </table>
           </div>
         </div>
+      ) : (
+        /* Issuers Tab Content */
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-[#C9A962]" />
+              <h2 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-wider">Directorio de Emisores</h2>
+            </div>
+            <button 
+              onClick={() => setIsAddingIssuer(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[10px] uppercase tracking-widest hover:bg-[#D4B673] transition-colors"
+            >
+              <PlusCircle className="w-4 h-4" /> Nuevo Emisor
+            </button>
+          </div>
+
+          <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-hidden">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-[#1F1F1F] bg-[#0E0E0E]">
+                  <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Nombre / Empresa</th>
+                  <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">NIF/CIF</th>
+                  <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Ubicación</th>
+                  <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Contacto</th>
+                  <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#1F1F1F]">
+                {isAddingIssuer && (
+                  <tr className="border-b border-[#C9A962]/30 bg-[#C9A962]/5">
+                    <td className="px-6 py-4">
+                      <input className={inputClass} placeholder="Nombre Fiscal" value={newIssuer.name} onChange={e => setNewIssuer({...newIssuer, name: e.target.value})} />
+                    </td>
+                    <td className="px-6 py-4">
+                      <input className={inputClass} placeholder="B12345678" value={newIssuer.nif} onChange={e => setNewIssuer({...newIssuer, nif: e.target.value})} />
+                    </td>
+                    <td className="px-6 py-4">
+                      <input className={inputClass} placeholder="Ciudad" value={newIssuer.city} onChange={e => setNewIssuer({...newIssuer, city: e.target.value})} />
+                    </td>
+                    <td className="px-6 py-4">
+                      <input className={inputClass} placeholder="Email" value={newIssuer.email} onChange={e => setNewIssuer({...newIssuer, email: e.target.value})} />
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2 text-[#C9A962]">
+                        <button onClick={handleSaveIssuer}><Check className="w-5 h-5" /></button>
+                        <button onClick={() => setIsAddingIssuer(false)} className="text-[#444]"><X className="w-5 h-5" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                {issuers.length === 0 && !isAddingIssuer ? (
+                  <tr><td colSpan={5} className="px-6 py-12 text-center text-[#444] text-xs uppercase italic">No hay emisores registrados</td></tr>
+                ) : (
+                  issuers.map(issuer => (
+                    <tr key={issuer.id} className="hover:bg-[#111] transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          {issuer.is_default && <span className="w-2 h-2 rounded-full bg-[#C9A962]" title="Predeterminado" />}
+                          <span className="font-primary text-xs text-[#FAF8F5]">{issuer.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 font-primary text-xs text-[#888]">{issuer.nif || '-'}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-0.5">
+                          <div className="flex items-center gap-1 text-[10px] text-[#666]">
+                            <MapPin className="w-3 h-3" />
+                            <span>{issuer.city || '—'} {issuer.zip ? `(${issuer.zip})` : ''}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-0.5">
+                          {issuer.email && (
+                            <div className="flex items-center gap-1 text-[10px] text-[#888]">
+                              <Mail className="w-3 h-3" />
+                              <span>{issuer.email}</span>
+                            </div>
+                          )}
+                          {issuer.phone && (
+                            <div className="flex items-center gap-1 text-[10px] text-[#888]">
+                              <Phone className="w-3 h-3" />
+                              <span>{issuer.phone}</span>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button onClick={() => deleteIssuer(issuer.id)} className="text-[#444] hover:text-red-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
       )}
     </div>
   );

@@ -304,11 +304,11 @@ export const AdminInvoiceForm = () => {
         <div className="lg:col-span-2 flex flex-col gap-6">
           
           <div className={sectionClass}>
-             <h2 className="font-primary text-[#FAF8F5] font-bold text-[10px] uppercase tracking-[0.2em] pb-3 border-b border-[#1F1F1F]">Identificación de Factura</h2>
+             <h2 className="font-primary text-[#FAF8F5] font-bold text-[10px] uppercase tracking-[0.2em] pb-3 border-b border-[#1F1F1F]">Identificación y Pago</h2>
              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                <div className="flex flex-col gap-2">
                  <label className={labelClass}>Serie</label>
-                 <input className={inputClass} value={form.series} onChange={e => set('series', e.target.value)} />
+                 <input className={inputClass} value={form.series} onChange={e => set('series', e.target.value)} placeholder="Ej: A, B, R..." />
                </div>
                <div className="flex flex-col gap-2 lg:col-span-2">
                  <label className={labelClass}>Nº Factura *</label>
@@ -319,6 +319,20 @@ export const AdminInvoiceForm = () => {
                  <select className={inputClass} value={form.status} onChange={e => set('status', e.target.value as InvoiceStatus)}>
                    {Object.entries(STATUS_LABELS).map(([val, label]) => <option key={val} value={val}>{label}</option>)}
                  </select>
+               </div>
+               <div className="flex flex-col gap-2 lg:col-span-2">
+                 <label className={labelClass}>Método de Pago</label>
+                 <select className={inputClass} value={form.payment_method} onChange={e => set('payment_method', e.target.value)}>
+                   <option value="">Seleccionar...</option>
+                   <option value="transferencia">Transferencia Bancaria</option>
+                   <option value="efectivo">Efectivo</option>
+                   <option value="tarjeta">Tarjeta</option>
+                   <option value="domiciliacion">Domiciliación</option>
+                 </select>
+               </div>
+               <div className="flex flex-col gap-2 lg:col-span-2">
+                 <label className={labelClass}>Detalles de Pago (IBAN...)</label>
+                 <input className={inputClass} value={form.payment_details} onChange={e => set('payment_details', e.target.value)} placeholder="ES00 0000..." />
                </div>
                <div className="flex flex-col gap-2 lg:col-span-2">
                  <label className={labelClass}>Fecha Emisión</label>

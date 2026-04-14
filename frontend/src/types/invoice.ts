@@ -84,7 +84,9 @@ export interface InvoiceSummary {
   pendingCount: number;
   pendingAmount: number;
   income: number;
-  expenses: number;
+  variableExpenses: number;
+  fixedExpenses: number;
+  totalExpenses: number;
   byMonth: { month: number; year: number; total: number; expenses: number; income: number }[];
 }
 
