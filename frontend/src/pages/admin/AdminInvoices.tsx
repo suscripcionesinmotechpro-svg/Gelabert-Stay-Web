@@ -106,9 +106,14 @@ export const AdminInvoices = () => {
   const [newIssuer, setNewIssuer] = useState({
     name: '',
     nif: '',
+    street_type: '',
+    street_name: '',
+    street_number: '',
+    floor_door: '',
     address: '',
     zip: '',
     city: '',
+    province: '',
     email: '',
     phone: '',
     is_default: false
@@ -138,7 +143,7 @@ export const AdminInvoices = () => {
     try {
       await createIssuer(newIssuer);
       setIsAddingIssuer(false);
-      setNewIssuer({ name: '', nif: '', address: '', zip: '', city: '', email: '', phone: '', is_default: false });
+      setNewIssuer({ name: '', nif: '', street_type: '', street_name: '', street_number: '', floor_door: '', address: '', zip: '', city: '', province: '', email: '', phone: '', is_default: false });
     } catch (err) {
       console.error('Error saving issuer:', err);
     }
@@ -570,13 +575,40 @@ export const AdminInvoices = () => {
                     <td className="px-6 py-4">
                       <input className={inputClass} placeholder="B12345678" value={newIssuer.nif} onChange={e => setNewIssuer({...newIssuer, nif: e.target.value})} />
                     </td>
-                    <td className="px-6 py-4">
-                      <input className={inputClass} placeholder="Ciudad" value={newIssuer.city} onChange={e => setNewIssuer({...newIssuer, city: e.target.value})} />
+                    <td className="px-6 py-4 min-w-[280px]">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <select className={cn(inputClass, "w-1/3 px-1 text-center")} value={newIssuer.street_type || ''} onChange={e => setNewIssuer({...newIssuer, street_type: e.target.value})}>
+                            <option value="">Tipo Vía</option>
+                            <option value="Calle">Calle</option>
+                            <option value="Avenida">Avenida</option>
+                            <option value="Paseo">Paseo</option>
+                            <option value="Plaza">Plaza</option>
+                            <option value="Camino">Camino</option>
+                            <option value="Carretera">Carretera</option>
+                            <option value="Ronda">Ronda</option>
+                            <option value="Pasaje">Pasaje</option>
+                          </select>
+                          <input className={cn(inputClass, "w-2/3")} placeholder="Nombre Vía" value={newIssuer.street_name || ''} onChange={e => setNewIssuer({...newIssuer, street_name: e.target.value})} />
+                        </div>
+                        <div className="grid grid-cols-4 gap-2">
+                          <input className={cn(inputClass, "col-span-1")} placeholder="Nº" value={newIssuer.street_number || ''} onChange={e => setNewIssuer({...newIssuer, street_number: e.target.value})} />
+                          <input className={cn(inputClass, "col-span-1")} placeholder="Piso" value={newIssuer.floor_door || ''} onChange={e => setNewIssuer({...newIssuer, floor_door: e.target.value})} />
+                          <input className={cn(inputClass, "col-span-2")} placeholder="C.P." value={newIssuer.zip || ''} onChange={e => setNewIssuer({...newIssuer, zip: e.target.value})} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <input className={inputClass} placeholder="Municipio" value={newIssuer.city || ''} onChange={e => setNewIssuer({...newIssuer, city: e.target.value})} />
+                          <input className={inputClass} placeholder="Provincia" value={newIssuer.province || ''} onChange={e => setNewIssuer({...newIssuer, province: e.target.value})} />
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4">
-                      <input className={inputClass} placeholder="Email" value={newIssuer.email} onChange={e => setNewIssuer({...newIssuer, email: e.target.value})} />
+                      <div className="flex flex-col gap-2">
+                        <input className={inputClass} placeholder="Email" value={newIssuer.email} onChange={e => setNewIssuer({...newIssuer, email: e.target.value})} />
+                        <input className={inputClass} placeholder="Teléfono" value={newIssuer.phone} onChange={e => setNewIssuer({...newIssuer, phone: e.target.value})} />
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right align-top pt-8">
                       <div className="flex items-center justify-end gap-2 text-[#C9A962]">
                         <button onClick={handleSaveIssuer}><Check className="w-5 h-5" /></button>
                         <button onClick={() => setIsAddingIssuer(false)} className="text-[#444]"><X className="w-5 h-5" /></button>
@@ -605,20 +637,31 @@ export const AdminInvoices = () => {
                               onChange={e => setEditingIssuerData({ ...editingIssuerData, nif: e.target.value })} 
                             />
                           </td>
-                          <td className="px-6 py-4">
-                            <div className="flex flex-col gap-1">
-                              <input 
-                                className={cn(inputClass, "h-8")} 
-                                placeholder="Ciudad" 
-                                value={editingIssuerData?.city || ''} 
-                                onChange={e => setEditingIssuerData({ ...editingIssuerData, city: e.target.value })} 
-                              />
-                              <input 
-                                className={cn(inputClass, "h-8 text-[10px]")} 
-                                placeholder="C.P." 
-                                value={editingIssuerData?.zip || ''} 
-                                onChange={e => setEditingIssuerData({ ...editingIssuerData, zip: e.target.value })} 
-                              />
+                          <td className="px-6 py-4 min-w-[280px]">
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center gap-2">
+                                <select className={cn(inputClass, "w-1/3 px-1 text-center")} value={editingIssuerData?.street_type || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, street_type: e.target.value })}>
+                                  <option value="">Tipo Vía</option>
+                                  <option value="Calle">Calle</option>
+                                  <option value="Avenida">Avenida</option>
+                                  <option value="Paseo">Paseo</option>
+                                  <option value="Plaza">Plaza</option>
+                                  <option value="Camino">Camino</option>
+                                  <option value="Carretera">Carretera</option>
+                                  <option value="Ronda">Ronda</option>
+                                  <option value="Pasaje">Pasaje</option>
+                                </select>
+                                <input className={cn(inputClass, "w-2/3")} placeholder="Nombre Vía" value={editingIssuerData?.street_name || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, street_name: e.target.value })} />
+                              </div>
+                              <div className="grid grid-cols-4 gap-2">
+                                <input className={cn(inputClass, "col-span-1")} placeholder="Nº" value={editingIssuerData?.street_number || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, street_number: e.target.value })} />
+                                <input className={cn(inputClass, "col-span-1")} placeholder="Piso" value={editingIssuerData?.floor_door || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, floor_door: e.target.value })} />
+                                <input className={cn(inputClass, "col-span-2")} placeholder="C.P." value={editingIssuerData?.zip || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, zip: e.target.value })} />
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <input className={inputClass} placeholder="Municipio" value={editingIssuerData?.city || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, city: e.target.value })} />
+                                <input className={inputClass} placeholder="Provincia" value={editingIssuerData?.province || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, province: e.target.value })} />
+                              </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
@@ -655,10 +698,24 @@ export const AdminInvoices = () => {
                           <td className="px-6 py-4 font-primary text-xs text-[#888]">{issuer.nif || '-'}</td>
                           <td className="px-6 py-4">
                             <div className="flex flex-col gap-0.5">
-                              <div className="flex items-center gap-1 text-[10px] text-[#666]">
-                                <MapPin className="w-3 h-3" />
-                                <span>{issuer.city || '—'} {issuer.zip ? `(${issuer.zip})` : ''}</span>
+                              {issuer.street_name && (
+                                <div className="flex items-center gap-1 text-xs text-[#FAF8F5]">
+                                  <MapPin className="w-3 h-3 text-[#C9A962]" />
+                                  <span>
+                                    {issuer.street_type} {issuer.street_name} {issuer.street_number}
+                                    {issuer.floor_door ? `, ${issuer.floor_door}` : ''}
+                                  </span>
+                                </div>
+                              )}
+                              <div className="flex items-center gap-1 text-[10px] text-[#666] ml-4">
+                                <span>{issuer.zip} {issuer.city} {issuer.province ? `(${issuer.province})` : ''}</span>
                               </div>
+                              {/* Fallback to old address struct if available & no detailed set */}
+                              {!issuer.street_name && issuer.address && (
+                                <div className="flex items-center gap-1 text-xs text-[#666] ml-4">
+                                  <span>{issuer.address}</span>
+                                </div>
+                              )}
                             </div>
                           </td>
                           <td className="px-6 py-4">

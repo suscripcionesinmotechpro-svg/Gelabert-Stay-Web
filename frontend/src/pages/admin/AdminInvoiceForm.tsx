@@ -17,9 +17,14 @@ const DEFAULT_FORM: InvoiceInsert = {
   series: 'A',
   client_name: '',
   client_nif: '',
+  client_street_type: '',
+  client_street_name: '',
+  client_street_number: '',
+  client_floor_door: '',
   client_address: '',
   client_zip: '',
   client_city: '',
+  client_province: '',
   client_email: '',
   client_phone: '',
   concept: 'Concepto general',
@@ -66,7 +71,7 @@ export const AdminInvoiceForm = () => {
   
   // Issuer Management State
   const [showIssuerModal, setShowIssuerModal] = useState(false);
-  const [newIssuer, setNewIssuer] = useState({ name: '', nif: '', address: '', city: '', zip: '', is_default: false });
+  const [newIssuer, setNewIssuer] = useState({ name: '', nif: '', street_type: '', street_name: '', street_number: '', floor_door: '', address: '', city: '', province: '', zip: '', phone: '', email: '', is_default: false });
 
   // Auto-generate invoice number on new form
   useEffect(() => {
@@ -98,9 +103,14 @@ export const AdminInvoiceForm = () => {
         series: inv.series || 'A',
         client_name: inv.client_name,
         client_nif: inv.client_nif || '',
-        client_address: inv.client_address || '',
+        client_street_type: inv.client_street_type || '',
+        client_street_name: inv.client_street_name || '',
+        client_street_number: inv.client_street_number || '',
+        client_floor_door: inv.client_floor_door || '',
+        client_address: inv.client_address || '', // Support old address
         client_zip: inv.client_zip || '',
         client_city: inv.client_city || '',
+        client_province: inv.client_province || '',
         client_email: inv.client_email || '',
         client_phone: inv.client_phone || '',
         concept: inv.concept || '',
@@ -340,6 +350,8 @@ export const AdminInvoiceForm = () => {
                  <select className={inputClass} value={form.payment_method} onChange={e => set('payment_method', e.target.value)}>
                    <option value="">Seleccionar...</option>
                    <option value="transferencia">Transferencia Bancaria</option>
+                   <option value="bizum">Bizum</option>
+                   <option value="paypal">PayPal</option>
                    <option value="efectivo">Efectivo</option>
                    <option value="tarjeta">Tarjeta</option>
                    <option value="domiciliacion">Domiciliación</option>
@@ -381,8 +393,8 @@ export const AdminInvoiceForm = () => {
 
           <div className={sectionClass}>
             <h2 className="font-primary text-[#FAF8F5] font-bold text-[10px] uppercase tracking-[0.2em] pb-3 border-b border-[#1F1F1F]">Datos del Receptor (Cliente / Proveedor)</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1 md:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="flex flex-col gap-1 md:col-span-2 lg:col-span-3">
                 <label className={labelClass}>Nombre / Razón Social *</label>
                 <input className={inputClass} value={form.client_name} onChange={e => set('client_name', e.target.value)} />
               </div>
@@ -390,13 +402,51 @@ export const AdminInvoiceForm = () => {
                 <label className={labelClass}>NIF / CIF</label>
                 <input className={inputClass} value={form.client_nif || ''} onChange={e => set('client_nif', e.target.value)} />
               </div>
+              <div className="flex flex-col gap-1 lg:col-span-1">
+                <label className={labelClass}>Tipo Vía</label>
+                <select className={inputClass} value={form.client_street_type || ''} onChange={e => set('client_street_type', e.target.value)}>
+                  <option value="">Seleccionar</option>
+                  <option value="Calle">Calle</option>
+                  <option value="Avenida">Avenida</option>
+                  <option value="Paseo">Paseo</option>
+                  <option value="Plaza">Plaza</option>
+                  <option value="Camino">Camino</option>
+                  <option value="Carretera">Carretera</option>
+                  <option value="Ronda">Ronda</option>
+                  <option value="Pasaje">Pasaje</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1 lg:col-span-1">
+                <label className={labelClass}>Nombre Vía</label>
+                <input className={inputClass} value={form.client_street_name || ''} onChange={e => set('client_street_name', e.target.value)} placeholder="Ej. Larios" />
+              </div>
               <div className="flex flex-col gap-1">
+                <label className={labelClass}>Nº</label>
+                <input className={inputClass} value={form.client_street_number || ''} onChange={e => set('client_street_number', e.target.value)} placeholder="Ej. 1A" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className={labelClass}>Piso/Puerta</label>
+                <input className={inputClass} value={form.client_floor_door || ''} onChange={e => set('client_floor_door', e.target.value)} placeholder="Ej. 3º B" />
+              </div>
+              <div className="flex flex-col gap-1 lg:col-span-2">
+                <label className={labelClass}>Municipio</label>
+                <input className={inputClass} value={form.client_city || ''} onChange={e => set('client_city', e.target.value)} placeholder="Málaga" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className={labelClass}>Provincia</label>
+                <input className={inputClass} value={form.client_province || ''} onChange={e => set('client_province', e.target.value)} placeholder="Málaga" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className={labelClass}>CP</label>
+                <input className={inputClass} value={form.client_zip || ''} onChange={e => set('client_zip', e.target.value)} placeholder="29001" />
+              </div>
+              <div className="flex flex-col gap-1 lg:col-span-2">
                 <label className={labelClass}>Email</label>
                 <input type="email" className={inputClass} value={form.client_email || ''} onChange={e => set('client_email', e.target.value)} />
               </div>
-              <div className="flex flex-col gap-1 md:col-span-2">
-                <label className={labelClass}>Dirección</label>
-                <input className={inputClass} value={form.client_address || ''} onChange={e => set('client_address', e.target.value)} />
+              <div className="flex flex-col gap-1 lg:col-span-2">
+                <label className={labelClass}>Teléfono</label>
+                <input className={inputClass} value={form.client_phone || ''} onChange={e => set('client_phone', e.target.value)} />
               </div>
             </div>
           </div>
@@ -499,18 +549,50 @@ export const AdminInvoiceForm = () => {
                 <label className={labelClass}>NIF / CIF</label>
                 <input className={inputClass} value={newIssuer.nif} onChange={e => setNewIssuer({...newIssuer, nif: e.target.value})} placeholder="Ej: B12345678" />
               </div>
-              <div className="flex flex-col gap-1">
-                <label className={labelClass}>Dirección</label>
-                <input className={inputClass} value={newIssuer.address} onChange={e => setNewIssuer({...newIssuer, address: e.target.value})} placeholder="Calle Principal 123" />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className={labelClass}>Tipo Vía</label>
+                  <select className={inputClass} value={newIssuer.street_type || ''} onChange={e => setNewIssuer({...newIssuer, street_type: e.target.value})}>
+                    <option value="">Seleccionar</option>
+                    <option value="Calle">Calle</option>
+                    <option value="Avenida">Avenida</option>
+                    <option value="Paseo">Paseo</option>
+                    <option value="Plaza">Plaza</option>
+                    <option value="Camino">Camino</option>
+                    <option value="Carretera">Carretera</option>
+                    <option value="Ronda">Ronda</option>
+                    <option value="Pasaje">Pasaje</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className={labelClass}>Nombre Vía</label>
+                  <input className={inputClass} value={newIssuer.street_name || ''} onChange={e => setNewIssuer({...newIssuer, street_name: e.target.value})} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className={labelClass}>Número</label>
+                  <input className={inputClass} value={newIssuer.street_number || ''} onChange={e => setNewIssuer({...newIssuer, street_number: e.target.value})} />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className={labelClass}>Piso/Puerta</label>
+                  <input className={inputClass} value={newIssuer.floor_door || ''} onChange={e => setNewIssuer({...newIssuer, floor_door: e.target.value})} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className={labelClass}>Municipio</label>
+                  <input className={inputClass} value={newIssuer.city} onChange={e => setNewIssuer({...newIssuer, city: e.target.value})} placeholder="Málaga" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className={labelClass}>Provincia</label>
+                  <input className={inputClass} value={newIssuer.province || ''} onChange={e => setNewIssuer({...newIssuer, province: e.target.value})} placeholder="Málaga" />
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
                   <label className={labelClass}>CP</label>
                   <input className={inputClass} value={newIssuer.zip} onChange={e => setNewIssuer({...newIssuer, zip: e.target.value})} placeholder="29001" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className={labelClass}>Ciudad</label>
-                  <input className={inputClass} value={newIssuer.city} onChange={e => setNewIssuer({...newIssuer, city: e.target.value})} placeholder="Málaga" />
                 </div>
               </div>
               <label className="flex items-center gap-3 cursor-pointer mt-2">

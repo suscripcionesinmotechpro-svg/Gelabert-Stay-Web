@@ -18,9 +18,14 @@ export interface Invoice {
   // Client
   client_name: string;
   client_nif: string | null;
-  client_address: string | null;
+  client_street_type: string | null;
+  client_street_name: string | null;
+  client_street_number: string | null;
+  client_floor_door: string | null;
+  client_address: string | null; // Keep for retro-compatibility / old data
   client_zip: string | null;
   client_city: string | null;
+  client_province: string | null;
   client_email: string | null;
   client_phone: string | null;
 
@@ -109,9 +114,14 @@ export interface InvoiceIssuer {
   user_id: string;
   name: string;
   nif: string | null;
-  address: string | null;
+  street_type: string | null;
+  street_name: string | null;
+  street_number: string | null;
+  floor_door: string | null;
+  address: string | null; // Keep for retro-compatibility
   zip: string | null;
   city: string | null;
+  province: string | null;
   email: string | null;
   phone: string | null;
   is_default: boolean;

@@ -129,9 +129,13 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
       const invoicesThisMonth = data.filter(i => i.invoice_date.startsWith(monthKey) && i.type === 'expense');
       const linkedFixedIds = invoicesThisMonth.map(i => i.fixed_expense_id).filter(Boolean);
       
-      const projected = activeFixed
-        .filter(f => !linkedFixedIds.includes(f.id))
-        .reduce((s, f) => s + (Number(f.amount) || 0), 0);
+      let projected = 0;
+      // Sólo aplicar gastos fijos a proyecciones a partir de 2026
+      if (monthKey >= '2026-01') {
+        projected = activeFixed
+          .filter(f => !linkedFixedIds.includes(f.id))
+          .reduce((s, f) => s + (Number(f.amount) || 0), 0);
+      }
       
       byMonthMap[monthKey].projectedFixed = projected;
     });
