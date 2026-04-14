@@ -2,18 +2,15 @@ import { useState } from 'react';
 import { useAccounting } from '../../hooks/useAccounting';
 import { useInvoices, useInvoiceSummary } from '../../hooks/useInvoices';
 import { 
-  Plus, Trash2, Edit2, Check, X, TrendingUp, TrendingDown, 
-  Wallet, Calculator, ArrowUpRight, ArrowDownRight, Info
+  Plus, Trash2, Check, X, TrendingUp, TrendingDown, 
+  Wallet, Calculator, ArrowUpRight, Info
 } from 'lucide-react';
-import type { FixedExpense } from '../../types/invoice';
 
 const cardClass = "bg-[#0A0A0A] border border-[#1F1F1F] p-6 flex flex-col gap-4";
 const inputClass = "w-full h-10 bg-[#0F0F0F] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
-const labelClass = "font-primary text-[10px] text-[#666666] uppercase tracking-[0.2em] mb-1 block";
 
 export const AdminAccounting = () => {
   const [activeTab, setActiveTab] = useState<'balance' | 'fixed'>('balance');
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   
   const currentMonth = new Date().getMonth() + 1;

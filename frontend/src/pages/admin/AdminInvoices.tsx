@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInvoiceSummary, useInvoices, useInvoiceMutations } from '../../hooks/useInvoices';
 import { STATUS_COLORS, STATUS_LABELS, type InvoiceStatus } from '../../types/invoice';
-import { PlusCircle, Download, TrendingUp, Clock, AlertCircle, Euro, ChevronDown, Trash2, Edit, FileText, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { PlusCircle, Download, TrendingUp, Clock, AlertCircle, ChevronDown, Trash2, Edit, FileText, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
