@@ -210,7 +210,7 @@ export const AdminInvoiceForm = () => {
       if (added) {
         set('issuer_id', added.id);
         setShowIssuerModal(false);
-        setNewIssuer({ name: '', nif: '', address: '', city: '', zip: '', is_default: false });
+        setNewIssuer({ name: '', nif: '', street_type: '', street_name: '', street_number: '', floor_door: '', address: '', city: '', province: '', zip: '', phone: '', email: '', is_default: false });
       }
     } catch (err: any) {
       setError(`Error al añadir emisor: ${err.message}`);
