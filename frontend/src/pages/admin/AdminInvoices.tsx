@@ -26,7 +26,6 @@ export const AdminInvoices = () => {
   const [selectedMonth, setSelectedMonth] = useState<number>(currentMonth);
   const [selectedStatus, setSelectedStatus] = useState<string>('todos');
   const [selectedType, setSelectedType] = useState<string>('todos');
-  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [isAddingFixed, setIsAddingFixed] = useState(false);
   const [newFixedExpense, setNewFixedExpense] = useState({
@@ -37,7 +36,7 @@ export const AdminInvoices = () => {
     is_active: true
   });
 
-  const { fixedExpenses, addFixedExpense, updateFixedExpense, deleteFixedExpense, loading: loadingFixed } = useAccounting();
+  const { fixedExpenses, addFixedExpense, updateFixedExpense, deleteFixedExpense } = useAccounting();
 
   const getDateRange = () => {
     if (periodType === 'year') {
@@ -89,12 +88,11 @@ export const AdminInvoices = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('¿Seguro que quieres eliminar esta factura?')) return;
-    setDeletingId(id);
     try {
       await deleteInvoice(id);
       refetch();
-    } finally {
-      setDeletingId(null);
+    } catch (err) {
+      console.error('Error deleting invoice:', err);
     }
   };
 
@@ -110,7 +108,6 @@ export const AdminInvoices = () => {
     setNewFixedExpense({ name: '', amount: 0, category: 'General', day_of_month: 1, is_active: true });
   };
 
-  const maxBarValue = Math.max(...summary.byMonth.map(m => m.total), 1);
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl">

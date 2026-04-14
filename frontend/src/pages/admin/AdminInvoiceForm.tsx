@@ -3,9 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useInvoiceMutations, uploadInvoicePDF } from '../../hooks/useInvoices';
 import { useIssuers } from '../../hooks/useIssuers';
-import type { Invoice, InvoiceInsert, InvoiceStatus, InvoiceItem, PaymentMethod, InvoiceIssuer } from '../../types/invoice';
+import type { Invoice, InvoiceInsert, InvoiceStatus, InvoiceItem } from '../../types/invoice';
 import { STATUS_LABELS } from '../../types/invoice';
-import { ChevronLeft, Save, Upload, X, FileText, Building2, Plus, Trash2, Check } from 'lucide-react';
+import { ChevronLeft, Save, Upload, X, FileText, Plus, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const inputClass = "w-full h-10 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
@@ -43,11 +43,10 @@ export const AdminInvoiceForm = () => {
   const isEditing = !!id && id !== 'nueva';
   const navigate = useNavigate();
   const { createInvoice, updateInvoice } = useInvoiceMutations();
-  const { issuers, loading: loadingIssuers, addIssuer } = useIssuers();
+  const { issuers, loading: loadingIssuers, createIssuer } = useIssuers();
 
   const [form, setForm] = useState<InvoiceInsert>(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadingForm, setLoadingForm] = useState(isEditing);
   
@@ -138,9 +137,6 @@ export const AdminInvoiceForm = () => {
     });
   };
 
-  const handlePaymentMethodChange = (method: PaymentMethod) => {
-    setForm(prev => ({ ...prev, payment_method: method }));
-  };
 
   const totalAmount = form.amount + (form.amount * form.tax_rate / 100) - (form.amount * form.irpf_rate / 100);
 
@@ -151,15 +147,12 @@ export const AdminInvoiceForm = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 20 * 1024 * 1024) { setError('El archivo no puede superar los 20MB'); return; }
-    setUploading(true);
     setError(null);
     try {
       const url = await uploadInvoicePDF(file);
       set('file_url', url);
     } catch (err: any) {
       setError(`Error al subir el archivo: ${err.message}`);
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -188,7 +181,7 @@ export const AdminInvoiceForm = () => {
   const handleAddIssuer = async () => {
     if (!newIssuer.name) return;
     try {
-      const added = await addIssuer(newIssuer);
+      const added = await createIssuer(newIssuer as any);
       if (added) {
         set('issuer_id', added.id);
         setShowIssuerModal(false);
@@ -265,7 +258,7 @@ export const AdminInvoiceForm = () => {
                 <label className={labelClass}>Seleccionar Emisor</label>
                 <select 
                   className={inputClass} 
-                  value={form.issuer_id} 
+                  value={form.issuer_id || ''} 
                   onChange={e => set('issuer_id', e.target.value)}
                   disabled={loadingIssuers}
                 >
