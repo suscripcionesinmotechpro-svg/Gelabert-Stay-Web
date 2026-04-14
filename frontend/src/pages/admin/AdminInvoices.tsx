@@ -101,14 +101,7 @@ export const AdminInvoices = () => {
     refetch();
   };
 
-  const handleSaveFixedExpense = async () => {
-    if (!newFixedExpense.name || newFixedExpense.amount <= 0) return;
-    await addFixedExpense(newFixedExpense);
-    setIsAddingFixed(false);
-    setNewFixedExpense({ name: '', amount: 0, category: 'General', day_of_month: 1, is_active: true });
-  };
-
-  const { issuers, createIssuer, deleteIssuer } = useIssuers();
+  const { issuers, createIssuer, updateIssuer, deleteIssuer } = useIssuers();
   const [isAddingIssuer, setIsAddingIssuer] = useState(false);
   const [newIssuer, setNewIssuer] = useState({
     name: '',
@@ -121,6 +114,21 @@ export const AdminInvoices = () => {
     is_default: false
   });
 
+  const [editingFixedId, setEditingFixedId] = useState<string | null>(null);
+  const [editingIssuerId, setEditingIssuerId] = useState<string | null>(null);
+
+  const handleSaveFixedExpense = async () => {
+    if (!newFixedExpense.name || newFixedExpense.amount <= 0) return;
+    await addFixedExpense(newFixedExpense);
+    setIsAddingFixed(false);
+    setNewFixedExpense({ name: '', amount: 0, category: 'General', day_of_month: 1, is_active: true });
+  };
+
+  const handleUpdateFixedExpense = async (id: string, data: any) => {
+    await updateFixedExpense(id, data);
+    setEditingFixedId(null);
+  };
+
   const handleSaveIssuer = async () => {
     if (!newIssuer.name) return;
     try {
@@ -130,6 +138,11 @@ export const AdminInvoices = () => {
     } catch (err) {
       console.error('Error saving issuer:', err);
     }
+  };
+
+  const handleUpdateIssuer = async (id: string, data: any) => {
+    await updateIssuer(id, data);
+    setEditingIssuerId(null);
   };
 
 
@@ -256,6 +269,10 @@ export const AdminInvoices = () => {
                   <option value="q2">2º Trimestre (Q2)</option>
                   <option value="q3">3º Trimestre (Q3)</option>
                   <option value="q4">4º Trimestre (Q4)</option>
+                </optgroup>
+                <optgroup label="Semestres">
+                  <option value="h1">1º Semestre</option>
+                  <option value="h2">2º Semestre</option>
                 </optgroup>
                 <option value="month">Mes Específico...</option>
               </select>
@@ -434,26 +451,89 @@ export const AdminInvoices = () => {
                 ) : (
                   fixedExpenses.map(expense => (
                     <tr key={expense.id} className="hover:bg-[#111] transition-colors">
-                      <td className="px-6 py-4 font-primary text-xs text-[#FAF8F5]">{expense.name}</td>
-                      <td className="px-6 py-4 font-primary text-[10px] text-[#666] uppercase">{expense.category}</td>
-                      <td className="px-6 py-4 font-primary text-xs text-[#888] text-center">{expense.day_of_month || '-'}</td>
-                      <td className="px-6 py-4 font-secondary text-sm text-[#FAF8F5] text-right">{formatCurrency(expense.amount)}</td>
-                      <td className="px-6 py-4 text-center">
-                        <button 
-                          onClick={() => updateFixedExpense(expense.id, { is_active: !expense.is_active })}
-                          className={cn(
-                            "px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border",
-                            expense.is_active 
-                              ? 'border-green-400/30 text-green-400 bg-green-400/5' 
-                              : 'border-red-400/30 text-red-400 bg-red-400/5'
-                          )}
-                        >
-                          {expense.is_active ? 'Activo' : 'Inactivo'}
-                        </button>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button onClick={() => deleteFixedExpense(expense.id)} className="text-[#444] hover:text-red-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                      </td>
+                      {editingFixedId === expense.id ? (
+                        <>
+                          <td className="px-6 py-4">
+                            <input 
+                              className={inputClass} 
+                              value={expense.name} 
+                              onChange={e => {
+                                const newData = { ...expense, name: e.target.value };
+                                setFixedExpenses(fixedExpenses.map(f => f.id === expense.id ? newData : f));
+                              }} 
+                            />
+                          </td>
+                          <td className="px-6 py-4">
+                            <input 
+                              className={inputClass} 
+                              value={expense.category} 
+                              onChange={e => {
+                                const newData = { ...expense, category: e.target.value };
+                                setFixedExpenses(fixedExpenses.map(f => f.id === expense.id ? newData : f));
+                              }} 
+                            />
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <input 
+                              type="number" 
+                              className={cn(inputClass, "w-16 mx-auto text-center")} 
+                              value={expense.day_of_month} 
+                              onChange={e => {
+                                const newData = { ...expense, day_of_month: parseInt(e.target.value) || 1 };
+                                setFixedExpenses(fixedExpenses.map(f => f.id === expense.id ? newData : f));
+                              }} 
+                            />
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <input 
+                              type="number" 
+                              step="0.01" 
+                              className={cn(inputClass, "w-24 ml-auto text-right")} 
+                              value={expense.amount} 
+                              onChange={e => {
+                                const newData = { ...expense, amount: parseFloat(e.target.value) || 0 };
+                                setFixedExpenses(fixedExpenses.map(f => f.id === expense.id ? newData : f));
+                              }} 
+                            />
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <Check className="w-5 h-5 text-[#C9A962] mx-auto cursor-pointer" onClick={() => handleUpdateFixedExpense(expense.id, expense)} />
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <X className="w-5 h-5 text-[#444] cursor-pointer" onClick={() => setEditingFixedId(null)} />
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="px-6 py-4 font-primary text-xs text-[#FAF8F5]">{expense.name}</td>
+                          <td className="px-6 py-4 font-primary text-[10px] text-[#666] uppercase">{expense.category}</td>
+                          <td className="px-6 py-4 font-primary text-xs text-[#888] text-center">{expense.day_of_month || '-'}</td>
+                          <td className="px-6 py-4 font-secondary text-sm text-[#FAF8F5] text-right">{formatCurrency(expense.amount)}</td>
+                          <td className="px-6 py-4 text-center">
+                            <button 
+                              onClick={() => updateFixedExpense(expense.id, { is_active: !expense.is_active })}
+                              className={cn(
+                                "px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border",
+                                expense.is_active 
+                                  ? 'border-green-400/30 text-green-400 bg-green-400/5' 
+                                  : 'border-red-400/30 text-red-400 bg-red-400/5'
+                              )}
+                            >
+                              {expense.is_active ? 'Activo' : 'Inactivo'}
+                            </button>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button onClick={() => setEditingFixedId(expense.id)} className="text-[#444] hover:text-[#FAF8F5] transition-colors">
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button onClick={() => deleteFixedExpense(expense.id)} className="text-[#444] hover:text-red-400 transition-colors">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      )}
                     </tr>
                   ))
                 )}
@@ -515,42 +595,109 @@ export const AdminInvoices = () => {
                   <tr><td colSpan={5} className="px-6 py-12 text-center text-[#444] text-xs uppercase italic">No hay emisores registrados</td></tr>
                 ) : (
                   issuers.map(issuer => (
-                    <tr key={issuer.id} className="hover:bg-[#111] transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          {issuer.is_default && <span className="w-2 h-2 rounded-full bg-[#C9A962]" title="Predeterminado" />}
-                          <span className="font-primary text-xs text-[#FAF8F5]">{issuer.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 font-primary text-xs text-[#888]">{issuer.nif || '-'}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-1 text-[10px] text-[#666]">
-                            <MapPin className="w-3 h-3" />
-                            <span>{issuer.city || '—'} {issuer.zip ? `(${issuer.zip})` : ''}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-0.5">
-                          {issuer.email && (
-                            <div className="flex items-center gap-1 text-[10px] text-[#888]">
-                              <Mail className="w-3 h-3" />
-                              <span>{issuer.email}</span>
+                      {editingIssuerId === issuer.id ? (
+                        <>
+                          <td className="px-6 py-4">
+                            <input 
+                              className={inputClass} 
+                              value={issuer.name} 
+                              onChange={e => {
+                                const newData = { ...issuer, name: e.target.value };
+                                setIssuers(issuers.map(is => is.id === issuer.id ? newData : is));
+                              }} 
+                            />
+                          </td>
+                          <td className="px-6 py-4">
+                            <input 
+                              className={inputClass} 
+                              value={issuer.nif || ''} 
+                              onChange={e => {
+                                const newData = { ...issuer, nif: e.target.value };
+                                setIssuers(issuers.map(is => is.id === issuer.id ? newData : is));
+                              }} 
+                            />
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col gap-1">
+                              <input 
+                                className={cn(inputClass, "h-8")} 
+                                placeholder="Ciudad" 
+                                value={issuer.city || ''} 
+                                onChange={e => {
+                                  const newData = { ...issuer, city: e.target.value };
+                                  setIssuers(issuers.map(is => is.id === issuer.id ? newData : is));
+                                }} 
+                              />
                             </div>
-                          )}
-                          {issuer.phone && (
-                            <div className="flex items-center gap-1 text-[10px] text-[#888]">
-                              <Phone className="w-3 h-3" />
-                              <span>{issuer.phone}</span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col gap-1">
+                              <input 
+                                className={cn(inputClass, "h-8")} 
+                                placeholder="Email" 
+                                value={issuer.email || ''} 
+                                onChange={e => {
+                                  const newData = { ...issuer, email: e.target.value };
+                                  setIssuers(issuers.map(is => is.id === issuer.id ? newData : is));
+                                }} 
+                              />
                             </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button onClick={() => deleteIssuer(issuer.id)} className="text-[#444] hover:text-red-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                      </td>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-2 text-[#C9A962]">
+                              <button onClick={() => handleUpdateIssuer(issuer.id, issuer)}><Check className="w-5 h-5" /></button>
+                              <button onClick={() => setEditingIssuerId(null)} className="text-[#444]"><X className="w-5 h-5" /></button>
+                            </div>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              {issuer.is_default && <span className="w-2 h-2 rounded-full bg-[#C9A962]" title="Predeterminado" />}
+                              <span className="font-primary text-xs text-[#FAF8F5]">{issuer.name}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 font-primary text-xs text-[#888]">{issuer.nif || '-'}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col gap-0.5">
+                              <div className="flex items-center gap-1 text-[10px] text-[#666]">
+                                <MapPin className="w-3 h-3" />
+                                <span>{issuer.city || '—'} {issuer.zip ? `(${issuer.zip})` : ''}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col gap-0.5">
+                              {issuer.email && (
+                                <div className="flex items-center gap-1 text-[10px] text-[#888]">
+                                  <Mail className="w-3 h-3" />
+                                  <span>{issuer.email}</span>
+                                </div>
+                              )}
+                              {issuer.phone && (
+                                <div className="flex items-center gap-1 text-[10px] text-[#888]">
+                                  <Phone className="w-3 h-3" />
+                                  <span>{issuer.phone}</span>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button onClick={() => setEditingIssuerId(issuer.id)} className="text-[#444] hover:text-[#FAF8F5] transition-colors">
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button onClick={() => deleteIssuer(issuer.id)} className="text-[#444] hover:text-red-400 transition-colors">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      )}
                     </tr>
+                  ))
+     </tr>
                   ))
                 )}
               </tbody>

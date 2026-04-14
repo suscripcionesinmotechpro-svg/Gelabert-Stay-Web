@@ -48,6 +48,16 @@ export const useIssuers = () => {
     return data as InvoiceIssuer;
   };
 
+  const updateIssuer = async (id: string, issuer: Partial<InvoiceIssuerInsert>) => {
+    const { error } = await supabase
+      .from('invoice_issuers')
+      .update(issuer)
+      .eq('id', id);
+
+    if (error) throw error;
+    await fetchIssuers();
+  };
+
   const deleteIssuer = async (id: string) => {
     const { error } = await supabase
       .from('invoice_issuers')
@@ -58,5 +68,5 @@ export const useIssuers = () => {
     await fetchIssuers();
   };
 
-  return { issuers, loading, createIssuer, deleteIssuer, refetch: fetchIssuers };
+  return { issuers, loading, createIssuer, updateIssuer, deleteIssuer, refetch: fetchIssuers };
 };

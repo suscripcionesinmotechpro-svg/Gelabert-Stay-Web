@@ -118,6 +118,11 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
       }
     });
 
+    const now = new Date();
+    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const startMonthKey = filters.startDate.substring(0, 7);
+    const isFuturePeriod = startMonthKey > currentMonthKey;
+
     // Calculate adjusted fixed expenses per month
     // If a month has an invoice linked to Fixed X, we don't add Fixed X to projectedFixed
     Object.keys(byMonthMap).forEach(monthKey => {
@@ -133,7 +138,16 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
 
     const invoiceIncome = data.filter(i => i.type === 'income' || !i.type).reduce((s, i) => s + (i.total_amount || 0), 0);
     const invoiceVariableExpenses = data.filter(i => i.type === 'expense').reduce((s, i) => s + (i.total_amount || 0), 0);
-    const totalProjectedFixed = Object.values(byMonthMap).reduce((s, m) => s + m.projectedFixed, 0);
+    
+    // Only sum projected fixed expenses for months that have already started/passed
+    // unless the entire period is in the future.
+    const totalProjectedFixed = Object.entries(byMonthMap).reduce((s, [monthKey, m]) => {
+      if (isFuturePeriod || monthKey <= currentMonthKey) {
+        return s + m.projectedFixed;
+      }
+      return s;
+    }, 0);
+
     const totalExpenses = invoiceVariableExpenses + totalProjectedFixed;
 
     const netBalance = invoiceIncome - totalExpenses;
