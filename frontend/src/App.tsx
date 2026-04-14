@@ -20,7 +20,7 @@ const AdminPropertiesList = lazy(() => import('./pages/admin/AdminPropertiesList
 const AdminPropertyForm = lazy(() => import('./pages/admin/AdminPropertyForm').then(m => ({ default: m.AdminPropertyForm })));
 const AdminInvoices = lazy(() => import('./pages/admin/AdminInvoices').then(m => ({ default: m.AdminInvoices })));
 const AdminInvoiceForm = lazy(() => import('./pages/admin/AdminInvoiceForm').then(m => ({ default: m.AdminInvoiceForm })));
-const AdminAccounting = lazy(() => import('./pages/admin/AdminAccounting').then(m => ({ default: m.AdminAccounting })));
+// Deleted redundant accounting import
 const AdminTenantsList = lazy(() => import('./pages/admin/AdminTenantsList').then(m => ({ default: m.AdminTenantsList })));
 const AdminTenantForm = lazy(() => import('./pages/admin/AdminTenantForm').then(m => ({ default: m.AdminTenantForm })));
 const AdminTenantDetail = lazy(() => import('./pages/admin/AdminTenantDetail').then(m => ({ default: m.AdminTenantDetail })));
@@ -79,7 +79,6 @@ function App() {
           <Route path="facturas" element={<AdminInvoices />} />
           <Route path="facturas/nueva" element={<AdminInvoiceForm />} />
           <Route path="facturas/:id/editar" element={<AdminInvoiceForm />} />
-          <Route path="contabilidad" element={<AdminAccounting />} />
           <Route path="inquilinos" element={<AdminTenantsList />} />
           <Route path="inquilinos/nuevo" element={<AdminTenantForm />} />
           <Route path="inquilinos/:id" element={<AdminTenantDetail />} />

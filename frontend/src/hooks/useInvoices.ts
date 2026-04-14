@@ -79,7 +79,24 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     const incomes = data.filter(i => i.type === 'income' || !i.type);
     const expenses = data.filter(i => i.type === 'expense');
 
-    const totalPeriod = incomes.reduce((s, i) => s + (i.total_amount || 0), 0) - expenses.reduce((s, i) => s + (i.total_amount || 0), 0);
+    // Fetch Fixed Expenses
+    const { data: fixedData } = await supabase
+      .from('accounting_fixed_expenses')
+      .select('amount')
+      .eq('is_active', true);
+    
+    const monthlyFixedSum = (fixedData || []).reduce((s, f) => s + (Number(f.amount) || 0), 0);
+    
+    // Simple month calculation between dates
+    const start = new Date(filters.startDate);
+    const end = new Date(filters.endDate);
+    const monthDiff = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
+    const totalFixedForPeriod = monthlyFixedSum * Math.max(1, monthDiff);
+
+    const invoiceIncome = incomes.reduce((s, i) => s + (i.total_amount || 0), 0);
+    const invoiceExpenses = expenses.reduce((s, i) => s + (i.total_amount || 0), 0);
+
+    const totalPeriod = invoiceIncome - invoiceExpenses - totalFixedForPeriod;
     const taxPeriod = incomes.reduce((s, i) => s + ((i.total_amount || 0) + (i.irpf_amount || 0) - (i.amount || 0)), 0);
     const irpfPeriod = incomes.reduce((s, i) => s + (i.irpf_amount || 0), 0);
     
@@ -88,15 +105,21 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
 
     // Group by month
     const byMonthMap: Record<number, { income: number; expenses: number }> = {};
+    
+    // Initialize all 12 months for the selected year
+    for (let m = 1; m <= 12; m++) {
+      byMonthMap[m] = { income: 0, expenses: 0 };
+    }
+
     data.forEach(i => {
       const m = parseInt(i.invoice_date.split('-')[1]);
-      if (!byMonthMap[m]) byMonthMap[m] = { income: 0, expenses: 0 };
-      
-      const amount = i.total_amount || 0;
-      if (i.type === 'expense') {
-        byMonthMap[m].expenses += amount;
-      } else {
-        byMonthMap[m].income += amount;
+      if (byMonthMap[m]) {
+        const amount = i.total_amount || 0;
+        if (i.type === 'expense') {
+          byMonthMap[m].expenses += amount;
+        } else {
+          byMonthMap[m].income += amount;
+        }
       }
     });
 
@@ -104,9 +127,9 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     const byMonth = Object.entries(byMonthMap).map(([m, vals]) => ({
       month: parseInt(m), 
       year: firstYear, 
-      total: vals.income - vals.expenses,
+      total: vals.income - vals.expenses - monthlyFixedSum, 
       income: vals.income,
-      expenses: vals.expenses
+      expenses: vals.expenses + monthlyFixedSum
     })).sort((a, b) => a.month - b.month);
 
     setSummary({ 
@@ -115,8 +138,8 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
       pendingAmount, 
       taxPeriod, 
       irpfPeriod, 
-      income: incomes.reduce((s, i) => s + (i.total_amount || 0), 0),
-      expenses: expenses.reduce((s, i) => s + (i.total_amount || 0), 0),
+      income: invoiceIncome,
+      expenses: invoiceExpenses + totalFixedForPeriod,
       byMonth 
     });
     setLoading(false);

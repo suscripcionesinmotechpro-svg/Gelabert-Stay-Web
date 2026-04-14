@@ -99,3 +99,19 @@ export interface FixedExpense {
 }
 
 export type FixedExpenseInsert = Omit<FixedExpense, 'id' | 'user_id' | 'created_at'>;
+
+export interface InvoiceIssuer {
+  id: string;
+  user_id: string;
+  name: string;
+  nif: string | null;
+  address: string | null;
+  zip: string | null;
+  city: string | null;
+  email: string | null;
+  phone: string | null;
+  is_default: boolean;
+  created_at: string;
+}
+
+export type InvoiceIssuerInsert = Omit<InvoiceIssuer, 'id' | 'user_id' | 'created_at'>;
