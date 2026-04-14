@@ -44,6 +44,7 @@ export interface Invoice {
   notes: string | null;
   type: 'income' | 'expense';
   issuer_id: string | null;
+  fixed_expense_id: string | null;
 }
 
 export type InvoiceInsert = Omit<Invoice, 'id' | 'created_at' | 'user_id' | 'total_amount' | 'irpf_amount'>;

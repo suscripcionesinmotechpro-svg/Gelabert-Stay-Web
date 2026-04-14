@@ -284,10 +284,6 @@ export const AdminInvoices = () => {
                   <option key={val} value={val}>{label}</option>
                 ))}
               </select>
-
-              {/* In the unified view, we might want to hide the type selector if the tab already implies it, 
-                  but for now we'll keep it for flexibility or remove it if redundant. 
-                  Actually, let's auto-filter based on activeTab. */}
             </div>
 
             <Link

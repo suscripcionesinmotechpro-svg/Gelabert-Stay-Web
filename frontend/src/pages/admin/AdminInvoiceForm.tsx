@@ -36,6 +36,7 @@ const DEFAULT_FORM: InvoiceInsert = {
   notes: null,
   type: 'income',
   issuer_id: '',
+  fixed_expense_id: '',
 };
 
 export const AdminInvoiceForm = () => {
@@ -44,6 +45,19 @@ export const AdminInvoiceForm = () => {
   const navigate = useNavigate();
   const { createInvoice, updateInvoice } = useInvoiceMutations();
   const { issuers, loading: loadingIssuers, createIssuer } = useIssuers();
+  const [fixedExpenses, setFixedExpenses] = useState<{id: string, name: string}[]>([]);
+
+  // Load Fixed Expenses
+  useEffect(() => {
+    const fetchFixed = async () => {
+      const { data } = await supabase
+        .from('accounting_fixed_expenses')
+        .select('id, name')
+        .eq('is_active', true);
+      if (data) setFixedExpenses(data);
+    };
+    fetchFixed();
+  }, []);
 
   const [form, setForm] = useState<InvoiceInsert>(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
@@ -103,6 +117,7 @@ export const AdminInvoiceForm = () => {
         notes: inv.notes,
         type: inv.type || 'income',
         issuer_id: inv.issuer_id || '',
+        fixed_expense_id: inv.fixed_expense_id || '',
       });
       setLoadingForm(false);
     };
@@ -330,18 +345,37 @@ export const AdminInvoiceForm = () => {
                    <option value="domiciliacion">Domiciliación</option>
                  </select>
                </div>
-               <div className="flex flex-col gap-2 lg:col-span-2">
-                 <label className={labelClass}>Detalles de Pago (IBAN...)</label>
-                 <input className={inputClass} value={form.payment_details || ''} onChange={e => set('payment_details', e.target.value)} placeholder="ES00 0000..." />
-               </div>
+                <div className="flex flex-col gap-2 lg:col-span-2">
+                  <label className={labelClass}>Detalles de Pago (IBAN...)</label>
+                  <input className={inputClass} value={form.payment_details ?? ''} onChange={e => set('payment_details', e.target.value)} placeholder="ES00 0000..." />
+                </div>
                <div className="flex flex-col gap-2 lg:col-span-2">
                  <label className={labelClass}>Fecha Emisión</label>
                  <input type="date" className={inputClass} value={form.invoice_date} onChange={e => set('invoice_date', e.target.value)} />
                </div>
-               <div className="flex flex-col gap-2 lg:col-span-2">
-                 <label className={labelClass}>Fecha Vencimiento</label>
-                 <input type="date" className={inputClass} value={form.due_date || ''} onChange={e => set('due_date', e.target.value || null)} />
-               </div>
+                <div className="flex flex-col gap-2 lg:col-span-2">
+                  <label className={labelClass}>Fecha Vencimiento</label>
+                  <input type="date" className={inputClass} value={form.due_date ?? ''} onChange={e => set('due_date', e.target.value || null)} />
+                </div>
+
+                {form.type === 'expense' && (
+                  <div className="flex flex-col gap-2 lg:col-span-2">
+                    <label className={labelClass}>Vincular a Gasto Fijo</label>
+                    <select 
+                      className={inputClass}
+                      value={form.fixed_expense_id ?? ''} 
+                      onChange={(e) => set('fixed_expense_id', e.target.value || null)}
+                    >
+                      <option value="">No vincular (Gasto Variable)</option>
+                      {fixedExpenses.map(fe => (
+                        <option key={fe.id} value={fe.id}>{fe.name}</option>
+                      ))}
+                    </select>
+                    <p className="text-[10px] text-[#666666] mt-1 italic">
+                      Vincular a un gasto fijo evita que se contabilice doble en el balance neto.
+                    </p>
+                  </div>
+                )}
              </div>
           </div>
 
