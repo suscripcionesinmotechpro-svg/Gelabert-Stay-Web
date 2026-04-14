@@ -33,6 +33,7 @@ const DEFAULT_FORM: InvoiceInsert = {
   status: 'pendiente',
   file_url: null,
   notes: null,
+  type: 'income',
 };
 
 export const AdminInvoiceForm = () => {
@@ -95,6 +96,7 @@ export const AdminInvoiceForm = () => {
         status: inv.status,
         file_url: inv.file_url,
         notes: inv.notes,
+        type: inv.type || 'income',
       });
       setLoadingForm(false);
     };
@@ -229,6 +231,25 @@ export const AdminInvoiceForm = () => {
           <p className="font-primary text-red-400 text-sm">{error}</p>
         </div>
       )}
+      {/* Type Selector */}
+      <div className="flex gap-1 p-1 bg-[#111] border border-[#1F1F1F] self-start">
+        <button
+          onClick={() => set('type', 'income')}
+          className={`px-6 py-2 text-xs font-primary font-bold uppercase tracking-widest transition-all ${
+            form.type === 'income' ? 'bg-[#C9A962] text-[#0A0A0A]' : 'text-[#666666] hover:text-[#FAF8F5]'
+          }`}
+        >
+          Ingresos
+        </button>
+        <button
+          onClick={() => set('type', 'expense')}
+          className={`px-6 py-2 text-xs font-primary font-bold uppercase tracking-widest transition-all ${
+            form.type === 'expense' ? 'bg-red-500 text-[#FAF8F5]' : 'text-[#666666] hover:text-[#FAF8F5]'
+          }`}
+        >
+          Gastos
+        </button>
+      </div>
 
 
 

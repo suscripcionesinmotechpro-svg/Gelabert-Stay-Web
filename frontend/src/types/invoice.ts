@@ -42,6 +42,7 @@ export interface Invoice {
 
   file_url: string | null;
   notes: string | null;
+  type: 'income' | 'expense';
 }
 
 export type InvoiceInsert = Omit<Invoice, 'id' | 'created_at' | 'user_id' | 'total_amount' | 'irpf_amount'>;
@@ -81,5 +82,18 @@ export interface InvoiceSummary {
   irpfPeriod: number;
   pendingCount: number;
   pendingAmount: number;
-  byMonth: { month: number; year: number; total: number }[];
+  byMonth: { month: number; year: number; total: number; expenses: number; income: number }[];
 }
+
+export interface FixedExpense {
+  id: string;
+  user_id: string;
+  name: string;
+  amount: number;
+  category: string | null;
+  day_of_month: number | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+export type FixedExpenseInsert = Omit<FixedExpense, 'id' | 'user_id' | 'created_at'>;

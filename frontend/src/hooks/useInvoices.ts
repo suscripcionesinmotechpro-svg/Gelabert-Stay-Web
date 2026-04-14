@@ -43,6 +43,7 @@ export const useInvoices = (filters?: InvoiceFilters) => {
         irpf_amount: inv.irpf_amount || 0,
         items: inv.items || [],
         series: inv.series || 'A',
+        type: inv.type || 'income',
       }));
 
       setInvoices(processedData as Invoice[]);
@@ -75,23 +76,37 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
 
     if (!data) { setLoading(false); return; }
 
-    const totalPeriod = data.reduce((s, i) => s + (i.total_amount || 0), 0);
-    const taxPeriod = data.reduce((s, i) => s + ((i.total_amount || 0) + (i.irpf_amount || 0) - (i.amount || 0)), 0);
-    const irpfPeriod = data.reduce((s, i) => s + (i.irpf_amount || 0), 0);
+    const incomes = data.filter(i => i.type === 'income' || !i.type);
+    const expenses = data.filter(i => i.type === 'expense');
+
+    const totalPeriod = incomes.reduce((s, i) => s + (i.total_amount || 0), 0) - expenses.reduce((s, i) => s + (i.total_amount || 0), 0);
+    const taxPeriod = incomes.reduce((s, i) => s + ((i.total_amount || 0) + (i.irpf_amount || 0) - (i.amount || 0)), 0);
+    const irpfPeriod = incomes.reduce((s, i) => s + (i.irpf_amount || 0), 0);
     
-    const pending = data.filter(i => i.status === 'pendiente');
+    const pending = incomes.filter(i => i.status === 'pendiente');
     const pendingAmount = pending.reduce((s, i) => s + (i.total_amount || 0), 0);
 
     // Group by month
-    const byMonthMap: Record<number, number> = {};
+    const byMonthMap: Record<number, { income: number; expenses: number }> = {};
     data.forEach(i => {
       const m = parseInt(i.invoice_date.split('-')[1]);
-      byMonthMap[m] = (byMonthMap[m] || 0) + (i.total_amount || 0);
+      if (!byMonthMap[m]) byMonthMap[m] = { income: 0, expenses: 0 };
+      
+      const amount = i.total_amount || 0;
+      if (i.type === 'expense') {
+        byMonthMap[m].expenses += amount;
+      } else {
+        byMonthMap[m].income += amount;
+      }
     });
-    // the year could span multiple, but usually filters are within a year
+
     const firstYear = parseInt(filters.startDate.split('-')[0]) || new Date().getFullYear();
-    const byMonth = Object.entries(byMonthMap).map(([m, total]) => ({
-      month: parseInt(m), year: firstYear, total
+    const byMonth = Object.entries(byMonthMap).map(([m, vals]) => ({
+      month: parseInt(m), 
+      year: firstYear, 
+      total: vals.income - vals.expenses,
+      income: vals.income,
+      expenses: vals.expenses
     })).sort((a, b) => a.month - b.month);
 
     setSummary({ totalPeriod, pendingCount: pending.length, pendingAmount, taxPeriod, irpfPeriod, byMonth });
