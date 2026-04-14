@@ -62,7 +62,7 @@ export const useInvoices = (filters?: InvoiceFilters) => {
 // ─── SUMMARY / STATS ────────────────────────────────────────────────
 export const useInvoiceSummary = (filters: { startDate: string; endDate: string }) => {
   const [summary, setSummary] = useState<InvoiceSummary>({
-    totalPeriod: 0, taxPeriod: 0, irpfPeriod: 0, pendingCount: 0, pendingAmount: 0, byMonth: []
+    totalPeriod: 0, taxPeriod: 0, irpfPeriod: 0, pendingCount: 0, pendingAmount: 0, income: 0, expenses: 0, byMonth: []
   });
   const [loading, setLoading] = useState(true);
 
@@ -109,7 +109,16 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
       expenses: vals.expenses
     })).sort((a, b) => a.month - b.month);
 
-    setSummary({ totalPeriod, pendingCount: pending.length, pendingAmount, taxPeriod, irpfPeriod, byMonth });
+    setSummary({ 
+      totalPeriod, 
+      pendingCount: pending.length, 
+      pendingAmount, 
+      taxPeriod, 
+      irpfPeriod, 
+      income: incomes.reduce((s, i) => s + (i.total_amount || 0), 0),
+      expenses: expenses.reduce((s, i) => s + (i.total_amount || 0), 0),
+      byMonth 
+    });
     setLoading(false);
   };
 

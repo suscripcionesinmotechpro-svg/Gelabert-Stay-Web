@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInvoiceSummary, useInvoices, useInvoiceMutations } from '../../hooks/useInvoices';
 import { STATUS_COLORS, STATUS_LABELS, type InvoiceStatus } from '../../types/invoice';
-import { PlusCircle, Download, TrendingUp, Clock, AlertCircle, Euro, ChevronDown, Trash2, Edit, FileText } from 'lucide-react';
+import { PlusCircle, Download, TrendingUp, Clock, AlertCircle, Euro, ChevronDown, Trash2, Edit, FileText, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -15,6 +15,7 @@ export const AdminInvoices = () => {
   const [periodType, setPeriodType] = useState<PeriodType>('year');
   const [selectedMonth, setSelectedMonth] = useState<number>(currentMonth);
   const [selectedStatus, setSelectedStatus] = useState<string>('todos');
+  const [selectedType, setSelectedType] = useState<string>('todos');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const getDateRange = () => {
@@ -59,6 +60,12 @@ export const AdminInvoices = () => {
     endDate: dateRange.end,
     status: selectedStatus,
   });
+
+  const filteredInvoices = invoices.filter(inv => {
+    if (selectedType === 'todos') return true;
+    return inv.type === selectedType;
+  });
+
   const { updateStatus, deleteInvoice } = useInvoiceMutations();
 
   const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
@@ -105,22 +112,22 @@ export const AdminInvoices = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           {
-            label: `Ingresos (${dateRange.label})`,
+            label: `Balance Neto (${dateRange.label})`,
             value: loadingSummary ? '—' : formatCurrency(summary.totalPeriod),
             icon: <TrendingUp className="w-5 h-5" />,
-            color: 'text-[#C9A962]',
+            color: summary.totalPeriod >= 0 ? 'text-[#C9A962]' : 'text-red-400',
           },
           {
-            label: 'IVA Acumulado',
-            value: loadingSummary ? '—' : formatCurrency(summary.taxPeriod),
-            icon: <FileText className="w-5 h-5" />,
-            color: 'text-blue-400',
+            label: `Ingresos`,
+            value: loadingSummary ? '—' : formatCurrency(summary.income || 0),
+            icon: <ArrowUpRight className="w-5 h-5" />,
+            color: 'text-green-400',
           },
           {
-            label: 'IRPF Retenido',
-            value: loadingSummary ? '—' : formatCurrency(summary.irpfPeriod),
-            icon: <Euro className="w-5 h-5" />,
-            color: 'text-purple-400',
+            label: 'Gastos Facturados',
+            value: loadingSummary ? '—' : formatCurrency(summary.expenses || 0),
+            icon: <ArrowDownRight className="w-5 h-5" />,
+            color: 'text-red-400',
           },
           {
             label: 'Pendientes de Cobro',
@@ -198,14 +205,23 @@ export const AdminInvoices = () => {
           onChange={e => setSelectedStatus(e.target.value)}
           className="h-9 bg-[#111] border border-[#1F1F1F] px-3 font-primary text-sm text-[#FAF8F5] outline-none focus:border-[#C9A962]"
         >
-          <option value="todos">Todos los estados</option>
           {Object.entries(STATUS_LABELS).map(([val, label]) => (
             <option key={val} value={val}>{label}</option>
           ))}
         </select>
 
+        <select
+          value={selectedType}
+          onChange={e => setSelectedType(e.target.value)}
+          className="h-9 bg-[#111] border border-[#1F1F1F] px-3 font-primary text-sm text-[#FAF8F5] outline-none focus:border-[#C9A962]"
+        >
+          <option value="todos">Todos los tipos</option>
+          <option value="income">Solo Ingresos</option>
+          <option value="expense">Solo Gastos</option>
+        </select>
+
         <span className="font-primary text-[#666666] text-xs ml-auto">
-          {invoices.length} factura{invoices.length !== 1 ? 's' : ''} en este periodo
+          {filteredInvoices.length} factura{filteredInvoices.length !== 1 ? 's' : ''} en este periodo
         </span>
       </div>
 
@@ -250,7 +266,7 @@ export const AdminInvoices = () => {
           <div className="flex items-center justify-center py-16">
             <div className="w-8 h-8 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : invoices.length === 0 ? (
+        ) : filteredInvoices.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-4">
             <FileText className="w-12 h-12 text-[#333333]" />
             <p className="font-primary text-[#666666] text-sm">No hay facturas para los filtros seleccionados</p>
@@ -262,7 +278,7 @@ export const AdminInvoices = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#1F1F1F]">
-                {['Nº Factura', 'Cliente', 'Serie', 'Fecha', 'Base', 'IVA', 'IRPF', 'Total', 'Estado', 'Acciones'].map(h => (
+                {['Tipo', 'Nº Factura', 'Cliente', 'Serie', 'Fecha', 'Base', 'IVA', 'IRPF', 'Total', 'Estado', 'Acciones'].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-primary text-[10px] uppercase tracking-wider text-[#666666]">
                     {h}
                   </th>
@@ -270,8 +286,18 @@ export const AdminInvoices = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1F1F1F]">
-              {invoices.map(inv => (
+              {filteredInvoices.map(inv => (
                 <tr key={inv.id} className="hover:bg-[#111111] transition-colors">
+                  <td className="px-4 py-3 min-w-[100px]">
+                    <span className={cn(
+                      'px-2 py-0.5 rounded-full text-[9px] font-primary font-bold uppercase tracking-wider border',
+                      inv.type === 'expense' 
+                        ? 'text-red-400 border-red-400/30 bg-red-400/5' 
+                        : 'text-green-400 border-green-400/30 bg-green-400/5'
+                    )}>
+                      {inv.type === 'expense' ? 'Gasto' : 'Ingreso'}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 font-primary text-[#FAF8F5] text-sm font-bold">{inv.invoice_number}</td>
                   <td className="px-4 py-3 font-primary text-[#888888] text-sm max-w-[150px] truncate">{inv.client_name}</td>
                   <td className="px-4 py-3 font-primary text-[#888888] text-sm">{inv.series || 'A'}</td>

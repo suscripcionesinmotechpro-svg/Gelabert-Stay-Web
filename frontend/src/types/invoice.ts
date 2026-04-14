@@ -82,6 +82,8 @@ export interface InvoiceSummary {
   irpfPeriod: number;
   pendingCount: number;
   pendingAmount: number;
+  income: number;
+  expenses: number;
   byMonth: { month: number; year: number; total: number; expenses: number; income: number }[];
 }
 
