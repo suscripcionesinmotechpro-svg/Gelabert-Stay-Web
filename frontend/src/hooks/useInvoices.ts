@@ -85,8 +85,6 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
 
     if (!data) { setLoading(false); return; }
 
-    const incomes = data.filter(i => i.type === 'income' || !i.type);
-    const expenses = data.filter(i => i.type === 'expense');
 
     // Fetch Fixed Expenses
     const { data: fixedData } = await supabase
