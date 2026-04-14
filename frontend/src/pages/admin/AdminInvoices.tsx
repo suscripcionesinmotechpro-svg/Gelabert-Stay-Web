@@ -4,7 +4,7 @@ import { useInvoiceSummary, useInvoices, useInvoiceMutations } from '../../hooks
 import { useAccounting } from '../../hooks/useAccounting';
 import { STATUS_COLORS, STATUS_LABELS, type InvoiceStatus } from '../../types/invoice';
 import { 
-  PlusCircle, Download, TrendingUp, Clock, AlertCircle, 
+  PlusCircle, Download, TrendingUp, 
   ChevronDown, Trash2, Edit, FileText, ArrowUpRight, 
   ArrowDownRight, Calculator, Check, X, Building2, Mail, Phone, MapPin
 } from 'lucide-react';
@@ -180,7 +180,6 @@ export const AdminInvoices = () => {
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {[
           {
@@ -221,7 +220,10 @@ export const AdminInvoices = () => {
             </div>
             <p className={cn("font-secondary text-2xl leading-tight", stat.color && !stat.color.includes('bg-') ? stat.color : "")}>{stat.value}</p>
           </div>
-        ))}      { (activeTab === 'invoices' || activeTab === 'variable_expenses') ? (
+        ))}
+      </div>
+
+      {(activeTab === 'invoices' || activeTab === 'variable_expenses') ? (
         <div className="flex flex-col gap-6">
           {/* Filters & Actions */}
           <div className="flex flex-wrap gap-4 items-center justify-between">
@@ -559,10 +561,6 @@ export const AdminInvoices = () => {
             </table>
           </div>
         </div>
-      )}
-    </div>
-  );
-}
       )}
     </div>
   );

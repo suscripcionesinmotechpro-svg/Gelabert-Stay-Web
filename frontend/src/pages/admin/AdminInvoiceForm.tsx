@@ -332,7 +332,7 @@ export const AdminInvoiceForm = () => {
                </div>
                <div className="flex flex-col gap-2 lg:col-span-2">
                  <label className={labelClass}>Detalles de Pago (IBAN...)</label>
-                 <input className={inputClass} value={form.payment_details} onChange={e => set('payment_details', e.target.value)} placeholder="ES00 0000..." />
+                 <input className={inputClass} value={form.payment_details || ''} onChange={e => set('payment_details', e.target.value)} placeholder="ES00 0000..." />
                </div>
                <div className="flex flex-col gap-2 lg:col-span-2">
                  <label className={labelClass}>Fecha Emisión</label>
