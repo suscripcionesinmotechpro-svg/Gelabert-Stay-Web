@@ -67,9 +67,10 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     irpfPeriod: 0, 
     pendingCount: 0, 
     pendingAmount: 0, 
-    income: 0, 
-    variableExpenses: 0,
+    income: 0,
     fixedExpenses: 0,
+    variableExpenses: 0,
+    invoiceExpenses: 0,
     totalExpenses: 0,
     byMonth: []
   });
@@ -77,128 +78,149 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
 
   const fetchSummary = async () => {
     setLoading(true);
-    const { data } = await supabase
+
+    // 1. Fetch all invoices in period
+    const { data: invoiceData } = await supabase
       .from('invoices')
       .select('*')
       .gte('invoice_date', filters.startDate)
       .lte('invoice_date', filters.endDate);
 
-    if (!data) { setLoading(false); return; }
-
-
-    // Fetch Fixed Expenses
+    // 2. Fetch all active fixed expenses
     const { data: fixedData } = await supabase
       .from('accounting_fixed_expenses')
-      .select('id, amount, frequency')
+      .select('*')
       .eq('is_active', true);
-    
-    const activeFixed = fixedData || [];
-    
-    // Group by month to handle fixed expense projections vs real invoices
-    const byMonthMap: Record<string, { income: number; expenses: number; projectedFixed: number }> = {};
-    
-    // Initialize months in range
+
+    // 3. Fetch variable monthly entries for the entire period
+    const startYear = parseInt(filters.startDate.substring(0, 4));
+    const endYear = parseInt(filters.endDate.substring(0, 4));
+    const { data: monthlyData } = await supabase
+      .from('accounting_variable_monthly')
+      .select('*')
+      .gte('year', startYear)
+      .lte('year', endYear);
+
+    if (!invoiceData) { setLoading(false); return; }
+
+    const allInvoices = invoiceData as any[];
+    const allFixed = fixedData || [];
+    const allMonthly = monthlyData || [];
+
+    // Build month range
+    const byMonthMap: Record<string, { income: number; fixedExp: number; variableExp: number; invoiceExp: number }> = {};
     let curr = new Date(filters.startDate);
-    const end = new Date(filters.endDate);
-    while (curr <= end) {
+    const endDate = new Date(filters.endDate);
+    while (curr <= endDate) {
       const key = `${curr.getFullYear()}-${String(curr.getMonth() + 1).padStart(2, '0')}`;
-      byMonthMap[key] = { income: 0, expenses: 0, projectedFixed: 0 };
+      byMonthMap[key] = { income: 0, fixedExp: 0, variableExp: 0, invoiceExp: 0 };
       curr.setMonth(curr.getMonth() + 1);
     }
 
-    // Sort invoices into months
-    data.forEach(i => {
-      const key = i.invoice_date.substring(0, 7); // "YYYY-MM"
-      if (byMonthMap[key]) {
-        if (i.type === 'expense') {
-          byMonthMap[key].expenses += (i.total_amount || 0);
-        } else {
-          byMonthMap[key].income += (i.total_amount || 0);
-        }
-      }
-    });
-
     const now = new Date();
     const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    const startMonthKey = filters.startDate.substring(0, 7);
-    const isFuturePeriod = startMonthKey > currentMonthKey;
 
-    // Calculate adjusted fixed expenses per month
-    // If a month has an invoice linked to Fixed X, we don't add Fixed X to projectedFixed
+    // Process each month
     Object.keys(byMonthMap).forEach(monthKey => {
-      const [_y, _mStr] = monthKey.split('-');
-      const monthIndex = parseInt(_mStr);
-      
-      const invoicesThisMonth = data.filter(i => i.invoice_date.startsWith(monthKey) && i.type === 'expense');
-      const linkedFixedIds = invoicesThisMonth.map(i => i.fixed_expense_id).filter(Boolean);
-      
-      let projected = 0;
-      // Sólo aplicar gastos fijos a proyecciones a partir de 2026
-      if (monthKey >= '2026-01') {
-        projected = activeFixed
-          .filter(f => !linkedFixedIds.includes(f.id))
-          .filter(f => {
-            const freq = f.frequency || 'monthly';
-            if (freq === 'monthly') return true;
-            if (freq === 'quarterly') return monthIndex % 3 === 0;
-            if (freq === 'semiannual') return monthIndex % 6 === 0;
-            if (freq === 'annual') return monthIndex === 12;
-            return true;
-          })
-          .reduce((s, f) => s + (Number(f.amount) || 0), 0);
-      }
-      
-      byMonthMap[monthKey].projectedFixed = projected;
+      // Only count past or current months (not future projections in KPIs)
+      if (monthKey > currentMonthKey) return;
+
+      const [yStr, mStr] = monthKey.split('-');
+      const year = parseInt(yStr);
+      const monthNum = parseInt(mStr);
+
+      // Invoices this month
+      const invThisMonth = allInvoices.filter(i => i.invoice_date?.startsWith(monthKey));
+      const incomeInvs = invThisMonth.filter(i => i.type === 'income' || !i.type);
+      const expenseInvs = invThisMonth.filter(i => i.type === 'expense');
+
+      // Income
+      byMonthMap[monthKey].income = incomeInvs.reduce((s, i) => s + (i.total_amount || 0), 0);
+
+      // IDs of fixed expenses that have a linked invoice this month
+      const linkedFixedIds = new Set(
+        expenseInvs.map(i => i.fixed_expense_id).filter(Boolean)
+      );
+
+      // Standalone expense invoices (no linked fixed expense)
+      const standaloneExpInvs = expenseInvs.filter(i => !i.fixed_expense_id);
+      byMonthMap[monthKey].invoiceExp = standaloneExpInvs.reduce((s, i) => s + (i.total_amount || 0), 0);
+
+      // Process each fixed expense
+      allFixed.forEach(fe => {
+        const freq = fe.frequency || 'monthly';
+        const appliesThisMonth =
+          freq === 'monthly' ? true :
+          freq === 'quarterly' ? monthNum % 3 === 1 : // Jan, Apr, Jul, Oct
+          freq === 'semiannual' ? (monthNum === 1 || monthNum === 7) :
+          freq === 'annual' ? monthNum === 1 :
+          true;
+
+        if (!appliesThisMonth) return;
+        // Skip months before 2026 to avoid retroactive accounting
+        if (monthKey < '2026-01') return;
+
+        if (linkedFixedIds.has(fe.id)) {
+          // This expense has a real invoice → use invoice amount, not the fixed amount
+          const linkedInv = expenseInvs.find(i => i.fixed_expense_id === fe.id);
+          const invAmount = linkedInv ? (linkedInv.total_amount || 0) : 0;
+          if (fe.is_variable) {
+            byMonthMap[monthKey].variableExp += invAmount;
+          } else {
+            byMonthMap[monthKey].fixedExp += invAmount;
+          }
+        } else if (fe.is_variable) {
+          // Variable expense without invoice → check monthly entry
+          const monthlyEntry = allMonthly.find(
+            m => m.fixed_expense_id === fe.id && m.year === year && m.month === monthNum
+          );
+          byMonthMap[monthKey].variableExp += monthlyEntry
+            ? (monthlyEntry.actual_amount || 0)
+            : (Number(fe.amount) || 0); // fallback to estimate
+        } else {
+          // Fixed expense without invoice → use fixed amount
+          byMonthMap[monthKey].fixedExp += Number(fe.amount) || 0;
+        }
+      });
     });
 
-    const invoiceIncome = data.filter(i => i.type === 'income' || !i.type).reduce((s, i) => s + (i.total_amount || 0), 0);
-    const invoiceVariableExpenses = data.filter(i => i.type === 'expense').reduce((s, i) => s + (i.total_amount || 0), 0);
-    
-    // Only sum projected fixed expenses for months that have already started/passed
-    // unless the entire period is in the future.
-    const totalProjectedFixed = Object.entries(byMonthMap).reduce((s, [monthKey, m]) => {
-      // Comparison: monthKey (YYYY-MM) <= currentMonthKey (YYYY-MM)
-      if (isFuturePeriod || monthKey <= currentMonthKey) {
-        return s + m.projectedFixed;
-      }
-      return s;
-    }, 0);
+    // Aggregate totals
+    const totalIncome = Object.values(byMonthMap).reduce((s, m) => s + m.income, 0);
+    const totalFixed = Object.values(byMonthMap).reduce((s, m) => s + m.fixedExp, 0);
+    const totalVariable = Object.values(byMonthMap).reduce((s, m) => s + m.variableExp, 0);
+    const totalInvoiceExp = Object.values(byMonthMap).reduce((s, m) => s + m.invoiceExp, 0);
+    const totalExpenses = totalFixed + totalVariable + totalInvoiceExp;
 
-    const totalExpenses = invoiceVariableExpenses + totalProjectedFixed;
-
-    const netBalance = invoiceIncome - totalExpenses;
-    const taxPeriod = data.reduce((s, i) => s + ((i.total_amount || 0) + (i.irpf_amount || 0) - (i.amount || 0)), 0);
-    const irpfPeriod = data.reduce((s, i) => s + (i.irpf_amount || 0), 0);
+    const taxPeriod = allInvoices.reduce((s, i) => s + ((i.total_amount || 0) + (i.irpf_amount || 0) - (i.amount || 0)), 0);
+    const irpfPeriod = allInvoices.reduce((s, i) => s + (i.irpf_amount || 0), 0);
     
-    const pending = data.filter(i => (i.type === 'income' || !i.type) && i.status === 'pendiente');
+    const pending = allInvoices.filter(i => (i.type === 'income' || !i.type) && i.status === 'pendiente');
     const pendingAmount = pending.reduce((s, i) => s + (i.total_amount || 0), 0);
 
     const byMonth = Object.entries(byMonthMap).map(([key, vals]) => {
       const [year, month] = key.split('-').map(Number);
-      // For chart: only include projections for past/current months
-      const isPastOrCurrent = isFuturePeriod || key <= currentMonthKey;
-      const effectiveFixed = isPastOrCurrent ? vals.projectedFixed : 0;
-      
+      const totalMonthExp = vals.fixedExp + vals.variableExp + vals.invoiceExp;
       return {
-        month, 
-        year, 
-        total: vals.income - (vals.expenses + effectiveFixed), 
+        month,
+        year,
+        total: vals.income - totalMonthExp,
         income: vals.income,
-        expenses: vals.expenses + effectiveFixed
+        expenses: totalMonthExp
       };
     }).sort((a, b) => (a.year * 12 + a.month) - (b.year * 12 + b.month));
 
-    setSummary({ 
-      totalPeriod: netBalance, 
-      pendingCount: pending.length, 
-      pendingAmount, 
-      taxPeriod, 
-      irpfPeriod, 
-      income: invoiceIncome,
-      variableExpenses: invoiceVariableExpenses,
-      fixedExpenses: totalProjectedFixed,
+    setSummary({
+      totalPeriod: totalIncome - totalExpenses,
+      pendingCount: pending.length,
+      pendingAmount,
+      taxPeriod,
+      irpfPeriod,
+      income: totalIncome,
+      fixedExpenses: totalFixed,
+      variableExpenses: totalVariable,
+      invoiceExpenses: totalInvoiceExp,
       totalExpenses,
-      byMonth 
+      byMonth
     });
     setLoading(false);
   };
@@ -209,6 +231,7 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
 
   return { summary, loading, refetch: fetchSummary };
 };
+
 
 // ─── CREATE / UPDATE / DELETE ────────────────────────────────────────
 export const useInvoiceMutations = () => {

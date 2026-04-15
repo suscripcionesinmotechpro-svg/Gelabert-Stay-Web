@@ -4,9 +4,9 @@ import { useInvoiceSummary, useInvoices, useInvoiceMutations } from '../../hooks
 import { useAccounting } from '../../hooks/useAccounting';
 import { STATUS_LABELS } from '../../types/invoice';
 import { 
-  PlusCircle, TrendingUp, 
-  Trash2, Edit, FileText, ArrowUpRight, 
-  ArrowDownRight, Calculator, Check, X, Building2, Mail, Phone, MapPin, ShoppingBag
+  PlusCircle, TrendingUp, Zap,
+  Trash2, Edit, ArrowUpRight, 
+  Calculator, Check, X, Building2, Mail, Phone, MapPin, Receipt
 } from 'lucide-react';
 import { useIssuers } from '../../hooks/useIssuers';
 import { cn } from '../../lib/utils';
@@ -28,6 +28,10 @@ export const AdminInvoices = () => {
   const [selectedStatus, setSelectedStatus] = useState<string>('todos');
   const [filterInvoiceType, setFilterInvoiceType] = useState<'income' | 'expense' | 'all'>('all');
 
+  // State for monthly variable amounts (keyed by fixed_expense_id)
+  const [variableMonthlyAmounts, setVariableMonthlyAmounts] = useState<Record<string, string>>({});
+  const [savingMonthlyEntry, setSavingMonthlyEntry] = useState<string | null>(null);
+
   const [isAddingFixed, setIsAddingFixed] = useState(false);
   const [newFixedExpense, setNewFixedExpense] = useState({
     name: '',
@@ -42,13 +46,11 @@ export const AdminInvoices = () => {
 
   const { 
     fixedExpenses, 
-    variableCategories, 
+    variableMonthlyEntries,
     addFixedExpense, 
     updateFixedExpense, 
     deleteFixedExpense,
-    addVariableCategory,
-    updateVariableCategory,
-    deleteVariableCategory
+    upsertVariableMonthlyEntry,
   } = useAccounting();
 
   const getDateRange = () => {
@@ -95,46 +97,7 @@ export const AdminInvoices = () => {
     return true;
   });
 
-  const combinedVariableItems = [
-    ...variableCategories.map(cat => ({ 
-      id: cat.id, 
-      name: cat.name, 
-      description: cat.description, 
-      amount: cat.default_amount, 
-      isFixed: false 
-    })),
-    ...fixedExpenses.filter(e => e.is_variable).map(e => ({ 
-      id: e.id, 
-      name: e.name, 
-      description: `Gasto Recurrente (${e.frequency === 'monthly' ? 'Mensual' : e.frequency === 'quarterly' ? 'Trimestral' : e.frequency === 'semiannual' ? 'Semestral' : 'Anual'})`, 
-      amount: e.amount, 
-      isFixed: true 
-    }))
-  ];
-
   const { deleteInvoice } = useInvoiceMutations();
-
-  const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
-
-  const [isAddingVariable, setIsAddingVariable] = useState(false);
-  const [newVariableCategory, setNewVariableCategory] = useState({ name: '', description: '', default_amount: 0, is_active: true });
-  const [editingVariableId, setEditingVariableId] = useState<string | null>(null);
-  const [editingVariableData, setEditingVariableData] = useState<any>(null);
-
-  const handleSaveVariableCategory = async () => {
-    try {
-      if (editingVariableId) {
-        await updateVariableCategory(editingVariableId, editingVariableData);
-        setEditingVariableId(null);
-      } else {
-        await addVariableCategory(newVariableCategory as any);
-        setIsAddingVariable(false);
-        setNewVariableCategory({ name: '', description: '', default_amount: 0, is_active: true });
-      }
-    } catch (err: any) {
-      console.error(err);
-    }
-  };
 
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n);
@@ -263,55 +226,67 @@ export const AdminInvoices = () => {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {[
-          {
-            label: `Balance Periodo`,
-            value: loadingSummary ? '—' : formatCurrency(summary.totalPeriod),
-            subValue: `En ${dateRange.label} ${selectedYear}`,
-            icon: <Calculator className="w-5 h-5" />,
-            color: summary.totalPeriod >= 0 ? 'text-[#C9A962] border-[#C9A962]/50 bg-[#C9A962]/5' : 'text-red-400 border-red-400/30 bg-red-400/5',
-          },
-          {
-            label: `Ingresos`,
-            value: loadingSummary ? '—' : formatCurrency(summary.income || 0),
-            icon: <ArrowUpRight className="w-5 h-5" />,
-            color: 'text-green-400',
-          },
-          {
-            label: 'Total Gastos',
-            value: loadingSummary ? '—' : formatCurrency(summary.totalExpenses || 0),
-            icon: <ArrowDownRight className="w-5 h-5" />,
-            color: 'text-red-400',
-          },
-          {
-            label: 'IVA Acumulado',
-            value: loadingSummary ? '—' : formatCurrency(summary.taxPeriod),
-            icon: <TrendingUp className="w-5 h-5" />,
-            color: 'text-blue-400',
-          },
-          {
-            label: 'IRPF Acumulado',
-            value: loadingSummary ? '—' : formatCurrency(summary.irpfPeriod),
-            icon: <TrendingUp className="w-5 h-5" />,
-            color: 'text-purple-400',
-          },
-        ].map((stat, i) => (
-          <div key={i} className={cn(cardClass, stat.color && !stat.color.includes('bg-') ? '' : stat.color)}>
-            <div className={cn("flex items-center gap-2", stat.color && !stat.color.includes('bg-') ? stat.color : "")}>
-              {stat.icon}
-              <span className="font-primary text-[10px] uppercase tracking-wider text-[#666666]">{stat.label}</span>
-            </div>
-            <p className={cn("font-secondary text-2xl leading-tight", stat.color && !stat.color.includes('bg-') ? stat.color : "")}>{stat.value}</p>
-            {stat.subValue && <p className="text-[10px] text-[#555] font-primary uppercase tracking-tighter mt-1">{stat.subValue}</p>}
+        {/* Balance */}
+        <div className={cn(cardClass, summary.totalPeriod >= 0 ? 'border-[#C9A962]/40 bg-[#C9A962]/5' : 'border-red-500/30 bg-red-500/5')}>
+          <div className={cn("flex items-center gap-2", summary.totalPeriod >= 0 ? 'text-[#C9A962]' : 'text-red-400')}>
+            <Calculator className="w-4 h-4" />
+            <span className="font-primary text-[10px] uppercase tracking-wider text-[#666]">Balance {dateRange.label}</span>
           </div>
-        ))}
+          <p className={cn("font-secondary text-2xl leading-tight", summary.totalPeriod >= 0 ? 'text-[#C9A962]' : 'text-red-400')}>
+            {loadingSummary ? '—' : formatCurrency(summary.totalPeriod)}
+          </p>
+        </div>
+        {/* Ingresos */}
+        <div className={cardClass}>
+          <div className="flex items-center gap-2 text-green-400">
+            <ArrowUpRight className="w-4 h-4" />
+            <span className="font-primary text-[10px] uppercase tracking-wider text-[#666]">Ingresos</span>
+          </div>
+          <p className="font-secondary text-2xl leading-tight text-green-400">
+            {loadingSummary ? '—' : formatCurrency(summary.income)}
+          </p>
+          <span className="text-[9px] text-[#444] font-primary uppercase tracking-tighter">Facturas cobradas</span>
+        </div>
+        {/* Gastos Fijos */}
+        <div className={cardClass}>
+          <div className="flex items-center gap-2 text-orange-400">
+            <TrendingUp className="w-4 h-4" />
+            <span className="font-primary text-[10px] uppercase tracking-wider text-[#666]">Gastos Fijos</span>
+          </div>
+          <p className="font-secondary text-2xl leading-tight text-orange-400">
+            {loadingSummary ? '—' : formatCurrency(summary.fixedExpenses)}
+          </p>
+          <span className="text-[9px] text-[#444] font-primary uppercase tracking-tighter">Alquiler, seguros...</span>
+        </div>
+        {/* Gastos Variables */}
+        <div className={cardClass}>
+          <div className="flex items-center gap-2 text-yellow-400">
+            <Zap className="w-4 h-4" />
+            <span className="font-primary text-[10px] uppercase tracking-wider text-[#666]">Gastos Variables</span>
+          </div>
+          <p className="font-secondary text-2xl leading-tight text-yellow-400">
+            {loadingSummary ? '—' : formatCurrency(summary.variableExpenses)}
+          </p>
+          <span className="text-[9px] text-[#444] font-primary uppercase tracking-tighter">Luz, agua, teléfono...</span>
+        </div>
+        {/* Gastos Facturas */}
+        <div className={cardClass}>
+          <div className="flex items-center gap-2 text-red-400">
+            <Receipt className="w-4 h-4" />
+            <span className="font-primary text-[10px] uppercase tracking-wider text-[#666]">Gastos Facturas</span>
+          </div>
+          <p className="font-secondary text-2xl leading-tight text-red-400">
+            {loadingSummary ? '—' : formatCurrency(summary.invoiceExpenses)}
+          </p>
+          <span className="text-[9px] text-[#444] font-primary uppercase tracking-tighter">Sin vincular a fijo</span>
+        </div>
       </div>
 
       {activeTab === 'invoices' || activeTab === 'variable_expenses' ? (
         <div className="flex flex-col gap-6">
           <div className="flex flex-wrap gap-4 items-center justify-between">
             <div className="flex flex-wrap gap-3 items-center bg-[#0A0A0A] border border-[#1F1F1F] p-3">
-              {availableYears.map(y => (
+              {Array.from({ length: 5 }, (_, i) => currentYear - i).map((y: number) => (
                 <button
                   key={y}
                   onClick={() => setSelectedYear(y)}
@@ -476,166 +451,179 @@ export const AdminInvoices = () => {
               </table>
             </div>
           ) : (
+            /* ─── GASTOS VARIABLES TAB ─────────────────────────────────────── */
             <div className="flex flex-col gap-6">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ShoppingBag className="w-5 h-5 text-[#C9A962]" />
-                  <h2 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-wider">Conceptos de Gasto Sugeridos (Variables y Recurrentes)</h2>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-yellow-400" />
+                    <h2 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-wider">Gastos Variables</h2>
+                  </div>
+                  <p className="font-primary text-[#666] text-[10px] uppercase tracking-widest ml-7">
+                    Gastos cuyo importe cambia cada mes — introduce el importe real para cada periodo
+                  </p>
                 </div>
-                <button 
-                  onClick={() => setIsAddingVariable(true)}
+                <button
+                  onClick={() => { setIsAddingFixed(true); setNewFixedExpense(prev => ({ ...prev, is_variable: true })); setActiveTab('fixed_expenses'); }}
                   className="flex items-center gap-2 px-4 py-2 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[10px] uppercase tracking-widest hover:bg-[#D4B673] transition-colors"
                 >
-                  <PlusCircle className="w-4 h-4" /> Nueva Categoría
+                  <PlusCircle className="w-4 h-4" /> Nuevo Variable
                 </button>
               </div>
 
+              {/* Month selector for this tab */}
+              <div className="flex items-center gap-3 bg-[#0A0A0A] border border-[#1F1F1F] p-3">
+                <span className="font-primary text-[9px] text-[#666] uppercase tracking-widest">Imputar mes:</span>
+                <select
+                  value={selectedMonth}
+                  onChange={e => setSelectedMonth(parseInt(e.target.value))}
+                  className="h-8 bg-[#111] border border-[#1F1F1F] px-3 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962]"
+                >
+                  {MONTHS.map((m, i) => (
+                    <option key={i} value={i + 1}>{m}</option>
+                  ))}
+                </select>
+                <select
+                  value={selectedYear}
+                  onChange={e => setSelectedYear(parseInt(e.target.value))}
+                  className="h-8 bg-[#111] border border-[#1F1F1F] px-3 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962]"
+                >
+                  {[currentYear - 1, currentYear, currentYear + 1].map(y => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+                <span className="font-primary text-[9px] text-[#444] uppercase tracking-widest ml-2">
+                  — Introduce el importe real de {MONTHS[selectedMonth - 1]} {selectedYear}
+                </span>
+              </div>
+
+              {/* Variable expenses list with monthly entry inputs */}
               <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-hidden">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-[#1F1F1F] bg-[#0E0E0E]">
-                      <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Categoría / Concepto</th>
-                      <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Descripción</th>
-                      <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Imp. Referencia</th>
-                      <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Acciones</th>
+                      <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Concepto</th>
+                      <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Categoría</th>
+                      <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Estimación</th>
+                      <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-center">Importe Real {MONTHS[selectedMonth - 1]}</th>
+                      <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-center">Estado</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#1F1F1F]">
-                    {isAddingVariable && (
-                      <tr className="border-b border-[#C9A962]/30 bg-[#C9A962]/5">
-                        <td className="px-6 py-4">
-                          <input className={inputClass} placeholder="Compras, Materiales..." value={newVariableCategory.name} onChange={e => setNewVariableCategory({...newVariableCategory, name: e.target.value})} />
-                        </td>
-                        <td className="px-6 py-4">
-                          <input className={inputClass} placeholder="Gastos ocasionales..." value={newVariableCategory.description} onChange={e => setNewVariableCategory({...newVariableCategory, description: e.target.value})} />
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <input type="number" step="0.01" className={cn(inputClass, "w-24 ml-auto text-right")} value={newVariableCategory.default_amount} onChange={e => setNewVariableCategory({...newVariableCategory, default_amount: parseFloat(e.target.value) || 0})} />
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2 text-[#C9A962]">
-                            <button onClick={handleSaveVariableCategory}><Check className="w-5 h-5 transition-transform hover:scale-110" /></button>
-                            <button onClick={() => setIsAddingVariable(false)} className="text-[#444] hover:text-red-400"><X className="w-5 h-5" /></button>
+                    {fixedExpenses.filter(fe => fe.is_variable).length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-12 text-center">
+                          <div className="flex flex-col items-center gap-3">
+                            <Zap className="w-8 h-8 text-[#333]" />
+                            <p className="font-primary text-[#444] text-[10px] uppercase tracking-wider">No hay gastos variables configurados</p>
+                            <p className="font-primary text-[#333] text-[10px]">
+                              Ve a "Gastos Fijos", añade un gasto y marca "Variable" para que aparezca aquí
+                            </p>
                           </div>
                         </td>
                       </tr>
-                    )}
-                    {combinedVariableItems.length === 0 && !isAddingVariable ? (
-                      <tr><td colSpan={4} className="px-6 py-12 text-center text-[#444] text-xs uppercase italic">No hay categorías ni gastos recurrentes variables configurados</td></tr>
                     ) : (
-                      combinedVariableItems.map(item => (
-                        <tr key={item.id} className="hover:bg-[#111] transition-colors">
-                          {editingVariableId === item.id && !item.isFixed ? (
-                            <>
-                              <td className="px-6 py-4">
-                                <input className={inputClass} value={editingVariableData?.name || ''} onChange={e => setEditingVariableData({ ...editingVariableData, name: e.target.value })} />
-                              </td>
-                              <td className="px-6 py-4">
-                                <input className={inputClass} value={editingVariableData?.description || ''} onChange={e => setEditingVariableData({ ...editingVariableData, description: e.target.value })} />
-                              </td>
-                              <td className="px-6 py-4 text-right">
-                                <input type="number" step="0.01" className={cn(inputClass, "w-24 ml-auto text-right")} value={editingVariableData?.default_amount || 0} onChange={e => setEditingVariableData({ ...editingVariableData, default_amount: parseFloat(e.target.value) || 0 })} />
-                              </td>
-                              <td className="px-6 py-4 text-right">
-                                <div className="flex items-center justify-end gap-2 text-[#C9A962]">
-                                  <button onClick={handleSaveVariableCategory}><Check className="w-5 h-5 transition-transform hover:scale-110" /></button>
-                                  <button onClick={() => setEditingVariableId(null)} className="text-[#444] hover:text-red-400"><X className="w-5 h-5" /></button>
+                      fixedExpenses.filter(fe => fe.is_variable && fe.is_active).map(fe => {
+                        // Find existing monthly entry for this expense + selected month
+                        const existingEntry = variableMonthlyEntries.find(
+                          m => m.fixed_expense_id === fe.id && m.year === selectedYear && m.month === selectedMonth
+                        );
+                        const currentInput = variableMonthlyAmounts[fe.id] ?? (existingEntry ? String(existingEntry.actual_amount) : '');
+                        const hasEntry = !!existingEntry;
+                        const isSaving = savingMonthlyEntry === fe.id;
+
+                        return (
+                          <tr key={fe.id} className="hover:bg-[#111] transition-colors">
+                            <td className="px-6 py-4">
+                              <div className="flex flex-col">
+                                <span className="font-primary text-[#FAF8F5] text-xs font-bold">{fe.name}</span>
+                                <span className="text-[9px] text-[#C9A962] font-primary uppercase tracking-tighter">Variable</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 font-primary text-[10px] text-[#666] uppercase">{fe.category}</td>
+                            <td className="px-6 py-4 font-secondary text-xs text-[#555] text-right">
+                              {formatCurrency(fe.amount)}
+                              <div className="text-[9px] text-[#444] font-primary mt-0.5">estimación</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center justify-center gap-2">
+                                <div className="relative flex items-center">
+                                  <span className="absolute left-3 text-[#666] text-xs font-bold">€</span>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder={String(fe.amount)}
+                                    value={currentInput}
+                                    onChange={e => setVariableMonthlyAmounts(prev => ({ ...prev, [fe.id]: e.target.value }))}
+                                    className={cn(
+                                      "w-32 h-9 pl-7 pr-3 bg-[#0F0F0F] border text-right font-secondary text-sm text-[#FAF8F5] outline-none transition-colors",
+                                      hasEntry ? "border-yellow-500/40 focus:border-yellow-400" : "border-[#1F1F1F] focus:border-[#C9A962]"
+                                    )}
+                                  />
                                 </div>
-                              </td>
-                            </>
-                          ) : (
-                            <>
-                              <td className="px-6 py-4">
-                                <div className="flex flex-col">
-                                  <span className="font-primary text-[#FAF8F5] text-sm font-bold uppercase tracking-wider">{item.name}</span>
-                                  {item.isFixed && <span className="text-[9px] text-[#C9A962] font-primary uppercase tracking-tighter">Recurrente</span>}
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 font-primary text-[#666] text-xs uppercase">{item.description || '-'}</td>
-                              <td className="px-6 py-4 font-secondary text-[#FAF8F5] text-sm text-right">{formatCurrency(item.amount)}</td>
-                              <td className="px-6 py-4 text-right">
-                                <div className="flex items-center justify-end gap-2 text-[#444]">
-                                  <Link 
-                                    to={`/admin/facturas/nueva?${item.isFixed ? `templateId=${item.id}` : `variableId=${item.id}`}`}
-                                    className="p-1 hover:text-[#C9A962] transition-colors flex items-center gap-1 border border-[#1F1F1F] px-2 py-0.5"
-                                    title="Crear factura desde este concepto"
-                                  >
-                                    <PlusCircle className="w-3.5 h-3.5" />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest">Crear</span>
-                                  </Link>
-                                  {!item.isFixed && (
-                                    <>
-                                      <button onClick={() => { setEditingVariableId(item.id); setEditingVariableData(item); }} className="p-1 hover:text-[#FAF8F5] transition-colors"><Edit className="w-4 h-4" /></button>
-                                      <button onClick={() => deleteVariableCategory(item.id)} className="p-1 hover:text-red-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                                    </>
+                                <button
+                                  disabled={isSaving || currentInput === ''}
+                                  onClick={async () => {
+                                    setSavingMonthlyEntry(fe.id);
+                                    try {
+                                      await upsertVariableMonthlyEntry(
+                                        fe.id,
+                                        selectedYear,
+                                        selectedMonth,
+                                        parseFloat(currentInput) || 0
+                                      );
+                                      setVariableMonthlyAmounts(prev => {
+                                        const next = { ...prev };
+                                        delete next[fe.id];
+                                        return next;
+                                      });
+                                    } finally {
+                                      setSavingMonthlyEntry(null);
+                                    }
+                                  }}
+                                  className={cn(
+                                    "h-9 px-3 font-primary text-[9px] uppercase tracking-wider font-bold transition-all border",
+                                    currentInput !== ''
+                                      ? "bg-[#C9A962] text-[#0A0A0A] border-[#C9A962] hover:bg-[#D4B673]"
+                                      : "text-[#444] border-[#1F1F1F] cursor-not-allowed"
                                   )}
-                                  {item.isFixed && (
-                                    <button onClick={() => setActiveTab('fixed_expenses')} className="p-1 hover:text-[#C9A962] transition-colors" title="Configurar este gasto recurrente">
-                                      <Edit className="w-4 h-4" />
-                                    </button>
-                                  )}
+                                >
+                                  {isSaving ? '...' : <Check className="w-3.5 h-3.5" />}
+                                </button>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              {hasEntry ? (
+                                <div className="flex flex-col items-center gap-0.5">
+                                  <span className="text-[9px] text-yellow-400 font-bold uppercase tracking-wider">✓ Registrado</span>
+                                  <span className="text-[9px] text-[#444] font-primary">{formatCurrency(existingEntry.actual_amount)}</span>
                                 </div>
-                              </td>
-                            </>
-                          )}
-                        </tr>
-                      ))
+                              ) : (
+                                <span className="text-[9px] text-[#444] font-primary uppercase tracking-wider">Sin registrar</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
               </div>
 
-              {/* List of real invoices filtered by "expense" and current month for this tab */}
-              <div className="mt-8">
-                <div className="flex items-center gap-2 mb-4">
-                  <FileText className="w-5 h-5 text-[#C9A962]" />
-                  <h3 className="font-primary text-[#FAF8F5] font-bold text-xs uppercase tracking-wider">Historial de Gastos Variables (Este Mes)</h3>
+              {/* Inactive variables */}
+              {fixedExpenses.filter(fe => fe.is_variable && !fe.is_active).length > 0 && (
+                <div className="border border-[#1F1F1F] p-4">
+                  <p className="font-primary text-[9px] text-[#444] uppercase tracking-widest mb-3">Gastos variables inactivos</p>
+                  <div className="flex flex-wrap gap-2">
+                    {fixedExpenses.filter(fe => fe.is_variable && !fe.is_active).map(fe => (
+                      <span key={fe.id} className="px-3 py-1 border border-[#1F1F1F] font-primary text-[10px] text-[#444] uppercase">
+                        {fe.name}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                
-                <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-x-auto">
-                  {filteredInvoices.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-10 gap-2">
-                      <p className="font-primary text-[#444] text-[10px] uppercase">No hay gastos variables registrados este mes</p>
-                    </div>
-                  ) : (
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-[#1F1F1F] bg-[#0E0E0E]">
-                          {['Nº Factura', 'Proveedor/Concepto', 'Fecha', 'Total', 'Acciones'].map(h => (
-                            <th key={h} className="px-4 py-3 text-left font-primary text-[9px] uppercase tracking-wider text-[#666666]">
-                              {h}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#1F1F1F]">
-                        {filteredInvoices.map(inv => (
-                          <tr key={inv.id} className="hover:bg-[#111111] transition-colors">
-                            <td className="px-4 py-3 font-primary text-[#FAF8F5] text-xs font-bold">{inv.invoice_number}</td>
-                            <td className="px-4 py-3 font-primary text-[#888888] text-xs max-w-[150px] truncate">{inv.client_name}</td>
-                            <td className="px-4 py-3 font-primary text-[#666] text-[10px]">
-                              {new Date(inv.invoice_date).toLocaleDateString('es-ES')}
-                            </td>
-                            <td className="px-4 py-3 font-secondary text-[#C9A962] text-xs font-bold">
-                              {formatCurrency(inv.total_amount)}
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-2">
-                                <Link to={`/admin/facturas/${inv.id}/editar`} className="p-1 text-[#444] hover:text-[#FAF8F5] transition-colors">
-                                  <Edit className="w-3.5 h-3.5" />
-                                </Link>
-                                <button onClick={() => handleDelete(inv.id)} className="p-1 text-[#444] hover:text-red-400 transition-colors">
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              </div>
+              )}
             </div>
           )}
         </div>

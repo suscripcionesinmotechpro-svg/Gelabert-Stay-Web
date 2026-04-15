@@ -91,8 +91,9 @@ export interface InvoiceSummary {
   pendingCount: number;
   pendingAmount: number;
   income: number;
-  variableExpenses: number;
-  fixedExpenses: number;
+  fixedExpenses: number;      // Gastos fijos (is_variable=false) no cubiertos por factura
+  variableExpenses: number;  // Gastos variables (is_variable=true): importe real o estimado
+  invoiceExpenses: number;   // Facturas de gasto sin vincular a gasto fijo
   totalExpenses: number;
   byMonth: { month: number; year: number; total: number; expenses: number; income: number }[];
 }
@@ -145,3 +146,17 @@ export interface VariableCategory {
 }
 
 export type VariableCategoryInsert = Omit<VariableCategory, 'id' | 'user_id' | 'created_at'>;
+
+// Monthly entry for variable expenses (actual cost per month)
+export interface VariableMonthlyEntry {
+  id: string;
+  user_id: string;
+  fixed_expense_id: string;
+  year: number;
+  month: number;
+  actual_amount: number;
+  notes: string | null;
+  created_at: string;
+}
+
+export type VariableMonthlyEntryUpsert = Omit<VariableMonthlyEntry, 'id' | 'user_id' | 'created_at'>;
