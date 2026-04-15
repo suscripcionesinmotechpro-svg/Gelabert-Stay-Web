@@ -30,7 +30,12 @@ export const useAccounting = () => {
 
     const { error: err } = await supabase
       .from('accounting_fixed_expenses')
-      .insert([{ ...expense, user_id: user.id }]);
+      .insert([{ 
+        ...expense, 
+        user_id: user.id,
+        frequency: expense.frequency || 'monthly',
+        is_variable: expense.is_variable ?? false
+      }]);
     
     if (err) throw err;
     await fetchFixedExpenses();

@@ -103,6 +103,9 @@ export interface FixedExpense {
   amount: number;
   category: string | null;
   day_of_month: number | null;
+  day_of_month_end: number | null;
+  frequency: 'monthly' | 'quarterly' | 'semiannual' | 'annual';
+  is_variable: boolean;
   is_active: boolean;
   created_at: string;
 }

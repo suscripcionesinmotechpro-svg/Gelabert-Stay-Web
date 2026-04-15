@@ -126,6 +126,9 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     // Calculate adjusted fixed expenses per month
     // If a month has an invoice linked to Fixed X, we don't add Fixed X to projectedFixed
     Object.keys(byMonthMap).forEach(monthKey => {
+      const [_y, _mStr] = monthKey.split('-');
+      const monthIndex = parseInt(_mStr);
+      
       const invoicesThisMonth = data.filter(i => i.invoice_date.startsWith(monthKey) && i.type === 'expense');
       const linkedFixedIds = invoicesThisMonth.map(i => i.fixed_expense_id).filter(Boolean);
       
@@ -134,6 +137,14 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
       if (monthKey >= '2026-01') {
         projected = activeFixed
           .filter(f => !linkedFixedIds.includes(f.id))
+          .filter(f => {
+            const freq = f.frequency || 'monthly';
+            if (freq === 'monthly') return true;
+            if (freq === 'quarterly') return monthIndex % 3 === 0;
+            if (freq === 'semiannual') return monthIndex % 6 === 0;
+            if (freq === 'annual') return monthIndex === 12;
+            return true;
+          })
           .reduce((s, f) => s + (Number(f.amount) || 0), 0);
       }
       

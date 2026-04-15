@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useInvoiceMutations, uploadInvoicePDF } from '../../hooks/useInvoices';
 import { useIssuers } from '../../hooks/useIssuers';
@@ -48,6 +48,10 @@ export const AdminInvoiceForm = () => {
   const { id } = useParams<{ id?: string }>();
   const isEditing = !!id && id !== 'nueva';
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const templateId = queryParams.get('templateId');
+  
   const { createInvoice, updateInvoice } = useInvoiceMutations();
   const { issuers, loading: loadingIssuers, createIssuer } = useIssuers();
   const [fixedExpenses, setFixedExpenses] = useState<{id: string, name: string}[]>([]);
@@ -72,6 +76,31 @@ export const AdminInvoiceForm = () => {
   // Issuer Management State
   const [showIssuerModal, setShowIssuerModal] = useState(false);
   const [newIssuer, setNewIssuer] = useState({ name: '', nif: '', street_type: '', street_name: '', street_number: '', floor_door: '', address: '', city: '', province: '', zip: '', phone: '', email: '', is_default: false });
+
+  // Handle template pre-filling
+  useEffect(() => {
+    if (isEditing || !templateId) return;
+
+    const fetchTemplate = async () => {
+      const { data, error } = await supabase
+        .from('accounting_fixed_expenses')
+        .select('*')
+        .eq('id', templateId)
+        .single();
+      
+      if (data && !error) {
+        setForm(prev => ({
+          ...prev,
+          type: 'expense',
+          client_name: data.name,
+          amount: data.amount,
+          concept: `Gasto: ${data.name}`,
+          fixed_expense_id: data.id,
+        }));
+      }
+    };
+    fetchTemplate();
+  }, [templateId, isEditing]);
 
   // Auto-generate invoice number on new form
   useEffect(() => {

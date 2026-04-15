@@ -23,9 +23,10 @@ export const AdminInvoices = () => {
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  const [periodType, setPeriodType] = useState<PeriodType>('year');
+  const [periodType, setPeriodType] = useState<PeriodType>('month');
   const [selectedMonth, setSelectedMonth] = useState<number>(currentMonth);
   const [selectedStatus, setSelectedStatus] = useState<string>('todos');
+  const [filterInvoiceType, setFilterInvoiceType] = useState<'income' | 'expense' | 'all'>('all');
 
   const [isAddingFixed, setIsAddingFixed] = useState(false);
   const [newFixedExpense, setNewFixedExpense] = useState({
@@ -33,6 +34,9 @@ export const AdminInvoices = () => {
     amount: 0,
     category: 'General',
     day_of_month: 1,
+    day_of_month_end: null as number | null,
+    frequency: 'monthly' as const,
+    is_variable: false,
     is_active: true
   });
 
@@ -74,7 +78,10 @@ export const AdminInvoices = () => {
   });
 
   const filteredInvoices = invoices.filter(inv => {
-    if (activeTab === 'invoices') return inv.type === 'income' || !inv.type;
+    if (activeTab === 'invoices') {
+      if (filterInvoiceType === 'all') return true;
+      return inv.type === filterInvoiceType;
+    }
     if (activeTab === 'variable_expenses') return inv.type === 'expense';
     return true;
   });
@@ -128,7 +135,16 @@ export const AdminInvoices = () => {
     if (!newFixedExpense.name || newFixedExpense.amount <= 0) return;
     await addFixedExpense(newFixedExpense);
     setIsAddingFixed(false);
-    setNewFixedExpense({ name: '', amount: 0, category: 'General', day_of_month: 1, is_active: true });
+    setNewFixedExpense({ 
+      name: '', 
+      amount: 0, 
+      category: 'General', 
+      day_of_month: 1, 
+      day_of_month_end: null,
+      frequency: 'monthly',
+      is_variable: false,
+      is_active: true 
+    });
   };
 
   const handleUpdateFixedExpense = async (id: string) => {
@@ -312,6 +328,27 @@ export const AdminInvoices = () => {
                   <option key={val} value={val}>{label}</option>
                 ))}
               </select>
+
+              <div className="w-px h-6 bg-[#1F1F1F] mx-2" />
+
+              <div className="flex bg-[#111] border border-[#1F1F1F] p-0.5 h-9">
+                {[
+                  { id: 'all', label: 'Todos' },
+                  { id: 'income', label: 'Ingresos' },
+                  { id: 'expense', label: 'Gastos' }
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setFilterInvoiceType(t.id as any)}
+                    className={cn(
+                      "px-3 h-full font-primary text-[9px] uppercase tracking-wider font-bold transition-all",
+                      filterInvoiceType === t.id ? "bg-[#C9A962] text-[#0A0A0A]" : "text-[#666] hover:text-[#FAF8F5]"
+                    )}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <Link
@@ -324,6 +361,34 @@ export const AdminInvoices = () => {
           </div>
 
           <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-x-auto">
+            {/* Templates Section for Variable Expenses */}
+            <div className="p-4 border-b border-[#1F1F1F] bg-[#0E0E0E]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-primary text-[10px] text-[#C9A962] font-bold uppercase tracking-widest">Plantillas de Gasto Variable</h3>
+                <button 
+                  onClick={() => setIsAddingFixed(true)}
+                  className="p-1 hover:text-[#C9A962] transition-colors"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {fixedExpenses.filter(e => e.is_variable).map(template => (
+                  <Link
+                    key={template.id}
+                    to={`/admin/facturas/nueva?templateId=${template.id}`}
+                    className="flex flex-col gap-1 p-3 bg-[#111] border border-[#1F1F1F] hover:border-[#C9A962]/50 transition-all min-w-[140px]"
+                  >
+                    <span className="font-primary text-[10px] text-[#FAF8F5] font-bold uppercase truncate">{template.name}</span>
+                    <span className="font-secondary text-xs text-[#666]">{formatCurrency(template.amount)} (ref)</span>
+                  </Link>
+                ))}
+                {fixedExpenses.filter(e => e.is_variable).length === 0 && (
+                  <p className="text-[10px] text-[#444] italic uppercase">No hay plantillas variables. Configúralas en la pestaña de Gastos Fijos.</p>
+                )}
+              </div>
+            </div>
+
             {loading ? (
               <div className="flex items-center justify-center py-16">
                 <div className="w-8 h-8 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
@@ -331,13 +396,13 @@ export const AdminInvoices = () => {
             ) : filteredInvoices.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-4">
                 <FileText className="w-12 h-12 text-[#333333]" />
-                <p className="font-primary text-[#666666] text-sm">No hay facturas para esta sección</p>
+                <p className="font-primary text-[#666666] text-sm">No hay registros de gasto para este mes</p>
               </div>
             ) : (
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-[#1F1F1F]">
-                    {['Nº Factura', 'Cliente', 'Serie', 'Fecha', 'Base', 'IVA', 'IRPF', 'Total', 'Estado', 'Acciones'].map(h => (
+                    {['Nº Factura', 'Proveedor/Concepto', 'Serie', 'Fecha', 'Base', 'IVA', 'Total', 'Estado', 'Acciones'].map(h => (
                       <th key={h} className="px-4 py-3 text-left font-primary text-[10px] uppercase tracking-wider text-[#666666]">
                         {h}
                       </th>
@@ -357,7 +422,6 @@ export const AdminInvoices = () => {
                         {formatCurrency(inv.amount)}
                       </td>
                       <td className="px-4 py-3 font-primary text-[#888888] text-sm">{inv.tax_rate}%</td>
-                      <td className="px-4 py-3 font-primary text-[#888888] text-sm">{inv.irpf_rate}%</td>
                       <td className="px-4 py-3 font-secondary text-[#C9A962] text-sm font-bold">
                         {formatCurrency(inv.total_amount)}
                       </td>
@@ -370,26 +434,10 @@ export const AdminInvoices = () => {
                             {STATUS_LABELS[inv.status as InvoiceStatus]}
                             <ChevronDown className="w-3 h-3" />
                           </button>
-                          <div className="absolute z-10 top-full left-0 mt-1 bg-[#111111] border border-[#1F1F1F] hidden group-hover:block w-32 shadow-xl shadow-black">
-                            {Object.entries(STATUS_LABELS).map(([val, label]) => (
-                              <button
-                                key={val}
-                                onClick={() => handleStatusChange(inv.id, val)}
-                                className="block w-full px-4 py-2 font-primary text-[10px] text-left hover:bg-[#1F1F1F] text-[#888888] hover:text-[#FAF8F5] uppercase font-bold tracking-widest"
-                              >
-                                {label}
-                              </button>
-                            ))}
-                          </div>
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          {inv.file_url && (
-                            <a href={inv.file_url} target="_blank" rel="noopener noreferrer" className="p-1.5 text-[#444] hover:text-[#C9A962] transition-colors">
-                              <Download className="w-4 h-4" />
-                            </a>
-                          )}
                           <Link to={`/admin/facturas/${inv.id}/editar`} className="p-1.5 text-[#444] hover:text-[#FAF8F5] transition-colors">
                             <Edit className="w-4 h-4" />
                           </Link>
@@ -426,7 +474,9 @@ export const AdminInvoices = () => {
                 <tr className="border-b border-[#1F1F1F] bg-[#0E0E0E]">
                   <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Concepto</th>
                   <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Categoría</th>
+                  <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-center">Frecuencia</th>
                   <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-center">Día Pago</th>
+                  <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-center">Variable</th>
                   <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Importe</th>
                   <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-center">Estado</th>
                   <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Acciones</th>
@@ -442,7 +492,43 @@ export const AdminInvoices = () => {
                       <input className={inputClass} placeholder="Oficina" value={newFixedExpense.category} onChange={e => setNewFixedExpense({...newFixedExpense, category: e.target.value})} />
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <input type="number" min="1" max="31" className={cn(inputClass, "w-16 mx-auto text-center")} value={newFixedExpense.day_of_month} onChange={e => setNewFixedExpense({...newFixedExpense, day_of_month: parseInt(e.target.value) || 1})} />
+                      <select 
+                        className={cn(inputClass, "w-24 mx-auto")} 
+                        value={newFixedExpense.frequency} 
+                        onChange={e => setNewFixedExpense({...newFixedExpense, frequency: e.target.value as any})}
+                      >
+                        <option value="monthly">Mensual</option>
+                        <option value="quarterly">Trimestral</option>
+                        <option value="semiannual">Semestral</option>
+                        <option value="annual">Anual</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex items-center gap-1 justify-center">
+                        <input 
+                          type="number" min="1" max="31" 
+                          className={cn(inputClass, "w-12 text-center px-1")} 
+                          value={newFixedExpense.day_of_month || ''} 
+                          onChange={e => setNewFixedExpense({...newFixedExpense, day_of_month: parseInt(e.target.value) || 1})} 
+                          placeholder="Ini"
+                        />
+                        <span className="text-[#444]">-</span>
+                        <input 
+                          type="number" min="1" max="31" 
+                          className={cn(inputClass, "w-12 text-center px-1")} 
+                          value={newFixedExpense.day_of_month_end || ''} 
+                          onChange={e => setNewFixedExpense({...newFixedExpense, day_of_month_end: parseInt(e.target.value) || null})} 
+                          placeholder="Fin"
+                        />
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <input 
+                        type="checkbox" 
+                        className="accent-[#C9A962]" 
+                        checked={newFixedExpense.is_variable} 
+                        onChange={e => setNewFixedExpense({...newFixedExpense, is_variable: e.target.checked})} 
+                      />
                     </td>
                     <td className="px-6 py-4 text-right">
                       <input type="number" step="0.01" className={cn(inputClass, "w-24 ml-auto text-right")} value={newFixedExpense.amount} onChange={e => setNewFixedExpense({...newFixedExpense, amount: parseFloat(e.target.value) || 0})} />
@@ -450,8 +536,8 @@ export const AdminInvoices = () => {
                     <td className="px-6 py-4 text-center"><span className="text-[10px] font-bold text-[#C9A962] uppercase tracking-wider">Nuevo</span></td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 text-[#C9A962]">
-                        <button onClick={handleSaveFixedExpense}><Check className="w-5 h-5" /></button>
-                        <button onClick={() => setIsAddingFixed(false)} className="text-[#444]"><X className="w-5 h-5" /></button>
+                        <button onClick={handleSaveFixedExpense}><Check className="w-5 h-5 transition-transform hover:scale-110" /></button>
+                        <button onClick={() => setIsAddingFixed(false)} className="text-[#444] hover:text-red-400"><X className="w-5 h-5" /></button>
                       </div>
                     </td>
                   </tr>
@@ -459,7 +545,9 @@ export const AdminInvoices = () => {
                 {fixedExpenses.length === 0 && !isAddingFixed ? (
                   <tr><td colSpan={6} className="px-6 py-12 text-center text-[#444] text-xs uppercase italic">No hay gastos fijos configurados</td></tr>
                 ) : (
-                  fixedExpenses.map(expense => (
+                  fixedExpenses
+                    .filter(expense => !expense.is_variable)
+                    .map(expense => (
                     <tr key={expense.id} className="hover:bg-[#111] transition-colors">
                       {editingFixedId === expense.id ? (
                         <>
@@ -478,11 +566,40 @@ export const AdminInvoices = () => {
                             />
                           </td>
                           <td className="px-6 py-4 text-center">
+                            <select 
+                              className={cn(inputClass, "w-24 mx-auto")} 
+                              value={editingFixedData?.frequency || 'monthly'} 
+                              onChange={e => setEditingFixedData({...editingFixedData, frequency: e.target.value as any})}
+                            >
+                              <option value="monthly">Mensual</option>
+                              <option value="quarterly">Trimestral</option>
+                              <option value="semiannual">Semestral</option>
+                              <option value="annual">Anual</option>
+                            </select>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <div className="flex items-center gap-1 justify-center">
+                              <input 
+                                type="number" 
+                                className={cn(inputClass, "w-12 text-center px-1")} 
+                                value={editingFixedData?.day_of_month || 1} 
+                                onChange={e => setEditingFixedData({ ...editingFixedData, day_of_month: parseInt(e.target.value) || 1 })} 
+                              />
+                              <span className="text-[#444]">-</span>
+                              <input 
+                                type="number" 
+                                className={cn(inputClass, "w-12 text-center px-1")} 
+                                value={editingFixedData?.day_of_month_end || ''} 
+                                onChange={e => setEditingFixedData({ ...editingFixedData, day_of_month_end: parseInt(e.target.value) || null })} 
+                              />
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-center">
                             <input 
-                              type="number" 
-                              className={cn(inputClass, "w-16 mx-auto text-center")} 
-                              value={editingFixedData?.day_of_month || 1} 
-                              onChange={e => setEditingFixedData({ ...editingFixedData, day_of_month: parseInt(e.target.value) || 1 })} 
+                              type="checkbox" 
+                              className="accent-[#C9A962]" 
+                              checked={editingFixedData?.is_variable || false} 
+                              onChange={e => setEditingFixedData({...editingFixedData, is_variable: e.target.checked})} 
                             />
                           </td>
                           <td className="px-6 py-4 text-right">
@@ -505,7 +622,21 @@ export const AdminInvoices = () => {
                         <>
                           <td className="px-6 py-4 font-primary text-xs text-[#FAF8F5]">{expense.name}</td>
                           <td className="px-6 py-4 font-primary text-[10px] text-[#666] uppercase">{expense.category}</td>
-                          <td className="px-6 py-4 font-primary text-xs text-[#888] text-center">{expense.day_of_month || '-'}</td>
+                          <td className="px-6 py-4 font-primary text-[10px] text-[#888] text-center uppercase">
+                            {expense.frequency === 'monthly' ? 'Mensual' : 
+                             expense.frequency === 'quarterly' ? 'Trimestral' :
+                             expense.frequency === 'semiannual' ? 'Semestral' : 'Anual'}
+                          </td>
+                          <td className="px-6 py-4 font-primary text-xs text-[#888] text-center">
+                            {expense.day_of_month}{expense.day_of_month_end ? `-${expense.day_of_month_end}` : ''}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            {expense.is_variable ? (
+                              <span className="text-[10px] text-[#C9A962] font-bold uppercase tracking-wider">Sí</span>
+                            ) : (
+                              <span className="text-[10px] text-[#444] font-bold uppercase tracking-wider">No</span>
+                            )}
+                          </td>
                           <td className="px-6 py-4 font-secondary text-sm text-[#FAF8F5] text-right">{formatCurrency(expense.amount)}</td>
                           <td className="px-6 py-4 text-center">
                             <button 
