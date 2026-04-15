@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useInvoiceMutations, uploadInvoicePDF } from '../../hooks/useInvoices';
 import { useIssuers } from '../../hooks/useIssuers';
-import type { Invoice, InvoiceInsert, InvoiceStatus, InvoiceItem } from '../../types/invoice';
+import type { Invoice, InvoiceInsert, InvoiceStatus, InvoiceItem, VariableCategory } from '../../types/invoice';
 import { STATUS_LABELS } from '../../types/invoice';
 import { ChevronLeft, Save, Upload, X, FileText, Plus, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -42,6 +42,7 @@ const DEFAULT_FORM: InvoiceInsert = {
   type: 'income',
   issuer_id: '',
   fixed_expense_id: '',
+  variable_category_id: '',
 };
 
 export const AdminInvoiceForm = () => {
@@ -51,21 +52,29 @@ export const AdminInvoiceForm = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const templateId = queryParams.get('templateId');
+  const variableId = queryParams.get('variableId');
   
   const { createInvoice, updateInvoice } = useInvoiceMutations();
   const { issuers, loading: loadingIssuers, createIssuer } = useIssuers();
   const [fixedExpenses, setFixedExpenses] = useState<{id: string, name: string}[]>([]);
+  const [variableCategories, setVariableCategories] = useState<VariableCategory[]>([]);
 
-  // Load Fixed Expenses
+  // Load Expenses and Categories
   useEffect(() => {
-    const fetchFixed = async () => {
-      const { data } = await supabase
+    const fetchData = async () => {
+      const { data: fixed } = await supabase
         .from('accounting_fixed_expenses')
         .select('id, name')
         .eq('is_active', true);
-      if (data) setFixedExpenses(data);
+      if (fixed) setFixedExpenses(fixed);
+
+      const { data: variable } = await supabase
+        .from('accounting_variable_categories')
+        .select('*')
+        .eq('is_active', true);
+      if (variable) setVariableCategories(variable);
     };
-    fetchFixed();
+    fetchData();
   }, []);
 
   const [form, setForm] = useState<InvoiceInsert>(DEFAULT_FORM);
@@ -77,30 +86,49 @@ export const AdminInvoiceForm = () => {
   const [showIssuerModal, setShowIssuerModal] = useState(false);
   const [newIssuer, setNewIssuer] = useState({ name: '', nif: '', street_type: '', street_name: '', street_number: '', floor_door: '', address: '', city: '', province: '', zip: '', phone: '', email: '', is_default: false });
 
-  // Handle template pre-filling
+  // Handle template or variable category pre-filling
   useEffect(() => {
-    if (isEditing || !templateId) return;
+    if (isEditing) return;
 
-    const fetchTemplate = async () => {
-      const { data, error } = await supabase
-        .from('accounting_fixed_expenses')
-        .select('*')
-        .eq('id', templateId)
-        .single();
-      
-      if (data && !error) {
-        setForm(prev => ({
-          ...prev,
-          type: 'expense',
-          client_name: data.name,
-          amount: data.amount,
-          concept: `Gasto: ${data.name}`,
-          fixed_expense_id: data.id,
-        }));
+    const fetchPreFill = async () => {
+      if (templateId) {
+        const { data } = await supabase
+          .from('accounting_fixed_expenses')
+          .select('*')
+          .eq('id', templateId)
+          .single();
+        
+        if (data) {
+          setForm(prev => ({
+            ...prev,
+            type: 'expense',
+            client_name: data.name,
+            amount: data.amount,
+            concept: `Gasto: ${data.name}`,
+            fixed_expense_id: data.id,
+          }));
+        }
+      } else if (variableId) {
+        const { data } = await supabase
+          .from('accounting_variable_categories')
+          .select('*')
+          .eq('id', variableId)
+          .single();
+        
+        if (data) {
+          setForm(prev => ({
+            ...prev,
+            type: 'expense',
+            client_name: data.name,
+            amount: data.default_amount,
+            concept: `Compra: ${data.name}`,
+            variable_category_id: data.id,
+          }));
+        }
       }
     };
-    fetchTemplate();
-  }, [templateId, isEditing]);
+    fetchPreFill();
+  }, [templateId, variableId, isEditing]);
 
   // Auto-generate invoice number on new form
   useEffect(() => {
@@ -157,6 +185,7 @@ export const AdminInvoiceForm = () => {
         type: inv.type || 'income',
         issuer_id: inv.issuer_id || '',
         fixed_expense_id: inv.fixed_expense_id || '',
+        variable_category_id: inv.variable_category_id || '',
       });
       setLoadingForm(false);
     };
@@ -400,22 +429,66 @@ export const AdminInvoiceForm = () => {
                 </div>
 
                 {form.type === 'expense' && (
-                  <div className="flex flex-col gap-2 lg:col-span-2">
-                    <label className={labelClass}>Vincular a Gasto Fijo</label>
-                    <select 
-                      className={inputClass}
-                      value={form.fixed_expense_id ?? ''} 
-                      onChange={(e) => set('fixed_expense_id', e.target.value || null)}
-                    >
-                      <option value="">No vincular (Gasto Variable)</option>
-                      {fixedExpenses.map(fe => (
-                        <option key={fe.id} value={fe.id}>{fe.name}</option>
-                      ))}
-                    </select>
-                    <p className="text-[10px] text-[#666666] mt-1 italic">
-                      Vincular a un gasto fijo evita que se contabilice doble en el balance neto.
-                    </p>
-                  </div>
+                  <>
+                    <div className="flex flex-col gap-2 lg:col-span-2">
+                      <label className={labelClass}>Tipo de Gasto</label>
+                      <select 
+                        className={inputClass}
+                        value={form.fixed_expense_id ? 'fixed' : form.variable_category_id ? 'variable' : 'none'} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === 'none') {
+                            setForm(prev => ({ ...prev, fixed_expense_id: '', variable_category_id: '' }));
+                          } else if (val === 'fixed') {
+                            setForm(prev => ({ ...prev, variable_category_id: '' }));
+                          } else {
+                            setForm(prev => ({ ...prev, fixed_expense_id: '' }));
+                          }
+                        }}
+                      >
+                        <option value="none">Gasto General</option>
+                        <option value="fixed">Gasto Fijo / Recurrente</option>
+                        <option value="variable">Gasto Variable / Categoría</option>
+                      </select>
+                    </div>
+
+                    {form.fixed_expense_id !== undefined && (
+                      <div className="flex flex-col gap-2 lg:col-span-2">
+                        {(!form.fixed_expense_id && !form.variable_category_id) ? null : form.variable_category_id || (form.fixed_expense_id && !fixedExpenses.find(f => f.id === form.fixed_expense_id)) ? (
+                          <>
+                            <label className={labelClass}>Categoría Variable</label>
+                            <select 
+                              className={inputClass}
+                              value={form.variable_category_id ?? ''} 
+                              onChange={(e) => set('variable_category_id', e.target.value || '')}
+                            >
+                              <option value="">Seleccionar categoría...</option>
+                              {variableCategories.map(vc => (
+                                <option key={vc.id} value={vc.id}>{vc.name}</option>
+                              ))}
+                            </select>
+                          </>
+                        ) : (
+                          <>
+                            <label className={labelClass}>Gasto Fijo Vinculado</label>
+                            <select 
+                              className={inputClass}
+                              value={form.fixed_expense_id ?? ''} 
+                              onChange={(e) => set('fixed_expense_id', e.target.value || '')}
+                            >
+                              <option value="">Seleccionar gasto fijo...</option>
+                              {fixedExpenses.map(fe => (
+                                <option key={fe.id} value={fe.id}>{fe.name}</option>
+                              ))}
+                            </select>
+                          </>
+                        )}
+                        <p className="text-[10px] text-[#666666] mt-1 italic">
+                          Vincular el gasto ayuda a organizar mejor los reportes y evitar duplicados en el balance.
+                        </p>
+                      </div>
+                    )}
+                  </>
                 )}
              </div>
           </div>

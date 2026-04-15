@@ -1,22 +1,31 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import type { FixedExpense, FixedExpenseInsert } from '../types/invoice';
+import type { FixedExpense, FixedExpenseInsert, VariableCategory, VariableCategoryInsert } from '../types/invoice';
 
 export const useAccounting = () => {
   const [fixedExpenses, setFixedExpenses] = useState<FixedExpense[]>([]);
+  const [variableCategories, setVariableCategories] = useState<VariableCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchFixedExpenses = async () => {
+  const fetchAccountingData = async () => {
     setLoading(true);
     try {
-      const { data, error: err } = await supabase
+      const { data: fixed, error: fixedErr } = await supabase
         .from('accounting_fixed_expenses')
         .select('*')
         .order('name');
       
-      if (err) throw err;
-      setFixedExpenses(data || []);
+      if (fixedErr) throw fixedErr;
+      setFixedExpenses(fixed || []);
+
+      const { data: variable, error: variableErr } = await supabase
+        .from('accounting_variable_categories')
+        .select('*')
+        .order('name');
+      
+      if (variableErr) throw variableErr;
+      setVariableCategories(variable || []);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -26,7 +35,7 @@ export const useAccounting = () => {
 
   const addFixedExpense = async (expense: FixedExpenseInsert) => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('No user sessionFound');
+    if (!user) throw new Error('No user session found');
 
     const { error: err } = await supabase
       .from('accounting_fixed_expenses')
@@ -38,7 +47,7 @@ export const useAccounting = () => {
       }]);
     
     if (err) throw err;
-    await fetchFixedExpenses();
+    await fetchAccountingData();
   };
 
   const updateFixedExpense = async (id: string, expense: Partial<FixedExpenseInsert>) => {
@@ -48,7 +57,7 @@ export const useAccounting = () => {
       .eq('id', id);
     
     if (err) throw err;
-    await fetchFixedExpenses();
+    await fetchAccountingData();
   };
 
   const deleteFixedExpense = async (id: string) => {
@@ -58,20 +67,59 @@ export const useAccounting = () => {
       .eq('id', id);
     
     if (err) throw err;
-    await fetchFixedExpenses();
+    await fetchAccountingData();
+  };
+
+  const addVariableCategory = async (category: VariableCategoryInsert) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('No user session found');
+
+    const { error: err } = await supabase
+      .from('accounting_variable_categories')
+      .insert([{ 
+        ...category, 
+        user_id: user.id
+      }]);
+    
+    if (err) throw err;
+    await fetchAccountingData();
+  };
+
+  const updateVariableCategory = async (id: string, category: Partial<VariableCategoryInsert>) => {
+    const { error: err } = await supabase
+      .from('accounting_variable_categories')
+      .update(category)
+      .eq('id', id);
+    
+    if (err) throw err;
+    await fetchAccountingData();
+  };
+
+  const deleteVariableCategory = async (id: string) => {
+    const { error: err } = await supabase
+      .from('accounting_variable_categories')
+      .delete()
+      .eq('id', id);
+    
+    if (err) throw err;
+    await fetchAccountingData();
   };
 
   useEffect(() => {
-    fetchFixedExpenses();
+    fetchAccountingData();
   }, []);
 
   return {
     fixedExpenses,
+    variableCategories,
     loading,
     error,
     addFixedExpense,
     updateFixedExpense,
     deleteFixedExpense,
-    refetch: fetchFixedExpenses
+    addVariableCategory,
+    updateVariableCategory,
+    deleteVariableCategory,
+    refetch: fetchAccountingData
   };
 };

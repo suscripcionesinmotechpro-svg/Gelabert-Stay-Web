@@ -50,6 +50,7 @@ export interface Invoice {
   type: 'income' | 'expense';
   issuer_id: string | null;
   fixed_expense_id: string | null;
+  variable_category_id: string | null;
 }
 
 export type InvoiceInsert = Omit<Invoice, 'id' | 'created_at' | 'user_id' | 'total_amount' | 'irpf_amount'>;
@@ -132,3 +133,15 @@ export interface InvoiceIssuer {
 }
 
 export type InvoiceIssuerInsert = Omit<InvoiceIssuer, 'id' | 'user_id' | 'created_at'>;
+
+export interface VariableCategory {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  default_amount: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export type VariableCategoryInsert = Omit<VariableCategory, 'id' | 'user_id' | 'created_at'>;

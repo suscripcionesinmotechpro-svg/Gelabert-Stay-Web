@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInvoiceSummary, useInvoices, useInvoiceMutations } from '../../hooks/useInvoices';
 import { useAccounting } from '../../hooks/useAccounting';
-import { STATUS_COLORS, STATUS_LABELS, type InvoiceStatus } from '../../types/invoice';
+import { STATUS_LABELS } from '../../types/invoice';
 import { 
   PlusCircle, TrendingUp, 
-  ChevronDown, Trash2, Edit, FileText, ArrowUpRight, 
-  ArrowDownRight, Calculator, Check, X, Building2, Mail, Phone, MapPin
+  Trash2, Edit, FileText, ArrowUpRight, 
+  ArrowDownRight, Calculator, Check, X, Building2, Mail, Phone, MapPin, ShoppingBag
 } from 'lucide-react';
 import { useIssuers } from '../../hooks/useIssuers';
 import { cn } from '../../lib/utils';
@@ -40,7 +40,16 @@ export const AdminInvoices = () => {
     is_active: true
   });
 
-  const { fixedExpenses, addFixedExpense, updateFixedExpense, deleteFixedExpense } = useAccounting();
+  const { 
+    fixedExpenses, 
+    variableCategories, 
+    addFixedExpense, 
+    updateFixedExpense, 
+    deleteFixedExpense,
+    addVariableCategory,
+    updateVariableCategory,
+    deleteVariableCategory
+  } = useAccounting();
 
   const getDateRange = () => {
     if (periodType === 'year') {
@@ -71,7 +80,7 @@ export const AdminInvoices = () => {
     endDate: dateRange.end
   });
   
-  const { invoices, loading, refetch } = useInvoices({
+  const { invoices, refetch } = useInvoices({
     startDate: dateRange.start,
     endDate: dateRange.end,
     status: selectedStatus,
@@ -89,6 +98,26 @@ export const AdminInvoices = () => {
   const { deleteInvoice } = useInvoiceMutations();
 
   const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
+
+  const [isAddingVariable, setIsAddingVariable] = useState(false);
+  const [newVariableCategory, setNewVariableCategory] = useState({ name: '', description: '', default_amount: 0, is_active: true });
+  const [editingVariableId, setEditingVariableId] = useState<string | null>(null);
+  const [editingVariableData, setEditingVariableData] = useState<any>(null);
+
+  const handleSaveVariableCategory = async () => {
+    try {
+      if (editingVariableId) {
+        await updateVariableCategory(editingVariableId, editingVariableData);
+        setEditingVariableId(null);
+      } else {
+        await addVariableCategory(newVariableCategory as any);
+        setIsAddingVariable(false);
+        setNewVariableCategory({ name: '', description: '', default_amount: 0, is_active: true });
+      }
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
 
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n);
@@ -357,98 +386,231 @@ export const AdminInvoices = () => {
             </Link>
           </div>
 
-          <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-x-auto">
-            {/* Templates Section for Variable Expenses */}
-            <div className="p-4 border-b border-[#1F1F1F] bg-[#0E0E0E]">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-primary text-[10px] text-[#C9A962] font-bold uppercase tracking-widest">Plantillas de Gasto Variable</h3>
-                <button 
-                  onClick={() => setIsAddingFixed(true)}
-                  className="p-1 hover:text-[#C9A962] transition-colors"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                {fixedExpenses.filter(e => e.is_variable).map(template => (
-                  <Link
-                    key={template.id}
-                    to={`/admin/facturas/nueva?templateId=${template.id}`}
-                    className="flex flex-col gap-1 p-3 bg-[#111] border border-[#1F1F1F] hover:border-[#C9A962]/50 transition-all min-w-[140px]"
-                  >
-                    <span className="font-primary text-[10px] text-[#FAF8F5] font-bold uppercase truncate">{template.name}</span>
-                    <span className="font-secondary text-xs text-[#666]">{formatCurrency(template.amount)} (ref)</span>
-                  </Link>
-                ))}
-                {fixedExpenses.filter(e => e.is_variable).length === 0 && (
-                  <p className="text-[10px] text-[#444] italic uppercase">No hay plantillas variables. Configúralas en la pestaña de Gastos Fijos.</p>
-                )}
-              </div>
-            </div>
-
-            {loading ? (
-              <div className="flex items-center justify-center py-16">
-                <div className="w-8 h-8 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
-              </div>
-            ) : filteredInvoices.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 gap-4">
-                <FileText className="w-12 h-12 text-[#333333]" />
-                <p className="font-primary text-[#666666] text-sm">No hay registros de gasto para este mes</p>
-              </div>
-            ) : (
-              <table className="w-full">
+          {activeTab === 'invoices' ? (
+            <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-x-auto">
+              <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-[#1F1F1F]">
-                    {['Nº Factura', 'Proveedor/Concepto', 'Serie', 'Fecha', 'Base', 'IVA', 'Total', 'Estado', 'Acciones'].map(h => (
-                      <th key={h} className="px-4 py-3 text-left font-primary text-[10px] uppercase tracking-wider text-[#666666]">
-                        {h}
-                      </th>
-                    ))}
+                  <tr className="border-b border-[#1F1F1F] bg-[#0E0E0E]">
+                    <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Factura</th>
+                    <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Cliente / Concepto</th>
+                    <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Fecha</th>
+                    <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Base</th>
+                    <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Total</th>
+                    <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-center">Estado</th>
+                    <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#1F1F1F]">
-                  {filteredInvoices.map(inv => (
-                    <tr key={inv.id} className="hover:bg-[#111111] transition-colors">
-                      <td className="px-4 py-3 font-primary text-[#FAF8F5] text-sm font-bold">{inv.invoice_number}</td>
-                      <td className="px-4 py-3 font-primary text-[#888888] text-sm max-w-[150px] truncate">{inv.client_name}</td>
-                      <td className="px-4 py-3 font-primary text-[#888888] text-sm">{inv.series || 'A'}</td>
-                      <td className="px-4 py-3 font-primary text-[#888888] text-xs">
-                        {new Date(inv.invoice_date).toLocaleDateString('es-ES')}
-                      </td>
-                      <td className="px-4 py-3 font-primary text-[#FAF8F5] text-sm">
-                        {formatCurrency(inv.amount)}
-                      </td>
-                      <td className="px-4 py-3 font-primary text-[#888888] text-sm">{inv.tax_rate}%</td>
-                      <td className="px-4 py-3 font-secondary text-[#C9A962] text-sm font-bold">
-                        {formatCurrency(inv.total_amount)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="relative group">
-                          <button className={cn(
-                            'flex items-center gap-1 px-2 py-1 border text-[10px] font-primary uppercase font-bold rounded-sm',
-                            STATUS_COLORS[inv.status as InvoiceStatus]
-                          )}>
-                            {STATUS_LABELS[inv.status as InvoiceStatus]}
-                            <ChevronDown className="w-3 h-3" />
-                          </button>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <Link to={`/admin/facturas/${inv.id}/editar`} className="p-1.5 text-[#444] hover:text-[#FAF8F5] transition-colors">
-                            <Edit className="w-4 h-4" />
-                          </Link>
-                          <button onClick={() => handleDelete(inv.id)} className="p-1.5 text-[#444] hover:text-red-400 transition-colors">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                  {filteredInvoices.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-12 text-center text-[#444] text-xs uppercase italic">
+                        No se encontraron facturas para este periodo
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredInvoices.map((inv) => (
+                      <tr key={inv.id} className="hover:bg-[#111] transition-colors">
+                        <td className="px-6 py-4 font-primary text-[#FAF8F5] text-xs font-bold">{inv.invoice_number}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col">
+                            <span className="font-primary text-[#FAF8F5] text-xs">{inv.client_name}</span>
+                            <span className="text-[10px] text-[#666] font-primary">{inv.type === 'income' ? 'Ingreso' : 'Gasto'}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 font-primary text-[#888] text-[10px]">
+                          {new Date(inv.invoice_date).toLocaleDateString('es-ES')}
+                        </td>
+                        <td className="px-6 py-4 font-secondary text-[#FAF8F5] text-xs text-right">
+                          {formatCurrency(inv.amount)}
+                        </td>
+                        <td className="px-6 py-4 font-secondary text-[#C9A962] text-xs font-bold text-right">
+                          {formatCurrency(inv.total_amount)}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={cn(
+                            "px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border",
+                            inv.status === 'pagado' ? 'border-green-400/30 text-green-400 bg-green-400/5' :
+                            inv.status === 'pendiente' ? 'border-[#C9A962]/30 text-[#C9A962] bg-[#C9A962]/5' :
+                            'border-red-400/30 text-red-400 bg-red-400/5'
+                          )}>
+                            {STATUS_LABELS[inv.status as keyof typeof STATUS_LABELS]}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Link 
+                              to={`/admin/facturas/${inv.id}/editar`} 
+                              className="p-1 text-[#444] hover:text-[#FAF8F5] transition-colors"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Link>
+                            <button 
+                              onClick={() => handleDelete(inv.id)} 
+                              className="p-1 text-[#444] hover:text-red-400 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5 text-[#C9A962]" />
+                  <h2 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-wider">Categorías de Gasto Variable</h2>
+                </div>
+                <button 
+                  onClick={() => setIsAddingVariable(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[10px] uppercase tracking-widest hover:bg-[#D4B673] transition-colors"
+                >
+                  <PlusCircle className="w-4 h-4" /> Nueva Categoría
+                </button>
+              </div>
+
+              <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-hidden">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#1F1F1F] bg-[#0E0E0E]">
+                      <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Categoría / Concepto</th>
+                      <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Descripción</th>
+                      <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Imp. Referencia</th>
+                      <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#1F1F1F]">
+                    {isAddingVariable && (
+                      <tr className="border-b border-[#C9A962]/30 bg-[#C9A962]/5">
+                        <td className="px-6 py-4">
+                          <input className={inputClass} placeholder="Compras, Materiales..." value={newVariableCategory.name} onChange={e => setNewVariableCategory({...newVariableCategory, name: e.target.value})} />
+                        </td>
+                        <td className="px-6 py-4">
+                          <input className={inputClass} placeholder="Gastos ocasionales..." value={newVariableCategory.description} onChange={e => setNewVariableCategory({...newVariableCategory, description: e.target.value})} />
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <input type="number" step="0.01" className={cn(inputClass, "w-24 ml-auto text-right")} value={newVariableCategory.default_amount} onChange={e => setNewVariableCategory({...newVariableCategory, default_amount: parseFloat(e.target.value) || 0})} />
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2 text-[#C9A962]">
+                            <button onClick={handleSaveVariableCategory}><Check className="w-5 h-5 transition-transform hover:scale-110" /></button>
+                            <button onClick={() => setIsAddingVariable(false)} className="text-[#444] hover:text-red-400"><X className="w-5 h-5" /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    {variableCategories.length === 0 && !isAddingVariable ? (
+                      <tr><td colSpan={4} className="px-6 py-12 text-center text-[#444] text-xs uppercase italic">No hay categorías variables configuradas</td></tr>
+                    ) : (
+                      variableCategories.map(cat => (
+                        <tr key={cat.id} className="hover:bg-[#111] transition-colors">
+                          {editingVariableId === cat.id ? (
+                            <>
+                              <td className="px-6 py-4">
+                                <input className={inputClass} value={editingVariableData?.name || ''} onChange={e => setEditingVariableData({ ...editingVariableData, name: e.target.value })} />
+                              </td>
+                              <td className="px-6 py-4">
+                                <input className={inputClass} value={editingVariableData?.description || ''} onChange={e => setEditingVariableData({ ...editingVariableData, description: e.target.value })} />
+                              </td>
+                              <td className="px-6 py-4 text-right">
+                                <input type="number" step="0.01" className={cn(inputClass, "w-24 ml-auto text-right")} value={editingVariableData?.default_amount || 0} onChange={e => setEditingVariableData({ ...editingVariableData, default_amount: parseFloat(e.target.value) || 0 })} />
+                              </td>
+                              <td className="px-6 py-4 text-right">
+                                <div className="flex items-center justify-end gap-2 text-[#C9A962]">
+                                  <button onClick={handleSaveVariableCategory}><Check className="w-5 h-5 transition-transform hover:scale-110" /></button>
+                                  <button onClick={() => setEditingVariableId(null)} className="text-[#444] hover:text-red-400"><X className="w-5 h-5" /></button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td className="px-6 py-4">
+                                <div className="flex flex-col">
+                                  <span className="font-primary text-[#FAF8F5] text-sm font-bold uppercase tracking-wider">{cat.name}</span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 font-primary text-[#666] text-xs uppercase">{cat.description || '-'}</td>
+                              <td className="px-6 py-4 font-secondary text-[#FAF8F5] text-sm text-right">{formatCurrency(cat.default_amount)}</td>
+                              <td className="px-6 py-4 text-right">
+                                <div className="flex items-center justify-end gap-2 text-[#444]">
+                                  <Link 
+                                    to={`/admin/facturas/nueva?variableId=${cat.id}`}
+                                    className="p-1 hover:text-[#C9A962] transition-colors flex items-center gap-1 border border-[#1F1F1F] px-2 py-0.5"
+                                    title="Crear factura desde esta categoría"
+                                  >
+                                    <PlusCircle className="w-3.5 h-3.5" />
+                                    <span className="text-[10px] font-bold uppercase tracking-widest">Crear</span>
+                                  </Link>
+                                  <button onClick={() => { setEditingVariableId(cat.id); setEditingVariableData(cat); }} className="p-1 hover:text-[#FAF8F5] transition-colors"><Edit className="w-4 h-4" /></button>
+                                  <button onClick={() => deleteVariableCategory(cat.id)} className="p-1 hover:text-red-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                </div>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* List of real invoices filtered by "expense" and current month for this tab */}
+              <div className="mt-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <FileText className="w-5 h-5 text-[#C9A962]" />
+                  <h3 className="font-primary text-[#FAF8F5] font-bold text-xs uppercase tracking-wider">Historial de Gastos Variables (Este Mes)</h3>
+                </div>
+                
+                <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-x-auto">
+                  {filteredInvoices.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-10 gap-2">
+                      <p className="font-primary text-[#444] text-[10px] uppercase">No hay gastos variables registrados este mes</p>
+                    </div>
+                  ) : (
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-[#1F1F1F] bg-[#0E0E0E]">
+                          {['Nº Factura', 'Proveedor/Concepto', 'Fecha', 'Total', 'Acciones'].map(h => (
+                            <th key={h} className="px-4 py-3 text-left font-primary text-[9px] uppercase tracking-wider text-[#666666]">
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#1F1F1F]">
+                        {filteredInvoices.map(inv => (
+                          <tr key={inv.id} className="hover:bg-[#111111] transition-colors">
+                            <td className="px-4 py-3 font-primary text-[#FAF8F5] text-xs font-bold">{inv.invoice_number}</td>
+                            <td className="px-4 py-3 font-primary text-[#888888] text-xs max-w-[150px] truncate">{inv.client_name}</td>
+                            <td className="px-4 py-3 font-primary text-[#666] text-[10px]">
+                              {new Date(inv.invoice_date).toLocaleDateString('es-ES')}
+                            </td>
+                            <td className="px-4 py-3 font-secondary text-[#C9A962] text-xs font-bold">
+                              {formatCurrency(inv.total_amount)}
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-2">
+                                <Link to={`/admin/facturas/${inv.id}/editar`} className="p-1 text-[#444] hover:text-[#FAF8F5] transition-colors">
+                                  <Edit className="w-3.5 h-3.5" />
+                                </Link>
+                                <button onClick={() => handleDelete(inv.id)} className="p-1 text-[#444] hover:text-red-400 transition-colors">
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ) : activeTab === 'fixed_expenses' ? (
         <div className="flex flex-col gap-6">
