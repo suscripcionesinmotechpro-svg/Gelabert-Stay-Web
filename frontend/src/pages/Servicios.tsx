@@ -322,7 +322,7 @@ export const Servicios = () => {
               className="mt-8 flex flex-col items-center gap-4"
             >
               <div className="w-[1px] h-24 bg-gradient-to-b from-[#C9A962] to-transparent animate-bounce-slow" />
-              <span className="text-[10px] uppercase tracking-widest text-[#C9A962]/50 font-bold">Explore</span>
+              <span className="text-[10px] uppercase tracking-widest text-[#C9A962]/50 font-bold">{t('common.scroll')}</span>
             </motion.div>
           </motion.div>
         </div>

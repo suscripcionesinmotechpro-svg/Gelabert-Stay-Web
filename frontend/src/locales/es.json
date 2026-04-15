@@ -12,7 +12,7 @@
     "month": "mes",
     "year": "año",
     "new": "Nuevo",
-    "scroll": "Explore"
+    "scroll": "Explorar"
   },
   "tags": {
     "premium": "Propiedad Seleccionada",
@@ -189,6 +189,36 @@
     "contact_us": "Contáctanos"
   },
   "home": {
+    "seo": {
+      "title": "Gelabert Homes Real Estate | Inmobiliaria en Málaga",
+      "description": "Especialistas en compra, venta y alquiler de propiedades en Málaga y Costa del Sol. Tu inmobiliaria de confianza.",
+      "og_title": "Gelabert Homes Real Estate | Inmobiliaria en Málaga",
+      "og_description": "Especialistas en compra, venta y alquiler de propiedades en Málaga y Costa del Sol. Tu inmobiliaria de confianza.",
+      "og_image_alt": "Gelabert Homes Real Estate - Inmobiliaria en Málaga",
+      "twitter_title": "Gelabert Homes Real Estate | Inmobiliaria en Málaga",
+      "twitter_description": "Especialistas en compra, venta y alquiler de propiedades en Málaga y Costa del Sol."
+    },
+    "faq": {
+      "q1": {
+        "question": "¿Dónde opera Gelabert Homes Real Estate?",
+        "answer": "Gelabert Homes Real Estate opera en Málaga y toda la Costa del Sol, ofreciendo servicios de compra, venta, alquiler y gestión de propiedades."
+      },
+      "q2": {
+        "question": "¿Qué servicios ofrece Gelabert Homes?",
+        "answer": "Ofrecemos alquiler, venta y traspaso de propiedades residenciales y comerciales, así como gestión integral de alquileres para propietarios en Málaga y la Costa del Sol."
+      },
+      "q3": {
+        "question": "¿Cómo puedo contactar con Gelabert Homes?",
+        "answer": "Puedes contactarnos por teléfono al +34 611 898 827, por email a info@gelaberthomes.es o a través del formulario de contacto en nuestra web."
+      },
+      "q4": {
+        "question": "¿Tienen propiedades en alquiler en Málaga?",
+        "answer": "Sí, disponemos de un amplio catálogo de pisos, casas y estudios en alquiler en Málaga y la Costa del Sol. Puedes ver todas las propiedades disponibles en nuestro catálogo online."
+      }
+    },
+    "footer_cta": {
+      "subtitle_suffix": "te espera"
+    },
     "services": {
       "title": "Nuestros Servicios",
       "rent": { "title": "Alquileres", "desc": "Cualquier tipo de alquiler" },
@@ -265,6 +295,9 @@
     "made_in": "Málaga, España 🇪🇸"
   },
   "services": {
+    "tenants": {
+      "image_alt": "Hogar de calidad"
+    },
     "seo": {
       "title": "Servicios Inmobiliarios en Málaga | Gelabert Homes Real Estate",
       "description": "Gestión integral inmobiliaria: Venta, alquiler, traspasos y administración de fincas en Málaga & Costa del Sol.",
@@ -464,6 +497,17 @@
       },
       "whatsapp_label": "Contactar por WhatsApp",
       "whatsapp_message": "Hola, me gustaría solicitar información sobre vuestros servicios para propietarios."
+    },
+    "legal": {
+      "title": "Información básica sobre protección de datos",
+      "responsible": "Responsable",
+      "purpose": "Finalidad",
+      "purpose_text": "Gestión de servicios para propietarios.",
+      "legitimation": "Legitimación",
+      "legitimation_text": "Medidas precontractuales y consentimiento.",
+      "recipients": "Destinatarios",
+      "recipients_text": "Interesados legítimos y portales inmobiliarios para promoción.",
+      "rights": "Derechos"
     }
   },
   "contact_page": {

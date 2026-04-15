@@ -44,8 +44,8 @@ export const Home = () => {
   return (
     <div className="w-full pb-20">
       <Helmet>
-        <title>{t('seo.home_title')}</title>
-        <meta name="description" content={t('seo.home_description')} />
+        <title>{t('home.seo.title')}</title>
+        <meta name="description" content={t('home.seo.description')} />
         <meta name="keywords" content="inmobiliaria málaga, comprar casa málaga, alquiler piso málaga, venta casas málaga, costa del sol inmobiliaria, gelabert homes real estate, pisos en venta málaga, apartamentos alquiler málaga" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <link rel="canonical" href={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/' : 'https://gelaberthomes.es/'} />
@@ -54,19 +54,19 @@ export const Home = () => {
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Gelabert Homes Real Estate" />
         <meta property="og:url" content={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/' : 'https://gelaberthomes.es/'} />
-        <meta property="og:title" content="Gelabert Homes Real Estate | Inmobiliaria en Málaga" />
-        <meta property="og:description" content="Especialistas en compra, venta y alquiler de propiedades en Málaga y Costa del Sol. Tu inmobiliaria de confianza." />
+        <meta property="og:title" content={t('home.seo.og_title')} />
+        <meta property="og:description" content={t('home.seo.og_description')} />
         <meta property="og:image" content="https://gelaberthomes.es/sharing-logo.jpg" />
         <meta property="og:image:secure_url" content="https://gelaberthomes.es/sharing-logo.jpg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Gelabert Homes Real Estate - Inmobiliaria en Málaga" />
+        <meta property="og:image:alt" content={t('home.seo.og_image_alt')} />
         <meta property="og:locale" content={i18n.language.startsWith('en') ? 'en_US' : 'es_ES'} />
 
         {/* Twitter / X */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Gelabert Homes Real Estate | Inmobiliaria en Málaga" />
-        <meta name="twitter:description" content="Especialistas en compra, venta y alquiler de propiedades en Málaga y Costa del Sol." />
+        <meta name="twitter:title" content={t('home.seo.twitter_title')} />
+        <meta name="twitter:description" content={t('home.seo.twitter_description')} />
         <meta name="twitter:image" content="https://gelaberthomes.es/sharing-logo.jpg" />
         <meta name="twitter:image:alt" content="Gelabert Homes Real Estate" />
 
@@ -83,34 +83,34 @@ export const Home = () => {
             "mainEntity": [
               {
                 "@type": "Question",
-                "name": "¿Dónde opera Gelabert Homes Real Estate?",
+                "name": t('home.faq.q1.question'),
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Gelabert Homes Real Estate opera en Málaga y toda la Costa del Sol, ofreciendo servicios de compra, venta, alquiler y gestión de propiedades."
+                  "text": t('home.faq.q1.answer')
                 }
               },
               {
                 "@type": "Question",
-                "name": "¿Qué servicios ofrece Gelabert Homes?",
+                "name": t('home.faq.q2.question'),
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Ofrecemos alquiler, venta y traspaso de propiedades residenciales y comerciales, así como gestión integral de alquileres para propietarios en Málaga y la Costa del Sol."
+                  "text": t('home.faq.q2.answer')
                 }
               },
               {
                 "@type": "Question",
-                "name": "¿Cómo puedo contactar con Gelabert Homes?",
+                "name": t('home.faq.q3.question'),
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Puedes contactarnos por teléfono al +34 611 898 827, por email a info@gelaberthomes.es o a través del formulario de contacto en nuestra web."
+                  "text": t('home.faq.q3.answer')
                 }
               },
               {
                 "@type": "Question",
-                "name": "¿Tienen propiedades en alquiler en Málaga?",
+                "name": t('home.faq.q4.question'),
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Sí, disponemos de un amplio catálogo de pisos, casas y estudios en alquiler en Málaga y la Costa del Sol. Puedes ver todas las propiedades disponibles en nuestro catálogo online."
+                  "text": t('home.faq.q4.answer')
                 }
               }
             ]
@@ -558,8 +558,8 @@ export const Home = () => {
           className="relative z-10 text-center px-6 max-w-3xl flex flex-col items-center gap-8"
         >
           <h2 className="font-secondary text-4xl md:text-7xl text-white leading-[1.05]">
-            {t('home.cta_title', { defaultValue: 'Tu próximo hogar' })}{' '}
-            <span className="italic text-[#C9A962] font-light">te espera</span>
+            {t('home.cta_title')} 
+            <span className="italic text-[#C9A962] font-light">{t('home.footer_cta.subtitle_suffix')}</span>
           </h2>
           <p className="font-primary text-white/50 text-lg max-w-xl leading-relaxed">
             {t('hero.hero_subtitle')}

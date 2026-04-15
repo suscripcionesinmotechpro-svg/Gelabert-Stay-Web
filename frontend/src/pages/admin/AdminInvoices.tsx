@@ -95,6 +95,23 @@ export const AdminInvoices = () => {
     return true;
   });
 
+  const combinedVariableItems = [
+    ...variableCategories.map(cat => ({ 
+      id: cat.id, 
+      name: cat.name, 
+      description: cat.description, 
+      amount: cat.default_amount, 
+      isFixed: false 
+    })),
+    ...fixedExpenses.filter(e => e.is_variable).map(e => ({ 
+      id: e.id, 
+      name: e.name, 
+      description: `Gasto Recurrente (${e.frequency === 'monthly' ? 'Mensual' : e.frequency === 'quarterly' ? 'Trimestral' : e.frequency === 'semiannual' ? 'Semestral' : 'Anual'})`, 
+      amount: e.amount, 
+      isFixed: true 
+    }))
+  ];
+
   const { deleteInvoice } = useInvoiceMutations();
 
   const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
@@ -463,7 +480,7 @@ export const AdminInvoices = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ShoppingBag className="w-5 h-5 text-[#C9A962]" />
-                  <h2 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-wider">Categorías de Gasto Variable</h2>
+                  <h2 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-wider">Conceptos de Gasto Sugeridos (Variables y Recurrentes)</h2>
                 </div>
                 <button 
                   onClick={() => setIsAddingVariable(true)}
@@ -503,12 +520,12 @@ export const AdminInvoices = () => {
                         </td>
                       </tr>
                     )}
-                    {variableCategories.length === 0 && !isAddingVariable ? (
-                      <tr><td colSpan={4} className="px-6 py-12 text-center text-[#444] text-xs uppercase italic">No hay categorías variables configuradas</td></tr>
+                    {combinedVariableItems.length === 0 && !isAddingVariable ? (
+                      <tr><td colSpan={4} className="px-6 py-12 text-center text-[#444] text-xs uppercase italic">No hay categorías ni gastos recurrentes variables configurados</td></tr>
                     ) : (
-                      variableCategories.map(cat => (
-                        <tr key={cat.id} className="hover:bg-[#111] transition-colors">
-                          {editingVariableId === cat.id ? (
+                      combinedVariableItems.map(item => (
+                        <tr key={item.id} className="hover:bg-[#111] transition-colors">
+                          {editingVariableId === item.id && !item.isFixed ? (
                             <>
                               <td className="px-6 py-4">
                                 <input className={inputClass} value={editingVariableData?.name || ''} onChange={e => setEditingVariableData({ ...editingVariableData, name: e.target.value })} />
@@ -530,23 +547,33 @@ export const AdminInvoices = () => {
                             <>
                               <td className="px-6 py-4">
                                 <div className="flex flex-col">
-                                  <span className="font-primary text-[#FAF8F5] text-sm font-bold uppercase tracking-wider">{cat.name}</span>
+                                  <span className="font-primary text-[#FAF8F5] text-sm font-bold uppercase tracking-wider">{item.name}</span>
+                                  {item.isFixed && <span className="text-[9px] text-[#C9A962] font-primary uppercase tracking-tighter">Recurrente</span>}
                                 </div>
                               </td>
-                              <td className="px-6 py-4 font-primary text-[#666] text-xs uppercase">{cat.description || '-'}</td>
-                              <td className="px-6 py-4 font-secondary text-[#FAF8F5] text-sm text-right">{formatCurrency(cat.default_amount)}</td>
+                              <td className="px-6 py-4 font-primary text-[#666] text-xs uppercase">{item.description || '-'}</td>
+                              <td className="px-6 py-4 font-secondary text-[#FAF8F5] text-sm text-right">{formatCurrency(item.amount)}</td>
                               <td className="px-6 py-4 text-right">
                                 <div className="flex items-center justify-end gap-2 text-[#444]">
                                   <Link 
-                                    to={`/admin/facturas/nueva?variableId=${cat.id}`}
+                                    to={`/admin/facturas/nueva?${item.isFixed ? `templateId=${item.id}` : `variableId=${item.id}`}`}
                                     className="p-1 hover:text-[#C9A962] transition-colors flex items-center gap-1 border border-[#1F1F1F] px-2 py-0.5"
-                                    title="Crear factura desde esta categoría"
+                                    title="Crear factura desde este concepto"
                                   >
                                     <PlusCircle className="w-3.5 h-3.5" />
                                     <span className="text-[10px] font-bold uppercase tracking-widest">Crear</span>
                                   </Link>
-                                  <button onClick={() => { setEditingVariableId(cat.id); setEditingVariableData(cat); }} className="p-1 hover:text-[#FAF8F5] transition-colors"><Edit className="w-4 h-4" /></button>
-                                  <button onClick={() => deleteVariableCategory(cat.id)} className="p-1 hover:text-red-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                  {!item.isFixed && (
+                                    <>
+                                      <button onClick={() => { setEditingVariableId(item.id); setEditingVariableData(item); }} className="p-1 hover:text-[#FAF8F5] transition-colors"><Edit className="w-4 h-4" /></button>
+                                      <button onClick={() => deleteVariableCategory(item.id)} className="p-1 hover:text-red-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                    </>
+                                  )}
+                                  {item.isFixed && (
+                                    <button onClick={() => setActiveTab('fixed_expenses')} className="p-1 hover:text-[#C9A962] transition-colors" title="Configurar este gasto recurrente">
+                                      <Edit className="w-4 h-4" />
+                                    </button>
+                                  )}
                                 </div>
                               </td>
                             </>
@@ -704,9 +731,7 @@ export const AdminInvoices = () => {
                 {fixedExpenses.length === 0 && !isAddingFixed ? (
                   <tr><td colSpan={6} className="px-6 py-12 text-center text-[#444] text-xs uppercase italic">No hay gastos fijos configurados</td></tr>
                 ) : (
-                  fixedExpenses
-                    .filter(expense => !expense.is_variable)
-                    .map(expense => (
+                  fixedExpenses.map(expense => (
                     <tr key={expense.id} className="hover:bg-[#111] transition-colors">
                       {editingFixedId === expense.id ? (
                         <>

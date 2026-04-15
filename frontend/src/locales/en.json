@@ -189,6 +189,36 @@
     "contact_us": "Contact Us"
   },
   "home": {
+    "seo": {
+      "title": "Gelabert Homes Real Estate | Real Estate in Malaga",
+      "description": "Specialists in the purchase, sale and rental of properties in Malaga and Costa del Sol. Your trusted real estate agency.",
+      "og_title": "Gelabert Homes Real Estate | Real Estate in Malaga",
+      "og_description": "Specialists in the purchase, sale and rental of properties in Malaga and Costa del Sol. Your trusted real estate agency.",
+      "og_image_alt": "Gelabert Homes Real Estate - Real Estate in Malaga",
+      "twitter_title": "Gelabert Homes Real Estate | Real Estate in Malaga",
+      "twitter_description": "Specialists in the purchase, sale and rental of properties in Malaga and Costa del Sol."
+    },
+    "faq": {
+      "q1": {
+        "question": "Where does Gelabert Homes Real Estate operate?",
+        "answer": "Gelabert Homes Real Estate operates in Malaga and throughout the Costa del Sol, offering purchase, sale, rental, and property management services."
+      },
+      "q2": {
+        "question": "What services does Gelabert Homes offer?",
+        "answer": "We offer rental, sale, and transfer of residential and commercial properties, as well as comprehensive rental management for owners in Malaga and the Costa del Sol."
+      },
+      "q3": {
+        "question": "How can I contact Gelabert Homes?",
+        "answer": "You can contact us by phone at +34 611 898 827, by email at info@gelaberthomes.es or through the contact form on our website."
+      },
+      "q4": {
+        "question": "Do you have rental properties in Malaga?",
+        "answer": "Yes, we have a wide catalog of apartments, houses and studios for rent in Malaga and the Costa del Sol. You can see all available properties in our online catalog."
+      }
+    },
+    "footer_cta": {
+      "subtitle_suffix": "is waiting for you"
+    },
     "services": {
       "title": "Our Services",
       "rent": { "title": "Rentals", "desc": "Any type of rental" },
@@ -265,6 +295,9 @@
     "made_in": "Málaga, Spain 🇪🇸"
   },
   "services": {
+    "tenants": {
+      "image_alt": "Quality home"
+    },
     "seo": {
       "title": "Real Estate Services in Malaga | Gelabert Homes Real Estate",
       "description": "Comprehensive real estate management: Sales, rentals, transfers, and property administration in Malaga & Costa del Sol.",
@@ -458,8 +491,20 @@
       },
       "whatsapp_label": "Contact via WhatsApp",
       "whatsapp_message": "Hello, I would like to request information about your services for owners."
+    },
+    "legal": {
+      "title": "Basic information about data protection",
+      "responsible": "Responsible",
+      "purpose": "Purpose",
+      "purpose_text": "Management of services for owners.",
+      "legitimation": "Legitimation",
+      "legitimation_text": "Pre-contractual measures and consent.",
+      "recipients": "Recipients",
+      "recipients_text": "Legitimate interested parties and real estate portals for promotion.",
+      "rights": "Rights"
     }
   },
+
   "contact_page": {
     "seo": {
       "title": "Contact | Gelabert Homes Real Estate",

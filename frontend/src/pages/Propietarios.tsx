@@ -111,12 +111,12 @@ export const Propietarios = () => {
             {/* RGPD / Protección de datos */}
             <div className="mt-6 pt-5 border-t border-white/5">
               <p className="font-primary text-[10px] text-white/25 leading-relaxed">
-                <span className="text-[#C9A962]/50 font-bold uppercase tracking-wider">Información básica sobre protección de datos · </span>
-                <strong className="text-white/30">Responsable:</strong> Gelabert Homes Real Estate.{' '}
-                <strong className="text-white/30">Finalidad:</strong> Gestión de servicios para propietarios.{' '}
-                <strong className="text-white/30">Legitimación:</strong> Medidas precontractuales y consentimiento.{' '}
-                <strong className="text-white/30">Destinatarios:</strong> Interesados legítimos y portales inmobiliarios para promoción.{' '}
-                <strong className="text-white/30">Derechos:</strong>{' '}
+                <span className="text-[#C9A962]/50 font-bold uppercase tracking-wider">{t('owners_page.legal.title')} · </span>
+                <strong className="text-white/30">{t('owners_page.legal.responsible')}:</strong> Gelabert Homes Real Estate.{' '}
+                <strong className="text-white/30">{t('owners_page.legal.purpose')}:</strong> {t('owners_page.legal.purpose_text')}{' '}
+                <strong className="text-white/30">{t('owners_page.legal.legitimation')}:</strong> {t('owners_page.legal.legitimation_text')}{' '}
+                <strong className="text-white/30">{t('owners_page.legal.recipients')}:</strong> {t('owners_page.legal.recipients_text')}{' '}
+                <strong className="text-white/30">{t('owners_page.legal.rights')}:</strong>{' '}
                 <a href="mailto:info@gelaberthomes.es" className="text-[#C9A962]/40 hover:text-[#C9A962]/70 transition-colors underline underline-offset-2">
                   info@gelaberthomes.es
                 </a>
