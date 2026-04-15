@@ -129,10 +129,10 @@ export const Home = () => {
           // @ts-ignore - fetchPriority is a valid attribute for performance optimization
           fetchPriority="high"
           className="w-full h-full object-cover opacity-60 scale-105"
-          poster="https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2075&auto=format&fit=crop"
+          poster="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop"
         >
           <source 
-            src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-luxury-holiday-resort-and-swimming-pool-42502-large.mp4" 
+            src="https://cdn.coverr.co/videos/coverr-villa-with-a-swimming-pool-6618/1080p.mp4" 
             type="video/mp4" 
           />
         </video>
