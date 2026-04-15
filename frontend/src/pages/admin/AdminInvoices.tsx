@@ -4,7 +4,7 @@ import { useInvoiceSummary, useInvoices, useInvoiceMutations } from '../../hooks
 import { useAccounting } from '../../hooks/useAccounting';
 import { STATUS_COLORS, STATUS_LABELS, type InvoiceStatus } from '../../types/invoice';
 import { 
-  PlusCircle, Download, TrendingUp, 
+  PlusCircle, TrendingUp, 
   ChevronDown, Trash2, Edit, FileText, ArrowUpRight, 
   ArrowDownRight, Calculator, Check, X, Building2, Mail, Phone, MapPin
 } from 'lucide-react';
@@ -103,10 +103,7 @@ export const AdminInvoices = () => {
     }
   };
 
-  const handleStatusChange = async (id: string, status: string) => {
-    await updateStatus(id, status);
-    refetch();
-  };
+
 
   const { issuers, createIssuer, updateIssuer, deleteIssuer } = useIssuers();
   const [isAddingIssuer, setIsAddingIssuer] = useState(false);

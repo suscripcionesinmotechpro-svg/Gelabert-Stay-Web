@@ -89,7 +89,7 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     // Fetch Fixed Expenses
     const { data: fixedData } = await supabase
       .from('accounting_fixed_expenses')
-      .select('id, amount')
+      .select('id, amount, frequency')
       .eq('is_active', true);
     
     const activeFixed = fixedData || [];
