@@ -86,7 +86,7 @@ export const AdminInvoices = () => {
     return true;
   });
 
-  const { updateStatus, deleteInvoice } = useInvoiceMutations();
+  const { deleteInvoice } = useInvoiceMutations();
 
   const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
