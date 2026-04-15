@@ -217,8 +217,9 @@
       }
     },
     "footer_cta": {
-      "subtitle_suffix": "te espera"
+      "subtitle_suffix": " te espera"
     },
+    "cta_title": "Tu próximo hogar",
     "services": {
       "title": "Nuestros Servicios",
       "rent": { "title": "Alquileres", "desc": "Cualquier tipo de alquiler" },

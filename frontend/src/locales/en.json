@@ -217,8 +217,9 @@
       }
     },
     "footer_cta": {
-      "subtitle_suffix": "is waiting for you"
+      "subtitle_suffix": " is waiting for you"
     },
+    "cta_title": "Your next home",
     "services": {
       "title": "Our Services",
       "rent": { "title": "Rentals", "desc": "Any type of rental" },

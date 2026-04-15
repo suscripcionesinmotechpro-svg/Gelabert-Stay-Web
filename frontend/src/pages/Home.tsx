@@ -558,7 +558,7 @@ export const Home = () => {
           className="relative z-10 text-center px-6 max-w-3xl flex flex-col items-center gap-8"
         >
           <h2 className="font-secondary text-4xl md:text-7xl text-white leading-[1.05]">
-            {t('home.cta_title')} 
+            {t('home.cta_title')}{' '}
             <span className="italic text-[#C9A962] font-light">{t('home.footer_cta.subtitle_suffix')}</span>
           </h2>
           <p className="font-primary text-white/50 text-lg max-w-xl leading-relaxed">
