@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAutoTranslate } from '../hooks/useAutoTranslate';
 import { OPERATION_LABELS, type PropertyOperation, type CommercialStatus, COMMERCIAL_STATUS_LABELS } from '../types/property';
-import { ChevronLeft, ChevronRight, MessageSquare, Heart, GitCompare, Images } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MessageSquare, Heart, GitCompare, Images, Video, FileText } from 'lucide-react';
 import { getWhatsAppLink } from '../utils/whatsapp';
 import { useState, useMemo, memo } from 'react';
 import { PremiumImage } from './PremiumImage';
@@ -39,6 +39,8 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   onTagClick?: (tag: string) => void;
   tags?: string[] | null;
   index?: number;
+  videoUrl?: string | null;
+  floorPlanUrl?: string | null;
 }
 
 export const PropertyCard = memo(({
@@ -71,6 +73,8 @@ export const PropertyCard = memo(({
   onTagClick,
   tags,
   index,
+  videoUrl,
+  floorPlanUrl,
   ...props
 }: PropertyCardProps) => {
   const { t } = useTranslation();
@@ -271,13 +275,27 @@ export const PropertyCard = memo(({
           </div>
         )}
 
-        {/* Photo count badge */}
-        {images.length > 1 && (
-          <div className="absolute bottom-14 left-3 z-20 px-2 py-0.5 glass-deep rounded-sm flex items-center gap-1 pointer-events-none">
-            <Images className="w-3 h-3 text-white/60" />
-            <span className="font-primary text-[10px] text-white/80 font-bold">{images.length}</span>
-          </div>
-        )}
+        {/* Multimedia badges (bottom left) */}
+        <div className="absolute bottom-14 left-3 z-20 flex items-center gap-2 pointer-events-none">
+          {images.length > 1 && (
+            <div className="px-2 py-0.5 glass-deep rounded-sm flex items-center gap-1">
+              <Images className="w-3 h-3 text-white/60" />
+              <span className="font-primary text-[10px] text-white/80 font-bold">{images.length}</span>
+            </div>
+          )}
+          {videoUrl && (
+            <div className="px-2 py-0.5 glass-deep rounded-sm flex items-center gap-1" title={t('property.labels.features.has_video')}>
+              <Video className="w-3 h-3 text-[#C9A962]" />
+              <span className="font-primary text-[10px] text-white/80 font-bold uppercase tracking-wider">Video</span>
+            </div>
+          )}
+          {floorPlanUrl && (
+            <div className="px-2 py-0.5 glass-deep rounded-sm flex items-center gap-1" title={t('property.labels.features.has_floor_plan')}>
+              <FileText className="w-3 h-3 text-[#C9A962]" />
+              <span className="font-primary text-[10px] text-white/80 font-bold uppercase tracking-wider">{t('property.labels.features.floor_plan_short') || 'Plano'}</span>
+            </div>
+          )}
+        </div>
 
         {/* Price Overlay */}
         <div className="absolute bottom-0 left-0 right-0 px-4 py-3 glass-deep border-t border-white/5 flex items-center justify-between z-10">

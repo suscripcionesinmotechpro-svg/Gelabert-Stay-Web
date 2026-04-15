@@ -981,6 +981,8 @@ export const FichaPropiedad = () => {
                 isFeatured={p.is_featured}
                 imageUrl={p.main_image ?? ''}
                 linkTo={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${p.reference || p.slug || p.id}`}
+                videoUrl={p.video_url}
+                floorPlanUrl={p.floor_plan}
                 description={p.short_description ?? undefined}
                 description_en={p.short_description_en ?? undefined}
               />
