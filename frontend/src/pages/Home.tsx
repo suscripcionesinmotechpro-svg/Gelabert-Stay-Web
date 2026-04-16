@@ -40,6 +40,7 @@ const AnimatedCounter = ({ target, suffix = '', decimals = 0 }: { target: number
 export const Home = () => {
   const { t, i18n } = useTranslation();
   const { properties: featuredProperties, loading } = useProperties({ is_featured: true, limit: 3 });
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   return (
     <div className="w-full pb-20">
@@ -128,7 +129,10 @@ export const Home = () => {
           playsInline
           // @ts-ignore - fetchPriority is a valid attribute for performance optimization
           fetchPriority="high"
-          className="w-full h-full object-cover opacity-60 scale-105"
+          onPlaying={() => setVideoLoaded(true)}
+          className={`w-full h-full object-cover scale-105 transition-opacity duration-1000 ${
+            videoLoaded ? 'opacity-60' : 'opacity-0'
+          }`}
           poster="/images/hero-poster.png"
         >
           <source 
