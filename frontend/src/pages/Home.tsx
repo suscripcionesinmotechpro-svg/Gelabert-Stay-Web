@@ -132,7 +132,7 @@ export const Home = () => {
           poster="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop"
         >
           <source 
-            src="https://drive.google.com/uc?export=download&id=1mxeUJzdIAN0O4vNp77JVMe2kNLuOp9q9" 
+            src="/videos/hero-drone.mp4" 
             type="video/mp4" 
           />
         </video>
