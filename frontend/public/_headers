@@ -1,22 +1,23 @@
 ## Netlify HTTP Headers
 ## These headers improve Security, Performance, and SEO signals
 
-# --- Static assets: aggressive long-term caching (boosts PageSpeed = Google ranking factor) ---
+# --- Hashed Assets: Aggressive long-term caching (Vite generates unique names) ---
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
+# --- Static Public Assets: Check for updates (no hashes) ---
 /*.png
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=0, must-revalidate
 /*.jpg
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=0, must-revalidate
 /*.jpeg
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=0, must-revalidate
 /*.webp
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=0, must-revalidate
 /*.svg
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=0, must-revalidate
 /*.ico
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=0, must-revalidate
 /*.woff
   Cache-Control: public, max-age=31536000, immutable
 /*.woff2
@@ -24,17 +25,20 @@
 /*.ttf
   Cache-Control: public, max-age=31536000, immutable
 
-# --- Sitemap: short cache so Google sees fresh data ---
+# --- Sitemap/Robots: Short cache ---
 /sitemap.xml
-  Cache-Control: public, max-age=3600
-  Content-Type: application/xml; charset=utf-8
-
-# --- HTML: never cache (SPA) ---
-/*
   Cache-Control: public, max-age=0, must-revalidate
-  # Security headers (also a minor Google ranking signal)
+  Content-Type: application/xml; charset=utf-8
+/robots.txt
+  Cache-Control: public, max-age=0, must-revalidate
+
+# --- HTML & SPA Fallback: NEVER CACHE ---
+/*
+  Cache-Control: no-cache, no-store, must-revalidate
+  # Security headers
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(self)
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+
