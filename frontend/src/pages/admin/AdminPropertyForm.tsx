@@ -184,13 +184,15 @@ export const AdminPropertyForm = () => {
     const delayDebounceFn = setTimeout(async () => {
       try {
         // Construir consulta dinámica: si la ciudad ya parece incluir la provincia o país, no duplicar
-        const cityLower = form.city.toLowerCase();
+        const city = form.city || "";
+        const address = form.address || "";
+        const cityLower = city.toLowerCase();
         const hasProvince = cityLower.includes('malaga') || cityLower.includes('málaga');
         const hasCountry = cityLower.includes('españa') || cityLower.includes('spain');
         
         const queryParts = [
-          form.address,
-          form.city,
+          address,
+          city,
           !hasProvince ? "Málaga" : "",
           !hasCountry ? "España" : ""
         ].filter(Boolean);
@@ -200,9 +202,9 @@ export const AdminPropertyForm = () => {
         let data = await res.json();
         
         // Fallback 1: Si no encuentra resultados y la dirección tiene comas (ej: "Calle, El Molinillo"), intentar solo con la calle principal
-        if ((!data || data.length === 0) && form.address?.includes(',')) {
-          const fallbackAddress = form.address.split(',')[0].trim();
-          const fallbackQueryParts = [fallbackAddress, form.city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
+        if ((!data || data.length === 0) && address.includes(',')) {
+          const fallbackAddress = address.split(',')[0].trim();
+          const fallbackQueryParts = [fallbackAddress, city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
           const fallbackQuery = encodeURIComponent(fallbackQueryParts.join(', '));
           const fallbackRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${fallbackQuery}&limit=1&email=admin@gelaberthomes.es`);
           data = await fallbackRes.json();
@@ -210,7 +212,7 @@ export const AdminPropertyForm = () => {
 
         // Fallback 2: Intentar solo Direccion + Ciudad + Pais (más genérico)
         if (!data || data.length === 0) {
-          const simpleQueryParts = [form.address, form.city, "España"].filter(Boolean);
+          const simpleQueryParts = [address, city, "España"].filter(Boolean);
           const simpleQuery = encodeURIComponent(simpleQueryParts.join(', '));
           const simpleRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${simpleQuery}&limit=1&email=admin@gelaberthomes.es`);
           data = await simpleRes.json();
@@ -688,18 +690,20 @@ export const AdminPropertyForm = () => {
                     return;
                   }
                   try {
-                    const cityLower = form.city.toLowerCase();
+                    const city = form.city || "";
+                    const address = form.address || "";
+                    const cityLower = city.toLowerCase();
                     const hasProvince = cityLower.includes('malaga') || cityLower.includes('málaga');
                     const hasCountry = cityLower.includes('españa') || cityLower.includes('spain');
-                    const queryParts = [form.address, form.city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
+                    const queryParts = [address, city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
                     const query = encodeURIComponent(queryParts.join(', '));
                     const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=3&email=admin@gelaberthomes.es`);
                     let data = await res.json();
                     
                     // Fallback 1: Quitar comas
-                    if ((!data || data.length === 0) && form.address?.includes(',')) {
-                      const fallbackAddress = form.address.split(',')[0].trim();
-                      const fallbackQueryParts = [fallbackAddress, form.city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
+                    if ((!data || data.length === 0) && address.includes(',')) {
+                      const fallbackAddress = address.split(',')[0].trim();
+                      const fallbackQueryParts = [fallbackAddress, city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
                       const fallbackQuery = encodeURIComponent(fallbackQueryParts.join(', '));
                       const fallbackRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${fallbackQuery}&limit=1&email=admin@gelaberthomes.es`);
                       data = await fallbackRes.json();
@@ -707,7 +711,7 @@ export const AdminPropertyForm = () => {
 
                     // Fallback 2: Solo dirección y ciudad
                     if (!data || data.length === 0) {
-                      const simpleQuery = encodeURIComponent(`${form.address}, ${form.city}`);
+                      const simpleQuery = encodeURIComponent(`${address}, ${city}`);
                       const simpleRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${simpleQuery}&limit=1&email=admin@gelaberthomes.es`);
                       data = await simpleRes.json();
                     }
