@@ -129,7 +129,6 @@ export const Home = () => {
           // @ts-ignore - fetchPriority is a valid attribute for performance optimization
           fetchPriority="high"
           className="w-full h-full object-cover opacity-60 scale-105"
-          poster="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop"
         >
           <source 
             src="/videos/hero-drone.mp4" 
