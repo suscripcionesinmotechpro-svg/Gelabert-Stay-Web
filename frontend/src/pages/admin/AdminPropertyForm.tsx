@@ -198,7 +198,10 @@ export const AdminPropertyForm = () => {
         ].filter(Boolean);
 
         const query = encodeURIComponent(queryParts.join(', '));
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1&email=admin@gelaberthomes.es`);
+        // Priorizar Málaga y Costa del Sol usando el viewbox (lon_min, lat_min, lon_max, lat_max)
+        // y restringir a España con countrycodes=es
+        const viewbox = "-5.6,36.3,-3.7,37.1";
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1&viewbox=${viewbox}&countrycodes=es&email=admin@gelaberthomes.es`);
         let data = await res.json();
         
         // Fallback 1: Si no encuentra resultados y la dirección tiene comas (ej: "Calle, El Molinillo"), intentar solo con la calle principal
@@ -206,7 +209,7 @@ export const AdminPropertyForm = () => {
           const fallbackAddress = address.split(',')[0].trim();
           const fallbackQueryParts = [fallbackAddress, city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
           const fallbackQuery = encodeURIComponent(fallbackQueryParts.join(', '));
-          const fallbackRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${fallbackQuery}&limit=1&email=admin@gelaberthomes.es`);
+          const fallbackRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${fallbackQuery}&limit=1&viewbox=${viewbox}&countrycodes=es&email=admin@gelaberthomes.es`);
           data = await fallbackRes.json();
         }
 
@@ -214,7 +217,7 @@ export const AdminPropertyForm = () => {
         if (!data || data.length === 0) {
           const simpleQueryParts = [address, city, "España"].filter(Boolean);
           const simpleQuery = encodeURIComponent(simpleQueryParts.join(', '));
-          const simpleRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${simpleQuery}&limit=1&email=admin@gelaberthomes.es`);
+          const simpleRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${simpleQuery}&limit=1&viewbox=${viewbox}&countrycodes=es&email=admin@gelaberthomes.es`);
           data = await simpleRes.json();
         }
 
@@ -697,7 +700,8 @@ export const AdminPropertyForm = () => {
                     const hasCountry = cityLower.includes('españa') || cityLower.includes('spain');
                     const queryParts = [address, city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
                     const query = encodeURIComponent(queryParts.join(', '));
-                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=3&email=admin@gelaberthomes.es`);
+                    const viewbox = "-5.6,36.3,-3.7,37.1";
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=3&viewbox=${viewbox}&countrycodes=es&email=admin@gelaberthomes.es`);
                     let data = await res.json();
                     
                     // Fallback 1: Quitar comas
@@ -705,14 +709,14 @@ export const AdminPropertyForm = () => {
                       const fallbackAddress = address.split(',')[0].trim();
                       const fallbackQueryParts = [fallbackAddress, city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
                       const fallbackQuery = encodeURIComponent(fallbackQueryParts.join(', '));
-                      const fallbackRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${fallbackQuery}&limit=1&email=admin@gelaberthomes.es`);
+                      const fallbackRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${fallbackQuery}&limit=1&viewbox=${viewbox}&countrycodes=es&email=admin@gelaberthomes.es`);
                       data = await fallbackRes.json();
                     }
 
                     // Fallback 2: Solo dirección y ciudad
                     if (!data || data.length === 0) {
                       const simpleQuery = encodeURIComponent(`${address}, ${city}`);
-                      const simpleRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${simpleQuery}&limit=1&email=admin@gelaberthomes.es`);
+                      const simpleRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${simpleQuery}&limit=1&viewbox=${viewbox}&countrycodes=es&email=admin@gelaberthomes.es`);
                       data = await simpleRes.json();
                     }
 
