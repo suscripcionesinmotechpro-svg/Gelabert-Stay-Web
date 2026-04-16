@@ -131,7 +131,7 @@ export const Home = () => {
           className="w-full h-full object-cover opacity-60 scale-105"
         >
           <source 
-            src="/videos/hero-drone.mp4" 
+            src="/videos/hero-drone.mp4?v=1" 
             type="video/mp4" 
           />
         </video>
