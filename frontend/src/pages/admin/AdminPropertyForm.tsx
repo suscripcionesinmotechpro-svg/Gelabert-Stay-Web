@@ -11,6 +11,8 @@ import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PropertyMap } from '../../components/PropertyMap';
 import { useJsApiLoader, Autocomplete } from '@react-google-maps/api';
 
+const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"];
+
 const inputClass = "w-full h-10 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
 const selectClass = "w-full h-10 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors";
 const labelClass = "font-primary text-xs text-[#666666] uppercase tracking-wider mb-1";
@@ -182,7 +184,7 @@ export const AdminPropertyForm = () => {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
-    libraries: ['places']
+    libraries: GOOGLE_MAPS_LIBRARIES
   });
 
   const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);

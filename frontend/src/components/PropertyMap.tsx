@@ -2,6 +2,8 @@ import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-map
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"];
+
 const mapContainerStyle = {
   width: '100%',
   height: '100%'
@@ -35,12 +37,12 @@ interface PropertyMapProps {
 export const PropertyMap = ({ lat, lng, address, editable, onChange }: PropertyMapProps) => {
   const { t } = useTranslation();
   const [showPopup, setShowPopup] = useState(false);
-  const [mapType, setMapType] = useState<google.maps.MapTypeId>(google?.maps?.MapTypeId?.ROADMAP || 'roadmap' as any);
+  const [mapType, setMapType] = useState<string>('roadmap');
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
-    libraries: ['places']
+    libraries: GOOGLE_MAPS_LIBRARIES
   });
 
   const hasCoords = lat !== undefined && lng !== undefined && !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0;

@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import type { Property } from '../types/property';
 import { Link } from 'react-router-dom';
 
+const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"];
+
 const mapContainerStyle = {
   width: '100%',
   height: '100%'
@@ -32,12 +34,12 @@ interface PropertiesMapProps {
 export const PropertiesMap = ({ properties }: PropertiesMapProps) => {
   const { t, i18n } = useTranslation();
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [mapType, setMapType] = useState<google.maps.MapTypeId>(google?.maps?.MapTypeId?.ROADMAP || 'roadmap' as any);
+  const [mapType, setMapType] = useState<string>('roadmap');
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
-    libraries: ['places']
+    libraries: GOOGLE_MAPS_LIBRARIES
   });
 
   const validProperties = properties.filter(p => p.latitude && p.longitude);
