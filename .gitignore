@@ -12,7 +12,7 @@ frontend/.env.local
 *.local
 
 # Design files and temporary assets
-images/
+/images/
 WhatsApp Image*
 temp_extract.py
 
