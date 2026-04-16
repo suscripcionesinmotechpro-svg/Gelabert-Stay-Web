@@ -126,7 +126,9 @@ export const Home = () => {
         <img 
           src="/images/hero-poster.png?v=2" 
           alt="Hero Background"
-          className="w-full h-full object-cover opacity-60 scale-105"
+          className={`w-full h-full object-cover scale-105 transition-opacity duration-500 ease-in-out ${
+            videoLoaded ? 'opacity-0' : 'opacity-60'
+          }`}
         />
         
         {/* Video Layer (Fades in over the poster) */}
@@ -138,7 +140,7 @@ export const Home = () => {
           // @ts-ignore - fetchPriority is a valid attribute for performance optimization
           fetchPriority="high"
           onCanPlay={() => setVideoLoaded(true)}
-          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-300 ease-out ${
+          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-500 ease-in-out ${
             videoLoaded ? 'opacity-60' : 'opacity-0'
           }`}
         >
