@@ -10,9 +10,13 @@
     "save": "Guardar",
     "cancel": "Cancelar",
     "month": "mes",
-    "year": "año",
+    "year": "a\u00f1o",
     "new": "Nuevo",
-    "scroll": "Explorar"
+    "scroll": "Explorar",
+    "share": "Compartir",
+    "copy_link": "Copiar enlace",
+    "copied": "\u00a1Copiado!",
+    "share_email": "Compartir por email"
   },
   "tags": {
     "premium": "Propiedad Seleccionada",

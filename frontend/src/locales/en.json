@@ -12,7 +12,11 @@
     "month": "month",
     "year": "year",
     "new": "New",
-    "scroll": "Explore"
+    "scroll": "Explore",
+    "share": "Share",
+    "copy_link": "Copy link",
+    "copied": "Copied!",
+    "share_email": "Share via email"
   },
   "tags": {
     "premium": "Selected Property",
