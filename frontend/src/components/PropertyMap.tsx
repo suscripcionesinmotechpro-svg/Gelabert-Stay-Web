@@ -1,5 +1,5 @@
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const mapContainerStyle = {
@@ -34,7 +34,6 @@ interface PropertyMapProps {
 
 export const PropertyMap = ({ lat, lng, address, editable, onChange }: PropertyMapProps) => {
   const { t } = useTranslation();
-  const [map, setMap] = useState<google.maps.Map | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [mapType, setMapType] = useState<google.maps.MapTypeId>(google?.maps?.MapTypeId?.ROADMAP || 'roadmap' as any);
 
@@ -48,12 +47,12 @@ export const PropertyMap = ({ lat, lng, address, editable, onChange }: PropertyM
 
   const center = hasCoords ? { lat, lng } : { lat: 36.7213, lng: -4.4214 }; // Málaga centro
 
-  const onLoad = useCallback((map: google.maps.Map) => {
-    setMap(map);
+  const onLoad = useCallback(() => {
+    // onLoad logic if needed
   }, []);
 
   const onUnmount = useCallback(() => {
-    setMap(null);
+    // onUnmount logic if needed
   }, []);
 
   const handleMapClick = (e: google.maps.MapMouseEvent) => {
