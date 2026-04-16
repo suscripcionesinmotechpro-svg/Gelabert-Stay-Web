@@ -137,8 +137,8 @@ export const Home = () => {
           playsInline
           // @ts-ignore - fetchPriority is a valid attribute for performance optimization
           fetchPriority="high"
-          onPlaying={() => setVideoLoaded(true)}
-          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-1500 ${
+          onCanPlay={() => setVideoLoaded(true)}
+          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-800 ease-in-out ${
             videoLoaded ? 'opacity-60' : 'opacity-0'
           }`}
         >
