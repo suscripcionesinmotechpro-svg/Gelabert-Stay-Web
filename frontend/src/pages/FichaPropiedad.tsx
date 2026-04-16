@@ -882,7 +882,7 @@ export const FichaPropiedad = () => {
 
           {/* Share Buttons */}
           <div className="flex flex-col gap-2 pt-2">
-            <span className="font-primary text-[10px] text-[#666666] uppercase tracking-[0.2em] font-bold">{t('common.share') || 'Compartir'}</span>
+            <span className="font-primary text-[10px] text-[#666666] uppercase tracking-[0.2em] font-bold">{t('common.share', 'Compartir')}</span>
             <div className="flex gap-2">
               <button
                 onClick={handleCopyLink}
@@ -894,12 +894,12 @@ export const FichaPropiedad = () => {
                 )}
               >
                 {linkCopied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                {linkCopied ? (t('common.copied') || '¡Copiado!') : (t('common.copy_link') || 'Copiar enlace')}
+                {linkCopied ? t('common.copied', '¡Copiado!') : t('common.copy_link', 'Copiar enlace')}
               </button>
               <a
                 href={`mailto:?subject=${encodeURIComponent(seoTitle)}&body=${encodeURIComponent(`${seoTitle}\n\n${featureSnippet}\n\n${propertyUrl}`)}`}
                 className="px-3 py-2.5 border border-[#1F1F1F] text-[#888888] hover:border-[#C9A962] hover:text-[#C9A962] transition-all flex items-center justify-center"
-                title={t('common.share_email') || 'Compartir por email'}
+                title={t('common.share_email', 'Compartir por email')}
               >
                 <Send className="w-3.5 h-3.5" />
               </a>
