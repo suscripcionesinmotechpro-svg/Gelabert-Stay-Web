@@ -145,14 +145,14 @@ export const Propiedades = () => {
         <meta property="og:url" content={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/propiedades' : 'https://gelaberthomes.es/propiedades'} />
         <meta property="og:title" content={`${t('seo.properties_title')} | Gelabert Homes`} />
         <meta property="og:description" content={t('seo.properties_description')} />
-        <meta property="og:image" content="https://gelaberthomes.es/sharing-logo.jpg" />
+        <meta property="og:image" content="https://gelaberthomes.es/logo-og.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="Catálogo de propiedades - Gelabert Homes" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${t('seo.properties_title')} | Gelabert Homes`} />
         <meta name="twitter:description" content={t('seo.properties_description')} />
-        <meta name="twitter:image" content="https://gelaberthomes.es/sharing-logo.jpg" />
+        <meta name="twitter:image" content="https://gelaberthomes.es/logo-og.png" />
         {/* JSON-LD: CollectionPage */}
         <script type="application/ld+json">
           {JSON.stringify({

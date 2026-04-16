@@ -27,6 +27,12 @@ export const Propietarios = () => {
         <title>{t('owners_page.seo.title')}</title>
         <meta name="description" content={t('owners_page.seo.description')} />
         <meta property="og:title" content={t('owners_page.seo.og_title')} />
+        <meta property="og:image" content="https://gelaberthomes.es/logo-og.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://gelaberthomes.es/logo-og.png" />
         <link rel="alternate" hrefLang="es" href="https://gelaberthomes.es/propietarios" />
         <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/propietarios" />
         <link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es/propietarios" />

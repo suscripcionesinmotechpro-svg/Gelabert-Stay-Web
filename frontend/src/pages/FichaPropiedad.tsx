@@ -187,10 +187,10 @@ export const FichaPropiedad = () => {
   // Optimización de imagen para previsualización (WhatsApp prefiere < 300KB)
   const mainImg = property.main_image?.trim() || (property.gallery && property.gallery.length > 0 ? property.gallery.find((img: string) => img && img.trim()) || null : null);
   const isSupabaseImage = mainImg?.includes('supabase.co') && mainImg?.includes('object/public');
-  // Use sharing-logo.jpg (1200x630, proper OG size) as fallback — not logo.png (square)
+  // Use logo-og.png (1200x630, proper OG size) as fallback — not logo.png (square)
   const previewImage = isSupabaseImage
     ? mainImg!.replace('object/public', 'render/image/public').split('?')[0] + '?width=1200&height=630&resize=contain&quality=80'
-    : (mainImg || 'https://gelaberthomes.es/sharing-logo.jpg');
+    : (mainImg || 'https://gelaberthomes.es/logo-og.png');
 
   const whatsappLink = getWhatsAppLink({
     context: 'property',
@@ -234,7 +234,7 @@ export const FichaPropiedad = () => {
         <meta property="og:image:secure_url" content={previewImage} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:type" content="image/png" />
         <meta property="og:image:alt" content={sharingTitleStr} />
         <meta property="og:locale" content={i18n.language.startsWith('en') ? 'en_US' : 'es_ES'} />
 

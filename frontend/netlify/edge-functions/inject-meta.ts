@@ -204,8 +204,8 @@ export default async (request: Request, context: Context) => {
       description = description.trim() || title || "Gelabert Homes Real Estate";
 
       // ── Image logic — GUARANTEED for all properties ──
-      // Priority: main_image → gallery[0] → sharing-logo.jpg (not logo.png which is square/tiny)
-      const siteFallback = "https://gelaberthomes.es/sharing-logo.jpg";
+      // Priority: main_image → gallery[0] → logo-og.png (not logo.png which is square/tiny)
+      const siteFallback = "https://gelaberthomes.es/logo-og.png";
 
       let rawImage = "";
       if (prop.main_image && prop.main_image.trim()) {
@@ -292,7 +292,7 @@ export default async (request: Request, context: Context) => {
         `<meta property="og:image:secure_url" content="${previewImage}">`,
         `<meta property="og:image:width" content="1200">`,
         `<meta property="og:image:height" content="630">`,
-        `<meta property="og:image:type" content="image/jpeg">`,
+        `<meta property="og:image:type" content="image/png">`,
         `<meta property="og:image:alt" content="${cleanTitle}">`,
         // Twitter / X
         `<meta name="twitter:card" content="summary_large_image">`,

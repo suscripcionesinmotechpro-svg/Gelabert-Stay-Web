@@ -57,8 +57,8 @@ export const Home = () => {
         <meta property="og:url" content={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/' : 'https://gelaberthomes.es/'} />
         <meta property="og:title" content={t('home.seo.og_title')} />
         <meta property="og:description" content={t('home.seo.og_description')} />
-        <meta property="og:image" content="https://gelaberthomes.es/sharing-logo.jpg" />
-        <meta property="og:image:secure_url" content="https://gelaberthomes.es/sharing-logo.jpg" />
+        <meta property="og:image" content="https://gelaberthomes.es/logo-og.png" />
+        <meta property="og:image:secure_url" content="https://gelaberthomes.es/logo-og.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={t('home.seo.og_image_alt')} />
@@ -68,7 +68,7 @@ export const Home = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={t('home.seo.twitter_title')} />
         <meta name="twitter:description" content={t('home.seo.twitter_description')} />
-        <meta name="twitter:image" content="https://gelaberthomes.es/sharing-logo.jpg" />
+        <meta name="twitter:image" content="https://gelaberthomes.es/logo-og.png" />
         <meta name="twitter:image:alt" content="Gelabert Homes Real Estate" />
 
         {/* Hreflang */}

@@ -267,6 +267,13 @@ export const Servicios = () => {
       <Helmet>
         <title>{t('services.seo.title')}</title>
         <meta name="description" content={t('services.seo.description')} />
+        <meta property="og:title" content={t('services.seo.title')} />
+        <meta property="og:image" content="https://gelaberthomes.es/logo-og.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://gelaberthomes.es/logo-og.png" />
         <link rel="alternate" hrefLang="es" href="https://gelaberthomes.es/servicios/" />
         <link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/servicios/" />
       </Helmet>

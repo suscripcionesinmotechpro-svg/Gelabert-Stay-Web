@@ -109,7 +109,7 @@ async function generateStaticPreviews() {
     for (const prop of properties) {
       // PROCESAR IMAGEN OG PRINCIPAL
       let mainImage = prop.main_image || (prop.gallery && prop.gallery.length > 0 ? prop.gallery[0] : "");
-      let previewImage = "https://gelaberthomes.es/sharing-logo.jpg";
+      let previewImage = "https://gelaberthomes.es/logo-og.png";
       
       if (mainImage) {
         const processedImageUrl = await processImage(mainImage, prop);
@@ -211,7 +211,7 @@ function buildPropHtml(baseHtml, title, description, prop, lang, previewImage) {
     { property: 'og:image:secure_url', content: previewImage },
     { property: 'og:image:width', content: '1200' },
     { property: 'og:image:height', content: '630' },
-    { property: 'og:image:type', content: 'image/jpeg' },
+    { property: 'og:image:type', content: 'image/png' },
     { property: 'og:image:alt', content: title },
     { property: 'og:url', content: siteUrl },
     { property: 'og:type', content: 'website' },
@@ -245,7 +245,7 @@ function buildPropHtml(baseHtml, title, description, prop, lang, previewImage) {
   // Etiquetas adicionales fijas, de formato o legacy
   metaHtml += `    <meta property="og:image:width" content="1200" />\n`;
   metaHtml += `    <meta property="og:image:height" content="630" />\n`;
-  metaHtml += `    <meta property="og:image:type" content="image/jpeg" />\n`;
+  metaHtml += `    <meta property="og:image:type" content="image/png" />\n`;
   metaHtml += `    <link rel="image_src" href="${previewImage}" />\n`;
   metaHtml += `    <link rel="canonical" href="${siteUrl}" />\n`;
 

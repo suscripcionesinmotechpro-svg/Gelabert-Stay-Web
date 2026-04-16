@@ -38,12 +38,12 @@ export const Contacto = () => {
         <meta property="og:url" content={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/contacto' : 'https://gelaberthomes.es/contacto'} />
         <meta property="og:title" content={t('contact_page.seo.title')} />
         <meta property="og:description" content={t('contact_page.seo.description')} />
-        <meta property="og:image" content="https://gelaberthomes.es/sharing-logo.jpg" />
+        <meta property="og:image" content="https://gelaberthomes.es/logo-og.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={t('contact_page.seo.title')} />
-        <meta name="twitter:image" content="https://gelaberthomes.es/sharing-logo.jpg" />
+        <meta name="twitter:image" content="https://gelaberthomes.es/logo-og.png" />
         {/* JSON-LD: LocalBusiness + ContactPage */}
         <script type="application/ld+json">
           {JSON.stringify({
