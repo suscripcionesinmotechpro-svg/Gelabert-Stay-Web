@@ -5,10 +5,11 @@ import { useProperty, usePropertyMutations, uploadPropertyMedia } from '../../ho
 import { usePropertyContracts } from '../../hooks/useContracts';
 import type { PropertyInsert, PropertyOperation, PropertyType, PropertyStatus, CommercialStatus } from '../../types/property';
 import { AVAILABLE_TAGS, OPERATION_LABELS, PROPERTY_TYPE_LABELS, COMMERCIAL_STATUS_LABELS, STATUS_LABELS } from '../../types/property';
-import { X, Save, Eye, ChevronLeft, Plus, Upload, ExternalLink, Sparkles } from 'lucide-react';
+import { ChevronLeft, Save, Eye, Plus, X, Upload, ExternalLink, Sparkles } from 'lucide-react';
 import { SortableImageGallery } from '../../components/admin/SortableImageGallery';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PropertyMap } from '../../components/PropertyMap';
+import { useJsApiLoader, Autocomplete } from '@react-google-maps/api';
 
 const inputClass = "w-full h-10 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
 const selectClass = "w-full h-10 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors";
@@ -177,67 +178,47 @@ export const AdminPropertyForm = () => {
     }
   }, [form.latitude, form.longitude]);
 
-  // Geolocalización automática con debounce
-  useEffect(() => {
-    if (!form.address || !form.city) return;
-    
-    const delayDebounceFn = setTimeout(async () => {
-      try {
-        // Construir consulta dinámica: si la ciudad ya parece incluir la provincia o país, no duplicar
-        const city = form.city || "";
-        const address = form.address || "";
-        const cityLower = city.toLowerCase();
-        const hasProvince = cityLower.includes('malaga') || cityLower.includes('málaga');
-        const hasCountry = cityLower.includes('españa') || cityLower.includes('spain');
-        
-        const queryParts = [
-          address,
-          city,
-          !hasProvince ? "Málaga" : "",
-          !hasCountry ? "España" : ""
-        ].filter(Boolean);
+  // Google Maps Loader
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
+    libraries: ['places']
+  });
 
-        const query = encodeURIComponent(queryParts.join(', '));
-        // Priorizar Málaga y Costa del Sol usando el viewbox (lon_min, lat_min, lon_max, lat_max)
-        // y restringir a España con countrycodes=es
-        const viewbox = "-5.6,36.3,-3.7,37.1";
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1&viewbox=${viewbox}&countrycodes=es&email=admin@gelaberthomes.es`);
-        let data = await res.json();
-        
-        // Fallback 1: Si no encuentra resultados y la dirección tiene comas (ej: "Calle, El Molinillo"), intentar solo con la calle principal
-        if ((!data || data.length === 0) && address.includes(',')) {
-          const fallbackAddress = address.split(',')[0].trim();
-          const fallbackQueryParts = [fallbackAddress, city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
-          const fallbackQuery = encodeURIComponent(fallbackQueryParts.join(', '));
-          const fallbackRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${fallbackQuery}&limit=1&viewbox=${viewbox}&countrycodes=es&email=admin@gelaberthomes.es`);
-          data = await fallbackRes.json();
-        }
+  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
 
-        // Fallback 2: Intentar solo Direccion + Ciudad + Pais (más genérico)
-        if (!data || data.length === 0) {
-          const simpleQueryParts = [address, city, "España"].filter(Boolean);
-          const simpleQuery = encodeURIComponent(simpleQueryParts.join(', '));
-          const simpleRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${simpleQuery}&limit=1&viewbox=${viewbox}&countrycodes=es&email=admin@gelaberthomes.es`);
-          data = await simpleRes.json();
-        }
+  const onAutocompleteLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
+    setAutocomplete(autocompleteInstance);
+  };
 
-        if (data && data.length > 0 && data[0]) {
-          const newLat = Number(data[0].lat);
-          const newLon = Number(data[0].lon);
-          
-          // Solo actualizar si las coordenadas son significativamente diferentes
-          if (Math.abs((form.latitude || 0) - newLat) > 0.0001 || Math.abs((form.longitude || 0) - newLon) > 0.0001) {
-            set('latitude', newLat);
-            set('longitude', newLon);
-          }
-        }
-      } catch (err) {
-        console.error('Error en geolocalización automática:', err);
+  const onPlaceChanged = () => {
+    if (autocomplete !== null) {
+      const place = autocomplete.getPlace();
+      if (!place.geometry || !place.geometry.location) {
+        console.log("No geometry found for this place");
+        return;
       }
-    }, 2000); // 2 segundos de debounce para no saturar la API
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [form.address, form.city, form.postal_code]);
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      
+      set('latitude', lat);
+      set('longitude', lng);
+      set('address', place.formatted_address || place.name);
+      
+      // Extract components like postal code and city
+      const components = place.address_components;
+      if (components) {
+        const pc = components.find(c => c.types.includes('postal_code'))?.long_name;
+        const city = components.find(c => c.types.includes('locality'))?.long_name;
+        const streetNum = components.find(c => c.types.includes('street_number'))?.long_name;
+        
+        if (pc) set('postal_code', pc);
+        if (city) set('city', city);
+        if (streetNum) set('street_number', streetNum);
+      }
+    }
+  };
 
   const set = (field: keyof PropertyInsert, value: unknown) =>
     setForm(prev => ({ ...prev, [field]: value }));
@@ -614,22 +595,30 @@ export const AdminPropertyForm = () => {
           </div>
           <div className="flex flex-col gap-2 sm:col-span-2">
             <label className={labelClass}>{t('admin.form.fields.address')}</label>
-            <input 
-              className={inputClass} 
-              placeholder={t('admin.form.fields.address_placeholder')} 
-              value={form.address ?? ''} 
-              onChange={e => set('address', e.target.value)}
-              onBlur={() => {
-                // Auto-buscar coordenadas si no están presentes y hay dirección
-                if (form.address && !form.latitude && !form.longitude) {
-                  // Pequeño delay para no interrumpir el flujo si el usuario va rápido
-                  setTimeout(() => {
-                    const btn = document.getElementById('search-map-btn');
-                    if (btn) btn.click();
-                  }, 500);
-                }
-              }}
-            />
+            {isLoaded ? (
+              <Autocomplete
+                onLoad={onAutocompleteLoad}
+                onPlaceChanged={onPlaceChanged}
+                options={{
+                  componentRestrictions: { country: "es" },
+                  fields: ["address_components", "geometry", "formatted_address", "name"],
+                }}
+              >
+                <input 
+                  className={inputClass} 
+                  placeholder={t('admin.form.fields.address_placeholder')} 
+                  value={form.address ?? ''} 
+                  onChange={e => set('address', e.target.value)}
+                />
+              </Autocomplete>
+            ) : (
+              <input 
+                className={inputClass} 
+                placeholder={t('admin.form.fields.address_placeholder')} 
+                value={form.address ?? ''} 
+                onChange={e => set('address', e.target.value)}
+              />
+            )}
           </div>
           <div className="flex flex-col gap-2">
             <label className={labelClass}>{t('admin.form.fields.postal_code')}</label>
@@ -654,86 +643,42 @@ export const AdminPropertyForm = () => {
           <div className="flex flex-col gap-2 sm:col-span-2 pt-2 border-t border-[#1F1F1F]">
             <label className={labelClass}>{t('admin.form.fields.coordinates')}</label>
             <div className="flex gap-2">
-              <input 
-                className={inputClass} 
-                placeholder={t('admin.form.fields.lat_placeholder')} 
-                value={latStr} 
-                onChange={e => {
-                  const val = e.target.value;
-                  setLatStr(val);
-                  if (val === '' || val === '-' || val === '.') {
-                    set('latitude', undefined);
-                  } else {
-                    const num = Number(val);
-                    if (!isNaN(num)) set('latitude', num);
-                  }
-                }} 
-              />
-              <input 
-                className={inputClass} 
-                placeholder={t('admin.form.fields.lon_placeholder')} 
-                value={lonStr} 
-                onChange={e => {
-                  const val = e.target.value;
-                  setLonStr(val);
-                  if (val === '' || val === '-' || val === '.') {
-                    set('longitude', undefined);
-                  } else {
-                    const num = Number(val);
-                    if (!isNaN(num)) set('longitude', num);
-                  }
-                }} 
-              />
-              <button
-                id="search-map-btn"
-                type="button"
-                onClick={async () => {
-                  if (!form.address || !form.city) {
-                    setError(t('admin.form.errors.address_city_required'));
-                    return;
-                  }
-                  try {
-                    const city = form.city || "";
-                    const address = form.address || "";
-                    const cityLower = city.toLowerCase();
-                    const hasProvince = cityLower.includes('malaga') || cityLower.includes('málaga');
-                    const hasCountry = cityLower.includes('españa') || cityLower.includes('spain');
-                    const queryParts = [address, city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
-                    const query = encodeURIComponent(queryParts.join(', '));
-                    const viewbox = "-5.6,36.3,-3.7,37.1";
-                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=3&viewbox=${viewbox}&countrycodes=es&email=admin@gelaberthomes.es`);
-                    let data = await res.json();
-                    
-                    // Fallback 1: Quitar comas
-                    if ((!data || data.length === 0) && address.includes(',')) {
-                      const fallbackAddress = address.split(',')[0].trim();
-                      const fallbackQueryParts = [fallbackAddress, city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
-                      const fallbackQuery = encodeURIComponent(fallbackQueryParts.join(', '));
-                      const fallbackRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${fallbackQuery}&limit=1&viewbox=${viewbox}&countrycodes=es&email=admin@gelaberthomes.es`);
-                      data = await fallbackRes.json();
-                    }
-
-                    // Fallback 2: Solo dirección y ciudad
-                    if (!data || data.length === 0) {
-                      const simpleQuery = encodeURIComponent(`${address}, ${city}`);
-                      const simpleRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${simpleQuery}&limit=1&viewbox=${viewbox}&countrycodes=es&email=admin@gelaberthomes.es`);
-                      data = await simpleRes.json();
-                    }
-
-                    if (data && data.length > 0 && data[0]) {
-                      set('latitude', Number(data[0].lat));
-                      set('longitude', Number(data[0].lon));
+              <div className="relative flex-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-[#666666] font-bold">LAT</span>
+                <input 
+                  className={`${inputClass} !pl-10`} 
+                  placeholder={t('admin.form.fields.lat_placeholder')} 
+                  value={latStr} 
+                  onChange={e => {
+                    const val = e.target.value;
+                    setLatStr(val);
+                    if (val === '' || val === '-' || val === '.') {
+                      set('latitude', undefined);
                     } else {
-                      setError(t('admin.form.errors.geo_not_found'));
+                      const num = Number(val);
+                      if (!isNaN(num)) set('latitude', num);
                     }
-                  } catch {
-                    setError(t('admin.form.errors.geo_service_error'));
-                  }
-                }}
-                className="px-4 bg-[#161616] border border-[#1F1F1F] text-[#FAF8F5] text-xs hover:border-[#C9A962] transition-colors whitespace-nowrap"
-              >
-                {t('admin.form.fields.search_map')}
-              </button>
+                  }} 
+                />
+              </div>
+              <div className="relative flex-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-[#666666] font-bold">LON</span>
+                <input 
+                  className={`${inputClass} !pl-10`} 
+                  placeholder={t('admin.form.fields.lon_placeholder')} 
+                  value={lonStr} 
+                  onChange={e => {
+                    const val = e.target.value;
+                    setLonStr(val);
+                    if (val === '' || val === '-' || val === '.') {
+                      set('longitude', undefined);
+                    } else {
+                      const num = Number(val);
+                      if (!isNaN(num)) set('longitude', num);
+                    }
+                  }} 
+                />
+              </div>
             </div>
             <p className="text-[10px] text-[#666666] mt-1 italic">
               {t('admin.form.fields.map_hint')}

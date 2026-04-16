@@ -1,24 +1,28 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import { useEffect } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+import { useCallback, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const GoldenIcon = L.divIcon({
-  html: `
-    <svg width="30" height="40" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0Z" fill="#C9A962"/>
-      <circle cx="15" cy="15" r="6" fill="#0A0A0A"/>
-      <path d="M15 42L14 41C14 41 0 26.25 0 15C0 6.71573 6.71573 0 15 0C23.2843 0 30 6.71573 30 15C30 26.25 16 41 16 41L15 42Z" stroke="#FAF8F5" stroke-opacity="0.2" stroke-width="0.5"/>
-    </svg>
-  `,
-  className: '',
-  iconSize: [30, 42],
-  iconAnchor: [15, 42],
-  popupAnchor: [0, -40],
-});
+const mapContainerStyle = {
+  width: '100%',
+  height: '100%'
+};
 
-L.Marker.prototype.options.icon = GoldenIcon;
+// Estilo oscuro premium para el mapa (JSON generado para Google Maps)
+const darkModeStyles = [
+  { elementType: "geometry", stylers: [{ color: "#212121" }] },
+  { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#212121" }] },
+  { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#757575" }] },
+  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#181818" }] },
+  { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+  { featureType: "road", elementType: "geometry.fill", stylers: [{ color: "#2c2c2c" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#3c3c3c" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#000000" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#3d3d3d" }] }
+];
 
 interface PropertyMapProps {
   lat: number;
@@ -28,30 +32,43 @@ interface PropertyMapProps {
   onChange?: (lat: number, lng: number) => void;
 }
 
-// Componente para actualizar la vista del mapa cuando cambian las coordenadas
-function ChangeView({ center }: { center: [number, number] }) {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(center);
-  }, [center, map]);
-  return null;
-}
-
-// Componente para capturar clicks en el mapa y actualizar coordenadas
-function LocationPicker({ onChange }: { onChange: (lat: number, lng: number) => void }) {
-  useMapEvents({
-    click(e) {
-      onChange(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return null;
-}
-
 export const PropertyMap = ({ lat, lng, address, editable, onChange }: PropertyMapProps) => {
   const { t } = useTranslation();
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [showPopup, setShowPopup] = useState(false);
+  const [mapType, setMapType] = useState<google.maps.MapTypeId>(google?.maps?.MapTypeId?.ROADMAP || 'roadmap' as any);
 
-  // No renderizar si las coordenadas no son válidas y no estamos en modo edición (donde podríamos querer un mapa vacío al inicio)
-  const hasCoords = lat !== undefined && lng !== undefined && !isNaN(lat) && !isNaN(lng);
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
+    libraries: ['places']
+  });
+
+  const hasCoords = lat !== undefined && lng !== undefined && !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0;
+
+  const center = hasCoords ? { lat, lng } : { lat: 36.7213, lng: -4.4214 }; // Málaga centro
+
+  const onLoad = useCallback((map: google.maps.Map) => {
+    setMap(map);
+  }, []);
+
+  const onUnmount = useCallback(() => {
+    setMap(null);
+  }, []);
+
+  const handleMapClick = (e: google.maps.MapMouseEvent) => {
+    if (editable && onChange && e.latLng) {
+      onChange(e.latLng.lat(), e.latLng.lng());
+    }
+  };
+
+  if (!isLoaded) {
+    return (
+      <div className="w-full h-full min-h-[300px] bg-[#0A0A0A] flex items-center justify-center border border-white/5">
+        <div className="w-6 h-6 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!hasCoords && !editable) {
     return (
@@ -63,33 +80,69 @@ export const PropertyMap = ({ lat, lng, address, editable, onChange }: PropertyM
     );
   }
 
-  // Coordenadas por defecto (Málaga centro) si no hay coordenadas pero es editable
-  const center: [number, number] = hasCoords ? [lat, lng] : [36.7213, -4.4214];
-
   return (
-    <div className={`w-full h-full min-h-[300px] border border-[#1F1F1F] z-10 ${editable ? 'cursor-crosshair' : ''}`}>
-      <MapContainer 
-        center={center} 
-        zoom={hasCoords ? 16 : 13} 
-        scrollWheelZoom={editable} 
-        style={{ height: '100%', width: '100%' }}
+    <div className="w-full h-full min-h-[300px] relative group">
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={center}
+        zoom={hasCoords ? 17 : 13}
+        onLoad={onLoad}
+        onUnmount={onUnmount}
+        onClick={handleMapClick}
+        options={{
+          styles: mapType === 'roadmap' ? darkModeStyles : [],
+          streetViewControl: true,
+          mapTypeControl: true,
+          fullscreenControl: true,
+          mapTypeId: mapType,
+          gestureHandling: editable ? 'greedy' : 'cooperative'
+        }}
       >
-        <ChangeView center={center} />
-        {editable && onChange && <LocationPicker onChange={onChange} />}
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
         {hasCoords && (
-          <Marker position={[lat, lng]}>
-            <Popup>
-              <div className="font-primary text-sm">
-                {address || t('map.default_popup')}
-              </div>
-            </Popup>
-          </Marker>
+          <Marker 
+            position={{ lat, lng }}
+            onClick={() => setShowPopup(true)}
+            icon={{
+              path: "M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0Z",
+              fillColor: "#C9A962",
+              fillOpacity: 1,
+              strokeWeight: 1,
+              strokeColor: "#FFFFFF",
+              scale: 0.8,
+              anchor: new google.maps.Point(15, 42),
+            }}
+          />
         )}
-      </MapContainer>
+
+        {showPopup && hasCoords && (
+          <InfoWindow
+            position={{ lat, lng }}
+            onCloseClick={() => setShowPopup(false)}
+          >
+            <div className="p-1 min-w-[100px]">
+              <p className="font-primary text-xs text-gray-900 leading-tight">
+                {address || t('map.default_popup')}
+              </p>
+            </div>
+          </InfoWindow>
+        )}
+      </GoogleMap>
+      
+      {/* Botón rápido para cambiar a Satélite si no se usa el control nativo */}
+      <div className="absolute top-4 left-4 z-10 flex gap-2">
+        <button 
+          onClick={() => setMapType('roadmap' as any)}
+          className={`px-3 py-1.5 text-[10px] uppercase tracking-widest font-bold transition-all border ${mapType === 'roadmap' ? 'bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]' : 'bg-[#0A0A0A]/80 text-white border-white/20 hover:border-[#C9A962]'}`}
+        >
+          Mapa
+        </button>
+        <button 
+          onClick={() => setMapType('satellite' as any)}
+          className={`px-3 py-1.5 text-[10px] uppercase tracking-widest font-bold transition-all border ${mapType === 'satellite' ? 'bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]' : 'bg-[#0A0A0A]/80 text-white border-white/20 hover:border-[#C9A962]'}`}
+        >
+          Satélite
+        </button>
+      </div>
     </div>
   );
 };
