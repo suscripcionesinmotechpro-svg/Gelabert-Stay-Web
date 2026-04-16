@@ -122,14 +122,12 @@ export const Home = () => {
       <div className="relative w-full h-[90vh] md:h-[95vh] min-h-[600px] flex items-center justify-center overflow-hidden bg-black">
       {/* Cinematic Video Background */}
       <div className="absolute inset-0 z-0 bg-black">
-        {/* Persistent Poster Image (Static Background) */}
-        {!videoLoaded && (
-          <img 
-            src="/images/hero-poster.png" 
-            alt="Hero Background"
-            className="w-full h-full object-cover opacity-60 scale-105"
-          />
-        )}
+        {/* Persistent Poster Image (Static Background) using the user's screenshot */}
+        <img 
+          src="/images/hero-poster.png" 
+          alt="Hero Background"
+          className="w-full h-full object-cover opacity-60 scale-105"
+        />
         
         {/* Video Layer (Fades in over the poster) */}
         <video
@@ -140,7 +138,7 @@ export const Home = () => {
           // @ts-ignore - fetchPriority is a valid attribute for performance optimization
           fetchPriority="high"
           onPlaying={() => setVideoLoaded(true)}
-          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-1000 ${
+          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-1500 ${
             videoLoaded ? 'opacity-60' : 'opacity-0'
           }`}
         >
