@@ -124,7 +124,7 @@ export const Home = () => {
       <div className="absolute inset-0 z-0 bg-black">
         {/* Persistent Poster Image (Static Background) using the user's screenshot */}
         <img 
-          src="/images/hero-poster.png" 
+          src="/images/hero-poster.png?v=2" 
           alt="Hero Background"
           className="w-full h-full object-cover opacity-60 scale-105"
         />
@@ -138,7 +138,7 @@ export const Home = () => {
           // @ts-ignore - fetchPriority is a valid attribute for performance optimization
           fetchPriority="high"
           onCanPlay={() => setVideoLoaded(true)}
-          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-800 ease-in-out ${
+          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-300 ease-out ${
             videoLoaded ? 'opacity-60' : 'opacity-0'
           }`}
         >
