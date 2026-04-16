@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect } from 'react';
@@ -24,6 +24,8 @@ interface PropertyMapProps {
   lat: number;
   lng: number;
   address?: string;
+  editable?: boolean;
+  onChange?: (lat: number, lng: number) => void;
 }
 
 // Componente para actualizar la vista del mapa cuando cambian las coordenadas
@@ -35,11 +37,23 @@ function ChangeView({ center }: { center: [number, number] }) {
   return null;
 }
 
-export const PropertyMap = ({ lat, lng, address }: PropertyMapProps) => {
+// Componente para capturar clicks en el mapa y actualizar coordenadas
+function LocationPicker({ onChange }: { onChange: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    click(e) {
+      onChange(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return null;
+}
+
+export const PropertyMap = ({ lat, lng, address, editable, onChange }: PropertyMapProps) => {
   const { t } = useTranslation();
 
-  // No renderizar si las coordenadas no son válidas
-  if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+  // No renderizar si las coordenadas no son válidas y no estamos en modo edición (donde podríamos querer un mapa vacío al inicio)
+  const hasCoords = lat !== undefined && lng !== undefined && !isNaN(lat) && !isNaN(lng);
+
+  if (!hasCoords && !editable) {
     return (
       <div className="w-full h-full min-h-[300px] bg-[#161616] flex items-center justify-center border border-[#1F1F1F]">
         <p className="font-primary text-xs text-[#666666] uppercase tracking-wider">
@@ -49,26 +63,32 @@ export const PropertyMap = ({ lat, lng, address }: PropertyMapProps) => {
     );
   }
 
+  // Coordenadas por defecto (Málaga centro) si no hay coordenadas pero es editable
+  const center: [number, number] = hasCoords ? [lat, lng] : [36.7213, -4.4214];
+
   return (
-    <div className="w-full h-full min-h-[300px] border border-[#1F1F1F] z-10">
+    <div className={`w-full h-full min-h-[300px] border border-[#1F1F1F] z-10 ${editable ? 'cursor-crosshair' : ''}`}>
       <MapContainer 
-        center={[lat, lng]} 
-        zoom={16} 
-        scrollWheelZoom={false} 
+        center={center} 
+        zoom={hasCoords ? 16 : 13} 
+        scrollWheelZoom={editable} 
         style={{ height: '100%', width: '100%' }}
       >
-        <ChangeView center={[lat, lng]} />
+        <ChangeView center={center} />
+        {editable && onChange && <LocationPicker onChange={onChange} />}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Marker position={[lat, lng]}>
-          <Popup>
-            <div className="font-primary text-sm">
-              {address || t('map.default_popup')}
-            </div>
-          </Popup>
-        </Marker>
+        {hasCoords && (
+          <Marker position={[lat, lng]}>
+            <Popup>
+              <div className="font-primary text-sm">
+                {address || t('map.default_popup')}
+              </div>
+            </Popup>
+          </Marker>
+        )}
       </MapContainer>
     </div>
   );

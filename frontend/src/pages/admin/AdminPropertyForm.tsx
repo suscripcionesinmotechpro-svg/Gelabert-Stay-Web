@@ -183,18 +183,37 @@ export const AdminPropertyForm = () => {
     
     const delayDebounceFn = setTimeout(async () => {
       try {
-        const queryParts = [form.address, form.city, "Málaga", "España"].filter(Boolean);
+        // Construir consulta dinámica: si la ciudad ya parece incluir la provincia o país, no duplicar
+        const cityLower = form.city.toLowerCase();
+        const hasProvince = cityLower.includes('malaga') || cityLower.includes('málaga');
+        const hasCountry = cityLower.includes('españa') || cityLower.includes('spain');
+        
+        const queryParts = [
+          form.address,
+          form.city,
+          !hasProvince ? "Málaga" : "",
+          !hasCountry ? "España" : ""
+        ].filter(Boolean);
+
         const query = encodeURIComponent(queryParts.join(', '));
         const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1&email=admin@gelaberthomes.es`);
         let data = await res.json();
         
-        // Fallback: Si no encuentra resultados y la dirección tiene comas (ej: "Calle, El Molinillo"), intentar solo con la calle principal
+        // Fallback 1: Si no encuentra resultados y la dirección tiene comas (ej: "Calle, El Molinillo"), intentar solo con la calle principal
         if ((!data || data.length === 0) && form.address?.includes(',')) {
           const fallbackAddress = form.address.split(',')[0].trim();
-          const fallbackQueryParts = [fallbackAddress, form.city, "Málaga", "España"].filter(Boolean);
+          const fallbackQueryParts = [fallbackAddress, form.city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
           const fallbackQuery = encodeURIComponent(fallbackQueryParts.join(', '));
           const fallbackRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${fallbackQuery}&limit=1&email=admin@gelaberthomes.es`);
           data = await fallbackRes.json();
+        }
+
+        // Fallback 2: Intentar solo Direccion + Ciudad + Pais (más genérico)
+        if (!data || data.length === 0) {
+          const simpleQueryParts = [form.address, form.city, "España"].filter(Boolean);
+          const simpleQuery = encodeURIComponent(simpleQueryParts.join(', '));
+          const simpleRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${simpleQuery}&limit=1&email=admin@gelaberthomes.es`);
+          data = await simpleRes.json();
         }
 
         if (data && data.length > 0 && data[0]) {
@@ -669,18 +688,28 @@ export const AdminPropertyForm = () => {
                     return;
                   }
                   try {
-                    const queryParts = [form.address, form.city, "Málaga", "España"].filter(Boolean);
+                    const cityLower = form.city.toLowerCase();
+                    const hasProvince = cityLower.includes('malaga') || cityLower.includes('málaga');
+                    const hasCountry = cityLower.includes('españa') || cityLower.includes('spain');
+                    const queryParts = [form.address, form.city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
                     const query = encodeURIComponent(queryParts.join(', '));
-                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1&email=admin@gelaberthomes.es`);
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=3&email=admin@gelaberthomes.es`);
                     let data = await res.json();
                     
-                    // Fallback
+                    // Fallback 1: Quitar comas
                     if ((!data || data.length === 0) && form.address?.includes(',')) {
                       const fallbackAddress = form.address.split(',')[0].trim();
-                      const fallbackQueryParts = [fallbackAddress, form.city, "Málaga", "España"].filter(Boolean);
+                      const fallbackQueryParts = [fallbackAddress, form.city, !hasProvince ? "Málaga" : "", !hasCountry ? "España" : ""].filter(Boolean);
                       const fallbackQuery = encodeURIComponent(fallbackQueryParts.join(', '));
                       const fallbackRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${fallbackQuery}&limit=1&email=admin@gelaberthomes.es`);
                       data = await fallbackRes.json();
+                    }
+
+                    // Fallback 2: Solo dirección y ciudad
+                    if (!data || data.length === 0) {
+                      const simpleQuery = encodeURIComponent(`${form.address}, ${form.city}`);
+                      const simpleRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${simpleQuery}&limit=1&email=admin@gelaberthomes.es`);
+                      data = await simpleRes.json();
                     }
 
                     if (data && data.length > 0 && data[0]) {
@@ -704,21 +733,28 @@ export const AdminPropertyForm = () => {
           </div>
           
           {/* Vista previa del mapa */}
-          {form.latitude && form.longitude && (
-            <div className="sm:col-span-2 mt-4 space-y-2">
-              <label className={labelClass}>{t('admin.form.fields.map_preview')}</label>
-              <div className="h-[300px] w-full border border-[#1F1F1F] overflow-hidden grayscale-[0.5] hover:grayscale-0 transition-all">
-                <PropertyMap 
-                  lat={Number(form.latitude)} 
-                  lng={Number(form.longitude)} 
-                  address={form.address || undefined}
-                />
-              </div>
-              <p className="text-[10px] text-[#C9A962] italic">
-                {t('admin.form.fields.map_exact_hint')}
-              </p>
+          <div className="sm:col-span-2 mt-4 space-y-2">
+            <label className={labelClass}>{t('admin.form.fields.map_preview')}</label>
+            <div className="h-[350px] w-full border border-[#1F1F1F] overflow-hidden grayscale-[0.2] hover:grayscale-0 transition-all">
+              <PropertyMap 
+                lat={Number(form.latitude || 0)} 
+                lng={Number(form.longitude || 0)} 
+                address={form.address || undefined}
+                editable={true}
+                onChange={(lat, lng) => {
+                  set('latitude', lat);
+                  set('longitude', lng);
+                }}
+              />
             </div>
-          )}
+            <p className="text-[11px] text-[#C9A962] font-semibold flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3" />
+              {t('admin.form.fields.map_interactive_hint')}
+            </p>
+            <p className="text-[10px] text-[#666666] italic">
+              {t('admin.form.fields.map_exact_hint')}
+            </p>
+          </div>
         </div>
       </div>
 
