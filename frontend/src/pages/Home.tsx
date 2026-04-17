@@ -424,6 +424,7 @@ export const Home = () => {
                 linkTo={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${p.reference || p.slug || p.id}`}
                 gallery={p.gallery}
                 videoUrl={p.video_url}
+                videos={p.videos}
                 floorPlanUrl={p.floor_plan}
                 id={p.id}
                 reference={p.reference ?? undefined}

@@ -244,12 +244,8 @@ export const AdminPropertyForm = () => {
     try {
       const urls: string[] = [];
       for (const f of files) {
-        // Validate image size (e.g., 20MB for photos is plenty)
-        if (f.size > 20 * 1024 * 1024) {
-          throw new Error(t('admin.form.errors.image_too_large', { name: f.name }));
-        }
-        const url = await uploadPropertyMedia(f, 'gallery');
-        urls.push(url);
+        const processed = await uploadPropertyMedia(f, 'gallery');
+        urls.push(processed);
       }
       handleImagesChange([...allImages, ...urls]);
     } catch (err) { 

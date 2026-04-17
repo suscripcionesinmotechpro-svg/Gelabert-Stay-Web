@@ -17,49 +17,58 @@ export const applyWatermark = async (file: File): Promise<File> => {
           return resolve(file); // fail safe
         }
 
-        canvas.width = img.width;
-        canvas.height = img.height;
+        // ── Resize to max 2400px wide (keeps quality high, reduces file size) ──
+        const MAX_WIDTH = 2400;
+        const MAX_HEIGHT = 2400;
+        let { width, height } = img;
 
-        // Draw original image at native uncompressed resolution
+        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+          const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw original image (potentially scaled down)
         ctx.globalAlpha = 1.0;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, width, height);
 
         // Load watermark
         const watermark = new Image();
-        watermark.crossOrigin = 'anonymous'; // necessary for tainted canvases
-        watermark.src = '/watermark.png'; // Make sure this is in public
+        watermark.crossOrigin = 'anonymous';
+        watermark.src = '/watermark.png';
 
         watermark.onload = () => {
-          // Let's make it 40% of the image width for a prominent center watermark
-          let wmWidth = canvas.width * 0.40;
-          if (wmWidth > 800) wmWidth = 800; // max width
-          if (wmWidth < 200) wmWidth = 200; // min width
-          
+          let wmWidth = width * 0.40;
+          if (wmWidth > 800) wmWidth = 800;
+          if (wmWidth < 200) wmWidth = 200;
+
           const aspectRatio = watermark.width / watermark.height;
           const wmHeight = wmWidth / aspectRatio;
 
-          // Enable shadow for better visibility on all backgrounds
           ctx.shadowColor = 'rgba(0,0,0,0.5)';
           ctx.shadowBlur = 8;
           ctx.shadowOffsetX = 2;
           ctx.shadowOffsetY = 2;
-
-          // 90% opacity for center watermark (more visible on bright backgrounds)
           ctx.globalAlpha = 0.90;
 
-          // Draw the watermark exactly in the CENTER of the image
-          const x = (canvas.width - wmWidth) / 2;
-          const y = (canvas.height - wmHeight) / 2;
-          
+          const x = (width - wmWidth) / 2;
+          const y = (height - wmHeight) / 2;
           ctx.drawImage(watermark, x, y, wmWidth, wmHeight);
 
-          // Return as blob without quality loss 
-          // (keep JPEG output on JPEG inputs for compatibility, quality 1.0 = 100% max quality)
+          // ── Always output as JPEG at 0.85 quality ──
+          // PNG → JPEG saves ~60-80% size; JPEG stays high quality
+          const outputType = 'image/jpeg';
+          const outputQuality = 0.85;
+          const outputName = file.name.replace(/\.[^.]+$/, '.jpg');
+
           canvas.toBlob(
             (blob) => {
               if (blob) {
-                const watermarkedFile = new File([blob], file.name, {
-                  type: file.type,
+                const watermarkedFile = new File([blob], outputName, {
+                  type: outputType,
                   lastModified: Date.now(),
                 });
                 resolve(watermarkedFile);
@@ -67,14 +76,29 @@ export const applyWatermark = async (file: File): Promise<File> => {
                 resolve(file); // Fallback to original
               }
             },
-            file.type,
-            1.0 // Maximum lossless-like quality
+            outputType,
+            outputQuality
           );
         };
 
         watermark.onerror = () => {
-          console.warn('Could not load watermark, saving without it.');
-          resolve(file); // fail safe
+          // No watermark available — still compress and resize
+          const outputType = 'image/jpeg';
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const resizedFile = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), {
+                  type: outputType,
+                  lastModified: Date.now(),
+                });
+                resolve(resizedFile);
+              } else {
+                resolve(file);
+              }
+            },
+            outputType,
+            0.85
+          );
         };
       };
 

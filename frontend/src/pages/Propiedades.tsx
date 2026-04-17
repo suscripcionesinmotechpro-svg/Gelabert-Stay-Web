@@ -426,6 +426,7 @@ export const Propiedades = () => {
                 description_en={p.short_description_en || undefined}
                 gallery={p.gallery}
                 videoUrl={p.video_url}
+                videos={p.videos}
                 floorPlanUrl={p.floor_plan}
                 id={p.id}
                 reference={p.reference ?? undefined}

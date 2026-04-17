@@ -40,6 +40,7 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   tags?: string[] | null;
   index?: number;
   videoUrl?: string | null;
+  videos?: string[] | null;
   floorPlanUrl?: string | null;
 }
 
@@ -74,6 +75,7 @@ export const PropertyCard = memo(({
   tags,
   index,
   videoUrl,
+  videos,
   floorPlanUrl,
   ...props
 }: PropertyCardProps) => {
@@ -283,10 +285,12 @@ export const PropertyCard = memo(({
               <span className="font-primary text-[10px] text-white/80 font-bold">{images.length}</span>
             </div>
           )}
-          {videoUrl && (
+          {(videoUrl || (videos && videos.length > 0)) && (
             <div className="px-2 py-0.5 glass-deep rounded-sm flex items-center gap-1" title={t('property.labels.features.has_video')}>
               <Video className="w-3 h-3 text-[#C9A962]" />
-              <span className="font-primary text-[10px] text-white/80 font-bold uppercase tracking-wider">Video</span>
+              <span className="font-primary text-[10px] text-white/80 font-bold uppercase tracking-wider">
+                {videos && videos.length > 1 ? `${videos.length} Videos` : 'Video'}
+              </span>
             </div>
           )}
           {floorPlanUrl && (
