@@ -406,6 +406,9 @@ export const FichaPropiedad = () => {
                 </button>
               ))}
             </div>
+          </div>
+        )}
+
         {/* Video Player */}
         {activeTab === 'video' && (property.video_url || (property.videos && property.videos.length > 0)) && (
           <div className="flex flex-col gap-4">
@@ -456,9 +459,6 @@ export const FichaPropiedad = () => {
                 ))}
               </div>
             )}
-          </div>
-        )}
-         )}
           </div>
         )}
 
