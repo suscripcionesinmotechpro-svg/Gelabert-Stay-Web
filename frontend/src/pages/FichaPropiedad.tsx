@@ -46,6 +46,7 @@ export const FichaPropiedad = () => {
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [solvencyAccepted, setSolvencyAccepted] = useState(false);
   const [activeTab, setActiveTab] = useState<'fotos' | 'video' | 'plano' | 'ubicacion'>('fotos');
+  const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const [linkCopied, setLinkCopied] = useState(false);
 
   const handleCopyLink = () => {
@@ -317,7 +318,7 @@ export const FichaPropiedad = () => {
       </div>
 
       {/* Media Tabs */}
-      {(property.video_url || property.floor_plan || (property.latitude && property.longitude)) && (
+      {((property.video_url || (property.videos && property.videos.length > 0)) || property.floor_plan || (property.latitude && property.longitude)) && (
         <div className="w-full px-6 md:px-14 pt-6 flex gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide">
           <button 
             onClick={() => setActiveTab('fotos')} 
@@ -325,7 +326,7 @@ export const FichaPropiedad = () => {
           >
             <Maximize className="w-4 h-4" /> {t('property.labels.features.photos')}
           </button>
-          {property.video_url && (
+          {(property.video_url || (property.videos && property.videos.length > 0)) && (
             <button 
               onClick={() => setActiveTab('video')} 
               className={`flex items-center gap-2 font-primary text-sm uppercase tracking-wider pb-2 border-b-2 transition-colors flex-shrink-0 ${activeTab === 'video' ? 'border-[#C9A962] text-[#C9A962]' : 'border-transparent text-[#888888] hover:text-[#FAF8F5]'}`}
@@ -405,32 +406,59 @@ export const FichaPropiedad = () => {
                 </button>
               ))}
             </div>
-          )}
-        </div>
-        )}
-
         {/* Video Player */}
-        {activeTab === 'video' && property.video_url && (
-          <div className="w-full min-h-[400px] md:h-[500px] max-h-[80vh] border border-[#1F1F1F] bg-[#0A0A0A] flex items-center justify-center overflow-hidden relative group">
-            {property.video_url.includes('youtube.com') || property.video_url.includes('youtu.be') ? (
-              <iframe 
-                src={property.video_url.replace('watch?v=', 'embed/').split('&')[0].replace('youtu.be/', 'youtube.com/embed/')} 
-                className="w-full h-full" 
-                allowFullScreen 
-                title="Property Video"
-                frameBorder="0"
-              />
-            ) : property.video_url.includes('vimeo.com') ? (
-              <iframe 
-                src={`https://player.vimeo.com/video/${property.video_url.split('/')[3]}`} 
-                className="w-full h-full" 
-                allowFullScreen 
-                title="Property Video"
-                frameBorder="0"
-              />
-            ) : (
-              <video src={property.video_url} controls className="w-full h-full bg-black outline-none object-contain" />
+        {activeTab === 'video' && (property.video_url || (property.videos && property.videos.length > 0)) && (
+          <div className="flex flex-col gap-4">
+            <div className="w-full min-h-[400px] md:h-[500px] max-h-[80vh] border border-[#1F1F1F] bg-[#0A0A0A] flex items-center justify-center overflow-hidden relative group">
+              {(() => {
+                const allVideos = property.videos && property.videos.length > 0 ? property.videos : [property.video_url || ''];
+                const currentVideo = allVideos[activeVideoIndex] || property.video_url || '';
+                
+                if (!currentVideo) return <div className="text-[#444444] font-primary">No hay vídeo disponible</div>;
+
+                if (currentVideo.includes('youtube.com') || currentVideo.includes('youtu.be')) {
+                  return (
+                    <iframe 
+                      src={currentVideo.replace('watch?v=', 'embed/').split('&')[0].replace('youtu.be/', 'youtube.com/embed/')} 
+                      className="w-full h-full" 
+                      allowFullScreen 
+                      title="Property Video"
+                      frameBorder="0"
+                    />
+                  );
+                } else if (currentVideo.includes('vimeo.com')) {
+                  return (
+                    <iframe 
+                      src={`https://player.vimeo.com/video/${currentVideo.split('/')[3]}`} 
+                      className="w-full h-full" 
+                      allowFullScreen 
+                      title="Property Video"
+                      frameBorder="0"
+                    />
+                  );
+                } else {
+                  return <video src={currentVideo} key={currentVideo} controls className="w-full h-full bg-black outline-none object-contain" />;
+                }
+              })()}
+            </div>
+            
+            {/* Video Selector if multiple */}
+            {property.videos && property.videos.length > 1 && (
+              <div className="flex flex-wrap gap-2">
+                {property.videos.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveVideoIndex(idx)}
+                    className={`px-4 py-2 text-xs font-primary border transition-colors ${activeVideoIndex === idx ? 'bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]' : 'bg-[#0A0A0A] text-[#888888] border-[#1F1F1F] hover:border-[#C9A962] hover:text-[#FAF8F5]'}`}
+                  >
+                    VÍDEO {idx + 1}
+                  </button>
+                ))}
+              </div>
             )}
+          </div>
+        )}
+         )}
           </div>
         )}
 

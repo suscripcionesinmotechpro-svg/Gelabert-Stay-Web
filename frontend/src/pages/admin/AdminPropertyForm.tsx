@@ -7,6 +7,7 @@ import type { PropertyInsert, PropertyOperation, PropertyType, PropertyStatus, C
 import { AVAILABLE_TAGS, OPERATION_LABELS, PROPERTY_TYPE_LABELS, COMMERCIAL_STATUS_LABELS, STATUS_LABELS } from '../../types/property';
 import { ChevronLeft, Save, Eye, Plus, X, Upload, ExternalLink, Sparkles } from 'lucide-react';
 import { SortableImageGallery } from '../../components/admin/SortableImageGallery';
+import { SortableVideoGallery } from '../../components/admin/SortableVideoGallery';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PropertyMap } from '../../components/PropertyMap';
 import { useJsApiLoader, Autocomplete } from '@react-google-maps/api';
@@ -91,7 +92,7 @@ const DEFAULT_FORM: Partial<PropertyInsert> = {
   property_condition: '', availability: '',
   short_description: '', description: '', highlights: [], 
   tags: [],
-  main_image: '', gallery: [], video_url: '', floor_plan: '',
+  main_image: '', gallery: [], video_url: '', videos: [], floor_plan: '',
   slug: '', meta_title: '', meta_description: '',
   status: 'borrador', commercial_status: 'disponible', is_featured: false,
   rent_type: null, reference: '',
@@ -145,7 +146,7 @@ export const AdminPropertyForm = () => {
         highlights: property.highlights ?? [],
         tags: property.tags ?? [],
         main_image: property.main_image ?? '', gallery: property.gallery ?? [],
-        video_url: property.video_url ?? '', floor_plan: property.floor_plan ?? '',
+        video_url: property.video_url ?? '', videos: property.videos ?? [], floor_plan: property.floor_plan ?? '',
         slug: property.slug ?? '', meta_title: property.meta_title ?? '',
         meta_description: property.meta_description ?? '', status: property.status,
         commercial_status: property.commercial_status ?? 'disponible', is_featured: property.is_featured,
@@ -259,25 +260,36 @@ export const AdminPropertyForm = () => {
   };
 
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
     
-    // Validate video size (Supabase Free plan limit is 50MB per file)
-    if (file.size > 50 * 1024 * 1024) {
-      setError(t('admin.form.errors.video_too_large'));
-      return;
-    }
-
     setUploadingVideo(true);
     setError(null);
     try {
-      const url = await uploadPropertyMedia(file, 'videos');
-      set('video_url', url);
+      const urls: string[] = [];
+      for (const file of files) {
+        // Validate video size (50MB limit)
+        if (file.size > 50 * 1024 * 1024) {
+          throw new Error(t('admin.form.errors.video_too_large'));
+        }
+        const url = await uploadPropertyMedia(file, 'videos');
+        urls.push(url);
+      }
+      
+      const currentVideos = form.videos || [];
+      handleVideosChange([...currentVideos, ...urls]);
     } catch (err) {
-      setError(err instanceof Error ? `${t('admin.form.errors.video_upload_error')}: ${err.message}` : t('admin.form.errors.video_upload_error'));
+      setError(err instanceof Error ? err.message : t('admin.form.errors.video_upload_error'));
     } finally {
       setUploadingVideo(false);
     }
+  };
+
+  const handleVideosChange = (urls: string[]) => {
+    set('videos', urls);
+    // Para retrocompatibilidad y visualización simple, mantendremos video_url 
+    // como el primer vídeo de la lista si existe
+    set('video_url', urls.length > 0 ? urls[0] : '');
   };
 
   const generateSEOMetadata = () => {
@@ -918,31 +930,17 @@ export const AdminPropertyForm = () => {
           uploading={uploadingImages}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-          <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.video')}</label>
-            <div className="flex gap-2">
-              <input className={`${inputClass} flex-1`} placeholder={t('admin.form.fields.video_placeholder')} value={form.video_url ?? ''} onChange={e => set('video_url', e.target.value)} />
-              <div className="relative flex-shrink-0">
-                <input 
-                  type="file" 
-                  accept="video/*" 
-                  onChange={handleVideoUpload} 
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  disabled={uploadingVideo}
-                  title={t('admin.form.fields.upload')}
-                />
-                <button 
-                  type="button" 
-                  className="flex items-center justify-center h-10 px-4 bg-[#161616] border border-[#1F1F1F] text-[#FAF8F5] text-sm hover:border-[#C9A962] transition-colors disabled:opacity-50"
-                  disabled={uploadingVideo}
-                >
-                  <Upload className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">{uploadingVideo ? t('admin.form.fields.uploading') : t('admin.form.fields.upload')}</span>
-                </button>
-              </div>
-            </div>
-          </div>
+        {/* Galería de Vídeos */}
+        <div className="mt-6 pt-6 border-t border-[#1F1F1F]">
+          <SortableVideoGallery 
+            videos={form.videos || []}
+            onChange={handleVideosChange}
+            onUpload={handleVideoUpload}
+            uploading={uploadingVideo}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <div className="flex flex-col gap-2">
             <label className={labelClass}>{t('admin.form.fields.floor_plan')}</label>
             <div className="flex gap-2">

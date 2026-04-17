@@ -232,7 +232,7 @@ export const usePropertyMutations = () => {
     // 1. Obtener la propiedad primero para conocer sus archivos
     const { data: property } = await supabase
       .from('properties')
-      .select('main_image, gallery, video_url, floor_plan')
+      .select('main_image, gallery, video_url, videos, floor_plan')
       .eq('id', id)
       .maybeSingle();
 
@@ -264,6 +264,13 @@ export const usePropertyMutations = () => {
       if (property.video_url) {
         const path = extractPath(property.video_url);
         if (path) filesToDelete.push(path);
+      }
+
+      if (property.videos && Array.isArray(property.videos)) {
+        property.videos.forEach((url: string) => {
+          const path = extractPath(url);
+          if (path) filesToDelete.push(path);
+        });
       }
 
       if (property.floor_plan) {

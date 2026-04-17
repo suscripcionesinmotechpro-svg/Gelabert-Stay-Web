@@ -103,6 +103,7 @@ export interface Property {
   main_image: string | null;
   gallery: string[] | null;
   video_url: string | null;
+  videos: string[] | null;
   floor_plan: string | null;
 
   // SEO
