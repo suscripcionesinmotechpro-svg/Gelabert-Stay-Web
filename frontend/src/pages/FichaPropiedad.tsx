@@ -406,6 +406,7 @@ export const FichaPropiedad = () => {
                 </button>
               ))}
             </div>
+          )}
           </div>
         )}
 
