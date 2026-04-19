@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { PropertyMap } from '../components/PropertyMap';
+import { PropertyReference } from '../components/PropertyReference';
 import { supabase } from '../lib/supabase';
 import { useTranslation, Trans } from 'react-i18next';
 import { getWhatsAppLink } from '../utils/whatsapp';
@@ -557,10 +558,11 @@ export const FichaPropiedad = () => {
                   </span>
                 )}
                 {property.reference && (
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#C9A962]/10 border border-[#C9A962]/20 rounded-sm">
-                    <span className="font-primary text-[10px] text-[#C9A962] font-bold tracking-widest uppercase">REF:</span>
-                    <span className="font-primary text-xs text-[#FAF8F5] font-black">{property.reference}</span>
-                  </div>
+                  <PropertyReference 
+                    reference={property.reference} 
+                    variant="solid" 
+                    className="md:scale-110" 
+                  />
                 )}
                 {property.created_at && (new Date().getTime() - new Date(property.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000 && (
                   <span className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-bold uppercase shadow-sm">

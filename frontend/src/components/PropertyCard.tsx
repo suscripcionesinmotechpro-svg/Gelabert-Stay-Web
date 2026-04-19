@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, MessageSquare, Heart, GitCompare, Images, Vi
 import { getWhatsAppLink } from '../utils/whatsapp';
 import { useState, useMemo, memo } from 'react';
 import { PremiumImage } from './PremiumImage';
+import { PropertyReference } from './PropertyReference';
 
 export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   title: string;
@@ -255,6 +256,15 @@ export const PropertyCard = memo(({
             )}>
               {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
             </div>
+          )}
+
+          {/* New Global Reference Highlighter */}
+          {reference && (
+            <PropertyReference 
+              reference={reference} 
+              variant="solid"
+              className="glass-deep shadow-xl"
+            />
           )}
         </div>
 

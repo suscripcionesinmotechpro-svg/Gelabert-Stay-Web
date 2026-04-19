@@ -4,6 +4,7 @@ import { useProperties, usePropertyMutations } from '../../hooks/useProperties';
 import type { Property, PropertyStatus, CommercialStatus } from '../../types/property';
 import { STATUS_LABELS, STATUS_COLORS, OPERATION_LABELS, COMMERCIAL_STATUS_LABELS, COMMERCIAL_STATUS_COLORS } from '../../types/property';
 import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown } from 'lucide-react';
+import { PropertyReference } from '../../components/PropertyReference';
 import { useTranslation } from 'react-i18next';
 
 const StatusDropdown = ({ property, onStatusChange }: { property: Property; onStatusChange: () => void }) => {
@@ -237,7 +238,11 @@ export const AdminPropertiesList = () => {
                 </div>
                 <div className="min-w-0">
                   <p className="font-primary text-[#FAF8F5] text-sm font-bold truncate">{p.title}</p>
-                  <p className="font-primary text-[#444444] text-xs">{p.reference || p.id.slice(0, 8)}</p>
+                  <PropertyReference 
+                    reference={p.reference || p.id.slice(0, 8)} 
+                    variant="minimal" 
+                    className="mt-1"
+                  />
                 </div>
               </div>
 
