@@ -58,7 +58,6 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
       }
 
       if (currentFilters?.operation) query = query.eq('operation', currentFilters.operation);
-      if (currentFilters?.property_type) query = query.eq('property_type', currentFilters.property_type);
       if (currentFilters?.city) query = query.ilike('city', `%${currentFilters.city}%`);
       if (currentFilters?.province) query = query.ilike('province', `%${currentFilters.province}%`);
       if (currentFilters?.min_price) query = query.gte('price', currentFilters.min_price);
@@ -76,8 +75,17 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
         if (currentFilters?.[filter]) query = query.eq(filter, true);
       }
 
+      // Special handling for Room Rental: 
+      // If active, it should show properties with is_room_rental = true 
+      // OR specific 'habitacion' type, or matching the selected property_type
       if (currentFilters?.is_room_rental) {
-        query = query.or('is_room_rental.eq.true,property_type.eq.habitacion');
+        if (currentFilters.property_type) {
+           query = query.or(`and(is_room_rental.eq.true,property_type.eq.${currentFilters.property_type}),property_type.eq.habitacion`);
+        } else {
+           query = query.or('is_room_rental.eq.true,property_type.eq.habitacion');
+        }
+      } else if (currentFilters?.property_type) {
+        query = query.eq('property_type', currentFilters.property_type);
       }
       
       if (currentFilters?.no_pets_allowed) {

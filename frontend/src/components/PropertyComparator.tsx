@@ -220,6 +220,22 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
 
     return winners;
   }, [properties]);
+  
+  // Calculate total points for each property
+  const propertyScores = useMemo(() => {
+    const scores = properties.map(() => 0);
+    Object.values(rowWinners).forEach(winners => {
+      winners.forEach(idx => {
+        scores[idx] += 1;
+      });
+    });
+    return scores;
+  }, [rowWinners, properties]);
+
+  const winningScore = Math.max(...propertyScores);
+  const winnersCount = propertyScores.filter(s => s === winningScore && s > 0).length;
+  // If all properties have same non-zero score, no clear winner
+  const hasClearWinner = winningScore > 0 && winnersCount < properties.length;
 
   const filteredRows = useMemo(() => {
     if (!showOnlyDifferences) return ROWS;
@@ -290,6 +306,11 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
                 {properties.map(p => (
                   <th key={p.id} className="p-4 min-w-[240px] border-b border-white/5">
                     <div className="flex flex-col gap-3 relative group">
+                      {hasClearWinner && propertyScores[properties.indexOf(p)] === winningScore && (
+                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-[#C9A962] text-[#0A0A0A] px-4 py-1 rounded-full text-[9px] font-black tracking-widest shadow-[0_0_20px_rgba(201,169,98,0.4)] animate-bounce z-30 flex items-center gap-2 whitespace-nowrap">
+                          <GitCompare className="w-3 h-3" /> LA MEJOR OPCIÓN
+                        </div>
+                      )}
                       <button 
                         onClick={() => onRemove(p.id)}
                         className="absolute -top-2 -right-2 z-10 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
@@ -297,14 +318,27 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
                       >
                         <X className="w-3 h-3" />
                       </button>
-                      <div className="aspect-[16/10] overflow-hidden rounded-lg border border-white/5">
+                      <div className={cn(
+                        "aspect-[16/10] overflow-hidden rounded-lg border transition-all duration-500",
+                        hasClearWinner && propertyScores[properties.indexOf(p)] === winningScore 
+                          ? "border-[#C9A962] shadow-[0_0_30px_rgba(201,169,98,0.2)]" 
+                          : "border-white/5"
+                      )}>
                         <img src={p.main_image || ''} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       </div>
                       <div className="flex flex-col gap-1 text-left">
                         <Link to={`/propiedades/${p.reference || p.id}`} className="font-secondary text-sm text-[#FAF8F5] line-clamp-1 hover:text-[#C9A962] transition-colors uppercase">
                           {isEn && p.title_en ? p.title_en : p.title}
                         </Link>
-                        {p.reference && <PropertyReference reference={p.reference} variant="minimal" className="self-start" />}
+                        <div className="flex items-center justify-between gap-2 mt-1">
+                          {p.reference && <PropertyReference reference={p.reference} variant="minimal" className="self-start" />}
+                          <div className={cn(
+                            "px-2 py-0.5 rounded-full text-[9px] font-black tracking-tighter",
+                            propertyScores[properties.indexOf(p)] > 0 ? "bg-[#C9A962]/20 text-[#C9A962]" : "bg-white/5 text-white/20"
+                          )}>
+                            {propertyScores[properties.indexOf(p)]} Ptos
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </th>
