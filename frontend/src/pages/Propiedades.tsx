@@ -70,6 +70,7 @@ export const Propiedades = () => {
     air_conditioning: searchParams.get('air_conditioning') === 'true',
     pets_allowed: searchParams.get('pets_allowed') === 'true',
     no_pets_allowed: searchParams.get('no_pets_allowed') === 'true',
+    is_room_rental: searchParams.get('is_room_rental') === 'true',
   });
 
   // Efecto para sincronizar filtros hacia la URL
@@ -109,7 +110,8 @@ export const Propiedades = () => {
     setBedrooms(''); setBathrooms(''); setShowFavorites(false);
     setFiltersBool({
       has_elevator: false, is_furnished: false, has_terrace: false,
-      has_parking: false, has_pool: false, air_conditioning: false, pets_allowed: false, no_pets_allowed: false
+      has_parking: false, has_pool: false, air_conditioning: false, pets_allowed: false, no_pets_allowed: false,
+      is_room_rental: false
     });
   };
 
@@ -253,6 +255,14 @@ export const Propiedades = () => {
             <input className={inputClass} placeholder={t('property.labels.features.max_price')} type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} />
             
             <input className={inputClass} placeholder={t('property.labels.features.reference_placeholder') || 'REF: GEL-XXX'} value={reference} onChange={e => setReference(e.target.value)} />
+
+            <button 
+              onClick={() => toggleBool('is_room_rental')}
+              className={cn(inputClass, "flex items-center justify-center gap-2 transition-all", filtersBool.is_room_rental ? "bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]" : "")}
+            >
+              <Search className="w-4 h-4" />
+              <span className="hidden sm:inline">{t('property.labels.features.room_rental')}</span>
+            </button>
 
             <button 
               onClick={() => setShowFavorites(!showFavorites)}

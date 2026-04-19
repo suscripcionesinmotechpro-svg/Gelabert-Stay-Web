@@ -72,8 +72,16 @@ export const FichaPropiedad = () => {
 
   // Unify all videos (General + Rooms)
   const allVideos: PropertyVideo[] = [
-    ...(property?.videos ?? []).map((v: string | PropertyVideo) => typeof v === 'string' ? { url: v, title: '' } : v),
-    ...(property?.is_room_rental ? (property?.rooms ?? []).map((r: PropertyRoom) => r.video).filter(Boolean) : [])
+    ...(property?.videos ?? []).map((v: string | PropertyVideo, i: number) => {
+      const vid = typeof v === 'string' ? { url: v, title: '' } : v;
+      if (!vid.title && property?.is_room_rental) {
+        return { ...vid, title: i === 0 ? 'ZONAS COMUNES' : `VÍDEO ${i + 1}` };
+      }
+      return vid;
+    }),
+    ...(property?.is_room_rental 
+      ? (property?.rooms ?? []).map((r: PropertyRoom) => r.video ? { ...r.video, title: r.video.title || r.name } : null).filter(Boolean) 
+      : [])
   ] as PropertyVideo[];
 
   const lightboxSlides = allImages.map(src => ({ src }));
@@ -479,9 +487,9 @@ export const FichaPropiedad = () => {
                     key={idx}
                     onClick={() => setActiveVideoIndex(idx)}
                     className={cn(
-                      "px-4 py-2 text-[10px] font-primary border transition-colors uppercase tracking-widest font-bold",
+                      "px-4 py-2 text-[10px] font-primary border transition-all uppercase tracking-widest font-bold h-10 flex items-center justify-center min-w-[120px]",
                       activeVideoIndex === idx 
-                        ? 'bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]' 
+                        ? 'bg-[#C9A962] text-[#0A0A0A] border-[#C9A962] shadow-[0_0_15px_rgba(201,169,98,0.2)]' 
                         : 'bg-[#0A0A0A] text-[#888888] border-[#1F1F1F] hover:border-[#C9A962] hover:text-[#FAF8F5]'
                     )}
                   >
@@ -689,8 +697,11 @@ export const FichaPropiedad = () => {
                     <div className="p-4 flex flex-col gap-2">
                       <div className="flex justify-between items-start gap-2">
                         <h4 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-tight">{room.name}</h4>
-                        {room.price && (
-                          <span className="font-primary text-[#C9A962] font-bold text-sm">{room.price}€<span className="text-[10px] text-[#888888] font-normal ml-0.5">/{t('common.month')}</span></span>
+                        {room.price !== undefined && room.price !== null && (
+                          <span className="font-primary text-[#C9A962] font-bold text-sm">
+                            {room.price}€
+                            <span className="text-[10px] text-[#888888] font-normal ml-0.5">/{t('common.month')}</span>
+                          </span>
                         )}
                       </div>
                       {room.video?.url && (

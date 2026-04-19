@@ -13,6 +13,7 @@ export type PropertyType =
   | 'nave'
   | 'terreno'
   | 'negocio'
+  | 'habitacion'
   | 'otro';
 
 export type PropertyStatus =
@@ -178,6 +179,7 @@ export interface PropertyFilters {
   garden?: boolean;
   has_wardrobes?: boolean;
   has_fireplace?: boolean;
+  is_room_rental?: boolean;
 }
 
 export const OPERATION_LABELS: Record<PropertyOperation, string> = {
@@ -197,6 +199,7 @@ export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
   nave: 'property.labels.type.nave',
   terreno: 'property.labels.type.terreno',
   negocio: 'property.labels.type.negocio',
+  habitacion: 'property.labels.type.habitacion',
   otro: 'property.labels.type.otro',
 };
 

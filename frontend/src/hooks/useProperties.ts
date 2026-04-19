@@ -70,7 +70,8 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
       
       const booleanFilters: (keyof PropertyFilters)[] = [
         'has_elevator', 'is_furnished', 'has_terrace', 'has_balcony', 'has_parking',
-        'has_storage', 'has_pool', 'heating', 'has_patio', 'is_exterior', 'sea_views', 'pets_allowed'
+        'has_storage', 'has_pool', 'heating', 'has_patio', 'is_exterior', 'sea_views', 'pets_allowed',
+        'is_room_rental'
       ];
       for (const filter of booleanFilters) {
         if (currentFilters?.[filter]) query = query.eq(filter, true);

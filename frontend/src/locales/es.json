@@ -82,6 +82,7 @@
         "nave": "Nave Industrial",
         "terreno": "Terreno",
         "negocio": "Negocio",
+        "habitacion": "Habitación",
         "otro": "Otro"
       },
       "status": {
@@ -115,6 +116,7 @@
         "min_bathrooms": "Baños (mín)",
         "reference_placeholder": "Busca por referencia (GEL-XXX)",
         "favorites": "Favoritos",
+        "room_rental": "Alquiler por habitaciones",
         "additional_features": "Características Adicionales",
         "amenities": "Comodidades",
         "floor": "Planta",
