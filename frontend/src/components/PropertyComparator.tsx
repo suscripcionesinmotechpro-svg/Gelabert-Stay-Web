@@ -271,7 +271,14 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
                 <th className="sticky left-0 z-30 bg-[#0F0F0F] text-left p-6 min-w-[180px] border-b border-white/5 shadow-[5px_0_15px_rgba(0,0,0,0.3)]">
                   <div className="flex flex-col gap-1">
                     <span className="font-secondary text-2xl text-[#C9A962]">{properties.length}</span>
-                    <span className="font-primary text-[10px] text-white/40 uppercase tracking-widest">{t('property.comparator.comparing', { count: properties.length })}</span>
+                    <div className="flex flex-col">
+                      <span className="font-primary text-[10px] text-white/40 uppercase tracking-widest leading-none mb-1">
+                        {t('property.comparator.comparing', { count: properties.length })}
+                      </span>
+                      <p className="text-[9px] text-white/30 hidden md:block italic">
+                        {t('property.comparator.winners_hint')}
+                      </p>
+                    </div>
                   </div>
                 </th>
                 {properties.map(p => (
