@@ -41,6 +41,7 @@ export const FichaPropiedad = () => {
   const [activeImg, setActiveImg] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState(0);
+  const [lightboxSlides, setLightboxSlides] = useState<{ src: string }[]>([]);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [formSent, setFormSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,17 +59,18 @@ export const FichaPropiedad = () => {
     });
   };
 
-  const openLightbox = (idx: number) => {
+  const openLightbox = (images: string[], idx: number) => {
+    setLightboxSlides(images.map(src => ({ src })));
     setLightboxIdx(idx);
     setLightboxOpen(true);
   };
 
-  // Unify all images (General + Rooms) for the lightbox
-  const allImages = [
+  // General gallery images (excluding rooms if it's a room rental)
+  const generalImages = [
     property?.main_image, 
-    ...(property?.gallery ?? []),
-    ...((property?.is_room_rental || property?.property_type === 'habitacion') ? (property?.rooms ?? []).flatMap((r: PropertyRoom) => r.images || []) : [])
+    ...(property?.gallery ?? [])
   ].filter(Boolean) as string[];
+
 
   // Unify all videos (General + Rooms)
   const allVideos: PropertyVideo[] = [
@@ -84,7 +86,6 @@ export const FichaPropiedad = () => {
       : [])
   ] as PropertyVideo[];
 
-  const lightboxSlides = allImages.map(src => ({ src }));
 
   // Lightbox key handling is handled internally by yet-another-react-lightbox
 
@@ -390,12 +391,12 @@ export const FichaPropiedad = () => {
               {/* Main image */}
             <div
               className="flex-1 md:w-2/3 h-64 md:h-[450px] overflow-hidden border border-[#1F1F1F] relative cursor-zoom-in group"
-              onClick={() => allImages.length > 0 && openLightbox(activeImg)}
+              onClick={() => generalImages.length > 0 && openLightbox(generalImages, activeImg)}
             >
-            {allImages.length > 0 ? (
+            {generalImages.length > 0 ? (
               <>
                 <PremiumImage 
-                  src={allImages[activeImg]} 
+                  src={generalImages[activeImg]} 
                   alt={translatedTitle} 
                   className="transition-transform duration-500 group-hover:scale-105" 
                   wrapperClassName="w-full h-full"
@@ -428,10 +429,14 @@ export const FichaPropiedad = () => {
             )}
           </div>
           {/* Thumbnails */}
-          {allImages.length > 1 && (
+          {generalImages.length > 1 && (
             <div className="flex md:flex-col gap-2 md:w-1/3 overflow-x-auto md:overflow-y-auto md:max-h-[450px]">
-              {allImages.map((img, i) => (
-                <button key={i} onClick={() => { setActiveImg(i); openLightbox(i); }} className={`w-20 md:w-full h-20 md:h-28 flex-shrink-0 overflow-hidden border ${i === activeImg ? 'border-[#C9A962]' : 'border-[#1F1F1F] hover:border-[#888888]'} transition-colors cursor-zoom-in relative`}>
+              {generalImages.map((img, i) => (
+                <button 
+                  key={i} 
+                  onClick={() => { setActiveImg(i); openLightbox(generalImages, i); }} 
+                  className={`w-20 md:w-full h-20 md:h-28 flex-shrink-0 overflow-hidden border ${i === activeImg ? 'border-[#C9A962]' : 'border-[#1F1F1F] hover:border-[#888888]'} transition-colors cursor-zoom-in relative`}
+                >
                   <PremiumImage src={img} alt={`${i}`} wrapperClassName="w-full h-full" />
                 </button>
               ))}
@@ -695,10 +700,9 @@ export const FichaPropiedad = () => {
                       <div 
                         className="w-full h-40 overflow-hidden cursor-pointer relative"
                         onClick={() => {
-                          // Find index of this room's first image in allImages
-                          const firstImg = room.images[0];
-                          const idx = allImages.indexOf(firstImg);
-                          if (idx !== -1) openLightbox(idx);
+                          if (room.images && room.images.length > 0) {
+                            openLightbox(room.images, 0);
+                          }
                         }}
                       >
                         <PremiumImage src={room.images[0]} alt={room.name} wrapperClassName="w-full h-full group-hover:scale-105 transition-transform duration-500" />
