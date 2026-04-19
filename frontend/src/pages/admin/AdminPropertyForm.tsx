@@ -12,7 +12,7 @@ import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PropertyMap } from '../../components/PropertyMap';
 import { useJsApiLoader, Autocomplete } from '@react-google-maps/api';
 import { RoomManager } from '../../components/admin/RoomManager';
-import type { PropertyVideo, PropertyRoom } from '../../types/property';
+import type { PropertyVideo } from '../../types/property';
 
 const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"];
 

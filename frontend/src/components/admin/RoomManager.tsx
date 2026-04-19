@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Plus, X, Upload, Video, GripVertical, Trash2 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Plus, X, Upload, Video, Trash2 } from 'lucide-react';
 import { uploadPropertyMedia } from '../../hooks/useProperties';
-import type { PropertyRoom, PropertyVideo } from '../../types/property';
+import type { PropertyRoom } from '../../types/property';
 import { SortableImageGallery } from './SortableImageGallery';
 
 interface RoomManagerProps {
@@ -14,7 +13,6 @@ const inputClass = "w-full h-10 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-p
 const labelClass = "font-primary text-[10px] text-[#666666] uppercase tracking-wider mb-1 font-bold";
 
 export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange }) => {
-  const { t } = useTranslation();
   const [uploading, setUploading] = useState<string | null>(null);
 
   const addRoom = () => {

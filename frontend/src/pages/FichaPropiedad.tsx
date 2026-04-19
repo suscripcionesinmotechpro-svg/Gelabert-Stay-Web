@@ -5,6 +5,7 @@ import { PropertyCard } from '../components/PropertyCard';
 import { PremiumImage } from '../components/PremiumImage';
 import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass, Copy, CheckCheck, Send } from 'lucide-react';
 import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
+import type { PropertyVideo, PropertyRoom } from '../types/property';
 import { cn } from '../lib/utils';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -664,7 +665,7 @@ export const FichaPropiedad = () => {
                           onClick={() => {
                             // Find index if it was added to property.videos, or we might need a separate way to show it
                             // For now, let's just use it if it's in the list
-                            const idx = property.videos.indexOf(room.video.url);
+                            const idx = (property.videos ?? []).indexOf(room.video?.url ?? '');
                             if (idx !== -1) {
                               setActiveTab('video');
                               setActiveVideoIndex(idx);

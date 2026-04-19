@@ -60,8 +60,8 @@ const SortableImageItem = ({ url, isMain, onRemove }: SortableImageItemProps) =>
 interface SortableImageGalleryProps {
   images: string[];
   onChange: (images: string[]) => void;
-  onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  uploading: boolean;
+  onUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  uploading?: boolean;
 }
 
 export const SortableImageGallery = ({ images, onChange, onUpload, uploading }: SortableImageGalleryProps) => {
@@ -101,17 +101,19 @@ export const SortableImageGallery = ({ images, onChange, onUpload, uploading }: 
           </SortableContext>
         </DndContext>
 
-        <label className="flex flex-col items-center justify-center w-28 h-28 shrink-0 border-2 border-dashed border-[#1F1F1F] hover:border-[#C9A962] cursor-pointer transition-colors bg-[#0A0A0A]">
-          {uploading ? (
-            <div className="w-5 h-5 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <>
-              <Upload className="w-5 h-5 text-[#444444] mb-1" />
-              <span className="font-primary text-[10px] text-[#444444] text-center px-1">Subir Foto(s)</span>
-            </>
-          )}
-          <input type="file" accept="image/*" multiple className="hidden" onChange={onUpload} disabled={uploading} />
-        </label>
+        {onUpload && (
+          <label className="flex flex-col items-center justify-center w-28 h-28 shrink-0 border-2 border-dashed border-[#1F1F1F] hover:border-[#C9A962] cursor-pointer transition-colors bg-[#0A0A0A]">
+            {uploading ? (
+              <div className="w-5 h-5 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <Upload className="w-5 h-5 text-[#444444] mb-1" />
+                <span className="font-primary text-[10px] text-[#444444] text-center px-1">Subir Foto(s)</span>
+              </>
+            )}
+            <input type="file" accept="image/*" multiple className="hidden" onChange={onUpload} disabled={uploading} />
+          </label>
+        )}
       </div>
     </div>
   );
