@@ -62,7 +62,19 @@ export const FichaPropiedad = () => {
     setLightboxOpen(true);
   };
 
-  const allImages = [property?.main_image, ...(property?.gallery ?? [])].filter(Boolean) as string[];
+  // Unify all images (General + Rooms) for the lightbox
+  const allImages = [
+    property?.main_image, 
+    ...(property?.gallery ?? []),
+    ...(property?.is_room_rental ? (property?.rooms ?? []).flatMap((r: PropertyRoom) => r.images || []) : [])
+  ].filter(Boolean) as string[];
+
+  // Unify all videos (General + Rooms)
+  const allVideos: PropertyVideo[] = [
+    ...(property?.videos ?? []).map((v: string | PropertyVideo) => typeof v === 'string' ? { url: v, title: '' } : v),
+    ...(property?.is_room_rental ? (property?.rooms ?? []).map((r: PropertyRoom) => r.video).filter(Boolean) : [])
+  ] as PropertyVideo[];
+
   const lightboxSlides = allImages.map(src => ({ src }));
 
   // Lightbox key handling is handled internally by yet-another-react-lightbox
@@ -320,7 +332,7 @@ export const FichaPropiedad = () => {
 
       {/* Media Tabs */}
       {((property.video_url || (property.videos && property.videos.length > 0)) || property.floor_plan || (property.latitude && property.longitude)) && (
-        <div className="w-full px-6 md:px-14 pt-6 flex gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide">
+        <div id="media-tabs" className="w-full px-6 md:px-14 pt-6 flex gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide">
           <button 
             onClick={() => setActiveTab('fotos')} 
             className={`flex items-center gap-2 font-primary text-sm uppercase tracking-wider pb-2 border-b-2 transition-colors flex-shrink-0 ${activeTab === 'fotos' ? 'border-[#C9A962] text-[#C9A962]' : 'border-transparent text-[#888888] hover:text-[#FAF8F5]'}`}
@@ -357,12 +369,20 @@ export const FichaPropiedad = () => {
       {/* Media Content */}
       <section className="w-full px-6 md:px-14 py-8">
         {activeTab === 'fotos' && (
-          <div className="flex flex-col md:flex-row gap-3">
-            {/* Main image */}
-          <div
-            className="flex-1 md:w-2/3 h-64 md:h-[450px] overflow-hidden border border-[#1F1F1F] relative cursor-zoom-in group"
-            onClick={() => allImages.length > 0 && openLightbox(activeImg)}
-          >
+          <div className="flex flex-col gap-6">
+            {property.is_room_rental && (
+              <h3 className="font-secondary text-xl text-[#C9A962] flex items-center gap-2">
+                <Compass className="w-5 h-5" />
+                ZONAS COMUNES
+              </h3>
+            )}
+            
+            <div className="flex flex-col md:flex-row gap-3">
+              {/* Main image */}
+            <div
+              className="flex-1 md:w-2/3 h-64 md:h-[450px] overflow-hidden border border-[#1F1F1F] relative cursor-zoom-in group"
+              onClick={() => allImages.length > 0 && openLightbox(activeImg)}
+            >
             {allImages.length > 0 ? (
               <>
                 <PremiumImage 
@@ -409,15 +429,18 @@ export const FichaPropiedad = () => {
             </div>
           )}
           </div>
+          </div>
         )}
 
         {/* Video Player */}
-        {activeTab === 'video' && (property.video_url || (property.videos && property.videos.length > 0)) && (
+        {activeTab === 'video' && allVideos.length > 0 && (
           <div className="flex flex-col gap-4">
-            <div className="w-full min-h-[400px] md:h-[500px] max-h-[80vh] border border-[#1F1F1F] bg-[#0A0A0A] flex items-center justify-center overflow-hidden relative group">
+            <div className={cn(
+              "w-full border border-[#1F1F1F] bg-[#0A0A0A] flex items-center justify-center overflow-hidden relative group",
+              "aspect-[9/16] md:aspect-video md:h-[500px] max-h-[85vh] md:max-h-[80vh]"
+            )}>
               {(() => {
-                const allVideos = property.videos && property.videos.length > 0 ? property.videos : [property.video_url || ''];
-                const currentVideo = allVideos[activeVideoIndex] || property.video_url || '';
+                const currentVideo = allVideos[activeVideoIndex]?.url || '';
                 
                 if (!currentVideo) return <div className="text-[#444444] font-primary">No hay vídeo disponible</div>;
 
@@ -448,22 +471,22 @@ export const FichaPropiedad = () => {
             </div>
             
             {/* Video Selector if multiple */}
-            {(property.videos && property.videos.length > 1) && (
+            {allVideos.length > 1 && (
               <div className="flex flex-wrap gap-2">
-                {property.videos.map((vidUrl, idx) => {
-                  const metadata = (property.videos_metadata || []).find((v: PropertyVideo) => v.url === vidUrl);
-                  const label = metadata?.title || `VÍDEO ${idx + 1}`;
-                  
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveVideoIndex(idx)}
-                      className={`px-4 py-2 text-[10px] font-primary border transition-colors uppercase tracking-widest font-bold ${activeVideoIndex === idx ? 'bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]' : 'bg-[#0A0A0A] text-[#888888] border-[#1F1F1F] hover:border-[#C9A962] hover:text-[#FAF8F5]'}`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
+                {allVideos.map((vid, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveVideoIndex(idx)}
+                    className={cn(
+                      "px-4 py-2 text-[10px] font-primary border transition-colors uppercase tracking-widest font-bold",
+                      activeVideoIndex === idx 
+                        ? 'bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]' 
+                        : 'bg-[#0A0A0A] text-[#888888] border-[#1F1F1F] hover:border-[#C9A962] hover:text-[#FAF8F5]'
+                    )}
+                  >
+                    {vid.title || `VÍDEO ${idx + 1}`}
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -528,8 +551,16 @@ export const FichaPropiedad = () => {
                 <span className="px-3 py-1 border border-[#1F1F1F] text-[#888888] font-primary text-xs">
                   {t(PROPERTY_TYPE_LABELS[property.property_type])}
                 </span>
+                {property.is_room_rental && (
+                   <span className="px-3 py-1 bg-[#FAF8F5] text-[#0A0A0A] font-primary text-xs font-bold uppercase border-l-4 border-[#C9A962] shadow-sm">
+                    {t('property.labels.features.room_rental', { defaultValue: 'ALQUILER POR HABITACIONES' })}
+                  </span>
+                )}
                 {property.reference && (
-                  <span className="font-primary text-xs text-[#444444]">REF: {property.reference}</span>
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#C9A962]/10 border border-[#C9A962]/20 rounded-sm">
+                    <span className="font-primary text-[10px] text-[#C9A962] font-bold tracking-widest uppercase">REF:</span>
+                    <span className="font-primary text-xs text-[#FAF8F5] font-black">{property.reference}</span>
+                  </div>
                 )}
                 {property.created_at && (new Date().getTime() - new Date(property.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000 && (
                   <span className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-bold uppercase shadow-sm">
@@ -663,13 +694,16 @@ export const FichaPropiedad = () => {
                       {room.video?.url && (
                         <button 
                           onClick={() => {
-                            // Find index if it was added to property.videos, or we might need a separate way to show it
-                            // For now, let's just use it if it's in the list
-                            const idx = (property.videos ?? []).indexOf(room.video?.url ?? '');
+                            const idx = allVideos.findIndex(v => v.url === room.video?.url);
                             if (idx !== -1) {
                               setActiveTab('video');
                               setActiveVideoIndex(idx);
-                              window.scrollTo({ top: 300, behavior: 'smooth' });
+                              const target = document.getElementById('media-tabs');
+                              if (target) {
+                                target.scrollIntoView({ behavior: 'smooth' });
+                              } else {
+                                window.scrollTo({ top: 300, behavior: 'smooth' });
+                              }
                             }
                           }}
                           className="flex items-center gap-2 text-[10px] text-[#C9A962] font-bold uppercase tracking-widest hover:text-[#FAF8F5] transition-colors mt-1"
