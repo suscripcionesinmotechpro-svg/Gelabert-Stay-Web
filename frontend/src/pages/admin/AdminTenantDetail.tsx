@@ -240,10 +240,17 @@ export const AdminTenantDetail = () => {
                         {CONTRACT_STATUS_LABELS[displayContract.status]}
                       </span>
                       {displayContract.property_label && (
-                        <p className="font-primary text-sm text-[#FAF8F5] font-semibold mt-1">
-                          <Home className="w-3.5 h-3.5 inline mr-1.5 text-[#C9A962]" />
-                          {displayContract.property_label}
-                        </p>
+                        <div>
+                          <p className="font-primary text-sm text-[#FAF8F5] font-semibold mt-1 flex items-center">
+                            <Home className="w-3.5 h-3.5 mr-1.5 text-[#C9A962]" />
+                            {displayContract.property_label}
+                          </p>
+                          {displayContract.room_id && (
+                            <p className="font-primary text-xs text-[#C9A962] ml-5 mt-0.5">
+                              — Alquiler de habitación
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
                     <div className="flex gap-2">

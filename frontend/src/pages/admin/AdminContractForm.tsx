@@ -23,6 +23,7 @@ const OWNER_DOC_TYPES: DocumentType[] = [
 const emptyContract: Omit<ContractInsert, 'tenant_id'> = {
   property_id: null,
   property_label: '',
+  room_id: null,
   start_date: '',
   end_date: '',
   monthly_rent: null,
@@ -124,6 +125,7 @@ export const AdminContractForm = () => {
       setForm({
         property_id: contract.property_id,
         property_label: contract.property_label ?? '',
+        room_id: contract.room_id ?? null,
         start_date: contract.start_date,
         end_date: contract.end_date,
         monthly_rent: contract.monthly_rent,
@@ -150,6 +152,7 @@ export const AdminContractForm = () => {
       ...prev,
       property_id: propId || null,
       property_label: p?.title || '',
+      room_id: null,
     }));
   };
 
@@ -299,6 +302,20 @@ export const AdminContractForm = () => {
                 ))}
               </select>
             </Field>
+            {form.property_id && properties.find(p => p.id === form.property_id)?.is_room_rental === true && (
+              <Field label="Habitación">
+                <select
+                  className={inputClass}
+                  value={form.room_id || ''}
+                  onChange={e => set('room_id', e.target.value)}
+                >
+                  <option value="">— Seleccionar Habitación —</option>
+                  {properties.find(p => p.id === form.property_id)?.rooms?.map(r => (
+                    <option key={r.id} value={r.id}>{r.name || `Habitación sin nombre`}</option>
+                  ))}
+                </select>
+              </Field>
+            )}
           </div>
           <div className="mt-2">
             <Field label="Dirección EXACTA del alquiler *">

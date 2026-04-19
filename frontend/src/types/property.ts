@@ -39,6 +39,7 @@ export interface PropertyRoom {
   images: string[];
   video?: PropertyVideo | null;
   price?: number | null;
+  _calculated_status?: 'disponible' | 'reservada' | 'alquilada';
 }
 
 export interface Property {

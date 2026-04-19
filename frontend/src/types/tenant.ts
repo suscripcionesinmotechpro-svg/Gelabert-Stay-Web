@@ -46,6 +46,7 @@ export interface Contract {
   tenant_id: string;
   property_id: string | null;
   property_label: string | null;
+  room_id: string | null;
   start_date: string;   // ISO date
   end_date: string;     // ISO date
   monthly_rent: number | null;

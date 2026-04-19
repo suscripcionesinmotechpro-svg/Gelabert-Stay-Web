@@ -7,7 +7,7 @@ import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Pla
 import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import type { PropertyVideo, PropertyRoom } from '../types/property';
 import { cn } from '../lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { PropertyMap } from '../components/PropertyMap';
@@ -51,6 +51,30 @@ export const FichaPropiedad = () => {
   const [activeTab, setActiveTab] = useState<'fotos' | 'video' | 'plano' | 'ubicacion'>('fotos');
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [roomStatuses, setRoomStatuses] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (property && (property.is_room_rental || property.property_type === 'habitacion')) {
+      const fetchStatuses = async () => {
+        try {
+          const { data, error } = await supabase.rpc('get_property_room_statuses', { p_property_id: property.id });
+          if (error) throw error;
+          
+          if (data) {
+            const statusMap: Record<string, string> = {};
+            data.forEach((status: any) => {
+              statusMap[status.room_id] = status.status;
+            });
+            setRoomStatuses(statusMap);
+          }
+        } catch (err) {
+          console.error('Error fetching room statuses:', err);
+        }
+      };
+      
+      fetchStatuses();
+    }
+  }, [property]);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(propertyUrl).then(() => {
@@ -698,11 +722,13 @@ export const FichaPropiedad = () => {
             <div className="flex flex-col gap-6 pt-6 border-t border-[#1F1F1F]">
               <h2 className="font-secondary text-2xl text-[#FAF8F5]">{t('property.labels.features.room_distribution', { defaultValue: 'Distribución por Habitaciones' })}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {property.rooms.map((room: PropertyRoom) => (
-                  <div key={room.id} className="flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] rounded-sm overflow-hidden group hover:border-[#C9A962] transition-colors">
+                {property.rooms.map((room: PropertyRoom) => {
+                  const roomStatus = roomStatuses[room.id] || room._calculated_status || 'disponible';
+                  return (
+                  <div key={room.id} className="flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] rounded-sm overflow-hidden group hover:border-[#C9A962] transition-colors relative">
                     {room.images && room.images.length > 0 ? (
                       <div 
-                        className="w-full h-40 overflow-hidden cursor-pointer relative"
+                        className="w-full h-40 overflow-hidden cursor-pointer relative flex-shrink-0"
                         onClick={() => {
                           if (room.images && room.images.length > 0) {
                             openLightbox(room.images, 0);
@@ -711,20 +737,71 @@ export const FichaPropiedad = () => {
                       >
                         <PremiumImage src={room.images[0]} alt={room.name} wrapperClassName="w-full h-full group-hover:scale-105 transition-transform duration-500" />
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
+                        
+                        {/* Dynamic watermark mapping main property image behavior */}
+                        {roomStatus !== 'disponible' && (
+                          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden select-none">
+                            <div className={cn(
+                              "transform -rotate-12 scale-110 opacity-70 drop-shadow-md",
+                              roomStatus === 'reservado' && "text-orange-500",
+                              roomStatus === 'alquilado' && "text-purple-500"
+                            )}>
+                              <div className="border-[4px] border-current px-4 py-1.5 rounded-sm flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                                <span className="font-secondary text-2xl font-black uppercase tracking-tighter text-center leading-none">
+                                  {roomStatus === 'reservado' ? 'RESERVADA' : 'ALQUILADA'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
                         {room.images.length > 1 && (
-                          <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/60 text-[8px] text-white uppercase font-bold tracking-tighter">
+                          <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/60 text-[8px] text-white uppercase font-bold tracking-tighter z-30">
                             + {room.images.length - 1} FOTOS
                           </div>
                         )}
                       </div>
                     ) : (
-                      <div className="w-full h-40 bg-[#161616] flex items-center justify-center font-primary text-[10px] text-[#444444] uppercase tracking-widest">{t('common.no_image')}</div>
+                      <div className="w-full h-40 bg-[#161616] flex flex-col items-center justify-center font-primary text-[10px] text-[#444444] uppercase tracking-widest relative overflow-hidden flex-shrink-0">
+                        {t('common.no_image')}
+                        
+                        {/* Dynamic watermark matching main property images behavior */}
+                        {roomStatus !== 'disponible' && (
+                          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden select-none">
+                            <div className={cn(
+                              "transform -rotate-12 scale-110 opacity-70 drop-shadow-md",
+                              roomStatus === 'reservado' && "text-orange-500",
+                              roomStatus === 'alquilado' && "text-purple-500"
+                            )}>
+                              <div className="border-[4px] border-current px-4 py-1.5 rounded-sm flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                                <span className="font-secondary text-2xl font-black uppercase tracking-tighter text-center leading-none">
+                                  {roomStatus === 'reservado' ? 'RESERVADA' : 'ALQUILADA'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     )}
-                    <div className="p-4 flex flex-col gap-2">
+                    <div className="p-4 flex flex-col gap-2 flex-grow">
                       <div className="flex justify-between items-start gap-2">
-                        <h4 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-tight">{room.name}</h4>
+                        <div className="flex flex-col gap-1">
+                          <h4 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-tight leading-tight">{room.name}</h4>
+                          <span className={cn(
+                            "font-primary text-[10px] uppercase font-bold self-start px-1.5 py-0.5 rounded-sm border",
+                            roomStatus === 'disponible' ? "bg-green-500/10 text-green-400 border-green-500/20" :
+                            roomStatus === 'reservado' ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
+                            "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                          )}>
+                            <span className={cn(
+                              "inline-block w-1 h-1 rounded-full mr-1.5 align-middle",
+                              roomStatus === 'disponible' ? "bg-green-400" : "bg-current animate-pulse"
+                            )} />
+                            {roomStatus === 'disponible' ? 'Disponible' : roomStatus === 'reservado' ? 'Reservada' : 'Alquilada'}
+                          </span>
+                        </div>
                         {room.price !== undefined && room.price !== null && (
-                          <span className="font-primary text-[#C9A962] font-bold text-sm">
+                          <span className="font-primary text-[#C9A962] font-bold text-sm flex-shrink-0 mt-0.5">
                             {room.price}€
                             <span className="text-[10px] text-[#888888] font-normal ml-0.5">/{t('common.month')}</span>
                           </span>
@@ -745,7 +822,7 @@ export const FichaPropiedad = () => {
                               }
                             }
                           }}
-                          className="flex items-center gap-2 text-[10px] text-[#C9A962] font-bold uppercase tracking-widest hover:text-[#FAF8F5] transition-colors mt-1"
+                          className="flex items-center gap-2 text-[10px] text-[#C9A962] font-bold uppercase tracking-widest hover:text-[#FAF8F5] transition-colors mt-auto pt-2 border-t border-[#1F1F1F]"
                         >
                           <Play className="w-3 h-3" />
                           VER TOUR VÍDEO
@@ -753,7 +830,7 @@ export const FichaPropiedad = () => {
                       )}
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             </div>
           )}

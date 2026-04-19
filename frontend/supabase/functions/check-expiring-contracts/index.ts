@@ -35,7 +35,8 @@ serve(async (req) => {
         .from('contracts')
         .select(`
           *,
-          tenant:tenants(id, first_name, last_name, email, phone)
+          tenant:tenants(id, first_name, last_name, email, phone),
+          property:properties(id, rooms, is_room_rental)
         `)
         .eq('status', 'active')
         .eq('end_date', targetDateStr)
@@ -79,6 +80,14 @@ serve(async (req) => {
         const isExpired = c.days_remaining === 0
         const color = c.days_remaining <= 15 ? '#ef4444' : '#f97316' // red or orange
         
+        let propertyDisplay = c.property_label || 'Sin propiedad vinculada';
+        if (c.room_id && c.property?.rooms) {
+          const roomObj = c.property.rooms.find((r: any) => r.id === c.room_id);
+          if (roomObj && roomObj.name) {
+            propertyDisplay += ` <strong style="color: #C9A962;">(Habitación: ${roomObj.name})</strong>`;
+          }
+        }
+
         htmlContent += `
           <div style="margin-bottom: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
             <h3 style="margin-top: 0; color: ${color};">
@@ -90,7 +99,7 @@ serve(async (req) => {
                <strong>Email Inquilino:</strong> ${c.tenant?.email || 'No especificado'}
             </p>
 
-            <p><strong>Propiedad:</strong> ${c.property_label || 'Sin propiedad vinculada'}</p>
+            <p><strong>Propiedad:</strong> ${propertyDisplay}</p>
             
             <p><strong>Fin del contrato:</strong> ${c.end_date}</p>
         `
