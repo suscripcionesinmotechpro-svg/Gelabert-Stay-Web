@@ -183,7 +183,8 @@
       "cancel": "Cancelar",
       "comparing": "Comparando {{count}} propiedades",
       "clear": "Limpiar",
-      "view_details": "Ver ficha"
+      "view_details": "Ver ficha",
+      "winners_hint": "Los valores resaltados en dorado representan la característica más ventajosa."
     },
     "form": {
       "fields": {

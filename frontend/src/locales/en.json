@@ -181,7 +181,8 @@
       "cancel": "Cancel",
       "comparing": "Comparing {{count}} properties",
       "clear": "Clear",
-      "view_details": "View details"
+      "view_details": "View details",
+      "winners_hint": "Highlighted gold values represent the most advantageous feature."
     },
     "form": {
       "fields": {

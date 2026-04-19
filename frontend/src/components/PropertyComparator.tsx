@@ -23,8 +23,14 @@ interface FeatureRow {
   label: string;
   getValue: (p: Property) => any;
   format?: (v: any, p: Property) => React.ReactNode;
-  isBetter?: (v1: any, v2: any) => boolean; // Optional logic to determine if v1 is "better" than v2
+  isBetter?: (v1: any, v2: any) => boolean;
 }
+
+const safeJoin = (val: any, separator: string = ', ') => {
+  if (Array.isArray(val)) return val.filter(Boolean).join(separator);
+  if (typeof val === 'string') return val;
+  return null;
+};
 
 export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyComparatorProps) => {
   const { t, i18n } = useTranslation();
@@ -113,7 +119,7 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
     { 
       key: 'orientation',
       label: t('property.form.fields.orientation') || 'Orientación', 
-      getValue: p => p.orientation?.join(', ') || '—' 
+      getValue: p => safeJoin(p.orientation) || '—' 
     },
     { 
       key: 'energy',
@@ -183,17 +189,21 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
       let bestValue: any = null;
 
       properties.forEach((p, idx) => {
-        const val = row.getValue(p);
-        if (val === null || val === undefined || val === 0 || val === '—') return;
+        try {
+          const val = row.getValue(p);
+          if (val === null || val === undefined || val === 0 || val === '—' || (typeof val === 'number' && isNaN(val))) return;
 
-        if (bestValue === null) {
-          bestValue = val;
-          bestIndices = [idx];
-        } else if (row.isBetter!(val, bestValue)) {
-          bestValue = val;
-          bestIndices = [idx];
-        } else if (val === bestValue) {
-          bestIndices.push(idx);
+          if (bestValue === null) {
+            bestValue = val;
+            bestIndices = [idx];
+          } else if (typeof row.isBetter === 'function' && row.isBetter(val, bestValue)) {
+            bestValue = val;
+            bestIndices = [idx];
+          } else if (val === bestValue) {
+            bestIndices.push(idx);
+          }
+        } catch (e) {
+          console.error(`Error calculating winner for row ${row.key}:`, e);
         }
       });
 
