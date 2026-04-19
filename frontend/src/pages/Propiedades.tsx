@@ -440,6 +440,7 @@ export const Propiedades = () => {
                 floorPlanUrl={p.floor_plan}
                 id={p.id}
                 reference={p.reference ?? undefined}
+                property_type={p.property_type}
                 createdAt={p.created_at}
                 tags={p.tags}
                 onTagClick={(tag) => {

@@ -549,15 +549,31 @@ export const FichaPropiedad = () => {
           <div className="flex flex-col md:flex-row gap-4 justify-between">
             <div className="flex flex-col gap-3">
               <div className="flex flex-wrap items-center gap-2">
-                <div className={cn(
-                  "px-3 py-1 font-primary text-[10px] font-bold tracking-[0.08em] uppercase border border-white/5",
-                  property.operation === 'alquiler' ? "bg-[#4ADE80] text-[#0A0A0A]" : 
-                  property.operation === 'venta' ? "bg-[#C9A962] text-[#0A0A0A]" : "bg-[#60A5FA] text-[#0A0A0A]"
-                )}>
-                  {t(OPERATION_LABELS[property.operation])}
+                <div className="flex flex-col gap-1">
+                  {property.operation === 'alquiler' && (
+                    <div className="px-3 py-1 bg-[#4ADE80] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm inline-block self-start">
+                      {property.is_room_rental
+                        ? t('property.labels.features.room_rental') 
+                        : `${t('property.labels.operation.alquiler')} ${t(PROPERTY_TYPE_LABELS[property.property_type] || '').toLowerCase()}`}
+                    </div>
+                  )}
+                  {property.operation !== 'alquiler' && (
+                    <div className={cn(
+                      "px-3 py-1 font-primary text-[10px] font-black tracking-[0.08em] uppercase border border-white/5 inline-block self-start",
+                      property.operation === 'venta' ? "bg-[#C9A962] text-[#0A0A0A]" : "bg-[#60A5FA] text-[#0A0A0A]"
+                    )}>
+                      {t(OPERATION_LABELS[property.operation])}
+                    </div>
+                  )}
                 </div>
+
+                {(new Date().getTime() - new Date(property.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000 && (
+                  <div className="px-3 py-1 bg-[#FAF8F5] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm border border-white/20">
+                    {t('common.new') || 'NUEVO'}
+                  </div>
+                )}
                 
-                {property.operation === 'alquiler' && property.rent_type && (
+                {property.operation === 'alquiler' && property.rent_type && !property.is_room_rental && (
                   <div className="px-3 py-1 glass-deep border border-[#C9A962]/40 text-[#C9A962] font-primary text-[10px] font-bold uppercase">
                     {t(RENT_TYPE_LABELS[property.rent_type])}
                   </div>
@@ -567,24 +583,12 @@ export const FichaPropiedad = () => {
                   {t(PROPERTY_TYPE_LABELS[property.property_type])}
                 </div>
 
-                {property.is_room_rental && (
-                  <div className="px-3 py-1 bg-[#FAF8F5] text-[#0A0A0A] font-primary text-[10px] font-bold uppercase">
-                    {t('property.labels.features.room_rental', { defaultValue: 'POR HABITACIONES' })}
-                  </div>
-                )}
-
                 {property.reference && (
                   <PropertyReference 
                     reference={property.reference} 
                     variant="outline" 
                     className="h-6 text-[10px] bg-white/5" 
                   />
-                )}
-
-                {property.created_at && (new Date().getTime() - new Date(property.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000 && (
-                  <div className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-bold uppercase">
-                    {t('common.new')}
-                  </div>
                 )}
 
                 {property.commercial_status && (

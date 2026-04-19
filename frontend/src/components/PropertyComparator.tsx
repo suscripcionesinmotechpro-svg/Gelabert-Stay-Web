@@ -14,8 +14,14 @@ interface PropertyComparatorProps {
 }
 
 const formatPrice = (price: number | null | undefined, locale: string = 'es-ES') => {
-  if (!price) return '—';
-  return new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(price);
+  if (price === 0) return '—';
+  if (!price || isNaN(price)) return '—';
+  try {
+    return new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(price);
+  } catch (e) {
+    console.error('Error formatting price:', e, price);
+    return '—';
+  }
 };
 
 interface FeatureRow {

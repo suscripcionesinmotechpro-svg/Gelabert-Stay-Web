@@ -3,7 +3,7 @@ import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAutoTranslate } from '../hooks/useAutoTranslate';
-import { OPERATION_LABELS, type PropertyOperation, type CommercialStatus, COMMERCIAL_STATUS_LABELS } from '../types/property';
+import { OPERATION_LABELS, type PropertyOperation, type CommercialStatus, COMMERCIAL_STATUS_LABELS, PROPERTY_TYPE_LABELS, type PropertyType } from '../types/property';
 import { ChevronLeft, ChevronRight, MessageSquare, Heart, GitCompare, Images, Video, FileText } from 'lucide-react';
 import { getWhatsAppLink } from '../utils/whatsapp';
 import { useState, useMemo, memo } from 'react';
@@ -43,6 +43,7 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   videoUrl?: string | null;
   videos?: string[] | null;
   floorPlanUrl?: string | null;
+  property_type?: PropertyType | null;
 }
 
 export const PropertyCard = memo(({
@@ -78,6 +79,7 @@ export const PropertyCard = memo(({
   videoUrl,
   videos,
   floorPlanUrl,
+  property_type,
   ...props
 }: PropertyCardProps) => {
   const { t } = useTranslation();
@@ -219,6 +221,22 @@ export const PropertyCard = memo(({
         >
           <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
         </button>
+
+        {/* Top Left Badges: Rental Type & New */}
+        <div className="absolute top-4 left-4 z-30 flex flex-col gap-2 pointer-events-none">
+          {operation.toLowerCase() === 'alquiler' && (
+            <div className="px-3 py-1 bg-[#4ADE80] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm">
+              {tags?.includes('habitaciones') || tags?.includes('Alquiler por habitaciones') || id?.includes('habitaciones')
+                ? t('property.labels.features.room_rental') 
+                : `${t('property.labels.operation.alquiler')} ${t(PROPERTY_TYPE_LABELS[property_type?.toLowerCase() as PropertyType] || '').toLowerCase()}`}
+            </div>
+          )}
+          {isNew && (
+            <div className="px-3 py-1 bg-[#FAF8F5] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm border border-white/20">
+              {t('common.new') || 'NUEVO'}
+            </div>
+          )}
+        </div>
 
         {/* Badges Container removed from image to avoid covering it */}
 
