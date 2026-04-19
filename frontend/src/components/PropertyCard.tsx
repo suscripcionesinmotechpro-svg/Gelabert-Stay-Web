@@ -44,6 +44,7 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   videos?: string[] | null;
   floorPlanUrl?: string | null;
   property_type?: PropertyType | null;
+  is_room_rental?: boolean;
 }
 
 export const PropertyCard = memo(({
@@ -80,6 +81,7 @@ export const PropertyCard = memo(({
   videos,
   floorPlanUrl,
   property_type,
+  is_room_rental,
   ...props
 }: PropertyCardProps) => {
   const { t } = useTranslation();
@@ -112,7 +114,7 @@ export const PropertyCard = memo(({
 
   const getBadgeColor = () => {
     switch (operation) {
-      case 'ALQUILER': return 'bg-[#4ADE80] text-[#0A0A0A]';
+      case 'ALQUILER': return 'bg-[#C9A962] text-[#0A0A0A]';
       case 'VENTA': return 'bg-[#C9A962] text-[#0A0A0A]';
       case 'TRASPASO': return 'bg-[#60A5FA] text-[#0A0A0A]';
       default: return 'bg-[#C9A962] text-[#0A0A0A]';
@@ -225,14 +227,14 @@ export const PropertyCard = memo(({
         {/* Top Left Badges: Rental Type & New */}
         <div className="absolute top-4 left-4 z-30 flex flex-col gap-2 pointer-events-none">
           {operation.toLowerCase() === 'alquiler' && (
-            <div className="px-3 py-1 bg-[#4ADE80] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm">
-              {tags?.includes('habitaciones') || tags?.includes('Alquiler por habitaciones') || id?.includes('habitaciones')
+            <div className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm">
+              {is_room_rental
                 ? t('property.labels.features.room_rental') 
                 : `${t('property.labels.operation.alquiler')} ${t(PROPERTY_TYPE_LABELS[property_type?.toLowerCase() as PropertyType] || '').toLowerCase()}`}
             </div>
           )}
           {isNew && (
-            <div className="px-3 py-1 bg-[#FAF8F5] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm border border-white/20">
+            <div className="px-3 py-1 bg-[#C9A962]/20 text-[#C9A962] border border-[#C9A962]/40 font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm">
               {t('common.new') || 'NUEVO'}
             </div>
           )}
@@ -306,7 +308,9 @@ export const PropertyCard = memo(({
             "px-2.5 py-0.5 font-primary text-[9px] font-bold tracking-[0.05em] uppercase border border-white/5",
             getBadgeColor()
           )}>
-            {t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation])}
+            {operation.toLowerCase() === 'alquiler' && is_room_rental
+              ? t('property.labels.features.room_rental')
+              : t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation])}
           </div>
 
           {commercialStatus && (

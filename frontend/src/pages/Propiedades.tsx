@@ -433,6 +433,7 @@ export const Propiedades = () => {
                 id={p.id}
                 reference={p.reference ?? undefined}
                 property_type={p.property_type}
+                is_room_rental={p.is_room_rental}
                 createdAt={p.created_at}
                 tags={p.tags}
                 onTagClick={(tag) => {

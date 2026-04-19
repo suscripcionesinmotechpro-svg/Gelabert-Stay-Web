@@ -24,13 +24,13 @@ export const PropertyReference: React.FC<PropertyReferenceProps> = ({
     )}>
       <span className={cn(
         "font-primary text-[9px] md:text-[10px] uppercase tracking-[0.15em] font-bold",
-        variant === 'solid' ? "text-[#C9A962]" : "text-[#888888]"
+        "text-[#C9A962]"
       )}>
         REF:
       </span>
       <span className={cn(
         "font-primary text-[10px] md:text-xs font-black tracking-tight",
-        variant === 'solid' ? "text-[#FAF8F5]" : "text-[#FAF8F5]/80"
+        "text-[#FAF8F5]"
       )}>
         {reference}
       </span>

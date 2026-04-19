@@ -181,8 +181,12 @@ export const FichaPropiedad = () => {
     return `${price.toLocaleString('es-ES')} €${operation === 'alquiler' ? '/mes' : ''}`;
   };
 
+  const operationLabel = property.operation === 'alquiler' && property.is_room_rental
+    ? t('property.labels.features.room_rental')
+    : `${t(OPERATION_LABELS[property.operation])} ${t(PROPERTY_TYPE_LABELS[property.property_type]).toLowerCase()}`;
+
   const sharingTitleStr = [
-    `${property.operation.charAt(0).toUpperCase() + property.operation.slice(1)} ${t(PROPERTY_TYPE_LABELS[property.property_type])}`,
+    operationLabel,
     property.city,
     formatPrice(property.price, property.operation),
     property.area_m2 ? `${property.area_m2} m²` : null,
@@ -556,7 +560,7 @@ export const FichaPropiedad = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <div className="flex flex-col gap-1">
                   {property.operation === 'alquiler' && (
-                    <div className="px-3 py-1 bg-[#4ADE80] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm inline-block self-start">
+                    <div className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm inline-block self-start">
                       {property.is_room_rental
                         ? t('property.labels.features.room_rental') 
                         : `${t('property.labels.operation.alquiler')} ${t(PROPERTY_TYPE_LABELS[property.property_type] || '').toLowerCase()}`}
@@ -573,7 +577,7 @@ export const FichaPropiedad = () => {
                 </div>
 
                 {(new Date().getTime() - new Date(property.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000 && (
-                  <div className="px-3 py-1 bg-[#FAF8F5] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm border border-white/20">
+                  <div className="px-3 py-1 bg-[#C9A962]/20 text-[#C9A962] border border-[#C9A962]/40 font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm">
                     {t('common.new') || 'NUEVO'}
                   </div>
                 )}
