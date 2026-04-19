@@ -547,47 +547,61 @@ export const FichaPropiedad = () => {
         <div className="flex-1 flex flex-col gap-8">
           {/* Property Header */}
           <div className="flex flex-col md:flex-row gap-4 justify-between">
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-xs font-bold uppercase">
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className={cn(
+                  "px-3 py-1 font-primary text-[10px] font-bold tracking-[0.08em] uppercase border border-white/5",
+                  property.operation === 'alquiler' ? "bg-[#4ADE80] text-[#0A0A0A]" : 
+                  property.operation === 'venta' ? "bg-[#C9A962] text-[#0A0A0A]" : "bg-[#60A5FA] text-[#0A0A0A]"
+                )}>
                   {t(OPERATION_LABELS[property.operation])}
-                </span>
+                </div>
+                
                 {property.operation === 'alquiler' && property.rent_type && (
-                  <span className="px-3 py-1 bg-[#1F1F1F] text-[#FAF8F5] border border-[#C9A962] font-primary text-xs font-medium">
+                  <div className="px-3 py-1 glass-deep border border-[#C9A962]/40 text-[#C9A962] font-primary text-[10px] font-bold uppercase">
                     {t(RENT_TYPE_LABELS[property.rent_type])}
-                  </span>
+                  </div>
                 )}
-                <span className="px-3 py-1 border border-[#1F1F1F] text-[#888888] font-primary text-xs">
+
+                <div className="px-3 py-1 glass-deep border border-white/10 text-[#888888] font-primary text-[10px] font-bold uppercase">
                   {t(PROPERTY_TYPE_LABELS[property.property_type])}
-                </span>
+                </div>
+
                 {property.is_room_rental && (
-                   <span className="px-3 py-1 bg-[#FAF8F5] text-[#0A0A0A] font-primary text-xs font-bold uppercase border-l-4 border-[#C9A962] shadow-sm">
-                    {t('property.labels.features.room_rental', { defaultValue: 'ALQUILER POR HABITACIONES' })}
-                  </span>
+                  <div className="px-3 py-1 bg-[#FAF8F5] text-[#0A0A0A] font-primary text-[10px] font-bold uppercase">
+                    {t('property.labels.features.room_rental', { defaultValue: 'POR HABITACIONES' })}
+                  </div>
                 )}
+
                 {property.reference && (
                   <PropertyReference 
                     reference={property.reference} 
-                    variant="solid" 
-                    className="md:scale-110" 
+                    variant="outline" 
+                    className="h-6 text-[10px] bg-white/5" 
                   />
                 )}
+
                 {property.created_at && (new Date().getTime() - new Date(property.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000 && (
-                  <span className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-bold uppercase shadow-sm">
+                  <div className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-bold uppercase">
                     {t('common.new')}
-                  </span>
+                  </div>
                 )}
+
                 {property.commercial_status && (
-                  <span className={cn(
-                    "px-3 py-1 font-primary text-xs font-bold uppercase shadow-sm",
-                    property.commercial_status === 'disponible' && "bg-green-400/20 text-green-400 border border-green-400/30",
-                    property.commercial_status === 'reservado' && "bg-orange-400/20 text-orange-400 border border-orange-400/30",
-                    property.commercial_status === 'alquilado' && "bg-purple-400/20 text-purple-400 border border-purple-400/30",
-                    property.commercial_status === 'vendido' && "bg-red-400/20 text-red-400 border border-red-400/30",
-                    property.commercial_status === 'traspasado' && "bg-blue-400/20 text-blue-400 border border-blue-400/30",
+                  <div className={cn(
+                    "px-3 py-1 font-primary text-[10px] font-bold uppercase flex items-center gap-1.5 glass-deep border",
+                    property.commercial_status === 'disponible' && "bg-green-400/5 text-green-400 border-green-400/20",
+                    property.commercial_status === 'reservado' && "bg-orange-400/5 text-orange-400 border-orange-400/20",
+                    property.commercial_status === 'alquilado' && "bg-purple-400/5 text-purple-400 border-purple-400/20",
+                    property.commercial_status === 'vendido' && "bg-red-400/5 text-red-400 border-red-400/20",
+                    property.commercial_status === 'traspasado' && "bg-blue-400/5 text-blue-400 border-blue-400/20",
                   )}>
+                    <span className={cn(
+                      "w-1.5 h-1.5 rounded-full",
+                      property.commercial_status === 'disponible' ? "bg-green-400" : "bg-current animate-pulse"
+                    )} />
                     {t(COMMERCIAL_STATUS_LABELS[property.commercial_status])}
-                  </span>
+                  </div>
                 )}
               </div>
               <h1 className="font-secondary text-2xl md:text-5xl text-[#FAF8F5] leading-tight">{translatedTitle}</h1>

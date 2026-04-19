@@ -220,53 +220,7 @@ export const PropertyCard = memo(({
           <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
         </button>
 
-        {/* Badges Container (Top Left, wraps horizontally) */}
-        <div className="absolute top-4 left-4 right-14 flex flex-wrap gap-2 items-start z-20 pointer-events-none">
-          {/* Operation Badge */}
-          <div className={cn(
-            "px-3 py-1 font-primary text-[10px] font-bold tracking-[0.08em] uppercase shadow-lg border border-white/10 glass-light",
-            getBadgeColor()
-          )}>
-            {t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation])}
-          </div>
-          
-          {/* New Badge */}
-          {isNew && (
-            <div className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-bold uppercase shadow-xl border border-white/20">
-              {t('common.new')}
-            </div>
-          )}
-
-          {/* Featured Badge */}
-          {isFeatured && (
-            <div className="px-3 py-1 glass-deep border border-[#C9A962]/40 font-primary text-[#C9A962] text-[10px] font-bold uppercase flex items-center gap-1 shadow-xl">
-              <span>★</span> {t('property.labels.featured')}
-            </div>
-          )}
-
-          {/* Commercial Status Badge */}
-          {commercialStatus && (
-            <div className={cn(
-              "px-3 py-1 glass-deep border font-primary text-[10px] font-bold uppercase flex items-center gap-1 shadow-xl",
-              commercialStatus === 'disponible' && "text-green-400 border-green-400/40",
-              commercialStatus === 'reservado' && "text-orange-400 border-orange-400/40",
-              commercialStatus === 'alquilado' && "text-purple-400 border-purple-400/40",
-              commercialStatus === 'vendido' && "text-red-400 border-red-400/40",
-              commercialStatus === 'traspasado' && "text-blue-400 border-blue-400/40",
-            )}>
-              {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
-            </div>
-          )}
-
-          {/* New Global Reference Highlighter */}
-          {reference && (
-            <PropertyReference 
-              reference={reference} 
-              variant="solid"
-              className="glass-deep shadow-xl"
-            />
-          )}
-        </div>
+        {/* Badges Container removed from image to avoid covering it */}
 
         {/* Watermark Overlay */}
         {commercialStatus && commercialStatus !== 'disponible' && (
@@ -327,7 +281,53 @@ export const PropertyCard = memo(({
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 p-5 flex flex-col gap-4">
+      <div className="flex-1 p-5 pt-4 flex flex-col gap-4">
+        {/* New Status Bar outside image */}
+        <div className="flex flex-wrap items-center gap-2 pb-1">
+          <div className={cn(
+            "px-2.5 py-0.5 font-primary text-[9px] font-bold tracking-[0.05em] uppercase border border-white/5",
+            getBadgeColor()
+          )}>
+            {t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation])}
+          </div>
+
+          {commercialStatus && (
+            <div className={cn(
+              "px-2.5 py-0.5 glass-deep border font-primary text-[9px] font-bold uppercase flex items-center gap-1",
+              commercialStatus === 'disponible' && "text-green-400 border-green-400/20",
+              commercialStatus === 'reservado' && "text-orange-400 border-orange-400/20",
+              commercialStatus === 'alquilado' && "text-purple-400 border-purple-400/20",
+              commercialStatus === 'vendido' && "text-red-400 border-red-400/20",
+              commercialStatus === 'traspasado' && "text-blue-400 border-blue-400/20",
+            )}>
+              <span className={cn(
+                "w-1.5 h-1.5 rounded-full",
+                commercialStatus === 'disponible' ? "bg-green-400" : "bg-current animate-pulse"
+              )} />
+              {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
+            </div>
+          )}
+
+          {isFeatured && (
+            <div className="px-2.5 py-0.5 glass-deep border border-[#C9A962]/40 font-primary text-[#C9A962] text-[9px] font-bold uppercase flex items-center gap-1">
+              <span>★</span> {t('property.labels.featured')}
+            </div>
+          )}
+
+          {isNew && (
+            <div className="px-2.5 py-0.5 bg-[#C9A962] text-[#0A0A0A] font-primary text-[9px] font-bold uppercase">
+              {t('common.new')}
+            </div>
+          )}
+
+          {reference && (
+            <PropertyReference 
+              reference={reference} 
+              variant="outline"
+              className="text-[9px] h-5 px-2 bg-white/5"
+            />
+          )}
+        </div>
         <div className="flex flex-col gap-1">
           <h3 className="font-secondary text-xl text-[#FAF8F5] leading-tight group-hover:text-[#C9A962] transition-colors line-clamp-1">
             {displayTitle}
