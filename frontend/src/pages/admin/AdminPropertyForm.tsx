@@ -11,6 +11,8 @@ import { SortableVideoGallery } from '../../components/admin/SortableVideoGaller
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PropertyMap } from '../../components/PropertyMap';
 import { useJsApiLoader, Autocomplete } from '@react-google-maps/api';
+import { RoomManager } from '../../components/admin/RoomManager';
+import type { PropertyVideo, PropertyRoom } from '../../types/property';
 
 const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"];
 
@@ -92,7 +94,7 @@ const DEFAULT_FORM: Partial<PropertyInsert> = {
   property_condition: '', availability: '',
   short_description: '', description: '', highlights: [], 
   tags: [],
-  main_image: '', gallery: [], video_url: '', videos: [], floor_plan: '',
+  main_image: '', gallery: [], video_url: '', videos: [], videos_metadata: [], floor_plan: '',
   slug: '', meta_title: '', meta_description: '',
   status: 'borrador', commercial_status: 'disponible', is_featured: false,
   rent_type: null, reference: '',
@@ -101,6 +103,8 @@ const DEFAULT_FORM: Partial<PropertyInsert> = {
   emissions_rating: '', emissions_value: undefined,
   conservation_state: '', community_fees: undefined, ibi: undefined,
   block_staircase: '', urbanization: '',
+  is_room_rental: false,
+  rooms: [],
 };
 
 
@@ -163,6 +167,9 @@ export const AdminPropertyForm = () => {
         ibi: property.ibi ?? undefined,
         block_staircase: property.block_staircase ?? '',
         urbanization: property.urbanization ?? '',
+        is_room_rental: property.is_room_rental ?? false,
+        rooms: property.rooms ?? [],
+        videos_metadata: property.videos_metadata ?? [],
       };
       setForm(newForm);
       setLatStr(property.latitude?.toString() ?? '');
@@ -272,8 +279,9 @@ export const AdminPropertyForm = () => {
         urls.push(url);
       }
       
-      const currentVideos = form.videos || [];
-      handleVideosChange([...currentVideos, ...urls]);
+      const currentVideos = form.videos_metadata || [];
+      const newVids: PropertyVideo[] = urls.map(url => ({ url, title: 'Vídeo' }));
+      handleVideosChange([...currentVideos, ...newVids]);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('admin.form.errors.video_upload_error'));
     } finally {
@@ -281,11 +289,12 @@ export const AdminPropertyForm = () => {
     }
   };
 
-  const handleVideosChange = (urls: string[]) => {
-    set('videos', urls);
+  const handleVideosChange = (vids: PropertyVideo[]) => {
+    set('videos_metadata', vids);
+    set('videos', vids.map(v => v.url));
     // Para retrocompatibilidad y visualización simple, mantendremos video_url 
     // como el primer vídeo de la lista si existe
-    set('video_url', urls.length > 0 ? urls[0] : '');
+    set('video_url', vids.length > 0 ? vids[0].url : '');
   };
 
   const generateSEOMetadata = () => {
@@ -523,8 +532,21 @@ export const AdminPropertyForm = () => {
                 <option value="habitual">{t('search.rent_type.habitual')}</option>
                 <option value="temporal">{t('search.rent_type.temporal')}</option>
                 <option value="vacacional">{t('search.rent_type.vacacional')}</option>
+                <option value="habitaciones">{t('search.rent_type.habitaciones')}</option>
                 <option value="otros">{t('search.rent_type.otros')}</option>
               </select>
+            </div>
+          )}
+          {form.operation === 'alquiler' && (
+            <div className="flex flex-col gap-2">
+              <label className={labelClass}>Modo de Alquiler</label>
+              <div className="flex items-center h-10">
+                <ToggleField 
+                  label="Alquiler por habitaciones" 
+                  checked={form.is_room_rental ?? false} 
+                  onChange={v => set('is_room_rental', v)} 
+                />
+              </div>
             </div>
           )}
           <div className="flex flex-col gap-2">
@@ -720,6 +742,16 @@ export const AdminPropertyForm = () => {
           </div>
         </div>
       </div>
+
+      {/* ALQUILER POR HABITACIONES */}
+      {form.is_room_rental && (
+        <div className={sectionClass}>
+          <RoomManager 
+            rooms={form.rooms || []} 
+            onChange={(rooms) => set('rooms', rooms)}
+          />
+        </div>
+      )}
 
       {/* CARACTERÍSTICAS */}
       <div className={sectionClass}>
@@ -929,7 +961,7 @@ export const AdminPropertyForm = () => {
         {/* Galería de Vídeos */}
         <div className="mt-6 pt-6 border-t border-[#1F1F1F]">
           <SortableVideoGallery 
-            videos={form.videos || []}
+            videos={form.videos_metadata || []}
             onChange={handleVideosChange}
             onUpload={handleVideoUpload}
             uploading={uploadingVideo}

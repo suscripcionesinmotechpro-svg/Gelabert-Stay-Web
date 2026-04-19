@@ -447,17 +447,22 @@ export const FichaPropiedad = () => {
             </div>
             
             {/* Video Selector if multiple */}
-            {property.videos && property.videos.length > 1 && (
+            {(property.videos && property.videos.length > 1) && (
               <div className="flex flex-wrap gap-2">
-                {property.videos.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveVideoIndex(idx)}
-                    className={`px-4 py-2 text-xs font-primary border transition-colors ${activeVideoIndex === idx ? 'bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]' : 'bg-[#0A0A0A] text-[#888888] border-[#1F1F1F] hover:border-[#C9A962] hover:text-[#FAF8F5]'}`}
-                  >
-                    VÍDEO {idx + 1}
-                  </button>
-                ))}
+                {property.videos.map((vidUrl, idx) => {
+                  const metadata = (property.videos_metadata || []).find((v: PropertyVideo) => v.url === vidUrl);
+                  const label = metadata?.title || `VÍDEO ${idx + 1}`;
+                  
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveVideoIndex(idx)}
+                      className={`px-4 py-2 text-[10px] font-primary border transition-colors uppercase tracking-widest font-bold ${activeVideoIndex === idx ? 'bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]' : 'bg-[#0A0A0A] text-[#888888] border-[#1F1F1F] hover:border-[#C9A962] hover:text-[#FAF8F5]'}`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -618,6 +623,66 @@ export const FichaPropiedad = () => {
               </motion.div>
             )}
           </div>
+
+          {/* Room distribution (If room rental) */}
+          {property.is_room_rental && property.rooms && property.rooms.length > 0 && (
+            <div className="flex flex-col gap-6 pt-6 border-t border-[#1F1F1F]">
+              <h2 className="font-secondary text-2xl text-[#FAF8F5]">{t('property.labels.features.room_distribution', { defaultValue: 'Distribución por Habitaciones' })}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {property.rooms.map((room: PropertyRoom) => (
+                  <div key={room.id} className="flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] rounded-sm overflow-hidden group hover:border-[#C9A962] transition-colors">
+                    {room.images && room.images.length > 0 ? (
+                      <div 
+                        className="w-full h-40 overflow-hidden cursor-pointer relative"
+                        onClick={() => {
+                          // Find index of this room's first image in allImages
+                          const firstImg = room.images[0];
+                          const idx = allImages.indexOf(firstImg);
+                          if (idx !== -1) openLightbox(idx);
+                        }}
+                      >
+                        <PremiumImage src={room.images[0]} alt={room.name} wrapperClassName="w-full h-full group-hover:scale-105 transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
+                        {room.images.length > 1 && (
+                          <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/60 text-[8px] text-white uppercase font-bold tracking-tighter">
+                            + {room.images.length - 1} FOTOS
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="w-full h-40 bg-[#161616] flex items-center justify-center font-primary text-[10px] text-[#444444] uppercase tracking-widest">{t('common.no_image')}</div>
+                    )}
+                    <div className="p-4 flex flex-col gap-2">
+                      <div className="flex justify-between items-start gap-2">
+                        <h4 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-tight">{room.name}</h4>
+                        {room.price && (
+                          <span className="font-primary text-[#C9A962] font-bold text-sm">{room.price}€<span className="text-[10px] text-[#888888] font-normal ml-0.5">/{t('common.month')}</span></span>
+                        )}
+                      </div>
+                      {room.video?.url && (
+                        <button 
+                          onClick={() => {
+                            // Find index if it was added to property.videos, or we might need a separate way to show it
+                            // For now, let's just use it if it's in the list
+                            const idx = property.videos.indexOf(room.video.url);
+                            if (idx !== -1) {
+                              setActiveTab('video');
+                              setActiveVideoIndex(idx);
+                              window.scrollTo({ top: 300, behavior: 'smooth' });
+                            }
+                          }}
+                          className="flex items-center gap-2 text-[10px] text-[#C9A962] font-bold uppercase tracking-widest hover:text-[#FAF8F5] transition-colors mt-1"
+                        >
+                          <Play className="w-3 h-3" />
+                          VER TOUR VÍDEO
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Description */}
           {translatedDescription && (

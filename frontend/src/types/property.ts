@@ -1,5 +1,5 @@
 export type PropertyOperation = 'alquiler' | 'venta' | 'traspaso';
-export type RentType = 'temporal' | 'habitual' | 'vacacional' | 'otros';
+export type RentType = 'temporal' | 'habitual' | 'vacacional' | 'habitaciones' | 'otros';
 
 
 export type PropertyType =
@@ -26,6 +26,19 @@ export type CommercialStatus =
   | 'alquilado'
   | 'vendido'
   | 'traspasado';
+
+export interface PropertyVideo {
+  url: string;
+  title: string;
+}
+
+export interface PropertyRoom {
+  id: string;
+  name: string;
+  images: string[];
+  video?: PropertyVideo | null;
+  price?: number | null;
+}
 
 export interface Property {
   id: string;
@@ -104,7 +117,12 @@ export interface Property {
   gallery: string[] | null;
   video_url: string | null;
   videos: string[] | null;
+  videos_metadata: PropertyVideo[] | null;
   floor_plan: string | null;
+
+  // Alquiler por habitaciones
+  is_room_rental: boolean;
+  rooms: PropertyRoom[] | null;
 
   // SEO
   slug: string | null;
@@ -186,6 +204,7 @@ export const RENT_TYPE_LABELS: Record<RentType, string> = {
   temporal: 'search.rent_type.temporal',
   habitual: 'search.rent_type.habitual',
   vacacional: 'search.rent_type.vacacional',
+  habitaciones: 'search.rent_type.habitaciones',
   otros: 'search.rent_type.otros',
 };
 

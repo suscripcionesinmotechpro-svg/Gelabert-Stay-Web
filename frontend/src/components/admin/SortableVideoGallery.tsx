@@ -17,13 +17,16 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { Play, Upload, X, Plus } from 'lucide-react';
 import { useState } from 'react';
+import type { PropertyVideo } from '../../types/property';
 
 interface SortableVideoItemProps {
-  url: string;
+  video: PropertyVideo;
   onRemove: (url: string) => void;
+  onTitleChange: (url: string, title: string) => void;
 }
 
-const SortableVideoItem = ({ url, onRemove }: SortableVideoItemProps) => {
+const SortableVideoItem = ({ video, onRemove, onTitleChange }: SortableVideoItemProps) => {
+  const { url, title } = video;
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: url });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -46,40 +49,47 @@ const SortableVideoItem = ({ url, onRemove }: SortableVideoItemProps) => {
     <div 
       ref={setNodeRef} 
       style={style} 
-      className="relative w-28 h-28 shrink-0 touch-none flex flex-col items-center justify-center border-2 border-[#1F1F1F] hover:border-[#444444] bg-[#0F0F0F] rounded-sm group overflow-hidden cursor-grab active:cursor-grabbing" 
-      {...attributes} 
-      {...listeners}
+      className="relative flex flex-col gap-2 bg-[#0F0F0F] border border-[#1F1F1F] p-2 rounded-sm group"
     >
-      {thumbnail ? (
-        <img src={thumbnail} alt="Video thumbnail" className="w-full h-full object-cover pointer-events-none opacity-50" />
-      ) : (
-        <Play className="w-8 h-8 text-[#444444] group-hover:text-[#C9A962] transition-colors" />
-      )}
-      <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/0 transition-colors pointer-events-none">
-        <Play className="w-6 h-6 text-white drop-shadow-lg" />
-      </div>
-      
-      <button 
-        type="button" 
-        onClick={(e) => { e.stopPropagation(); onRemove(url); }} 
-        onPointerDown={(e) => e.stopPropagation()}
-        className="absolute top-1 right-1 p-1 bg-red-500 rounded-sm text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:scale-110"
+      <div 
+        className="relative w-28 h-20 shrink-0 touch-none flex flex-col items-center justify-center border-2 border-[#1F1F1F] group-hover:border-[#444444] bg-black rounded-sm overflow-hidden cursor-grab active:cursor-grabbing" 
+        {...attributes} 
+        {...listeners}
       >
-        <X className="w-3 h-3" />
-      </button>
-
-      <div className="absolute bottom-0 left-0 w-full bg-black/60 px-1 py-0.5 pointer-events-none">
-        <p className="text-[8px] text-[#FAF8F5] truncate font-primary">
-          {url.split('/').pop()?.split('?')[0] || url}
-        </p>
+        {thumbnail ? (
+          <img src={thumbnail} alt="Video thumbnail" className="w-full h-full object-cover pointer-events-none opacity-50" />
+        ) : (
+          <Play className="w-8 h-8 text-[#444444] group-hover:text-[#C9A962] transition-colors" />
+        )}
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/0 transition-colors pointer-events-none">
+          <Play className="w-6 h-6 text-white drop-shadow-lg" />
+        </div>
+        
+        <button 
+          type="button" 
+          onClick={(e) => { e.stopPropagation(); onRemove(url); }} 
+          onPointerDown={(e) => e.stopPropagation()}
+          className="absolute top-1 right-1 p-1 bg-red-500 rounded-sm text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:scale-110"
+        >
+          <X className="w-3 h-3" />
+        </button>
       </div>
+
+      <input 
+        type="text"
+        value={title}
+        onChange={(e) => onTitleChange(url, e.target.value)}
+        onPointerDown={(e) => e.stopPropagation()}
+        className="w-28 bg-[#0A0A0A] border border-[#1F1F1F] px-1.5 py-1 text-[9px] text-[#FAF8F5] outline-none focus:border-[#C9A962] transition-colors font-primary uppercase tracking-tight"
+        placeholder="Título del vídeo"
+      />
     </div>
   );
 };
 
 interface SortableVideoGalleryProps {
-  videos: string[];
-  onChange: (videos: string[]) => void;
+  videos: PropertyVideo[];
+  onChange: (videos: PropertyVideo[]) => void;
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   uploading: boolean;
 }
@@ -94,23 +104,27 @@ export const SortableVideoGallery = ({ videos, onChange, onUpload, uploading }: 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      const oldIndex = videos.indexOf(active.id as string);
-      const newIndex = videos.indexOf(over.id as string);
+      const oldIndex = videos.findIndex(v => v.url === active.id);
+      const newIndex = videos.findIndex(v => v.url === over.id);
       onChange(arrayMove(videos, oldIndex, newIndex));
     }
   };
 
   const addUrlVideo = () => {
     if (!videoUrl.trim()) return;
-    onChange([...videos, videoUrl.trim()]);
+    onChange([...videos, { url: videoUrl.trim(), title: 'Vídeo' }]);
     setVideoUrl('');
+  };
+
+  const handleTitleChange = (url: string, title: string) => {
+    onChange(videos.map(v => v.url === url ? { ...v, title } : v));
   };
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <label className="font-primary text-xs text-[#666666] uppercase tracking-wider">
-          Vídeos (Añade enlaces de YouTube/Vimeo o sube archivos)
+          Vídeos (YouTube/Vimeo o archivos)
         </label>
         <div className="flex gap-2">
           <input 
@@ -131,26 +145,27 @@ export const SortableVideoGallery = ({ videos, onChange, onUpload, uploading }: 
         </div>
       </div>
       
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-4">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={videos} strategy={rectSortingStrategy}>
-            {videos.map((url) => (
+          <SortableContext items={videos.map(v => v.url)} strategy={rectSortingStrategy}>
+            {videos.map((video) => (
               <SortableVideoItem 
-                key={url} 
-                url={url} 
-                onRemove={(removedUrl) => onChange(videos.filter(u => u !== removedUrl))} 
+                key={video.url} 
+                video={video} 
+                onRemove={(url) => onChange(videos.filter(v => v.url !== url))} 
+                onTitleChange={handleTitleChange}
               />
             ))}
           </SortableContext>
         </DndContext>
 
-        <label className="flex flex-col items-center justify-center w-28 h-28 shrink-0 border-2 border-dashed border-[#1F1F1F] hover:border-[#C9A962] cursor-pointer transition-colors bg-[#0A0A0A]">
+        <label className="flex flex-col items-center justify-center w-28 h-20 self-start border-2 border-dashed border-[#1F1F1F] hover:border-[#C9A962] cursor-pointer transition-colors bg-[#0A0A0A] rounded-sm mt-0">
           {uploading ? (
             <div className="w-5 h-5 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
           ) : (
             <>
               <Upload className="w-5 h-5 text-[#444444] mb-1" />
-              <span className="font-primary text-[10px] text-[#444444] text-center px-1">Subir Vídeo(s)</span>
+              <span className="font-primary text-[8px] text-[#444444] text-center px-1 uppercase tracking-widest font-bold">Subir Vídeo(s)</span>
             </>
           )}
           <input type="file" accept="video/*" multiple className="hidden" onChange={onUpload} disabled={uploading} />
