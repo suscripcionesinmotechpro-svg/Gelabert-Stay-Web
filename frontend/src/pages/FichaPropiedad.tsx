@@ -67,19 +67,19 @@ export const FichaPropiedad = () => {
   const allImages = [
     property?.main_image, 
     ...(property?.gallery ?? []),
-    ...(property?.is_room_rental ? (property?.rooms ?? []).flatMap((r: PropertyRoom) => r.images || []) : [])
+    ...((property?.is_room_rental || property?.property_type === 'habitacion') ? (property?.rooms ?? []).flatMap((r: PropertyRoom) => r.images || []) : [])
   ].filter(Boolean) as string[];
 
   // Unify all videos (General + Rooms)
   const allVideos: PropertyVideo[] = [
     ...(property?.videos ?? []).map((v: string | PropertyVideo, i: number) => {
       const vid = typeof v === 'string' ? { url: v, title: '' } : v;
-      if (!vid.title && property?.is_room_rental) {
+      if (!vid.title && (property?.is_room_rental || property?.property_type === 'habitacion')) {
         return { ...vid, title: i === 0 ? 'ZONAS COMUNES' : `VÍDEO ${i + 1}` };
       }
       return vid;
     }),
-    ...(property?.is_room_rental 
+    ...((property?.is_room_rental || property?.property_type === 'habitacion')
       ? (property?.rooms ?? []).map((r: PropertyRoom) => r.video ? { ...r.video, title: r.video.title || r.name } : null).filter(Boolean) 
       : [])
   ] as PropertyVideo[];
@@ -379,7 +379,7 @@ export const FichaPropiedad = () => {
       <section className="w-full px-6 md:px-14 py-8">
         {activeTab === 'fotos' && (
           <div className="flex flex-col gap-6">
-            {property.is_room_rental && (
+            {(property.is_room_rental || property.property_type === 'habitacion') && (
               <h3 className="font-secondary text-xl text-[#C9A962] flex items-center gap-2">
                 <Compass className="w-5 h-5" />
                 ZONAS COMUNES
@@ -666,8 +666,8 @@ export const FichaPropiedad = () => {
             )}
           </div>
 
-          {/* Room distribution (If room rental) */}
-          {property.is_room_rental && property.rooms && property.rooms.length > 0 && (
+          {/* Room distribution (If room rental or independent room) */}
+          {(property.is_room_rental || property.property_type === 'habitacion') && property.rooms && property.rooms.length > 0 && (
             <div className="flex flex-col gap-6 pt-6 border-t border-[#1F1F1F]">
               <h2 className="font-secondary text-2xl text-[#FAF8F5]">{t('property.labels.features.room_distribution', { defaultValue: 'Distribución por Habitaciones' })}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -744,7 +744,7 @@ export const AdminPropertyForm = () => {
       </div>
 
       {/* ALQUILER POR HABITACIONES */}
-      {form.is_room_rental && (
+      {(form.is_room_rental || form.property_type === 'habitacion') && (
         <div className={sectionClass}>
           <RoomManager 
             rooms={form.rooms || []} 
@@ -949,7 +949,11 @@ export const AdminPropertyForm = () => {
 
       {/* MULTIMEDIA */}
       <div className={sectionClass}>
-        <h2 className={sectionHeaderClass}>{t('admin.form.sections.multimedia')}</h2>
+        <h2 className={sectionHeaderClass}>
+          {(form.is_room_rental || form.property_type === 'habitacion') 
+            ? 'Zonas Comunes (Fotos)' 
+            : t('admin.form.sections.multimedia')}
+        </h2>
 
         <SortableImageGallery 
           images={allImages}
@@ -960,6 +964,11 @@ export const AdminPropertyForm = () => {
 
         {/* Galería de Vídeos */}
         <div className="mt-6 pt-6 border-t border-[#1F1F1F]">
+          <h3 className="font-primary text-[#FAF8F5] font-bold text-xs uppercase tracking-wider mb-4">
+            {(form.is_room_rental || form.property_type === 'habitacion') 
+              ? 'Zonas Comunes (Vídeos)' 
+              : 'Galería de Vídeos'}
+          </h3>
           <SortableVideoGallery 
             videos={form.videos_metadata || []}
             onChange={handleVideosChange}

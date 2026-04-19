@@ -70,11 +70,14 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
       
       const booleanFilters: (keyof PropertyFilters)[] = [
         'has_elevator', 'is_furnished', 'has_terrace', 'has_balcony', 'has_parking',
-        'has_storage', 'has_pool', 'heating', 'has_patio', 'is_exterior', 'sea_views', 'pets_allowed',
-        'is_room_rental'
+        'has_storage', 'has_pool', 'heating', 'has_patio', 'is_exterior', 'sea_views', 'pets_allowed'
       ];
       for (const filter of booleanFilters) {
         if (currentFilters?.[filter]) query = query.eq(filter, true);
+      }
+
+      if (currentFilters?.is_room_rental) {
+        query = query.or('is_room_rental.eq.true,property_type.eq.habitacion');
       }
       
       if (currentFilters?.no_pets_allowed) {
