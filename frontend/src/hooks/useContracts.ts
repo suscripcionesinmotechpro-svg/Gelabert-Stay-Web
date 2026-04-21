@@ -8,7 +8,7 @@ const dedupContracts = (contracts: Contract[]): Contract[] => {
   const map = new Map<string, Contract>();
   for (const c of contracts) {
     const tenantName = c.tenant ? `${c.tenant.first_name}-${c.tenant.last_name}` : c.tenant_id;
-    const key = `${c.start_date}-${c.end_date}-${c.property_id || ''}-${tenantName}`;
+    const key = `${c.start_date}-${c.end_date}-${c.property_id || ''}-${c.room_id || ''}-${tenantName}`;
     
     if (map.has(key)) {
       const existing = map.get(key)!;

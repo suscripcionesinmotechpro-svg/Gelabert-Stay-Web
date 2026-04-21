@@ -14,12 +14,12 @@ const PropertyRow = ({ property }: { property: Property }) => {
   const [expanded, setExpanded] = useState(false);
   const { contracts, loading } = usePropertyContracts(property.id);
 
-  const current = contracts.find(
+  const currentContracts = contracts.filter(
     c => c.start_date <= today && c.end_date >= today
   );
-  const upcoming = contracts
+  const upcomingContracts = contracts
     .filter(c => c.start_date > today)
-    .sort((a, b) => a.start_date.localeCompare(b.start_date))[0];
+    .sort((a, b) => a.start_date.localeCompare(b.start_date));
   const past = contracts.filter(c => c.end_date < today);
 
   return (
@@ -55,17 +55,22 @@ const PropertyRow = ({ property }: { property: Property }) => {
         <div>
           {loading ? (
             <div className="w-4 h-4 border border-[#C9A962] border-t-transparent rounded-full animate-spin" />
-          ) : current ? (
-            <Link
-              to={`/admin/inquilinos/${current.tenant_id}`}
-              onClick={e => e.stopPropagation()}
-              className="font-primary text-sm text-[#C9A962] hover:underline"
-            >
-              {current.tenant?.first_name} {current.tenant?.last_name}
-              <span className="text-[#444444] text-xs ml-2">
-                hasta {new Date(current.end_date).toLocaleDateString('es-ES')}
-              </span>
-            </Link>
+          ) : currentContracts.length > 0 ? (
+            <div className="flex flex-col gap-1">
+              {currentContracts.map(current => (
+                <Link
+                  key={current.id}
+                  to={`/admin/inquilinos/${current.tenant_id}`}
+                  onClick={e => e.stopPropagation()}
+                  className="font-primary text-sm text-[#C9A962] hover:underline truncate"
+                >
+                  {current.tenant?.first_name} {current.tenant?.last_name}
+                  <span className="text-[#444444] text-xs ml-2">
+                    hasta {new Date(current.end_date).toLocaleDateString('es-ES')}
+                  </span>
+                </Link>
+              ))}
+            </div>
           ) : (
             <span className="text-[#444444] text-xs italic">Libre</span>
           )}
@@ -73,17 +78,27 @@ const PropertyRow = ({ property }: { property: Property }) => {
 
         {/* Next booking */}
         <div>
-          {!loading && upcoming ? (
-            <Link
-              to={`/admin/inquilinos/${upcoming.tenant_id}`}
-              onClick={e => e.stopPropagation()}
-              className="font-primary text-sm text-[#888888] hover:text-[#FAF8F5]"
-            >
-              {upcoming.tenant?.first_name} {upcoming.tenant?.last_name}
-              <span className="text-[#444444] text-xs ml-2">
-                desde {new Date(upcoming.start_date).toLocaleDateString('es-ES')}
-              </span>
-            </Link>
+          {!loading && upcomingContracts.length > 0 ? (
+            <div className="flex flex-col gap-1">
+              {upcomingContracts.slice(0, 3).map(upcoming => (
+                <Link
+                  key={upcoming.id}
+                  to={`/admin/inquilinos/${upcoming.tenant_id}`}
+                  onClick={e => e.stopPropagation()}
+                  className="font-primary text-sm text-[#888888] hover:text-[#FAF8F5] truncate"
+                >
+                  {upcoming.tenant?.first_name} {upcoming.tenant?.last_name}
+                  <span className="text-[#444444] text-xs ml-2">
+                    desde {new Date(upcoming.start_date).toLocaleDateString('es-ES')}
+                  </span>
+                </Link>
+              ))}
+              {upcomingContracts.length > 3 && (
+                <span className="text-[#444444] text-xs italic text-left">
+                  +{upcomingContracts.length - 3} más
+                </span>
+              )}
+            </div>
           ) : (
             <span className="text-[#444444] text-xs italic">—</span>
           )}
