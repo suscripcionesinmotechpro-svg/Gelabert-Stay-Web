@@ -164,20 +164,29 @@ export const AdminContractForm = () => {
 
     setSaving(true); setError(null);
     try {
-      // 1. Check for overlapping contracts for the same property
+      // 1. Check for overlapping contracts
       if (form.property_id) {
-        const { data: overlaps, error: overlapErr } = await supabase
+        let overlapQuery = supabase
           .from('contracts')
           .select('id, start_date, end_date')
           .eq('property_id', form.property_id)
-          .neq('id', id || '')
           .filter('start_date', 'lte', form.end_date)
           .filter('end_date', 'gte', form.start_date);
+
+        if (id) {
+          overlapQuery = overlapQuery.neq('id', id);
+        }
+
+        if (form.room_id) {
+          overlapQuery = overlapQuery.eq('room_id', form.room_id);
+        }
+
+        const { data: overlaps, error: overlapErr } = await overlapQuery;
 
         if (overlapErr) throw overlapErr;
 
         if (overlaps && overlaps.length > 0) {
-          if (!confirm('Esta propiedad ya tiene un contrato activo en ese periodo. ¿Deseas continuar de todas formas?')) {
+          if (!confirm(form.room_id ? 'Esta habitación ya tiene un contrato activo en ese periodo. ¿Deseas continuar de todas formas?' : 'Esta propiedad ya tiene un contrato activo en ese periodo. ¿Deseas continuar de todas formas?')) {
             setSaving(false);
             return;
           }
@@ -307,7 +316,7 @@ export const AdminContractForm = () => {
                 <select
                   className={inputClass}
                   value={form.room_id || ''}
-                  onChange={e => set('room_id', e.target.value)}
+                  onChange={e => set('room_id', e.target.value || null)}
                 >
                   <option value="">— Seleccionar Habitación —</option>
                   {properties.find(p => p.id === form.property_id)?.rooms?.map(r => (
