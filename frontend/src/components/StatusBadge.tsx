@@ -8,11 +8,13 @@ export const StatusBadge = ({ status, className }: { status: StatusType; classNa
 
   const getStatusStyles = () => {
     switch (status) {
-      case 'PUBLICADA': return 'bg-[#4ADE8020] text-[#4ADE80]';
-      case 'BORRADOR': return 'bg-[#88888820] text-[#888888]';
-      case 'RESERVADA': return 'bg-[#60A5FA20] text-[#60A5FA]';
-      case 'VENDIDA': case 'ALQUILADA': case 'TRASPASADA': return 'bg-[#C9A96220] text-[#C9A962]';
-      case 'OCULTA': return 'bg-[#F8717120] text-[#F87171]';
+      case 'PUBLICADA': return 'bg-[#4ADE80] text-[#0A0A0A]';
+      case 'BORRADOR': return 'bg-[#888888] text-[#FAF8F5] shadow-sm';
+      case 'RESERVADA': return 'bg-[#FB923C] text-[#0A0A0A] shadow-md';
+      case 'ALQUILADA': return 'bg-[#A78BFA] text-[#0A0A0A] shadow-md';
+      case 'VENDIDA': return 'bg-[#F87171] text-[#0A0A0A] shadow-md';
+      case 'TRASPASADA': return 'bg-[#60A5FA] text-[#0A0A0A] shadow-md';
+      case 'OCULTA': return 'bg-[#F87171]/20 text-[#F87171] border border-[#F87171]/30';
       default: return 'bg-[#1F1F1F] text-[#FAF8F5]';
     }
   };

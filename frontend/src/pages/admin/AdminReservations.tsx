@@ -125,7 +125,7 @@ const PropertyRow = ({ property }: { property: Property }) => {
                 const isFuture  = c.start_date > today;
                 return (
                   <div key={c.id} className={`flex items-center gap-4 px-3 py-2.5 border transition-colors ${isCurrent ? 'border-[#C9A962]/30 bg-[#C9A962]/5' : isFuture ? 'border-blue-500/20 bg-blue-500/5' : 'border-[#1F1F1F]'}`}>
-                    <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 shrink-0 ${isCurrent ? 'bg-green-500/15 text-green-400' : isFuture ? 'bg-blue-500/15 text-blue-400' : 'bg-gray-500/10 text-gray-500'}`}>
+                    <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 shrink-0 rounded-sm shadow-sm ${isCurrent ? 'bg-[#4ADE80] text-[#0A0A0A]' : isFuture ? 'bg-[#60A5FA] text-[#0A0A0A]' : 'bg-[#333333] text-[#888888]'}`}>
                       {isCurrent ? 'Activo' : isFuture ? 'Futuro' : 'Pasado'}
                     </span>
                     <Link to={`/admin/inquilinos/${c.tenant_id}`} className="font-primary text-sm text-[#FAF8F5] hover:text-[#C9A962] transition-colors flex-1 truncate">
@@ -199,10 +199,10 @@ export const AdminReservations = () => {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 text-[10px] font-primary text-[#444444] uppercase tracking-wider">
-        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-green-400/60" />Activo ahora</span>
-        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-blue-400/60" />Futuro</span>
-        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-gray-500/60" />Pasado</span>
+      <div className="flex items-center gap-4 text-[10px] font-primary text-[#666666] uppercase tracking-widest font-black">
+        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#4ADE80]" />Activo ahora</span>
+        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#60A5FA]" />Futuro</span>
+        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#333333]" />Pasado</span>
       </div>
 
       {/* Table */}

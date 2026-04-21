@@ -234,7 +234,7 @@ export const PropertyCard = memo(({
             </div>
           )}
           {isNew && (
-            <div className="px-3 py-1 bg-[#C9A962]/20 text-[#C9A962] border border-[#C9A962]/40 font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm">
+            <div className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-xl rounded-sm">
               {t('common.new') || 'NUEVO'}
             </div>
           )}
@@ -331,13 +331,13 @@ export const PropertyCard = memo(({
           )}
 
           {isFeatured && (
-            <div className="px-2.5 py-0.5 glass-deep border border-[#C9A962]/40 font-primary text-[#C9A962] text-[9px] font-bold uppercase flex items-center gap-1">
-              <span>★</span> {t('property.labels.featured')}
+            <div className="px-2.5 py-0.5 bg-[#C9A962] text-[#0A0A0A] font-primary text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5 rounded-sm shadow-sm">
+              <span className="text-[10px]">★</span> {t('property.labels.featured')}
             </div>
           )}
 
           {isNew && (
-            <div className="px-2.5 py-0.5 bg-[#C9A962] text-[#0A0A0A] font-primary text-[9px] font-bold uppercase">
+            <div className="px-2.5 py-0.5 bg-[#C9A962] text-[#0A0A0A] font-primary text-[9px] font-black uppercase tracking-wider rounded-sm shadow-sm">
               {t('common.new')}
             </div>
           )}

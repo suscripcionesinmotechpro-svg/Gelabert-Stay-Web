@@ -227,17 +227,17 @@ export const COMMERCIAL_STATUS_LABELS: Record<CommercialStatus, string> = {
 };
 
 export const STATUS_COLORS: Record<PropertyStatus, string> = {
-  borrador: 'text-yellow-400 bg-yellow-400/10',
-  publicada: 'text-green-400 bg-green-400/10',
-  oculta: 'text-gray-400 bg-gray-400/10',
+  borrador: 'bg-[#888888] text-[#FAF8F5]',
+  publicada: 'bg-[#4ADE80] text-[#0A0A0A]',
+  oculta: 'bg-[#F87171] text-[#FAF8F5]',
 };
 
 export const COMMERCIAL_STATUS_COLORS: Record<CommercialStatus, string> = {
-  disponible: 'text-green-400 bg-green-400/10',
-  reservado: 'text-orange-400 bg-orange-400/10',
-  alquilado: 'text-purple-400 bg-purple-400/10',
-  vendido: 'text-red-400 bg-red-400/10',
-  traspasado: 'text-blue-400 bg-blue-400/10',
+  disponible: 'bg-[#4ADE80] text-[#0A0A0A]',
+  reservado: 'bg-[#FB923C] text-[#0A0A0A]',
+  alquilado: 'bg-[#A78BFA] text-[#0A0A0A]',
+  vendido: 'bg-[#F87171] text-[#0A0A0A]',
+  traspasado: 'bg-[#60A5FA] text-[#0A0A0A]',
 };
 
 export const AVAILABLE_TAGS = [

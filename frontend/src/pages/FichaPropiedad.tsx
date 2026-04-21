@@ -601,18 +601,18 @@ export const FichaPropiedad = () => {
                 </div>
 
                 {(new Date().getTime() - new Date(property.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000 && (
-                  <div className="px-3 py-1 bg-[#C9A962]/20 text-[#C9A962] border border-[#C9A962]/40 font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm">
+                  <div className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-xl rounded-sm">
                     {t('common.new') || 'NUEVO'}
                   </div>
                 )}
                 
                 {property.operation === 'alquiler' && property.rent_type && !property.is_room_rental && (
-                  <div className="px-3 py-1 glass-deep border border-[#C9A962]/40 text-[#C9A962] font-primary text-[10px] font-bold uppercase">
+                  <div className="px-3 py-1 bg-[#C9A962]/10 border border-[#C9A962]/30 text-[#C9A962] font-primary text-[10px] font-black uppercase tracking-wider rounded-sm shadow-sm">
                     {t(RENT_TYPE_LABELS[property.rent_type])}
                   </div>
                 )}
 
-                <div className="px-3 py-1 glass-deep border border-white/10 text-[#888888] font-primary text-[10px] font-bold uppercase">
+                <div className="px-3 py-1 bg-white/5 border border-white/10 text-[#FAF8F5]/60 font-primary text-[10px] font-black uppercase tracking-wider rounded-sm shadow-sm">
                   {t(PROPERTY_TYPE_LABELS[property.property_type])}
                 </div>
 
@@ -626,12 +626,12 @@ export const FichaPropiedad = () => {
 
                 {property.commercial_status && (
                   <div className={cn(
-                    "px-3 py-1 font-primary text-[10px] font-bold uppercase flex items-center gap-1.5 glass-deep border",
-                    property.commercial_status === 'disponible' && "bg-green-400/5 text-green-400 border-green-400/20",
-                    property.commercial_status === 'reservado' && "bg-orange-400/5 text-orange-400 border-orange-400/20",
-                    property.commercial_status === 'alquilado' && "bg-purple-400/5 text-purple-400 border-purple-400/20",
-                    property.commercial_status === 'vendido' && "bg-red-400/5 text-red-400 border-red-400/20",
-                    property.commercial_status === 'traspasado' && "bg-blue-400/5 text-blue-400 border-blue-400/20",
+                    "px-3 py-1 font-primary text-[10px] font-black uppercase tracking-wider flex items-center gap-2 rounded-sm shadow-xl",
+                    property.commercial_status === 'disponible' && "bg-[#4ADE80] text-[#0A0A0A]",
+                    property.commercial_status === 'reservado' && "bg-[#FB923C] text-[#0A0A0A]",
+                    property.commercial_status === 'alquilado' && "bg-[#A78BFA] text-[#0A0A0A]",
+                    property.commercial_status === 'vendido' && "bg-[#F87171] text-[#0A0A0A]",
+                    property.commercial_status === 'traspasado' && "bg-[#60A5FA] text-[#0A0A0A]",
                   )}>
                     <span className={cn(
                       "w-1.5 h-1.5 rounded-full",
