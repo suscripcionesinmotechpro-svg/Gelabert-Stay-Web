@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { Layout } from './components/Layout';
 import { PageLoading } from './components/PageLoading';
 import { ScrollToTop } from './components/ScrollToTop';
+import { UpdatePrompt } from './components/UpdatePrompt';
 
 // Lazy load public pages
 const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
@@ -41,6 +42,7 @@ function App() {
     <>
       <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#1A1A1A', color: '#FAF8F5', border: '1px solid #1F1F1F', fontSize: '14px', borderRadius: '4px' } }} />
       <ScrollToTop />
+      <UpdatePrompt />
       <Suspense fallback={<PageLoading />}>
         <Routes location={location} key={location.pathname}>
         {/* Handle optional language prefix for SEO static pages */}

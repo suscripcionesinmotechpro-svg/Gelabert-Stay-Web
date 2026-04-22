@@ -37,10 +37,36 @@ export default defineConfig({
         ]
       },
       workbox: {
+        // El nuevo SW toma el control inmediatamente sin esperar a que se cierren pestañas
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
+        // Rutas de navegación HTML: siempre intenta red primero para obtener la última versión
+        // Si falla la red (offline), usa la caché. Esto evita servir HTML viejo tras un deploy.
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [
+          /^\/admin/,            // Admin siempre desde la red
+          /^\/_/,                // Netlify internals
+          /\/[^/?]+\.[^/]+$/    // Archivos con extensión (imágenes, etc.)
+        ],
         runtimeCaching: [
+          // HTML de navegación: red primero, caché como fallback (offline)
+          {
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-cache',
+              networkTimeoutSeconds: 5,
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24, // 24 horas máximo
+              },
+              cacheableResponse: {
+                statuses: [200],
+              },
+            },
+          },
+          // Imágenes de Unsplash: caché agresiva (no cambian)
           {
             urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
             handler: 'CacheFirst',
@@ -48,7 +74,37 @@ export default defineConfig({
               cacheName: 'unsplash-images',
               expiration: {
                 maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 días
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Imágenes de Supabase Storage: caché con revalidación
+          {
+            urlPattern: /^https:\/\/.*supabase\.co\/storage\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'supabase-images',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 días
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Google Fonts: caché larga (no cambian)
+          {
+            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 año
               },
               cacheableResponse: {
                 statuses: [0, 200],

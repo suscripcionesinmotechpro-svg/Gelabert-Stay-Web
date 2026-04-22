@@ -24,9 +24,9 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
 
   const currentLimit = filters?.limit || 12;
 
-  const fetchProperties = useCallback(async (isLoadMore = false) => {
+  const fetchProperties = useCallback(async (isLoadMore = false, forceRefresh = false) => {
     // Check cache first if not loading more
-    if (!isLoadMore && propertiesCache[cacheKey]) {
+    if (!isLoadMore && !forceRefresh && propertiesCache[cacheKey]) {
       const cached = propertiesCache[cacheKey];
       if (Date.now() - cached.timestamp < CACHE_TTL) {
         setProperties(cached.data);
@@ -156,7 +156,7 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
     }
   };
 
-  return { properties, loading, loadingMore, hasMore, loadMore, error, refetch: () => fetchProperties(false) };
+  return { properties, loading, loadingMore, hasMore, loadMore, error, refetch: () => fetchProperties(false, true) };
 };
 
 // ============================================================
