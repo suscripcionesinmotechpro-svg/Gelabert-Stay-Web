@@ -46,7 +46,8 @@ export const Layout = () => {
           <img
             src="/watermark.png"
             alt="Gelabert Homes Real Estate"
-            className="h-16 md:h-18 w-auto object-contain drop-shadow-[0_0_10px_rgba(201,169,98,0.2)]"
+            className="h-16 md:h-18 w-auto object-contain"
+            style={{ filter: 'sepia(1) saturate(4) hue-rotate(2deg) brightness(1.05) drop-shadow(0 0 12px rgba(201,169,98,0.35))' }}
           />
         </Link>
 
