@@ -258,7 +258,7 @@ const PropertyRow = ({ property }: { property: Property }) => {
 };
 
 export const AdminReservations = () => {
-  const { properties, loading, refetch } = useProperties({ limit: 100 }, true);
+  const { properties, loading, refetch } = useProperties(undefined, true);
   const [search, setSearch] = useState('');
 
   const rental = properties.filter(p =>

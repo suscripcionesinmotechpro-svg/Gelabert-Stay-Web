@@ -6,6 +6,8 @@ import { applyWatermark } from '../utils/watermark';
 // Memory cache to avoid redundant fetches and flickering
 const propertiesCache: Record<string, { data: Property[]; timestamp: number; page: number; hasMore: boolean }> = {};
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+// Invalidate all cached entries on module reload (e.g. after limit changes)
+Object.keys(propertiesCache).forEach(k => delete propertiesCache[k]);
 
 // ============================================================
 // useProperties — list with optional filters (public: only published)
@@ -22,7 +24,7 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
   const filtersString = JSON.stringify(filters);
   const cacheKey = `${adminMode ? 'admin' : 'public'}-${filtersString}`;
 
-  const currentLimit = filters?.limit || 12;
+  const currentLimit = filters?.limit || 10000;
 
   const fetchProperties = useCallback(async (isLoadMore = false, forceRefresh = false) => {
     // Check cache first if not loading more
