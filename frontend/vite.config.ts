@@ -10,7 +10,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'logo.png', 'pwa-192x192.png', 'pwa-512x512.png', 'robots.txt'],
+      includeAssets: ['logo-og.png', 'watermark.png', 'pwa-192x192.png', 'pwa-512x512.png', 'robots.txt'],
       manifest: {
         name: 'Gelabert Homes Real Estate',
         short_name: 'Gelabert Homes',
