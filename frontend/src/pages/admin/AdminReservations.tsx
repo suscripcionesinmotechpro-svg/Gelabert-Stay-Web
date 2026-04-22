@@ -25,17 +25,8 @@ const PropertyRow = ({ property }: { property: Property }) => {
     .sort((a, b) => a.start_date.localeCompare(b.start_date));
   const past = contracts.filter(c => c.end_date < today);
 
-  // Derive status from contracts if it's not a room rental (for room rentals, we check room by room)
-  let derivedStatus = property.commercial_status;
-  if (!property.is_room_rental) {
-    if (currentContracts.length > 0) {
-      derivedStatus = 'alquilado';
-    } else if (upcomingContracts.length > 0) {
-      derivedStatus = 'reservado';
-    } else {
-      derivedStatus = 'disponible';
-    }
-  }
+  // Use the automated commercial_status from database
+  const derivedStatus = property.commercial_status || 'disponible';
 
   return (
     <div className="border-b border-[#1F1F1F] last:border-b-0">
@@ -280,7 +271,7 @@ export const AdminReservations = () => {
   const handleSyncStatuses = async () => {
     setSyncing(true);
     try {
-      const { data, error } = await supabase.rpc('refresh_all_property_statuses');
+      const { data, error } = await supabase.rpc('refresh_all_property_commercial_statuses');
       if (error) throw error;
       toast.success(`Sincronización completada: ${data.updated} propiedades actualizadas`);
       refetch();

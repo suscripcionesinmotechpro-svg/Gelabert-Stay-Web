@@ -233,7 +233,7 @@ export const PropertyCard = memo(({
                   ? t('property.labels.features.room_rental') 
                   : `${t('property.labels.operation.alquiler')} ${t(PROPERTY_TYPE_LABELS[property_type?.toLowerCase() as PropertyType] || '').toLowerCase()}`}
               </div>
-              {is_room_rental && (
+              {is_room_rental && commercialStatus !== 'alquilado' && (
                 <div className="px-2 py-0.5 bg-[#0D0D0D]/80 backdrop-blur-md text-[#C9A962] border border-[#C9A962]/30 font-primary text-[9px] font-bold uppercase tracking-tighter rounded-sm w-fit">
                   Consulte disponibilidad
                 </div>
