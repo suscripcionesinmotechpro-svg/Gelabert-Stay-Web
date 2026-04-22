@@ -1,5 +1,5 @@
 import { Context } from 'https://edge.netlify.com';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3?target=deno';
 
 const supabaseUrl = Netlify.env.get('VITE_SUPABASE_URL') || '';
 const supabaseKey = Netlify.env.get('VITE_SUPABASE_ANON_KEY') || '';
