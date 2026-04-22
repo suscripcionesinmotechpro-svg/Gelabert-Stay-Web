@@ -44,10 +44,10 @@ export const Layout = () => {
         {/* Logo */}
         <Link to={langPrefix || '/'} className="flex items-center">
           <img
-            src="/watermark.png"
+            src="/logo-og.png"
             alt="Gelabert Homes Real Estate"
             className="h-16 md:h-18 w-auto object-contain"
-            style={{ filter: 'sepia(1) saturate(4) hue-rotate(2deg) brightness(1.05) drop-shadow(0 0 12px rgba(201,169,98,0.35))' }}
+            style={{ mixBlendMode: 'screen' }}
           />
         </Link>
 
