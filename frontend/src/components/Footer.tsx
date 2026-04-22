@@ -39,7 +39,8 @@ export const Footer = () => {
             <img
               src="/watermark.png"
               alt="Gelabert Homes Real Estate"
-              className="h-20 sm:h-24 w-auto object-contain self-start drop-shadow-[0_0_15px_rgba(201,169,98,0.15)]"
+              className="h-20 sm:h-24 w-auto object-contain self-start"
+              style={{ filter: 'sepia(1) saturate(4) hue-rotate(2deg) brightness(1.05) drop-shadow(0 0 12px rgba(201,169,98,0.35))' }}
             />
           </Link>
           <p className="font-primary text-sm text-[#888888] leading-relaxed max-w-xs font-light">
