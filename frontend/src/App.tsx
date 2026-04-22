@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { Layout } from './components/Layout';
 import { PageLoading } from './components/PageLoading';
 import { ScrollToTop } from './components/ScrollToTop';
@@ -38,6 +39,7 @@ function App() {
 
   return (
     <>
+      <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#1A1A1A', color: '#FAF8F5', border: '1px solid #1F1F1F', fontSize: '14px', borderRadius: '4px' } }} />
       <ScrollToTop />
       <Suspense fallback={<PageLoading />}>
         <Routes location={location} key={location.pathname}>
