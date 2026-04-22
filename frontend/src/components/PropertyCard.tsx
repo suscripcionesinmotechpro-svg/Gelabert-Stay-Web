@@ -227,10 +227,17 @@ export const PropertyCard = memo(({
         {/* Top Left Badges: Rental Type & New */}
         <div className="absolute top-4 left-4 z-30 flex flex-col gap-2 pointer-events-none">
           {operation.toLowerCase() === 'alquiler' && (
-            <div className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm">
-              {is_room_rental
-                ? t('property.labels.features.room_rental') 
-                : `${t('property.labels.operation.alquiler')} ${t(PROPERTY_TYPE_LABELS[property_type?.toLowerCase() as PropertyType] || '').toLowerCase()}`}
+            <div className="flex flex-col gap-1">
+              <div className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm">
+                {is_room_rental
+                  ? t('property.labels.features.room_rental') 
+                  : `${t('property.labels.operation.alquiler')} ${t(PROPERTY_TYPE_LABELS[property_type?.toLowerCase() as PropertyType] || '').toLowerCase()}`}
+              </div>
+              {is_room_rental && (
+                <div className="px-2 py-0.5 bg-[#0D0D0D]/80 backdrop-blur-md text-[#C9A962] border border-[#C9A962]/30 font-primary text-[9px] font-bold uppercase tracking-tighter rounded-sm w-fit">
+                  Consulte disponibilidad
+                </div>
+              )}
             </div>
           )}
           {isNew && (

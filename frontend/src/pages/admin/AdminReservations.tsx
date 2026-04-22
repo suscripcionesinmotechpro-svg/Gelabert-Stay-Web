@@ -5,22 +5,37 @@ import { useProperties } from '../../hooks/useProperties';
 import { usePropertyContracts } from '../../hooks/useContracts';
 import type { Property } from '../../types/property';
 import { COMMERCIAL_STATUS_COLORS, COMMERCIAL_STATUS_LABELS } from '../../types/property';
-import { ChevronDown, ChevronUp, PlusCircle, Users } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { toast } from 'react-hot-toast';
+import { cn } from '../../lib/utils';
+import { ChevronDown, ChevronUp, PlusCircle, Users, RefreshCw, Calendar } from 'lucide-react';
 
 const today = new Date().toISOString().split('T')[0];
 
 const PropertyRow = ({ property }: { property: Property }) => {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
-  const { contracts, loading } = usePropertyContracts(property.id);
+  const { contracts, loading: loadingContracts } = usePropertyContracts(property.id);
 
   const currentContracts = contracts.filter(
-    c => c.start_date <= today && c.end_date >= today
+    c => c.start_date <= today && c.end_date >= today && c.status === 'active'
   );
   const upcomingContracts = contracts
-    .filter(c => c.start_date > today)
+    .filter(c => c.start_date > today && c.status === 'active')
     .sort((a, b) => a.start_date.localeCompare(b.start_date));
   const past = contracts.filter(c => c.end_date < today);
+
+  // Derive status from contracts if it's not a room rental (for room rentals, we check room by room)
+  let derivedStatus = property.commercial_status;
+  if (!property.is_room_rental) {
+    if (currentContracts.length > 0) {
+      derivedStatus = 'alquilado';
+    } else if (upcomingContracts.length > 0) {
+      derivedStatus = 'reservado';
+    } else {
+      derivedStatus = 'disponible';
+    }
+  }
 
   return (
     <div className="border-b border-[#1F1F1F] last:border-b-0">
@@ -41,19 +56,31 @@ const PropertyRow = ({ property }: { property: Property }) => {
             )}
           </div>
           <div className="min-w-0">
-            <p className="font-primary text-[#FAF8F5] text-sm font-bold truncate">{property.title}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-primary text-[#FAF8F5] text-sm font-bold truncate">{property.title}</p>
+              {property.reference && (
+                <span className="font-primary text-[10px] text-[#C9A962] bg-[#C9A962]/10 px-1 border border-[#C9A962]/20">
+                  {property.reference}
+                </span>
+              )}
+            </div>
             <p className="font-primary text-[#444444] text-xs">{property.city || property.zone || '—'}</p>
           </div>
         </div>
 
         {/* Commercial status */}
-        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-sm w-fit ${COMMERCIAL_STATUS_COLORS[property.commercial_status]}`}>
-          {t(COMMERCIAL_STATUS_LABELS[property.commercial_status])}
-        </span>
+        <div className="flex flex-col gap-1">
+          <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-sm w-fit ${COMMERCIAL_STATUS_COLORS[derivedStatus]}`}>
+            {t(COMMERCIAL_STATUS_LABELS[derivedStatus])}
+          </span>
+          {property.is_room_rental && (
+            <span className="text-[9px] text-[#C9A962] uppercase tracking-tighter font-bold">Por habitaciones</span>
+          )}
+        </div>
 
         {/* Current occupant */}
         <div>
-          {loading ? (
+          {loadingContracts ? (
             <div className="w-4 h-4 border border-[#C9A962] border-t-transparent rounded-full animate-spin" />
           ) : currentContracts.length > 0 ? (
             <div className="flex flex-col gap-1">
@@ -62,12 +89,14 @@ const PropertyRow = ({ property }: { property: Property }) => {
                   key={current.id}
                   to={`/admin/inquilinos/${current.tenant_id}`}
                   onClick={e => e.stopPropagation()}
-                  className="font-primary text-sm text-[#C9A962] hover:underline truncate"
+                  className="font-primary text-sm text-[#C9A962] hover:underline truncate flex items-center gap-2"
                 >
-                  {current.tenant?.first_name} {current.tenant?.last_name}
-                  <span className="text-[#444444] text-xs ml-2">
-                    hasta {new Date(current.end_date).toLocaleDateString('es-ES')}
-                  </span>
+                  <span className="truncate">{current.tenant?.first_name} {current.tenant?.last_name}</span>
+                  {current.room_id && (
+                    <span className="text-[10px] text-[#555] bg-[#111] px-1 border border-[#222] shrink-0">
+                      H{current.room_id.slice(-2)}
+                    </span>
+                  )}
                 </Link>
               ))}
             </div>
@@ -78,18 +107,23 @@ const PropertyRow = ({ property }: { property: Property }) => {
 
         {/* Next booking */}
         <div>
-          {!loading && upcomingContracts.length > 0 ? (
+          {!loadingContracts && upcomingContracts.length > 0 ? (
             <div className="flex flex-col gap-1">
               {upcomingContracts.slice(0, 3).map(upcoming => (
                 <Link
                   key={upcoming.id}
                   to={`/admin/inquilinos/${upcoming.tenant_id}`}
                   onClick={e => e.stopPropagation()}
-                  className="font-primary text-sm text-[#888888] hover:text-[#FAF8F5] truncate"
+                  className="font-primary text-sm text-[#888888] hover:text-[#FAF8F5] truncate flex items-center gap-2"
                 >
-                  {upcoming.tenant?.first_name} {upcoming.tenant?.last_name}
-                  <span className="text-[#444444] text-xs ml-2">
-                    desde {new Date(upcoming.start_date).toLocaleDateString('es-ES')}
+                  <span className="truncate">{upcoming.tenant?.first_name} {upcoming.tenant?.last_name}</span>
+                  {upcoming.room_id && (
+                    <span className="text-[10px] text-[#444] bg-[#050505] px-1 border border-[#111] shrink-0">
+                      H{upcoming.room_id.slice(-2)}
+                    </span>
+                  )}
+                  <span className="text-[#444444] text-[10px] shrink-0">
+                    ({new Date(upcoming.start_date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })})
                   </span>
                 </Link>
               ))}
@@ -110,12 +144,65 @@ const PropertyRow = ({ property }: { property: Property }) => {
         </button>
       </div>
 
-      {/* Expanded history */}
+      {/* Expanded history & Room breakdown */}
       {expanded && (
-        <div className="bg-[#070707] border-t border-[#1F1F1F] px-5 pb-4 pt-2 min-w-[700px]">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-[#070707] border-t border-[#1F1F1F] px-5 pb-6 pt-4 min-w-[700px]">
+          {/* Room breakdown if applicable */}
+          {property.is_room_rental && property.rooms && property.rooms.length > 0 && (
+            <div className="mb-8">
+              <h4 className="font-primary text-[11px] text-[#FAF8F5] uppercase tracking-widest font-bold mb-3 flex items-center gap-2">
+                <span className="w-1 h-3 bg-[#C9A962]" />
+                Estado de Habitaciones
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {property.rooms.map(room => {
+                  const roomContract = currentContracts.find(c => c.room_id === room.id);
+                  const roomUpcoming = upcomingContracts.find(c => c.room_id === room.id);
+                  
+                  let roomStatus = 'disponible';
+                  if (roomContract) roomStatus = 'alquilada';
+                  else if (roomUpcoming) roomStatus = 'reservada';
+
+                  return (
+                    <div key={room.id} className="bg-[#0D0D0D] border border-[#1F1F1F] p-3 rounded-sm flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-primary text-xs font-bold text-[#FAF8F5]">{room.name}</span>
+                        <span className={`text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-sm ${
+                          roomStatus === 'alquilada' ? 'bg-[#A78BFA] text-[#0A0A0A]' : 
+                          roomStatus === 'reservada' ? 'bg-[#FB923C] text-[#0A0A0A]' : 
+                          'bg-[#4ADE80] text-[#0A0A0A]'
+                        }`}>
+                          {roomStatus}
+                        </span>
+                      </div>
+                      
+                      {roomContract ? (
+                        <div className="flex flex-col">
+                          <span className="text-[10px] text-[#666] uppercase tracking-tighter">Ocupada por:</span>
+                          <Link to={`/admin/inquilinos/${roomContract.tenant_id}`} className="text-xs text-[#C9A962] hover:underline">
+                            {roomContract.tenant?.first_name} {roomContract.tenant?.last_name}
+                          </Link>
+                        </div>
+                      ) : roomUpcoming ? (
+                        <div className="flex flex-col">
+                          <span className="text-[10px] text-[#666] uppercase tracking-tighter">Próxima reserva:</span>
+                          <Link to={`/admin/inquilinos/${roomUpcoming.tenant_id}`} className="text-xs text-[#888]">
+                            {roomUpcoming.tenant?.first_name} {roomUpcoming.tenant?.last_name} ({new Date(roomUpcoming.start_date).toLocaleDateString()})
+                          </Link>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-[#444] italic">Sin ocupación próxima</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between mb-3 border-b border-[#1F1F1F] pb-2">
             <p className="font-primary text-[10px] text-[#444444] uppercase tracking-wider">
-              Historial completo ({contracts.length} contratos)
+              Historial de contratos ({contracts.length})
             </p>
             <Link
               to={`/admin/contratos/nuevo?property_id=${property.id}`}
@@ -127,7 +214,7 @@ const PropertyRow = ({ property }: { property: Property }) => {
             </Link>
           </div>
 
-          {loading ? (
+          {loadingContracts ? (
             <div className="py-4 flex justify-center">
               <div className="w-5 h-5 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
             </div>
@@ -136,24 +223,29 @@ const PropertyRow = ({ property }: { property: Property }) => {
           ) : (
             <div className="flex flex-col gap-1">
               {contracts.map(c => {
-                const isCurrent = c.start_date <= today && c.end_date >= today;
-                const isFuture  = c.start_date > today;
+                const isCurrent = c.start_date <= today && c.end_date >= today && c.status === 'active';
+                const isFuture  = c.start_date > today && c.status === 'active';
                 return (
                   <div key={c.id} className={`flex items-center gap-4 px-3 py-2.5 border transition-colors ${isCurrent ? 'border-[#C9A962]/30 bg-[#C9A962]/5' : isFuture ? 'border-blue-500/20 bg-blue-500/5' : 'border-[#1F1F1F]'}`}>
-                    <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 shrink-0 rounded-sm shadow-sm ${isCurrent ? 'bg-[#4ADE80] text-[#0A0A0A]' : isFuture ? 'bg-[#60A5FA] text-[#0A0A0A]' : 'bg-[#333333] text-[#888888]'}`}>
-                      {isCurrent ? 'Activo' : isFuture ? 'Futuro' : 'Pasado'}
-                    </span>
+                    <div className="flex flex-col gap-0.5 shrink-0 w-16">
+                      <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-sm shadow-sm text-center ${isCurrent ? 'bg-[#4ADE80] text-[#0A0A0A]' : isFuture ? 'bg-[#60A5FA] text-[#0A0A0A]' : 'bg-[#333333] text-[#888888]'}`}>
+                        {isCurrent ? 'Activo' : isFuture ? 'Futuro' : 'Pasado'}
+                      </span>
+                      {c.room_id && (
+                        <span className="text-[8px] text-[#C9A962] text-center font-bold tracking-tighter uppercase">Hab. {c.room_id.slice(-4)}</span>
+                      )}
+                    </div>
                     <Link to={`/admin/inquilinos/${c.tenant_id}`} className="font-primary text-sm text-[#FAF8F5] hover:text-[#C9A962] transition-colors flex-1 truncate">
                       {c.tenant?.first_name} {c.tenant?.last_name}
                     </Link>
                     <span className="font-primary text-xs text-[#666666] shrink-0">
                       {new Date(c.start_date).toLocaleDateString('es-ES')} — {new Date(c.end_date).toLocaleDateString('es-ES')}
                     </span>
-                    <span className="font-secondary text-xs text-[#C9A962] shrink-0">€{c.monthly_rent}/mes</span>
+                    <span className="font-secondary text-xs text-[#C9A962] shrink-0 w-20 text-right">€{c.monthly_rent}/mes</span>
                     <Link
                       to={`/admin/contratos/${c.id}/editar`}
                       onClick={e => e.stopPropagation()}
-                      className="text-[#444444] hover:text-[#C9A962] font-primary text-xs shrink-0"
+                      className="text-[#444444] hover:text-[#C9A962] font-primary text-xs shrink-0 px-2"
                     >
                       Editar
                     </Link>
@@ -175,31 +267,58 @@ const PropertyRow = ({ property }: { property: Property }) => {
 };
 
 export const AdminReservations = () => {
-  const { properties, loading } = useProperties(undefined, true);
+  const { properties, loading, refetch } = useProperties({ limit: 100 }, true);
   const [search, setSearch] = useState('');
 
   const rental = properties.filter(p =>
     (p.operation === 'alquiler') &&
-    (!search || p.title.toLowerCase().includes(search.toLowerCase()) || p.city?.toLowerCase().includes(search.toLowerCase()))
+    (!search || p.title.toLowerCase().includes(search.toLowerCase()) || p.reference?.toLowerCase().includes(search.toLowerCase()) || p.city?.toLowerCase().includes(search.toLowerCase()))
   );
 
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSyncStatuses = async () => {
+    setSyncing(true);
+    try {
+      const { data, error } = await supabase.rpc('refresh_all_property_statuses');
+      if (error) throw error;
+      toast.success(`Sincronización completada: ${data.updated} propiedades actualizadas`);
+      refetch();
+    } catch (err) {
+      console.error('Error syncing statuses:', err);
+      toast.error('Error al sincronizar los estados');
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-6 max-w-7xl">
+    <div className="flex flex-col gap-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex justify-between items-center bg-[#0D0D0D] p-8 rounded-sm border border-white/5 shadow-2xl">
         <div>
-          <h1 className="font-secondary text-3xl text-[#FAF8F5]">Reservas y Ocupación</h1>
-          <p className="font-primary text-[#666666] text-sm mt-1">
-            {loading ? 'Cargando...' : `${rental.length} propiedad${rental.length !== 1 ? 'es' : ''} en alquiler`}
+          <h1 className="font-secondary text-4xl text-[#FAF8F5] mb-2">Reservas y Disponibilidad</h1>
+          <p className="text-white/40 font-primary text-sm tracking-wide">
+            Gestión automática de estados comerciales según contratos activos y futuros.
           </p>
         </div>
-        <Link
-          to="/admin/contratos/nuevo"
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#D4B673] transition-colors self-start"
-        >
-          <PlusCircle className="w-4 h-4" />
-          Nuevo Contrato
-        </Link>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={handleSyncStatuses}
+            disabled={syncing}
+            className={cn(
+              "flex items-center gap-2 px-6 py-3 bg-white/5 border border-[#C9A962]/30 text-[#C9A962] font-primary text-[10px] font-bold uppercase tracking-[0.2em] rounded-sm hover:bg-[#C9A962] hover:text-black transition-all",
+              syncing && "opacity-50 cursor-not-allowed"
+            )}
+          >
+            {syncing ? <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            Sincronizar Estados
+          </button>
+          <div className="flex items-center gap-3 px-6 py-3 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-bold uppercase tracking-[0.2em] rounded-sm">
+            <Calendar className="w-4 h-4" />
+            {properties.length} Propiedades
+          </div>
+        </div>
       </div>
 
       {/* Search */}
