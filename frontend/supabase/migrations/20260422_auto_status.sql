@@ -166,3 +166,7 @@ BEGIN
     RETURN json_build_object('updated', v_updated_count);
 END;
 $$ LANGUAGE plpgsql;
+
+-- Schedule automatic refresh every day at 00:05 UTC
+-- This ensures that "Future" contracts become "Active" automatically at midnight.
+SELECT cron.schedule('refresh-property-statuses', '5 0 * * *', 'SELECT public.refresh_all_property_commercial_statuses()');
