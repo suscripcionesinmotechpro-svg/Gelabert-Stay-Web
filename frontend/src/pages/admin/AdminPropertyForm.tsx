@@ -96,7 +96,7 @@ const DEFAULT_FORM: Partial<PropertyInsert> = {
   tags: [],
   main_image: '', gallery: [], video_url: '', videos: [], videos_metadata: [], floor_plan: '',
   slug: '', meta_title: '', meta_description: '',
-  status: 'borrador', commercial_status: 'disponible', is_featured: false,
+  status: 'borrador', commercial_status: 'disponible', is_manual_commercial_status: false, is_featured: false,
   rent_type: null, reference: '',
   latitude: undefined, longitude: undefined,
   orientation: [], energy_rating: '', energy_consumption: undefined,
@@ -153,7 +153,9 @@ export const AdminPropertyForm = () => {
         video_url: property.video_url ?? '', videos: property.videos ?? [], floor_plan: property.floor_plan ?? '',
         slug: property.slug ?? '', meta_title: property.meta_title ?? '',
         meta_description: property.meta_description ?? '', status: property.status,
-        commercial_status: property.commercial_status ?? 'disponible', is_featured: property.is_featured,
+        commercial_status: property.commercial_status ?? 'disponible', 
+        is_manual_commercial_status: property.is_manual_commercial_status ?? false,
+        is_featured: property.is_featured,
         rent_type: property.rent_type, reference: property.reference ?? '',
         latitude: property.latitude ?? undefined,
         longitude: property.longitude ?? undefined,
@@ -563,7 +565,11 @@ export const AdminPropertyForm = () => {
           </div>
           <div className="flex flex-col gap-2">
             <label className={labelClass}>{t('admin.form.fields.commercial_status')}</label>
-            <select className={selectClass} value={form.commercial_status} onChange={e => set('commercial_status', e.target.value as CommercialStatus)}>
+            <select className={selectClass} value={form.commercial_status} onChange={e => {
+              const val = e.target.value as CommercialStatus;
+              set('commercial_status', val);
+              set('is_manual_commercial_status', true);
+            }}>
               {(Object.entries(COMMERCIAL_STATUS_LABELS) as [CommercialStatus, string][]).map(([val, label]) => (
                 <option key={val} value={val}>{t(label)}</option>
               ))}

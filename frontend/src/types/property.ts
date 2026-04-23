@@ -134,6 +134,7 @@ export interface Property {
   // Estado
   status: PropertyStatus;
   commercial_status: CommercialStatus;
+  is_manual_commercial_status?: boolean;
   is_featured: boolean;
 }
 
