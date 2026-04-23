@@ -597,9 +597,9 @@ export const FichaPropiedad = () => {
                         <video 
                           id="property-main-video"
                           src={videoUrlWithBust} 
-                          key={`${activeVideoIndex}-${retryCount}`}
+                          key={videoUrlWithBust}
                           controls
-                          preload="auto"
+                          preload="metadata"
                           playsInline
                           controlsList="nodownload"
                           poster={allVideos[activeVideoIndex]?.poster}
@@ -615,8 +615,9 @@ export const FichaPropiedad = () => {
                             setVideoReadyMessage(true);
                             setTimeout(() => setVideoReadyMessage(false), 2500);
                           }}
-                          onError={() => {
-                            console.log(`Video load error. Retry count: ${retryCount}`);
+                          onError={(e) => {
+                            const target = e.target as HTMLVideoElement;
+                            console.error(`Video load error [${target.error?.code}]: ${target.error?.message}. Retry count: ${retryCount}`);
                             if (retryCount < 3) {
                               const nextRetry = retryCount + 1;
                               setTimeout(() => {
