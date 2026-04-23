@@ -38,7 +38,7 @@ export const applyWatermark = async (file: File): Promise<File> => {
         // Load watermark
         const watermark = new Image();
         watermark.crossOrigin = 'anonymous';
-        watermark.src = '/watermark.png';
+        watermark.src = '/watermark_exact_hd.png';
 
         watermark.onload = () => {
           let wmWidth = width * 0.40;
