@@ -7,7 +7,7 @@ import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Pla
 import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import type { PropertyVideo, PropertyRoom } from '../types/property';
 import { cn } from '../lib/utils';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { PropertyMap } from '../components/PropertyMap';
@@ -637,7 +637,7 @@ export const FichaPropiedad = () => {
             {/* Video Selector if multiple */}
             {allVideos.length > 1 && (
               <div className="flex flex-wrap gap-2">
-                {allVideos.map((vid, idx) => (
+                {allVideos.map((vid: PropertyVideo & { poster?: string }, idx: number) => (
                   <button
                     key={idx}
                     onClick={() => setActiveVideoIndex(idx)}
@@ -932,7 +932,7 @@ export const FichaPropiedad = () => {
                       {room.video?.url && (
                         <button 
                           onClick={() => {
-                            const idx = allVideos.findIndex(v => v.url === room.video?.url);
+                            const idx = allVideos.findIndex((v: PropertyVideo & { poster?: string }) => v.url === room.video?.url);
                             if (idx !== -1) {
                               setActiveTab('video');
                               setActiveVideoIndex(idx);
