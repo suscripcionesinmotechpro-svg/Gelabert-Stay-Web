@@ -481,8 +481,8 @@ export const FichaPropiedad = () => {
         {activeTab === 'video' && allVideos.length > 0 && (
           <div className="flex flex-col gap-4">
             <div className={cn(
-              "w-full border border-[#1F1F1F] bg-[#0A0A0A] flex items-center justify-center overflow-hidden relative group",
-              "aspect-[9/16] md:aspect-video md:h-[500px] max-h-[85vh] md:max-h-[80vh]"
+              "w-full max-w-[450px] mx-auto border border-[#1F1F1F] bg-[#0A0A0A] flex items-center justify-center overflow-hidden relative group",
+              "aspect-[9/16] md:max-h-[85vh]"
             )}>
               {(() => {
                 const currentVideo = allVideos[activeVideoIndex]?.url || '';
@@ -496,7 +496,7 @@ export const FichaPropiedad = () => {
                   return (
                     <iframe 
                       src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`}
-                      className="w-full h-full" 
+                      className="w-full h-full object-cover" 
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen 
                       loading="lazy"
@@ -509,7 +509,7 @@ export const FichaPropiedad = () => {
                   return (
                     <iframe 
                       src={`https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479`} 
-                      className="w-full h-full" 
+                      className="w-full h-full object-cover" 
                       allow="autoplay; fullscreen; picture-in-picture"
                       allowFullScreen 
                       loading="lazy"
@@ -526,7 +526,7 @@ export const FichaPropiedad = () => {
                       preload="auto"
                       playsInline
                       poster={allVideos[activeVideoIndex]?.poster}
-                      className="w-full h-full bg-black outline-none object-contain" 
+                      className="w-full h-full bg-black outline-none object-cover" 
                     />
                   );
                 }
