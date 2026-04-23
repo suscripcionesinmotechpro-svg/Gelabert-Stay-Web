@@ -523,10 +523,20 @@ export const FichaPropiedad = () => {
                       src={currentVideo} 
                       key={currentVideo} 
                       controls
-                      preload="auto"
+                      preload="metadata"
                       playsInline
                       poster={allVideos[activeVideoIndex]?.poster}
-                      className="w-full h-full bg-black outline-none object-cover" 
+                      className="w-full h-full bg-black outline-none object-cover"
+                      onError={(e) => {
+                        const video = e.currentTarget;
+                        if (video.error) {
+                          console.error('Video error:', video.error);
+                          // Re-intentar carga una vez si hay error de red
+                          if (video.networkState === 3 || video.error.code === 2 || video.error.code === 4) {
+                            video.load();
+                          }
+                        }
+                      }}
                     />
                   );
                 }

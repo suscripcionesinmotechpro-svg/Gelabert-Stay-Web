@@ -3,60 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <title>Firma Gelabert Homes</title>
+    <style>
+        @media only screen and (max-width: 480px) {
+            .mobile-stack { display: block !important; width: 100% !important; text-align: center !important; }
+            .mobile-padding { padding-left: 0 !important; padding-top: 15px !important; }
+            .mobile-logo { width: 110px !important; }
+            .mobile-name { font-size: 16px !important; }
+            .mobile-text { font-size: 12px !important; }
+            .mobile-hide { display: none !important; }
+        }
+    </style>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <!-- Contenedor Principal - Ampliado para evitar saltos de línea -->
-    <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%; max-width: 650px; background-color: #ffffff;">
+    <!-- Contenedor Principal -->
+    <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%; max-width: 600px; background-color: #ffffff;">
         <tr>
-            <td style="padding: 20px 0;">
+            <td style="padding: 15px 0;">
                 <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%;">
                     <tr>
-                        <!-- Bloque del Logo (Rectangular y Fondo Negro) -->
-                        <td style="background-color: #000000; padding: 15px 25px; width: 180px; text-align: center; vertical-align: middle; border-radius: 4px 0 0 4px;">
+                        <!-- Bloque del Logo -->
+                        <td class="mobile-stack" style="background-color: #000000; padding: 12px 20px; width: 160px; text-align: center; vertical-align: middle; border-radius: 4px;">
                             <a href="https://gelaberthomes.es" target="_blank" style="text-decoration: none;">
-                                <!-- Logo HD Perfecto (Formato Rectangular) -->
-                                <img src="https://gelaberthomes.es/logo-hd-perfect.png" alt="Gelabert Homes" width="150" style="display: block; border: 0; outline: none; margin: 0 auto;">
+                                <img src="https://gelaberthomes.es/logo-hd-perfect.png" alt="Gelabert Homes" width="130" class="mobile-logo" style="display: block; border: 0; outline: none; margin: 0 auto;">
                             </a>
                         </td>
                         
-                        <!-- Divisor Dorado -->
-                        <td style="width: 3px; background-color: #C9A962;"></td>
+                        <!-- Divisor Dorado (Hidden on mobile stack) -->
+                        <td class="mobile-hide" style="width: 2px; background-color: #C9A962;"></td>
                         
                         <!-- Información de Contacto -->
-                        <td style="padding-left: 30px; vertical-align: middle; white-space: nowrap;">
-                            <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
+                        <td class="mobile-stack mobile-padding" style="padding-left: 20px; vertical-align: middle;">
+                            <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%;">
                                 <tr>
-                                    <td style="font-family: Arial, Helvetica, sans-serif; font-size: 20px; color: #C9A962; font-weight: bold; padding-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap;">
+                                    <td class="mobile-name" style="font-family: Arial, Helvetica, sans-serif; font-size: 18px; color: #C9A962; font-weight: bold; padding-bottom: 2px; letter-spacing: 0.5px;">
                                         José Carlos Delgado
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #888888; font-weight: 600; padding-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;">
+                                    <td class="mobile-text" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #888888; font-weight: 600; padding-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">
                                         Director / CEO
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 22px; color: #444444;">
+                                    <td>
                                         <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
                                             <!-- Teléfono -->
                                             <tr>
-                                                <td style="padding-bottom: 5px; white-space: nowrap;">
-                                                    <span style="font-size: 15px; display: inline-block; vertical-align: middle; margin-right: 10px;">📞</span> 
-                                                    <a href="tel:+34611898827" style="color: #444444; text-decoration: none; font-weight: 500; display: inline-block; vertical-align: middle;">+34 611 898 827</a>
+                                                <td style="padding-bottom: 4px;">
+                                                    <span style="font-size: 14px; display: inline-block; vertical-align: middle; margin-right: 8px;">📞</span> 
+                                                    <a href="tel:+34611898827" style="color: #444444; text-decoration: none; font-size: 12px; font-weight: 500;">+34 611 898 827</a>
                                                 </td>
                                             </tr>
                                             <!-- Email -->
                                             <tr>
-                                                <td style="padding-bottom: 5px; white-space: nowrap;">
-                                                    <span style="font-size: 15px; display: inline-block; vertical-align: middle; margin-right: 10px;">✉️</span> 
-                                                    <a href="mailto:info@gelaberthomes.es" style="color: #444444; text-decoration: none; font-weight: 500; display: inline-block; vertical-align: middle;">info@gelaberthomes.es</a>
+                                                <td style="padding-bottom: 4px;">
+                                                    <span style="font-size: 14px; display: inline-block; vertical-align: middle; margin-right: 8px;">✉️</span> 
+                                                    <a href="mailto:info@gelaberthomes.es" style="color: #444444; text-decoration: none; font-size: 12px; font-weight: 500;">info@gelaberthomes.es</a>
                                                 </td>
                                             </tr>
                                             <!-- Web -->
                                             <tr>
-                                                <td style="padding-bottom: 10px; white-space: nowrap;">
-                                                    <span style="font-size: 15px; display: inline-block; vertical-align: middle; margin-right: 10px;">🌐</span> 
-                                                    <a href="https://gelaberthomes.es" target="_blank" style="color: #444444; text-decoration: none; font-weight: 500; display: inline-block; vertical-align: middle;">www.gelaberthomes.es</a>
+                                                <td style="padding-bottom: 8px;">
+                                                    <span style="font-size: 14px; display: inline-block; vertical-align: middle; margin-right: 8px;">🌐</span> 
+                                                    <a href="https://gelaberthomes.es" target="_blank" style="color: #444444; text-decoration: none; font-size: 12px; font-weight: 500;">www.gelaberthomes.es</a>
                                                 </td>
                                             </tr>
                                         </table>
@@ -64,15 +73,15 @@
                                 </tr>
                                 <!-- Redes Sociales -->
                                 <tr>
-                                    <td style="padding-top: 5px; white-space: nowrap;">
-                                        <a href="https://instagram.com/gelaberthomes" target="_blank" style="text-decoration: none; margin-right: 15px; display: inline-block; vertical-align: middle;">
-                                            <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" width="18" height="18" style="border: 0; outline: none; opacity: 0.8;">
+                                    <td style="padding-top: 5px;">
+                                        <a href="https://instagram.com/gelaberthomes" target="_blank" style="text-decoration: none; margin-right: 12px; display: inline-block;">
+                                            <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" width="16" height="16" style="border: 0; outline: none; opacity: 0.8;">
                                         </a>
-                                        <a href="https://facebook.com/gelaberthomes" target="_blank" style="text-decoration: none; margin-right: 15px; display: inline-block; vertical-align: middle;">
-                                            <img src="https://cdn-icons-png.flaticon.com/512/174/174848.png" alt="Facebook" width="18" height="18" style="border: 0; outline: none; opacity: 0.8;">
+                                        <a href="https://facebook.com/gelaberthomes" target="_blank" style="text-decoration: none; margin-right: 12px; display: inline-block;">
+                                            <img src="https://cdn-icons-png.flaticon.com/512/174/174848.png" alt="Facebook" width="16" height="16" style="border: 0; outline: none; opacity: 0.8;">
                                         </a>
-                                        <a href="https://wa.me/34611898827" target="_blank" style="text-decoration: none; display: inline-block; vertical-align: middle;">
-                                            <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp" width="18" height="18" style="border: 0; outline: none; opacity: 0.8;">
+                                        <a href="https://wa.me/34611898827" target="_blank" style="text-decoration: none; display: inline-block;">
+                                            <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp" width="16" height="16" style="border: 0; outline: none; opacity: 0.8;">
                                         </a>
                                     </td>
                                 </tr>
@@ -85,23 +94,15 @@
         
         <!-- Aviso Legal -->
         <tr>
-            <td style="border-top: 1px solid #eeeeee; padding: 20px 0; font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: #999999; line-height: 14px; text-align: justify;">
-                <strong>AVISO LEGAL Y PRIVACIDAD:</strong><br>
-                Le notificamos que este mensaje y sus documentos adjuntos pueden contener información confidencial y van dirigidas exclusivamente al destinatario del mensaje. Si usted ha recibido este mensaje de forma indebida, por error o no desea recibir más información por esta vía, le rogamos nos lo comunique lo antes posible a la dirección de correo <a href="mailto:info@gelaberthomes.es" style="color: #999999; text-decoration: underline;">info@gelaberthomes.es</a> y proceda a la destrucción del mensaje recibido, quedando prohibida la divulgación o copia del mismo.<br><br>
-                En cumplimiento del Reglamento (UE) 2016/679 (RGPD) y la LOPDGDD 3/2018, le informamos:<br>
-                <strong>Responsable:</strong> Gelabert Homes Real Estate.<br>
-                <strong>Finalidad:</strong> Gestión de las comunicaciones y prestación de servicios inmobiliarios. 
-                <strong>Legitimación:</strong> Consentimiento del interesado o ejecución de contrato. 
-                <strong>Destinatarios:</strong> No se cederán datos a terceros, salvo obligación legal o necesidad técnica del servicio. 
-                <strong>Derechos:</strong> Acceso, rectificación, supresión, limitación, portabilidad y oposición enviando un email a <a href="mailto:info@gelaberthomes.es" style="color: #999999; text-decoration: underline;">info@gelaberthomes.es</a>.<br><br>
-                Para más información, consulte nuestra <a href="https://gelaberthomes.es/politica-de-privacidad" target="_blank" style="color: #999999; text-decoration: underline;">Política de Privacidad</a> en nuestra página web.
+            <td style="border-top: 1px solid #eeeeee; padding: 15px 0; font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #999999; line-height: 12px; text-align: justify;">
+                <strong>AVISO LEGAL Y PRIVACIDAD:</strong> Este mensaje y sus archivos adjuntos son confidenciales. Si lo ha recibido por error, notifíquelo a <a href="mailto:info@gelaberthomes.es" style="color: #999999; text-decoration: underline;">info@gelaberthomes.es</a> y elimínelo. Cumplimos con el RGPD (UE) 2016/679. Responsable: Gelabert Homes Real Estate. Finalidad: Gestión inmobiliaria. Derechos: Acceso, rectificación y supresión mediante email. Más info en nuestra <a href="https://gelaberthomes.es/politica-de-privacidad" target="_blank" style="color: #999999; text-decoration: underline;">web</a>.
             </td>
         </tr>
         
         <!-- Pie Sostenible -->
         <tr>
-            <td style="padding-bottom: 20px; font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: #2ecc71;">
-                🌱 <strong>Antes de imprimir este mensaje, asegúrese de que es necesario. Proteger el medio ambiente es responsabilidad de todos.</strong>
+            <td style="padding-bottom: 15px; font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #2ecc71;">
+                🌱 <strong>Antes de imprimir, asegúrese de que es necesario. Proteger el medio ambiente es responsabilidad de todos.</strong>
             </td>
         </tr>
     </table>
