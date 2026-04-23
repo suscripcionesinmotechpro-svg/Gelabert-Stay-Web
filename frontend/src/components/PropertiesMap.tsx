@@ -31,7 +31,9 @@ interface PropertiesMapProps {
   properties: Property[];
 }
 
-export const PropertiesMap = ({ properties }: PropertiesMapProps) => {
+import { memo } from 'react';
+
+export const PropertiesMap = memo(({ properties }: PropertiesMapProps) => {
   const { t, i18n } = useTranslation();
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [mapType, setMapType] = useState<string>('roadmap');
@@ -138,4 +140,4 @@ export const PropertiesMap = ({ properties }: PropertiesMapProps) => {
       </div>
     </div>
   );
-};
+});

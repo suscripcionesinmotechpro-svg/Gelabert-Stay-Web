@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'; 
+import { useState, useEffect, useCallback } from 'react'; 
 import { Link, useSearchParams } from 'react-router-dom';
 import { useProperties } from '../hooks/useProperties';
 import { type PropertyOperation, type PropertyType, type CommercialStatus, PROPERTY_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
@@ -13,6 +13,8 @@ import { PropertyComparator } from '../components/PropertyComparator';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
+import { useDebounce } from '../hooks/useDebounce';
+
 
 const inputClass = "h-11 bg-white/[0.03] border border-white/10 px-4 font-primary text-white/70 text-sm outline-none focus:border-[#C9A962] focus:bg-white/[0.05] transition-all rounded-sm placeholder:text-white/20";
 
@@ -47,12 +49,26 @@ export const Propiedades = () => {
   const [propertyType, setPropertyType] = useState<PropertyType | ''>((searchParams.get('property_type') as PropertyType) || '');
   const [commercialStatus, setCommercialStatus] = useState<CommercialStatus | ''>((searchParams.get('commercial_status') as CommercialStatus) || '');
   const [zone, setZone] = useState(searchParams.get('zone') || '');
+  const debouncedZone = useDebounce(zone, 300);
+
   const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
+  const debouncedKeyword = useDebounce(keyword, 300);
+
   const [minPrice, setMinPrice] = useState(searchParams.get('min_price') || '');
+  const debouncedMinPrice = useDebounce(minPrice, 300);
+
   const [maxPrice, setMaxPrice] = useState(searchParams.get('max_price') || '');
+  const debouncedMaxPrice = useDebounce(maxPrice, 300);
+
   const [bedrooms, setBedrooms] = useState(searchParams.get('bedrooms') || '');
+  const debouncedBedrooms = useDebounce(bedrooms, 300);
+
   const [bathrooms, setBathrooms] = useState(searchParams.get('bathrooms') || '');
+  const debouncedBathrooms = useDebounce(bathrooms, 300);
+
   const [reference, setReference] = useState(searchParams.get('reference') || '');
+  const debouncedReference = useDebounce(reference, 300);
+
   const [showFavorites, setShowFavorites] = useState(searchParams.get('favorites') === 'true');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   
@@ -74,29 +90,25 @@ export const Propiedades = () => {
 
   // Efecto para sincronizar filtros hacia la URL
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      const params = new URLSearchParams();
-      if (operation) params.set('operation', operation);
-      if (propertyType) params.set('property_type', propertyType);
-      if (commercialStatus) params.set('commercial_status', commercialStatus);
-      if (zone) params.set('zone', zone);
-      if (keyword) params.set('keyword', keyword);
-      if (minPrice) params.set('min_price', minPrice);
-      if (maxPrice) params.set('max_price', maxPrice);
-      if (bedrooms) params.set('bedrooms', bedrooms);
-      if (bathrooms) params.set('bathrooms', bathrooms);
-      if (reference) params.set('reference', reference);
-      if (showFavorites) params.set('favorites', 'true');
-      Object.entries(filtersBool).forEach(([k, v]) => {
-        if (v) params.set(k, 'true');
-      });
-      setSearchParams(params, { replace: true });
-    }, 300);
-
-    return () => clearTimeout(timeout);
+    const params = new URLSearchParams();
+    if (operation) params.set('operation', operation);
+    if (propertyType) params.set('property_type', propertyType);
+    if (commercialStatus) params.set('commercial_status', commercialStatus);
+    if (debouncedZone) params.set('zone', debouncedZone);
+    if (debouncedKeyword) params.set('keyword', debouncedKeyword);
+    if (debouncedMinPrice) params.set('min_price', debouncedMinPrice);
+    if (debouncedMaxPrice) params.set('max_price', debouncedMaxPrice);
+    if (debouncedBedrooms) params.set('bedrooms', debouncedBedrooms);
+    if (debouncedBathrooms) params.set('bathrooms', debouncedBathrooms);
+    if (debouncedReference) params.set('reference', debouncedReference);
+    if (showFavorites) params.set('favorites', 'true');
+    Object.entries(filtersBool).forEach(([k, v]) => {
+      if (v) params.set(k, 'true');
+    });
+    setSearchParams(params, { replace: true });
   }, [
-    operation, propertyType, commercialStatus, zone, keyword, minPrice, maxPrice,
-    bedrooms, bathrooms, reference, showFavorites, filtersBool, setSearchParams
+    operation, propertyType, commercialStatus, debouncedZone, debouncedKeyword, debouncedMinPrice, debouncedMaxPrice,
+    debouncedBedrooms, debouncedBathrooms, debouncedReference, showFavorites, filtersBool, setSearchParams
   ]);
 
   const toggleBool = (key: keyof typeof filtersBool) => {
@@ -117,17 +129,38 @@ export const Propiedades = () => {
     operation: operation || undefined,
     property_type: propertyType || undefined,
     commercial_status: commercialStatus || undefined,
-    zone: zone || undefined,
-    keyword: keyword || undefined,
-    reference: reference || undefined,
+    zone: debouncedZone || undefined,
+    keyword: debouncedKeyword || undefined,
+    reference: debouncedReference || undefined,
     saved_ids: showFavorites ? favorites : undefined,
-    min_price: minPrice ? Number(minPrice) : undefined,
-    max_price: maxPrice ? Number(maxPrice) : undefined,
-    bedrooms: bedrooms ? Number(bedrooms) : undefined,
-    bathrooms: bathrooms ? Number(bathrooms) : undefined,
+    min_price: debouncedMinPrice ? Number(debouncedMinPrice) : undefined,
+    max_price: debouncedMaxPrice ? Number(debouncedMaxPrice) : undefined,
+    bedrooms: debouncedBedrooms ? Number(debouncedBedrooms) : undefined,
+    bathrooms: debouncedBathrooms ? Number(debouncedBathrooms) : undefined,
     ...filtersBool,
     is_room_rental: propertyType === 'habitacion'
   });
+
+  const handleTagClick = useCallback((tag: string) => {
+    setKeyword(tag);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handleToggleFavorite = useCallback((id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(id);
+  }, [toggleFavorite]);
+
+  const handleToggleCompare = useCallback((p: typeof properties[0], e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isInCompare(p.id)) {
+      removeFromCompare(p.id);
+    } else if (canAdd) {
+      addToCompare(p);
+    }
+  }, [isInCompare, removeFromCompare, canAdd, addToCompare]);
 
   return (
     <div className="w-full bg-[#050505] min-h-screen">
@@ -436,26 +469,11 @@ export const Propiedades = () => {
                 is_room_rental={p.is_room_rental}
                 createdAt={p.created_at}
                 tags={p.tags}
-                onTagClick={(tag) => {
-                  setKeyword(tag);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
+                onTagClick={handleTagClick}
                 isFavorite={isFavorite(p.id)}
-                onToggleFavorite={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toggleFavorite(p.id);
-                }}
+                onToggleFavorite={(e) => handleToggleFavorite(p.id, e)}
                 isInCompare={isInCompare(p.id)}
-                onToggleCompare={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (isInCompare(p.id)) {
-                    removeFromCompare(p.id);
-                  } else if (canAdd) {
-                    addToCompare(p);
-                  }
-                }}
+                onToggleCompare={(e) => handleToggleCompare(p, e)}
               />
               </motion.div>
             ))}
