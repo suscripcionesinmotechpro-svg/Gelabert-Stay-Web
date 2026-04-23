@@ -7,7 +7,7 @@ import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Pla
 import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import type { PropertyVideo, PropertyRoom } from '../types/property';
 import { cn } from '../lib/utils';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { PropertyMap } from '../components/PropertyMap';
@@ -52,6 +52,12 @@ export const FichaPropiedad = () => {
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const [linkCopied, setLinkCopied] = useState(false);
   const [roomStatuses, setRoomStatuses] = useState<Record<string, string>>({});
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    setIsPlaying(false);
+  }, [activeVideoIndex]);
 
   useEffect(() => {
     if (property && (property.is_room_rental || property.property_type === 'habitacion')) {
@@ -97,18 +103,19 @@ export const FichaPropiedad = () => {
 
 
   // Unify all videos (General + Rooms)
-  const allVideos: PropertyVideo[] = [
+  const allVideos: (PropertyVideo & { poster?: string })[] = [
     ...(property?.videos ?? []).map((v: string | PropertyVideo, i: number) => {
       const vid = typeof v === 'string' ? { url: v, title: '' } : v;
+      const poster = property?.main_image || undefined;
       if (!vid.title && (property?.is_room_rental || property?.property_type === 'habitacion')) {
-        return { ...vid, title: i === 0 ? 'ZONAS COMUNES' : `VÍDEO ${i + 1}` };
+        return { ...vid, title: i === 0 ? 'ZONAS COMUNES' : `VÍDEO ${i + 1}`, poster };
       }
-      return vid;
+      return { ...vid, poster };
     }),
     ...((property?.is_room_rental || property?.property_type === 'habitacion')
-      ? (property?.rooms ?? []).map((r: PropertyRoom) => r.video ? { ...r.video, title: r.video.title || r.name } : null).filter(Boolean) 
+      ? (property?.rooms ?? []).map((r: PropertyRoom) => r.video ? { ...r.video, title: r.video.title || r.name, poster: r.images?.[0] || property?.main_image || undefined } : null).filter(Boolean) 
       : [])
-  ] as PropertyVideo[];
+  ] as (PropertyVideo & { poster?: string })[];
 
 
   // Lightbox key handling is handled internally by yet-another-react-lightbox
@@ -515,17 +522,55 @@ export const FichaPropiedad = () => {
                     />
                   );
                 } else {
+                  const currentPoster = allVideos[activeVideoIndex]?.poster;
                   return (
-                    <video 
-                      src={currentVideo} 
-                      key={currentVideo} 
-                      controls 
-                      preload="metadata"
-                      playsInline
-                      webkit-playsinline="true"
-                      poster={property.main_image || undefined}
-                      className="w-full h-full bg-black outline-none object-contain" 
-                    />
+                    <div className="w-full h-full relative">
+                      {!isPlaying && (
+                        <div 
+                          className="absolute inset-0 z-10 cursor-pointer group/play"
+                          onClick={() => {
+                            setIsPlaying(true);
+                            setTimeout(() => videoRef.current?.play(), 10);
+                          }}
+                        >
+                          {currentPoster ? (
+                            <img 
+                              src={currentPoster} 
+                              alt="Video poster" 
+                              className="w-full h-full object-cover" 
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-[#1A1A1A]" />
+                          )}
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-colors group-hover/play:bg-black/20">
+                            <motion.div 
+                              initial={{ scale: 0.9, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              className="w-20 h-20 bg-[#C9A962] rounded-full flex items-center justify-center text-[#0A0A0A] shadow-2xl transform transition-transform group-hover/play:scale-110"
+                            >
+                              <Play className="w-8 h-8 fill-current ml-1" />
+                            </motion.div>
+                          </div>
+                          {/* Label vertical overlay style hint */}
+                          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/60 backdrop-blur-md border border-white/10 rounded-full">
+                            <p className="font-primary text-[10px] text-white uppercase tracking-[0.2em] whitespace-nowrap">
+                              {t('property.labels.features.play_video', 'Reproducir Tour Vídeo')}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      <video 
+                        ref={videoRef}
+                        src={currentVideo} 
+                        key={currentVideo} 
+                        controls={isPlaying}
+                        autoPlay={isPlaying}
+                        preload="auto"
+                        playsInline
+                        onEnded={() => setIsPlaying(false)}
+                        className="w-full h-full bg-black outline-none object-contain" 
+                      />
+                    </div>
                   );
                 }
               })()}

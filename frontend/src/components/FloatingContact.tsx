@@ -3,6 +3,7 @@ import { Phone, MessageSquare, X, Smartphone } from 'lucide-react';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { getWhatsAppLink, getContextFromPath } from '../utils/whatsapp';
+import { cn } from '../lib/utils';
 
 export const FloatingContact = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +26,10 @@ export const FloatingContact = () => {
 
   return (
     // Visible on ALL devices
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div className={cn(
+      "fixed right-6 z-50 flex flex-col items-end gap-3 transition-all duration-300",
+      propertyDetailMatch ? "bottom-[100px] md:bottom-6" : "bottom-6"
+    )}>
       <AnimatePresence>
         {isOpen && (
           <motion.div
