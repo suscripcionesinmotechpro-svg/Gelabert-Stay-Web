@@ -60,6 +60,25 @@ export const FichaPropiedad = () => {
 
 
 
+  // Unify all videos (General + Rooms) - Memoized to avoid build errors and redundant calcs
+  const allVideos = useMemo(() => {
+    const videos: (PropertyVideo & { poster?: string })[] = [
+      ...(property?.videos || []).filter(Boolean).map((v: string | PropertyVideo, i: number) => {
+        const vid = typeof v === 'string' ? { url: v, title: '' } : v;
+        if (!vid?.url) return null;
+        const poster = property?.main_image || undefined;
+        if (!vid.title && (property?.is_room_rental || property?.property_type === 'habitacion')) {
+          return { ...vid, title: i === 0 ? 'ZONAS COMUNES' : `VÍDEO ${i + 1}`, poster };
+        }
+        return { ...vid, poster };
+      }).filter(Boolean),
+      ...((property?.is_room_rental || property?.property_type === 'habitacion')
+        ? (property?.rooms ?? []).map((r: PropertyRoom) => r.video ? { ...r.video, title: r.video.title || r.name, poster: r.images?.[0] || property?.main_image || undefined } : null).filter(Boolean) 
+        : [])
+    ] as (PropertyVideo & { poster?: string })[];
+    return videos;
+  }, [property]);
+
   useEffect(() => {
     setVideoError(false);
     setIsVideoLoading(true);
@@ -113,23 +132,6 @@ export const FichaPropiedad = () => {
     property?.main_image, 
     ...(property?.gallery ?? [])
   ].filter(Boolean) as string[];
-
-
-  // Unify all videos (General + Rooms)
-  const allVideos: (PropertyVideo & { poster?: string })[] = [
-    ...(property?.videos || []).filter(Boolean).map((v: string | PropertyVideo, i: number) => {
-      const vid = typeof v === 'string' ? { url: v, title: '' } : v;
-      if (!vid?.url) return null;
-      const poster = property?.main_image || undefined;
-      if (!vid.title && (property?.is_room_rental || property?.property_type === 'habitacion')) {
-        return { ...vid, title: i === 0 ? 'ZONAS COMUNES' : `VÍDEO ${i + 1}`, poster };
-      }
-      return { ...vid, poster };
-    }).filter(Boolean),
-    ...((property?.is_room_rental || property?.property_type === 'habitacion')
-      ? (property?.rooms ?? []).map((r: PropertyRoom) => r.video ? { ...r.video, title: r.video.title || r.name, poster: r.images?.[0] || property?.main_image || undefined } : null).filter(Boolean) 
-      : [])
-  ] as (PropertyVideo & { poster?: string })[];
 
 
   // Lightbox key handling is handled internally by yet-another-react-lightbox
