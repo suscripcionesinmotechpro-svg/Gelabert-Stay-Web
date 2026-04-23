@@ -56,9 +56,6 @@ export const FichaPropiedad = () => {
   const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [videoReadyMessage, setVideoReadyMessage] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
-  const [videoUrlWithBust, setVideoUrlWithBust] = useState<string | null>(null);
-
-
 
   // Unify all videos (General + Rooms) - Memoized to avoid build errors and redundant calcs
   const allVideos = useMemo(() => {
@@ -84,17 +81,16 @@ export const FichaPropiedad = () => {
     return videos;
   }, [property]);
 
+  // Get the current video URL directly — no cache-busting
+  const currentVideoUrl = allVideos[activeVideoIndex]?.url || '';
+
+  // Reset video states when the selected video changes
   useEffect(() => {
     setVideoError(false);
-    setIsVideoLoading(true);
+    setIsVideoLoading(false);
     setVideoReadyMessage(false);
     setRetryCount(0);
-    // Inicializar URL con bust
-    const currentVideo = allVideos[activeVideoIndex];
-    if (currentVideo?.url) {
-      setVideoUrlWithBust(currentVideo.url);
-    }
-  }, [activeVideoIndex, allVideos]);
+  }, [activeVideoIndex, currentVideoUrl]);
 
   useEffect(() => {
     if (property && (property.is_room_rental || property.property_type === 'habitacion')) {
@@ -510,9 +506,7 @@ export const FichaPropiedad = () => {
               "aspect-[9/16]"
             )}>
               {(() => {
-                const currentVideo = allVideos[activeVideoIndex]?.url || '';
-                
-                if (!currentVideo) {
+                if (!currentVideoUrl) {
                   return (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black/40 text-[#888888] text-sm gap-3">
                       <Play className="w-10 h-10 opacity-10" />
@@ -521,10 +515,10 @@ export const FichaPropiedad = () => {
                   );
                 }
 
-                if (currentVideo.includes('youtube.com') || currentVideo.includes('youtu.be')) {
-                  const videoId = currentVideo.includes('watch?v=') 
-                    ? currentVideo.split('watch?v=')[1].split('&')[0]
-                    : currentVideo.split('youtu.be/')[1].split('?')[0];
+                if (currentVideoUrl.includes('youtube.com') || currentVideoUrl.includes('youtu.be')) {
+                  const videoId = currentVideoUrl.includes('watch?v=') 
+                    ? currentVideoUrl.split('watch?v=')[1].split('&')[0]
+                    : currentVideoUrl.split('youtu.be/')[1].split('?')[0];
                   return (
                     <iframe 
                       src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`}
@@ -536,8 +530,8 @@ export const FichaPropiedad = () => {
                       frameBorder="0"
                     />
                   );
-                } else if (currentVideo.includes('vimeo.com')) {
-                  const videoId = currentVideo.split('/').pop()?.split('?')[0];
+                } else if (currentVideoUrl.includes('vimeo.com')) {
+                  const videoId = currentVideoUrl.split('/').pop()?.split('?')[0];
                   return (
                     <iframe 
                       src={`https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479`} 
@@ -552,19 +546,21 @@ export const FichaPropiedad = () => {
                 } else {
                   return (
                     <div className="w-full h-full relative">
+                      {/* Loading spinner — only visible when buffering takes more than 1.5s */}
                       {isVideoLoading && !videoError && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-10 transition-all duration-300">
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 z-10 pointer-events-none transition-opacity duration-300">
                           <div className="w-8 h-8 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin mb-3" />
                           <span className="text-[#C9A962] font-primary text-[10px] uppercase tracking-[0.2em] animate-pulse">Cargando Vídeo...</span>
                         </div>
                       )}
 
+                      {/* Success toast */}
                       {videoReadyMessage && !videoError && !isVideoLoading && (
                         <motion.div 
                           initial={{ opacity: 0, y: -20 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0 }}
-                          className="absolute top-6 left-1/2 -translate-x-1/2 bg-[#C9A962] text-black px-5 py-1.5 rounded-full z-10 shadow-lg"
+                          className="absolute top-6 left-1/2 -translate-x-1/2 bg-[#C9A962] text-black px-5 py-1.5 rounded-full z-10 shadow-lg pointer-events-none"
                         >
                           <span className="font-primary text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
                             <Check className="w-3 h-3" /> Vídeo Listo
@@ -572,6 +568,7 @@ export const FichaPropiedad = () => {
                         </motion.div>
                       )}
                       
+                      {/* Error overlay — only shown after all retries fail */}
                       {videoError && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-20 text-center px-4">
                           <AlertCircle className="w-10 h-10 text-[#C9A962] mb-3" />
@@ -579,12 +576,9 @@ export const FichaPropiedad = () => {
                           <button 
                             onClick={() => {
                               setVideoError(false);
-                              setIsVideoLoading(true);
                               setRetryCount(0);
-                              const baseUrl = allVideos[activeVideoIndex]?.url;
-                              if (baseUrl) {
-                                setVideoUrlWithBust(`${baseUrl}${baseUrl.includes('?') ? '&' : '?'}retry=${Date.now()}`);
-                              }
+                              // Force React to remount the video element
+                              setIsVideoLoading(false);
                             }}
                             className="bg-[#C9A962] text-black px-5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:bg-white transition-colors"
                           >
@@ -593,41 +587,62 @@ export const FichaPropiedad = () => {
                         </div>
                       )}
 
-                      {videoUrlWithBust && (
+                      {/* The actual <video> element — always mounted so the browser can start loading metadata */}
+                      {!videoError && (
                         <video 
                           id="property-main-video"
-                          src={videoUrlWithBust} 
-                          key={videoUrlWithBust}
+                          key={`${currentVideoUrl}-${retryCount}`}
+                          src={currentVideoUrl}
                           controls
                           preload="metadata"
                           playsInline
                           controlsList="nodownload"
                           poster={allVideos[activeVideoIndex]?.poster}
                           className="w-full h-full bg-black outline-none object-contain"
-                          onWaiting={() => setIsVideoLoading(true)}
-                          onPlaying={() => {
+                          onLoadStart={() => {
+                            // Start a delayed spinner — only show if loading takes > 1.5s
+                            const timer = setTimeout(() => setIsVideoLoading(true), 1500);
+                            const el = document.getElementById('property-main-video') as HTMLVideoElement | null;
+                            if (el) (el as any)._loadTimer = timer;
+                          }}
+                          onLoadedData={() => {
+                            const el = document.getElementById('property-main-video') as HTMLVideoElement | null;
+                            if (el && (el as any)._loadTimer) clearTimeout((el as any)._loadTimer);
                             setIsVideoLoading(false);
-                            setVideoError(false);
-                            setRetryCount(0);
                           }}
                           onCanPlay={() => {
+                            const el = document.getElementById('property-main-video') as HTMLVideoElement | null;
+                            if (el && (el as any)._loadTimer) clearTimeout((el as any)._loadTimer);
                             setIsVideoLoading(false);
                             setVideoReadyMessage(true);
                             setTimeout(() => setVideoReadyMessage(false), 2500);
                           }}
+                          onPlaying={() => {
+                            const el = document.getElementById('property-main-video') as HTMLVideoElement | null;
+                            if (el && (el as any)._loadTimer) clearTimeout((el as any)._loadTimer);
+                            setIsVideoLoading(false);
+                            setVideoError(false);
+                          }}
                           onError={(e) => {
                             const target = e.target as HTMLVideoElement;
-                            console.error(`Video load error [${target.error?.code}]: ${target.error?.message}. Retry count: ${retryCount}`);
-                            if (retryCount < 3) {
-                              const nextRetry = retryCount + 1;
+                            const el = document.getElementById('property-main-video') as HTMLVideoElement | null;
+                            if (el && (el as any)._loadTimer) clearTimeout((el as any)._loadTimer);
+
+                            // Ignore errors from stale/unmounting elements or empty src
+                            if (!target.src || target.src === window.location.href) return;
+                            // Guard: if the erroring video's src doesn't match the current URL, ignore (stale event from previous video)
+                            if (!target.src.startsWith(currentVideoUrl.split('?')[0])) return;
+
+                            console.warn(`[Video] Load error [code=${target.error?.code}]: ${target.error?.message}. Retry ${retryCount + 1}/3`);
+                            
+                            if (retryCount < 2) {
+                              // Silent auto-retry with exponential backoff: 1s, 2s
+                              const delay = Math.pow(2, retryCount) * 1000;
                               setTimeout(() => {
-                                setRetryCount(nextRetry);
-                                const baseUrl = allVideos[activeVideoIndex]?.url;
-                                if (baseUrl) {
-                                  setVideoUrlWithBust(`${baseUrl}${baseUrl.includes('?') ? '&' : '?'}v=${Date.now()}`);
-                                }
-                              }, 500);
+                                setRetryCount((prev: number) => prev + 1);
+                              }, delay);
                             } else {
+                              // All retries exhausted — show error
                               setVideoError(true);
                               setIsVideoLoading(false);
                             }
