@@ -487,27 +487,46 @@ export const FichaPropiedad = () => {
                 if (!currentVideo) return <div className="text-[#444444] font-primary">No hay vídeo disponible</div>;
 
                 if (currentVideo.includes('youtube.com') || currentVideo.includes('youtu.be')) {
+                  const videoId = currentVideo.includes('watch?v=') 
+                    ? currentVideo.split('watch?v=')[1].split('&')[0]
+                    : currentVideo.split('youtu.be/')[1].split('?')[0];
                   return (
                     <iframe 
-                      src={currentVideo.replace('watch?v=', 'embed/').split('&')[0].replace('youtu.be/', 'youtube.com/embed/')} 
+                      src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`}
                       className="w-full h-full" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen 
+                      loading="lazy"
                       title="Property Video"
                       frameBorder="0"
                     />
                   );
                 } else if (currentVideo.includes('vimeo.com')) {
+                  const videoId = currentVideo.split('/').pop()?.split('?')[0];
                   return (
                     <iframe 
-                      src={`https://player.vimeo.com/video/${currentVideo.split('/')[3]}`} 
+                      src={`https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479`} 
                       className="w-full h-full" 
+                      allow="autoplay; fullscreen; picture-in-picture"
                       allowFullScreen 
+                      loading="lazy"
                       title="Property Video"
                       frameBorder="0"
                     />
                   );
                 } else {
-                  return <video src={currentVideo} key={currentVideo} controls className="w-full h-full bg-black outline-none object-contain" />;
+                  return (
+                    <video 
+                      src={currentVideo} 
+                      key={currentVideo} 
+                      controls 
+                      preload="metadata"
+                      playsInline
+                      webkit-playsinline="true"
+                      poster={property.main_image || undefined}
+                      className="w-full h-full bg-black outline-none object-contain" 
+                    />
+                  );
                 }
               })()}
             </div>
