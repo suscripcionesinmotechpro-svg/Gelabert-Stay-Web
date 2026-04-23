@@ -6,7 +6,7 @@ import { STATUS_LABELS } from '../../types/invoice';
 import { 
   PlusCircle, TrendingUp, Zap,
   Trash2, Edit, ArrowUpRight, 
-  Calculator, Check, X, Mail, Phone, MapPin, Receipt
+  Calculator, Check, X, Building2, Mail, Phone, MapPin, Receipt
 } from 'lucide-react';
 import { useIssuers } from '../../hooks/useIssuers';
 import { cn } from '../../lib/utils';
