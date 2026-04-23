@@ -122,9 +122,6 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
 
     // Process each month
     Object.keys(byMonthMap).forEach(monthKey => {
-      // Only count past or current months (not future projections in KPIs)
-      if (monthKey > currentMonthKey) return;
-
       const [yStr, mStr] = monthKey.split('-');
       const year = parseInt(yStr);
       const monthNum = parseInt(mStr);
@@ -157,8 +154,6 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
           true;
 
         if (!appliesThisMonth) return;
-        // Skip months before 2026 to avoid retroactive accounting
-        if (monthKey < '2026-01') return;
 
         if (linkedFixedIds.has(fe.id)) {
           // This expense has a real invoice → use invoice amount, not the fixed amount
