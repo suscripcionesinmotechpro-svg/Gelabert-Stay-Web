@@ -243,7 +243,7 @@ export const AdminInvoiceForm = () => {
     if (!form.invoice_number.trim()) { setError('El número de factura es obligatorio'); return; }
     if (!form.client_name.trim()) { setError('El nombre del cliente es obligatorio'); return; }
     if (!form.amount || form.amount <= 0) { setError('El importe base debe ser mayor que 0'); return; }
-    if (!form.issuer_id) { setError('Debes seleccionar un emisor'); return; }
+    if (form.type === 'income' && !form.issuer_id) { setError('Debes seleccionar un emisor para facturas de ingreso'); return; }
 
     setSaving(true);
     setError(null);
