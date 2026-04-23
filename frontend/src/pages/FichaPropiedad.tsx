@@ -52,25 +52,8 @@ export const FichaPropiedad = () => {
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const [linkCopied, setLinkCopied] = useState(false);
   const [roomStatuses, setRoomStatuses] = useState<Record<string, string>>({});
-  const [isPlaying, setIsPlaying] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
-  useEffect(() => {
-    setIsPlaying(false);
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
-  }, [activeVideoIndex]);
 
-  // Trigger play() AFTER React re-renders the overlay away
-  useEffect(() => {
-    if (!isPlaying || !videoRef.current) return;
-    const playPromise = videoRef.current.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => setIsPlaying(false));
-    }
-  }, [isPlaying]);
 
   useEffect(() => {
     if (property && (property.is_room_rental || property.property_type === 'habitacion')) {
@@ -535,51 +518,16 @@ export const FichaPropiedad = () => {
                     />
                   );
                 } else {
-                  const currentPoster = allVideos[activeVideoIndex]?.poster;
                   return (
-                    <div className="w-full h-full relative">
-                      {!isPlaying && (
-                        <div 
-                          className="absolute inset-0 z-10 cursor-pointer group/play"
-                          onClick={() => setIsPlaying(true)}
-                        >
-                          {currentPoster ? (
-                            <img 
-                              src={currentPoster} 
-                              alt="Video poster" 
-                              className="w-full h-full object-cover" 
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-[#1A1A1A]" />
-                          )}
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-colors group-hover/play:bg-black/20">
-                            <motion.div 
-                              initial={{ scale: 0.9, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              className="w-20 h-20 bg-[#C9A962] rounded-full flex items-center justify-center text-[#0A0A0A] shadow-2xl transform transition-transform group-hover/play:scale-110"
-                            >
-                              <Play className="w-8 h-8 fill-current ml-1" />
-                            </motion.div>
-                          </div>
-                          {/* Label vertical overlay style hint */}
-                          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/60 backdrop-blur-md border border-white/10 rounded-full">
-                            <p className="font-primary text-[10px] text-white uppercase tracking-[0.2em] whitespace-nowrap">
-                              {t('property.labels.features.play_video', 'Reproducir Tour Vídeo')}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      <video 
-                        ref={videoRef}
-                        src={currentVideo} 
-                        key={currentVideo} 
-                        controls={isPlaying}
-                        preload="auto"
-                        playsInline
-                        onEnded={() => setIsPlaying(false)}
-                        className="w-full h-full bg-black outline-none object-contain" 
-                      />
-                    </div>
+                    <video 
+                      src={currentVideo} 
+                      key={currentVideo} 
+                      controls
+                      preload="auto"
+                      playsInline
+                      poster={allVideos[activeVideoIndex]?.poster}
+                      className="w-full h-full bg-black outline-none object-contain" 
+                    />
                   );
                 }
               })()}
