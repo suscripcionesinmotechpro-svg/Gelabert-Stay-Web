@@ -107,14 +107,15 @@ export const FichaPropiedad = () => {
 
   // Unify all videos (General + Rooms)
   const allVideos: (PropertyVideo & { poster?: string })[] = [
-    ...(property?.videos ?? []).map((v: string | PropertyVideo, i: number) => {
+    ...(property?.videos || []).filter(Boolean).map((v: string | PropertyVideo, i: number) => {
       const vid = typeof v === 'string' ? { url: v, title: '' } : v;
+      if (!vid?.url) return null;
       const poster = property?.main_image || undefined;
       if (!vid.title && (property?.is_room_rental || property?.property_type === 'habitacion')) {
         return { ...vid, title: i === 0 ? 'ZONAS COMUNES' : `VÍDEO ${i + 1}`, poster };
       }
       return { ...vid, poster };
-    }),
+    }).filter(Boolean),
     ...((property?.is_room_rental || property?.property_type === 'habitacion')
       ? (property?.rooms ?? []).map((r: PropertyRoom) => r.video ? { ...r.video, title: r.video.title || r.name, poster: r.images?.[0] || property?.main_image || undefined } : null).filter(Boolean) 
       : [])
@@ -494,7 +495,14 @@ export const FichaPropiedad = () => {
               {(() => {
                 const currentVideo = allVideos[activeVideoIndex]?.url || '';
                 
-                if (!currentVideo) return <div className="text-[#444444] font-primary">No hay vídeo disponible</div>;
+                if (!currentVideo) {
+                  return (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-black/40 text-[#888888] text-sm gap-3">
+                      <Play className="w-10 h-10 opacity-10" />
+                      <span className="font-primary uppercase tracking-widest text-[10px]">No hay vídeo disponible</span>
+                    </div>
+                  );
+                }
 
                 if (currentVideo.includes('youtube.com') || currentVideo.includes('youtu.be')) {
                   const videoId = currentVideo.includes('watch?v=') 
