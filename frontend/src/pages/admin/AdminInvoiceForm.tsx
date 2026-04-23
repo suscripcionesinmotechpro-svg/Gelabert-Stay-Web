@@ -43,6 +43,9 @@ const DEFAULT_FORM: InvoiceInsert = {
   issuer_id: null,
   fixed_expense_id: null,
   variable_category_id: null,
+  property_id: null,
+  room_id: null,
+  tenant_id: null,
 };
 
 export const AdminInvoiceForm = () => {
@@ -186,6 +189,9 @@ export const AdminInvoiceForm = () => {
         issuer_id: inv.issuer_id || null,
         fixed_expense_id: inv.fixed_expense_id || null,
         variable_category_id: inv.variable_category_id || null,
+        property_id: inv.property_id || null,
+        room_id: inv.room_id || null,
+        tenant_id: inv.tenant_id || null,
       });
       setLoadingForm(false);
     };
