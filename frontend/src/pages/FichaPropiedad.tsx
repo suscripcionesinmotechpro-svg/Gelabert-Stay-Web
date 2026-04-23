@@ -507,7 +507,7 @@ export const FichaPropiedad = () => {
           <div className="flex flex-col gap-4">
             <div className={cn(
               "w-full max-w-[450px] mx-auto border border-[#1F1F1F] bg-[#0A0A0A] flex items-center justify-center overflow-hidden relative group",
-              "aspect-[9/16] md:max-h-[85vh]"
+              "aspect-[9/16]"
             )}>
               {(() => {
                 const currentVideo = allVideos[activeVideoIndex]?.url || '';
@@ -603,7 +603,7 @@ export const FichaPropiedad = () => {
                           playsInline
                           controlsList="nodownload"
                           poster={allVideos[activeVideoIndex]?.poster}
-                          className="w-full h-full bg-black outline-none object-cover"
+                          className="w-full h-full bg-black outline-none object-contain"
                           onWaiting={() => setIsVideoLoading(true)}
                           onPlaying={() => {
                             setIsVideoLoading(false);
@@ -852,18 +852,17 @@ export const FichaPropiedad = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {property.rooms.map((room: PropertyRoom) => {
                   const roomStatus = roomStatuses[room.id] || room._calculated_status || 'disponible';
+                  const validImages = room.images?.filter((img: string) => typeof img === 'string' && img.trim() !== '') || [];
                   return (
                   <div key={room.id} className="flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] rounded-sm overflow-hidden group hover:border-[#C9A962] transition-colors relative">
-                    {room.images && room.images.length > 0 ? (
+                    {validImages.length > 0 ? (
                       <div 
                         className="w-full h-40 overflow-hidden cursor-pointer relative flex-shrink-0"
                         onClick={() => {
-                          if (room.images && room.images.length > 0) {
-                            openLightbox(room.images, 0);
-                          }
+                          openLightbox(validImages, 0);
                         }}
                       >
-                        <PremiumImage src={room.images[0]} alt={room.name} wrapperClassName="w-full h-full group-hover:scale-105 transition-transform duration-500" />
+                        <PremiumImage src={validImages[0]} alt={room.name} wrapperClassName="w-full h-full group-hover:scale-105 transition-transform duration-500" />
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
                         
                         {/* Dynamic watermark mapping main property image behavior */}
@@ -883,9 +882,9 @@ export const FichaPropiedad = () => {
                           </div>
                         )}
 
-                        {room.images.length > 1 && (
+                        {validImages.length > 1 && (
                           <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/60 text-[8px] text-white uppercase font-bold tracking-tighter z-30">
-                            + {room.images.length - 1} FOTOS
+                            + {validImages.length - 1} FOTOS
                           </div>
                         )}
                       </div>
@@ -939,7 +938,8 @@ export const FichaPropiedad = () => {
                         <button 
                           onClick={() => {
                             const roomVideoUrl = typeof room.video === 'string' ? room.video : room.video?.url;
-                            const idx = allVideos.findIndex((v: PropertyVideo & { poster?: string }) => v.url === roomVideoUrl);
+                            const roomTitle = typeof room.video === 'object' && room.video?.title ? room.video.title : room.name;
+                            const idx = allVideos.findIndex((v: PropertyVideo & { poster?: string }) => v.url === roomVideoUrl && v.title === roomTitle);
                             if (idx !== -1) {
                               setActiveTab('video');
                               setActiveVideoIndex(idx);
