@@ -57,7 +57,20 @@ export const FichaPropiedad = () => {
 
   useEffect(() => {
     setIsPlaying(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
   }, [activeVideoIndex]);
+
+  // Trigger play() AFTER React re-renders the overlay away
+  useEffect(() => {
+    if (!isPlaying || !videoRef.current) return;
+    const playPromise = videoRef.current.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => setIsPlaying(false));
+    }
+  }, [isPlaying]);
 
   useEffect(() => {
     if (property && (property.is_room_rental || property.property_type === 'habitacion')) {
@@ -528,10 +541,7 @@ export const FichaPropiedad = () => {
                       {!isPlaying && (
                         <div 
                           className="absolute inset-0 z-10 cursor-pointer group/play"
-                          onClick={() => {
-                            setIsPlaying(true);
-                            setTimeout(() => videoRef.current?.play(), 10);
-                          }}
+                          onClick={() => setIsPlaying(true)}
                         >
                           {currentPoster ? (
                             <img 
@@ -564,7 +574,6 @@ export const FichaPropiedad = () => {
                         src={currentVideo} 
                         key={currentVideo} 
                         controls={isPlaying}
-                        autoPlay={isPlaying}
                         preload="auto"
                         playsInline
                         onEnded={() => setIsPlaying(false)}
