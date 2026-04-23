@@ -51,6 +51,9 @@ export interface Invoice {
   issuer_id: string | null;
   fixed_expense_id: string | null;
   variable_category_id: string | null;
+  property_id: string | null;
+  room_id: string | null;
+  tenant_id: string | null;
 }
 
 export type InvoiceInsert = Omit<Invoice, 'id' | 'created_at' | 'user_id' | 'total_amount' | 'irpf_amount'>;

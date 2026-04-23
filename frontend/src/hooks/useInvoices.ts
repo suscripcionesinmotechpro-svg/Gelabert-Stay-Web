@@ -247,11 +247,19 @@ export const useInvoiceMutations = () => {
     return { total_amount: total, irpf_amount: irpfAmt };
   };
 
+  type NullableUUIDField =
+    | 'issuer_id'
+    | 'fixed_expense_id'
+    | 'variable_category_id'
+    | 'property_id'
+    | 'room_id'
+    | 'tenant_id';
+
   const sanitizeInvoiceData = (data: Partial<InvoiceInsert>) => {
     const sanitized = { ...data };
     
     // UUID fields that should be null instead of empty string
-    const uuidFields: (keyof InvoiceInsert)[] = [
+    const uuidFields: NullableUUIDField[] = [
       'issuer_id',
       'fixed_expense_id',
       'variable_category_id',
@@ -261,8 +269,8 @@ export const useInvoiceMutations = () => {
     ];
 
     uuidFields.forEach(field => {
-      if (sanitized[field] === '') {
-        sanitized[field] = null;
+      if ((sanitized as Record<NullableUUIDField, string | null | undefined>)[field] === '') {
+        (sanitized as Record<NullableUUIDField, string | null | undefined>)[field] = null;
       }
     });
 
