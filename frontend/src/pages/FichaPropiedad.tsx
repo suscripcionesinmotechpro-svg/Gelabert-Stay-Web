@@ -54,6 +54,7 @@ export const FichaPropiedad = () => {
   const [roomStatuses, setRoomStatuses] = useState<Record<string, string>>({});
   const [videoError, setVideoError] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [videoReadyMessage, setVideoReadyMessage] = useState(false);
 
 
 
@@ -536,9 +537,23 @@ export const FichaPropiedad = () => {
                   return (
                     <div className="w-full h-full relative">
                       {isVideoLoading && !videoError && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
-                          <div className="w-8 h-8 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-10 transition-all duration-300">
+                          <div className="w-8 h-8 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin mb-3" />
+                          <span className="text-[#C9A962] font-primary text-[10px] uppercase tracking-[0.2em] animate-pulse">Cargando Vídeo...</span>
                         </div>
+                      )}
+
+                      {videoReadyMessage && !videoError && !isVideoLoading && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: -20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          className="absolute top-6 left-1/2 -translate-x-1/2 bg-[#C9A962] text-black px-5 py-1.5 rounded-full z-10 shadow-lg"
+                        >
+                          <span className="font-primary text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                            <Check className="w-3 h-3" /> Vídeo Listo
+                          </span>
+                        </motion.div>
                       )}
                       
                       {videoError && (
@@ -570,7 +585,6 @@ export const FichaPropiedad = () => {
                         controls
                         preload="metadata"
                         playsInline
-                        crossOrigin="anonymous"
                         controlsList="nodownload"
                         poster={allVideos[activeVideoIndex]?.poster}
                         className="w-full h-full bg-black outline-none object-cover"
@@ -579,16 +593,22 @@ export const FichaPropiedad = () => {
                           setIsVideoLoading(false);
                           setVideoError(false);
                         }}
-                        onCanPlay={() => setIsVideoLoading(false)}
+                        onCanPlay={() => {
+                          setIsVideoLoading(false);
+                          setVideoReadyMessage(true);
+                          setTimeout(() => setVideoReadyMessage(false), 2500);
+                        }}
                         onError={(e) => {
                           const video = e.currentTarget;
                           if (video.error) {
-                            console.error('Video error:', video.error);
-                            // Si es error de red o de fuente, mostramos el estado de error
-                            if (video.networkState === 3 || video.error.code === 2 || video.error.code === 4) {
-                              setVideoError(true);
-                              setIsVideoLoading(false);
-                            }
+                            console.error('Video error:', video.error.code, video.error.message);
+                            // Solo mostrar error si persiste y no es un problema temporal
+                            setTimeout(() => {
+                              if (video.error && (video.networkState === 3 || video.error.code === 2 || video.error.code === 4)) {
+                                setVideoError(true);
+                                setIsVideoLoading(false);
+                              }
+                            }, 1500);
                           }
                         }}
                       />
