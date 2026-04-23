@@ -117,9 +117,6 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
       curr.setMonth(curr.getMonth() + 1);
     }
 
-    const now = new Date();
-    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
     // Process each month
     Object.keys(byMonthMap).forEach(monthKey => {
       const [yStr, mStr] = monthKey.split('-');
