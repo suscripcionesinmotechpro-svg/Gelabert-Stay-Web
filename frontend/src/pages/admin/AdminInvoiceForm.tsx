@@ -40,9 +40,9 @@ const DEFAULT_FORM: InvoiceInsert = {
   file_url: null,
   notes: null,
   type: 'income',
-  issuer_id: '',
-  fixed_expense_id: '',
-  variable_category_id: '',
+  issuer_id: null,
+  fixed_expense_id: null,
+  variable_category_id: null,
 };
 
 export const AdminInvoiceForm = () => {
@@ -183,9 +183,9 @@ export const AdminInvoiceForm = () => {
         file_url: inv.file_url,
         notes: inv.notes,
         type: inv.type || 'income',
-        issuer_id: inv.issuer_id || '',
-        fixed_expense_id: inv.fixed_expense_id || '',
-        variable_category_id: inv.variable_category_id || '',
+        issuer_id: inv.issuer_id || null,
+        fixed_expense_id: inv.fixed_expense_id || null,
+        variable_category_id: inv.variable_category_id || null,
       });
       setLoadingForm(false);
     };
@@ -342,7 +342,7 @@ export const AdminInvoiceForm = () => {
                 <select 
                   className={inputClass} 
                   value={form.issuer_id || ''} 
-                  onChange={e => set('issuer_id', e.target.value)}
+                  onChange={e => set('issuer_id', e.target.value || null)}
                   disabled={loadingIssuers}
                 >
                   <option value="">Selecciona un emisor...</option>
@@ -438,11 +438,11 @@ export const AdminInvoiceForm = () => {
                         onChange={(e) => {
                           const val = e.target.value;
                           if (val === 'none') {
-                            setForm(prev => ({ ...prev, fixed_expense_id: '', variable_category_id: '' }));
+                            setForm(prev => ({ ...prev, fixed_expense_id: null, variable_category_id: null }));
                           } else if (val === 'fixed') {
-                            setForm(prev => ({ ...prev, variable_category_id: '' }));
+                            setForm(prev => ({ ...prev, variable_category_id: null }));
                           } else {
-                            setForm(prev => ({ ...prev, fixed_expense_id: '' }));
+                            setForm(prev => ({ ...prev, fixed_expense_id: null }));
                           }
                         }}
                       >
@@ -460,7 +460,7 @@ export const AdminInvoiceForm = () => {
                             <select 
                               className={inputClass}
                               value={form.variable_category_id ?? ''} 
-                              onChange={(e) => set('variable_category_id', e.target.value || '')}
+                              onChange={(e) => set('variable_category_id', e.target.value || null)}
                             >
                               <option value="">Seleccionar categoría...</option>
                               {variableCategories.map(vc => (
@@ -474,7 +474,7 @@ export const AdminInvoiceForm = () => {
                             <select 
                               className={inputClass}
                               value={form.fixed_expense_id ?? ''} 
-                              onChange={(e) => set('fixed_expense_id', e.target.value || '')}
+                              onChange={(e) => set('fixed_expense_id', e.target.value || null)}
                             >
                               <option value="">Seleccionar gasto fijo...</option>
                               {fixedExpenses.map(fe => (

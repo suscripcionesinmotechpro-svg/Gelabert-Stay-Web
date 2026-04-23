@@ -247,19 +247,45 @@ export const useInvoiceMutations = () => {
     return { total_amount: total, irpf_amount: irpfAmt };
   };
 
+  const sanitizeInvoiceData = (data: Partial<InvoiceInsert>) => {
+    const sanitized = { ...data };
+    
+    // UUID fields that should be null instead of empty string
+    const uuidFields: (keyof InvoiceInsert)[] = [
+      'issuer_id',
+      'fixed_expense_id',
+      'variable_category_id',
+      'property_id',
+      'room_id',
+      'tenant_id'
+    ];
+
+    uuidFields.forEach(field => {
+      if (sanitized[field] === '') {
+        sanitized[field] = null;
+      }
+    });
+
+    return sanitized;
+  };
+
   const createInvoice = async (data: InvoiceInsert) => {
-    const totals = calculateTotals(data);
-    const { error } = await supabase.from('invoices').insert([{ ...data, ...totals }]);
+    const sanitizedData = sanitizeInvoiceData(data);
+    const totals = calculateTotals(sanitizedData);
+    const { error } = await supabase.from('invoices').insert([{ ...sanitizedData, ...totals }]);
     if (error) throw error;
   };
 
   const updateInvoice = async (id: string, data: Partial<InvoiceInsert>) => {
-    const updates: any = { ...data };
-    if (data.amount !== undefined) {
-      const totals = calculateTotals({ ...data });
+    const sanitizedData = sanitizeInvoiceData(data);
+    const updates: any = { ...sanitizedData };
+    
+    if (data.amount !== undefined || data.tax_rate !== undefined || data.irpf_rate !== undefined) {
+      const totals = calculateTotals({ ...sanitizedData });
       updates.total_amount = totals.total_amount;
       updates.irpf_amount = totals.irpf_amount;
     }
+    
     const { error } = await supabase.from('invoices').update(updates).eq('id', id);
     if (error) throw error;
   };
