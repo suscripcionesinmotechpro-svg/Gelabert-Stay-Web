@@ -55,13 +55,22 @@ export const FichaPropiedad = () => {
   const [videoError, setVideoError] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [videoReadyMessage, setVideoReadyMessage] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [videoUrlWithBust, setVideoUrlWithBust] = useState<string | null>(null);
 
 
 
   useEffect(() => {
     setVideoError(false);
     setIsVideoLoading(true);
-  }, [activeVideoIndex]);
+    setVideoReadyMessage(false);
+    setRetryCount(0);
+    // Inicializar URL con bust
+    const currentVideo = allVideos[activeVideoIndex];
+    if (currentVideo?.url) {
+      setVideoUrlWithBust(currentVideo.url);
+    }
+  }, [activeVideoIndex, allVideos]);
 
   useEffect(() => {
     if (property && (property.is_room_rental || property.property_type === 'habitacion')) {
@@ -564,11 +573,10 @@ export const FichaPropiedad = () => {
                             onClick={() => {
                               setVideoError(false);
                               setIsVideoLoading(true);
-                              const vid = document.getElementById('property-main-video') as HTMLVideoElement;
-                              if (vid) {
-                                const currentSrc = vid.src.split('?retry=')[0];
-                                vid.src = currentSrc + (currentSrc.includes('?') ? '&' : '?') + 'retry=' + Date.now();
-                                vid.load();
+                              setRetryCount(0);
+                              const baseUrl = allVideos[activeVideoIndex]?.url;
+                              if (baseUrl) {
+                                setVideoUrlWithBust(`${baseUrl}${baseUrl.includes('?') ? '&' : '?'}retry=${Date.now()}`);
                               }
                             }}
                             className="bg-[#C9A962] text-black px-5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:bg-white transition-colors"
@@ -578,40 +586,46 @@ export const FichaPropiedad = () => {
                         </div>
                       )}
 
-                      <video 
-                        id="property-main-video"
-                        src={currentVideo} 
-                        key={currentVideo} 
-                        controls
-                        preload="metadata"
-                        playsInline
-                        controlsList="nodownload"
-                        poster={allVideos[activeVideoIndex]?.poster}
-                        className="w-full h-full bg-black outline-none object-cover"
-                        onWaiting={() => setIsVideoLoading(true)}
-                        onPlaying={() => {
-                          setIsVideoLoading(false);
-                          setVideoError(false);
-                        }}
-                        onCanPlay={() => {
-                          setIsVideoLoading(false);
-                          setVideoReadyMessage(true);
-                          setTimeout(() => setVideoReadyMessage(false), 2500);
-                        }}
-                        onError={(e) => {
-                          const video = e.currentTarget;
-                          if (video.error) {
-                            console.error('Video error:', video.error.code, video.error.message);
-                            // Solo mostrar error si persiste y no es un problema temporal
-                            setTimeout(() => {
-                              if (video.error && (video.networkState === 3 || video.error.code === 2 || video.error.code === 4)) {
-                                setVideoError(true);
-                                setIsVideoLoading(false);
-                              }
-                            }, 1500);
-                          }
-                        }}
-                      />
+                      {videoUrlWithBust && (
+                        <video 
+                          id="property-main-video"
+                          src={videoUrlWithBust} 
+                          key={`${activeVideoIndex}-${retryCount}`}
+                          controls
+                          preload="auto"
+                          playsInline
+                          controlsList="nodownload"
+                          poster={allVideos[activeVideoIndex]?.poster}
+                          className="w-full h-full bg-black outline-none object-cover"
+                          onWaiting={() => setIsVideoLoading(true)}
+                          onPlaying={() => {
+                            setIsVideoLoading(false);
+                            setVideoError(false);
+                            setRetryCount(0);
+                          }}
+                          onCanPlay={() => {
+                            setIsVideoLoading(false);
+                            setVideoReadyMessage(true);
+                            setTimeout(() => setVideoReadyMessage(false), 2500);
+                          }}
+                          onError={() => {
+                            console.log(`Video load error. Retry count: ${retryCount}`);
+                            if (retryCount < 3) {
+                              const nextRetry = retryCount + 1;
+                              setTimeout(() => {
+                                setRetryCount(nextRetry);
+                                const baseUrl = allVideos[activeVideoIndex]?.url;
+                                if (baseUrl) {
+                                  setVideoUrlWithBust(`${baseUrl}${baseUrl.includes('?') ? '&' : '?'}v=${Date.now()}`);
+                                }
+                              }, 500);
+                            } else {
+                              setVideoError(true);
+                              setIsVideoLoading(false);
+                            }
+                          }}
+                        />
+                      )}
                     </div>
                   );
                 }
