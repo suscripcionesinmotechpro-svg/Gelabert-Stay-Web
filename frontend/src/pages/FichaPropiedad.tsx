@@ -73,7 +73,12 @@ export const FichaPropiedad = () => {
         return { ...vid, poster };
       }).filter(Boolean),
       ...((property?.is_room_rental || property?.property_type === 'habitacion')
-        ? (property?.rooms ?? []).map((r: PropertyRoom) => r.video ? { ...r.video, title: r.video.title || r.name, poster: r.images?.[0] || property?.main_image || undefined } : null).filter(Boolean) 
+        ? (property?.rooms ?? []).map((r: PropertyRoom) => {
+            if (!r.video) return null;
+            const vid = typeof r.video === 'string' ? { url: r.video, title: '' } : r.video;
+            if (!vid.url) return null;
+            return { ...vid, title: vid.title || r.name, poster: r.images?.[0] || property?.main_image || undefined };
+          }).filter(Boolean) 
         : [])
     ] as (PropertyVideo & { poster?: string })[];
     return videos;
@@ -929,10 +934,11 @@ export const FichaPropiedad = () => {
                           </span>
                         )}
                       </div>
-                      {room.video?.url && (
+                      {(typeof room.video === 'string' ? room.video : room.video?.url) && (
                         <button 
                           onClick={() => {
-                            const idx = allVideos.findIndex((v: PropertyVideo & { poster?: string }) => v.url === room.video?.url);
+                            const roomVideoUrl = typeof room.video === 'string' ? room.video : room.video?.url;
+                            const idx = allVideos.findIndex((v: PropertyVideo & { poster?: string }) => v.url === roomVideoUrl);
                             if (idx !== -1) {
                               setActiveTab('video');
                               setActiveVideoIndex(idx);
