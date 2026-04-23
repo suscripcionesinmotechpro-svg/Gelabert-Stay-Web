@@ -3,7 +3,7 @@ import { useProperty, useProperties } from '../hooks/useProperties';
 import { useAutoTranslate, useAutoTranslateArray } from '../hooks/useAutoTranslate';
 import { PropertyCard } from '../components/PropertyCard';
 import { PremiumImage } from '../components/PremiumImage';
-import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass, Copy, CheckCheck, Send } from 'lucide-react';
+import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass, Copy, CheckCheck, Send, AlertCircle } from 'lucide-react';
 import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import type { PropertyVideo, PropertyRoom } from '../types/property';
 import { cn } from '../lib/utils';
@@ -52,8 +52,15 @@ export const FichaPropiedad = () => {
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const [linkCopied, setLinkCopied] = useState(false);
   const [roomStatuses, setRoomStatuses] = useState<Record<string, string>>({});
+  const [videoError, setVideoError] = useState(false);
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
 
 
+
+  useEffect(() => {
+    setVideoError(false);
+    setIsVideoLoading(true);
+  }, [activeVideoIndex]);
 
   useEffect(() => {
     if (property && (property.is_room_rental || property.property_type === 'habitacion')) {
@@ -519,25 +526,65 @@ export const FichaPropiedad = () => {
                   );
                 } else {
                   return (
-                    <video 
-                      src={currentVideo} 
-                      key={currentVideo} 
-                      controls
-                      preload="metadata"
-                      playsInline
-                      poster={allVideos[activeVideoIndex]?.poster}
-                      className="w-full h-full bg-black outline-none object-cover"
-                      onError={(e) => {
-                        const video = e.currentTarget;
-                        if (video.error) {
-                          console.error('Video error:', video.error);
-                          // Re-intentar carga una vez si hay error de red
-                          if (video.networkState === 3 || video.error.code === 2 || video.error.code === 4) {
-                            video.load();
+                    <div className="w-full h-full relative">
+                      {isVideoLoading && !videoError && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
+                          <div className="w-8 h-8 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
+                        </div>
+                      )}
+                      
+                      {videoError && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-20 text-center px-4">
+                          <AlertCircle className="w-10 h-10 text-[#C9A962] mb-3" />
+                          <p className="text-white text-xs mb-4">Error de conexión con el vídeo.</p>
+                          <button 
+                            onClick={() => {
+                              setVideoError(false);
+                              setIsVideoLoading(true);
+                              const vid = document.getElementById('property-main-video') as HTMLVideoElement;
+                              if (vid) {
+                                const currentSrc = vid.src.split('?retry=')[0];
+                                vid.src = currentSrc + (currentSrc.includes('?') ? '&' : '?') + 'retry=' + Date.now();
+                                vid.load();
+                              }
+                            }}
+                            className="bg-[#C9A962] text-black px-5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:bg-white transition-colors"
+                          >
+                            REINTENTAR
+                          </button>
+                        </div>
+                      )}
+
+                      <video 
+                        id="property-main-video"
+                        src={currentVideo} 
+                        key={currentVideo} 
+                        controls
+                        preload="metadata"
+                        playsInline
+                        crossOrigin="anonymous"
+                        controlsList="nodownload"
+                        poster={allVideos[activeVideoIndex]?.poster}
+                        className="w-full h-full bg-black outline-none object-cover"
+                        onWaiting={() => setIsVideoLoading(true)}
+                        onPlaying={() => {
+                          setIsVideoLoading(false);
+                          setVideoError(false);
+                        }}
+                        onCanPlay={() => setIsVideoLoading(false)}
+                        onError={(e) => {
+                          const video = e.currentTarget;
+                          if (video.error) {
+                            console.error('Video error:', video.error);
+                            // Si es error de red o de fuente, mostramos el estado de error
+                            if (video.networkState === 3 || video.error.code === 2 || video.error.code === 4) {
+                              setVideoError(true);
+                              setIsVideoLoading(false);
+                            }
                           }
-                        }
-                      }}
-                    />
+                        }}
+                      />
+                    </div>
                   );
                 }
               })()}
