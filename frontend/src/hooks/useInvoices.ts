@@ -186,8 +186,17 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     const totalInvoiceExp = Object.values(byMonthMap).reduce((s, m) => s + m.invoiceExp, 0);
     const totalExpenses = totalFixed + totalVariable + totalInvoiceExp;
 
-    const taxPeriod = allInvoices.reduce((s, i) => s + ((i.total_amount || 0) + (i.irpf_amount || 0) - (i.amount || 0)), 0);
-    const irpfPeriod = allInvoices.reduce((s, i) => s + (i.irpf_amount || 0), 0);
+    const taxPeriod = allInvoices.reduce((s, i) => {
+      const vat = (i.total_amount || 0) + (i.irpf_amount || 0) - (i.amount || 0);
+      return s + (i.type === 'expense' ? -vat : vat);
+    }, 0);
+
+    const irpfPeriod = allInvoices.reduce((s, i) => {
+      const irpf = i.irpf_amount || 0;
+      // For a landlord, IRPF on income is a deduction (we receive less)
+      // IRPF on expense is a retention (we hold it to pay later)
+      return s + (i.type === 'expense' ? irpf : -irpf);
+    }, 0);
     
     const pending = allInvoices.filter(i => (i.type === 'income' || !i.type) && i.status === 'pendiente');
     const pendingAmount = pending.reduce((s, i) => s + (i.total_amount || 0), 0);

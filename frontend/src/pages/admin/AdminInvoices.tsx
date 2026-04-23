@@ -225,7 +225,7 @@ export const AdminInvoices = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
         {/* Balance */}
         <div className={cn(cardClass, summary.totalPeriod >= 0 ? 'border-[#C9A962]/40 bg-[#C9A962]/5' : 'border-red-500/30 bg-red-500/5')}>
           <div className={cn("flex items-center gap-2", summary.totalPeriod >= 0 ? 'text-[#C9A962]' : 'text-red-400')}>
@@ -273,12 +273,34 @@ export const AdminInvoices = () => {
         <div className={cardClass}>
           <div className="flex items-center gap-2 text-red-400">
             <Receipt className="w-4 h-4" />
-            <span className="font-primary text-[10px] uppercase tracking-wider text-[#666]">Gastos Facturas</span>
+            <span className="font-primary text-[10px] uppercase tracking-wider text-[#666]">Otros Gastos</span>
           </div>
           <p className="font-secondary text-2xl leading-tight text-red-400">
             {loadingSummary ? '—' : formatCurrency(summary.invoiceExpenses)}
           </p>
           <span className="text-[9px] text-[#444] font-primary uppercase tracking-tighter">Sin vincular a fijo</span>
+        </div>
+        {/* IVA */}
+        <div className={cardClass}>
+          <div className="flex items-center gap-2 text-blue-400">
+            <Receipt className="w-4 h-4" />
+            <span className="font-primary text-[10px] uppercase tracking-wider text-[#666]">IVA (Balance)</span>
+          </div>
+          <p className="font-secondary text-2xl leading-tight text-blue-400">
+            {loadingSummary ? '—' : formatCurrency(summary.taxPeriod)}
+          </p>
+          <span className="text-[9px] text-[#444] font-primary uppercase tracking-tighter">Cobrado - Pagado</span>
+        </div>
+        {/* IRPF */}
+        <div className={cardClass}>
+          <div className="flex items-center gap-2 text-purple-400">
+            <Receipt className="w-4 h-4" />
+            <span className="font-primary text-[10px] uppercase tracking-wider text-[#666]">IRPF</span>
+          </div>
+          <p className="font-secondary text-2xl leading-tight text-purple-400">
+            {loadingSummary ? '—' : formatCurrency(summary.irpfPeriod)}
+          </p>
+          <span className="text-[9px] text-[#444] font-primary uppercase tracking-tighter">Retenciones Netas</span>
         </div>
       </div>
 
