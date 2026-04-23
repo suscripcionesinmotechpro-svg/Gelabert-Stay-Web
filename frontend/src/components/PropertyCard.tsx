@@ -249,22 +249,31 @@ export const PropertyCard = memo(({
 
         {/* Badges Container removed from image to avoid covering it */}
 
-        {/* Watermark Overlay */}
+        {/* Watermark Overlay (Premium Glass Seal) */}
         {commercialStatus && commercialStatus !== 'disponible' && (
           <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden select-none">
-            <div className={cn(
-              "transform -rotate-12 scale-110 opacity-40 mix-blend-overlay",
-              commercialStatus === 'reservado' && "text-orange-500",
-              commercialStatus === 'alquilado' && "text-purple-500",
-              commercialStatus === 'vendido' && "text-red-500",
-              commercialStatus === 'traspasado' && "text-blue-500",
-            )}>
-              <div className="border-[6px] border-current px-6 py-2 rounded-sm flex items-center justify-center">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8, rotate: -15 }}
+              animate={{ opacity: 1, scale: 1.1, rotate: -12 }}
+              className={cn(
+                "px-10 py-4 border-2 backdrop-blur-sm shadow-2xl relative overflow-hidden",
+                commercialStatus === 'reservado' && "bg-orange-500/10 border-orange-500/20 text-orange-400/80",
+                commercialStatus === 'alquilado' && "bg-purple-500/10 border-purple-500/20 text-purple-400/80",
+                commercialStatus === 'vendido' && "bg-red-500/10 border-red-500/20 text-red-400/80",
+                commercialStatus === 'traspasado' && "bg-blue-500/10 border-blue-500/20 text-blue-400/80",
+              )}
+            >
+              {/* Shine effect */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 transform -translate-x-full animate-[shimmer_3s_infinite]" />
+              
+              <div className="flex flex-col items-center">
                 <span className="font-secondary text-5xl font-black uppercase tracking-tighter text-center leading-none">
                   {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
                 </span>
+                <div className="h-[1px] w-full bg-current mt-1 opacity-30" />
+                <span className="font-primary text-[8px] tracking-[0.4em] uppercase mt-1.5 opacity-60">Gelabert Homes</span>
               </div>
-            </div>
+            </motion.div>
           </div>
         )}
 
@@ -322,17 +331,22 @@ export const PropertyCard = memo(({
 
           {commercialStatus && (
             <div className={cn(
-              "px-2.5 py-0.5 glass-deep border font-primary text-[9px] font-bold uppercase flex items-center gap-1",
-              commercialStatus === 'disponible' && "text-green-400 border-green-400/20",
-              commercialStatus === 'reservado' && "text-orange-400 border-orange-400/20",
-              commercialStatus === 'alquilado' && "text-purple-400 border-purple-400/20",
-              commercialStatus === 'vendido' && "text-red-400 border-red-400/20",
-              commercialStatus === 'traspasado' && "text-blue-400 border-blue-400/20",
+              "px-3 py-1 glass-deep border font-primary text-[9px] font-bold uppercase flex items-center gap-2 tracking-wider",
+              commercialStatus === 'disponible' && "text-green-400 border-green-400/20 bg-green-400/5",
+              commercialStatus === 'reservado' && "text-orange-400 border-orange-400/20 bg-orange-400/5",
+              commercialStatus === 'alquilado' && "text-purple-400 border-purple-400/20 bg-purple-400/5",
+              commercialStatus === 'vendido' && "text-red-400 border-red-400/20 bg-red-400/5",
+              commercialStatus === 'traspasado' && "text-blue-400 border-blue-400/20 bg-blue-400/5",
             )}>
-              <span className={cn(
-                "w-1.5 h-1.5 rounded-full",
-                commercialStatus === 'disponible' ? "bg-green-400" : "bg-current animate-pulse"
-              )} />
+              <div className="relative flex items-center justify-center">
+                <span className={cn(
+                  "w-1.5 h-1.5 rounded-full",
+                  commercialStatus === 'disponible' ? "bg-green-400" : "bg-current"
+                )} />
+                {commercialStatus !== 'disponible' && (
+                  <span className="absolute inset-0 w-1.5 h-1.5 rounded-full bg-current animate-ping opacity-40" />
+                )}
+              </div>
               {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
             </div>
           )}
