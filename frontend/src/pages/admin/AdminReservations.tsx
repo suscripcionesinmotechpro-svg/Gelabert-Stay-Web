@@ -32,7 +32,7 @@ const PropertyRow = ({ property }: { property: Property }) => {
     <div className="border-b border-[#1F1F1F] last:border-b-0">
       {/* Summary row */}
       <div
-        className="grid grid-cols-[2fr_1fr_2fr_2fr_auto] gap-4 px-5 py-4 items-center hover:bg-[#0F0F0F] transition-colors min-w-[700px] cursor-pointer"
+        className="grid grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,2fr)_minmax(0,2fr)_auto] gap-4 px-5 py-4 items-center hover:bg-[#0F0F0F] transition-colors min-w-[900px] cursor-pointer"
         onClick={() => setExpanded(e => !e)}
       >
         {/* Property */}
@@ -137,7 +137,7 @@ const PropertyRow = ({ property }: { property: Property }) => {
 
       {/* Expanded history & Room breakdown */}
       {expanded && (
-        <div className="bg-[#070707] border-t border-[#1F1F1F] px-5 pb-6 pt-4 min-w-[700px]">
+        <div className="bg-[#070707] border-t border-[#1F1F1F] px-5 pb-6 pt-4 min-w-[900px]">
           {/* Room breakdown if applicable */}
           {property.is_room_rental && property.rooms && property.rooms.length > 0 && (
             <div className="mb-8">
@@ -342,7 +342,7 @@ export const AdminReservations = () => {
       ) : (
         <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-x-auto">
           {/* Table header */}
-          <div className="grid grid-cols-[2fr_1fr_2fr_2fr_auto] gap-4 px-5 py-3 border-b border-[#1F1F1F] min-w-[700px]">
+          <div className="grid grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,2fr)_minmax(0,2fr)_auto] gap-4 px-5 py-3 border-b border-[#1F1F1F] min-w-[900px]">
             {['Propiedad', 'Estado', 'Inquilino actual', 'Próxima reserva', ''].map((h, i) => (
               <span key={i} className="font-primary text-[10px] text-[#444444] uppercase tracking-wider">{h}</span>
             ))}
