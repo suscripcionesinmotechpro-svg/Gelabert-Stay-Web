@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import type { Property } from '../types/property';
 import { cn } from '../lib/utils';
 import { PropertyReference } from './PropertyReference';
+import { getOptimizedImage } from '../utils/images';
 
 interface PropertyComparatorProps {
   properties: Property[];
@@ -58,7 +59,7 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
         <GitCompare className="w-4 h-4 text-[#C9A962] shrink-0" />
         <div className="flex items-center gap-2">
           {p.main_image && (
-            <img src={p.main_image} alt="" className="w-7 h-7 rounded-full object-cover border border-white/10" />
+            <img src={getOptimizedImage(p.main_image, { width: 40, height: 40, format: 'webp' })} alt="" className="w-7 h-7 rounded-full object-cover border border-white/10" />
           )}
           <span className="font-primary text-xs text-white/70 whitespace-nowrap">
             <span className="text-[#C9A962] font-bold">{isEn && p.title_en ? p.title_en : p.title}</span>
@@ -324,7 +325,7 @@ export const PropertyComparator = ({ properties, onRemove, onClear }: PropertyCo
                           ? "border-[#C9A962] shadow-[0_0_30px_rgba(201,169,98,0.2)]" 
                           : "border-white/5"
                       )}>
-                        <img src={p.main_image || ''} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <img src={getOptimizedImage(p.main_image || '', { width: 400, height: 300, format: 'webp' })} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       </div>
                       <div className="flex flex-col gap-1 text-left">
                         <Link to={`/propiedades/${p.reference || p.id}`} className="font-secondary text-sm text-[#FAF8F5] line-clamp-1 hover:text-[#C9A962] transition-colors uppercase">

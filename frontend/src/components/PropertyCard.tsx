@@ -9,6 +9,7 @@ import { getWhatsAppLink } from '../utils/whatsapp';
 import { useState, useMemo, memo } from 'react';
 import { PremiumImage } from './PremiumImage';
 import { PropertyReference } from './PropertyReference';
+import { getOptimizedImage } from '../utils/images';
 
 export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   title: string;
@@ -170,7 +171,7 @@ export const PropertyCard = memo(({
             className="absolute inset-0"
           >
             <PremiumImage
-              src={images[currentImageIndex]} 
+              src={getOptimizedImage(images[currentImageIndex], { width: 600, height: 400, format: 'webp' })} 
               alt={title}
               className="w-full h-full object-cover"
               wrapperClassName="w-full h-full"

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { getOptimizedImage } from '../utils/images';
 
 export interface AdminTableRowProps {
   id: string;
@@ -40,7 +41,7 @@ export const AdminTableRow = ({
     >
       <div className="w-[60px] h-10 bg-[#1A1A1A] border border-[#1F1F1F] flex items-center justify-center overflow-hidden flex-shrink-0">
         {imageUrl ? (
-          <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+          <img src={getOptimizedImage(imageUrl, { width: 100, height: 100, format: 'webp' })} alt={title} className="w-full h-full object-cover" />
         ) : (
           <span className="font-primary text-[10px] text-[#333333]">IMG</span>
         )}

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Property } from '../types/property';
 import { Link } from 'react-router-dom';
+import { getOptimizedImage } from '../utils/images';
 
 const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"];
 
@@ -104,7 +105,7 @@ export const PropertiesMap = memo(({ properties }: PropertiesMapProps) => {
           >
             <div className="flex flex-col gap-2 p-1 min-w-[200px]">
               {selectedProperty.main_image && (
-                <img src={selectedProperty.main_image} alt={selectedProperty.title} className="w-full h-24 object-cover rounded-sm" />
+                <img src={getOptimizedImage(selectedProperty.main_image, { width: 300, height: 200, format: 'webp' })} alt={selectedProperty.title} className="w-full h-24 object-cover rounded-sm" />
               )}
               <div>
                 <h4 className="font-secondary text-sm text-gray-900 mb-1 line-clamp-1">{selectedProperty.title}</h4>

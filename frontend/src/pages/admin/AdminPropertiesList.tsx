@@ -6,6 +6,7 @@ import { STATUS_LABELS, STATUS_COLORS, OPERATION_LABELS, COMMERCIAL_STATUS_LABEL
 import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown } from 'lucide-react';
 import { PropertyReference } from '../../components/PropertyReference';
 import { useTranslation } from 'react-i18next';
+import { getOptimizedImage } from '../../utils/images';
 
 const StatusDropdown = ({ property, onStatusChange }: { property: Property; onStatusChange: () => void }) => {
   const [open, setOpen] = useState(false);
@@ -229,7 +230,7 @@ export const AdminPropertiesList = () => {
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-12 h-12 bg-[#1A1A1A] shrink-0 overflow-hidden border border-[#1F1F1F]">
                   {p.main_image ? (
-                    <img src={p.main_image} alt={p.title} className="w-full h-full object-cover" />
+                    <img src={getOptimizedImage(p.main_image, { width: 100, height: 100, format: 'webp' })} alt={p.title} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[#333333]">
                       <Eye className="w-4 h-4" />

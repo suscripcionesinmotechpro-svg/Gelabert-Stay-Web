@@ -297,7 +297,7 @@ export const usePropertyMutations = () => {
   };
 
   const changeCommercialStatus = async (id: string, commercial_status: CommercialStatus): Promise<void> => {
-    const { error } = await supabase.from('properties').update({ commercial_status }).eq('id', id);
+    const { error } = await supabase.from('properties').update({ commercial_status, is_manual_commercial_status: true }).eq('id', id);
     if (error) throw error;
   };
 

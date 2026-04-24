@@ -3,6 +3,7 @@ import { useProperty, useProperties } from '../hooks/useProperties';
 import { useAutoTranslate, useAutoTranslateArray } from '../hooks/useAutoTranslate';
 import { PropertyCard } from '../components/PropertyCard';
 import { PremiumImage } from '../components/PremiumImage';
+import { getOptimizedImage } from '../utils/images';
 import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass, Copy, CheckCheck, Send, AlertCircle } from 'lucide-react';
 import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import type { PropertyVideo, PropertyRoom } from '../types/property';
@@ -448,7 +449,7 @@ export const FichaPropiedad = () => {
             {generalImages.length > 0 ? (
               <>
                 <PremiumImage 
-                  src={generalImages[activeImg]} 
+                  src={getOptimizedImage(generalImages[activeImg], { width: 1200, height: 800, format: 'webp' })} 
                   alt={translatedTitle} 
                   className="transition-transform duration-500 group-hover:scale-105" 
                   wrapperClassName="w-full h-full"
@@ -489,7 +490,7 @@ export const FichaPropiedad = () => {
                   onClick={() => { setActiveImg(i); openLightbox(generalImages, i); }} 
                   className={`w-20 md:w-full h-20 md:h-28 flex-shrink-0 overflow-hidden border ${i === activeImg ? 'border-[#C9A962]' : 'border-[#1F1F1F] hover:border-[#888888]'} transition-colors cursor-zoom-in relative`}
                 >
-                  <PremiumImage src={img} alt={`${i}`} wrapperClassName="w-full h-full" />
+                  <PremiumImage src={getOptimizedImage(img, { width: 200, height: 200, format: 'webp' })} alt={`${i}`} wrapperClassName="w-full h-full" />
                 </button>
               ))}
             </div>
