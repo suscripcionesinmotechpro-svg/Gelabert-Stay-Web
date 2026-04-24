@@ -131,19 +131,19 @@ export const AdminTenantsList = () => {
                   </div>
 
                   {/* Contract badge */}
-                  <div className="hidden sm:flex flex-col items-end gap-1 flex-shrink-0">
+                  <div className="hidden sm:flex flex-col items-end gap-1 flex-shrink-0 w-1/3 lg:w-2/5 max-w-[400px] text-right">
                     {contract ? (
                       <>
                         <span className={`font-primary text-[10px] px-2 py-0.5 border rounded-full ${CONTRACT_STATUS_COLORS[contract.status]}`}>
                           {CONTRACT_STATUS_LABELS[contract.status]}
                         </span>
-                        <div className="flex flex-col items-end">
+                        <div className="flex flex-col items-end w-full">
                           {contract.property_id ? (
-                            <Link to={`/propiedades/${contract.property_id}`} target="_blank" rel="noopener noreferrer" className="font-primary text-sm text-[#C9A962] hover:underline" onClick={(e) => e.stopPropagation()}>
+                            <Link to={`/propiedades/${contract.property_id}`} target="_blank" rel="noopener noreferrer" className="font-primary text-sm text-[#C9A962] hover:underline line-clamp-2" onClick={(e) => e.stopPropagation()}>
                               {contract.property_label || 'Piso activo'}
                             </Link>
                           ) : (
-                            <span className="font-primary text-sm text-[#FAF8F5]">{contract.property_label || 'Piso activo'}</span>
+                            <span className="font-primary text-sm text-[#FAF8F5] line-clamp-2">{contract.property_label || 'Piso activo'}</span>
                           )}
                           <span className="font-primary text-xs text-[#666]">
                             Hasta {new Date(contract.end_date).toLocaleDateString('es-ES')}
