@@ -354,7 +354,7 @@ export const uploadPropertyMedia = async (rawFile: File, folder = 'main'): Promi
   const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
   
   const { error } = await supabase.storage.from('property-images').upload(filename, file, {
-    cacheControl: '3600',
+    cacheControl: '31536000',
     upsert: false,
   });
   
