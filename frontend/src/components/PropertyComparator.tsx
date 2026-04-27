@@ -179,7 +179,7 @@ export const PropertyComparator = ({ properties = [], onRemove, onClear }: any) 
             </div>
             <div>
               <h2 className="font-secondary text-xs text-white uppercase tracking-[0.2em] font-black">Análisis Comparativo</h2>
-              <p className="text-[8px] text-white/40 uppercase tracking-[0.1em]">{validProperties.length} Propiedades seleccionadas</p>
+              <p className="text-[8px] text-white/40 uppercase tracking-[0.1em]">{t('property.comparator.comparing', { count: validProperties.length })}</p>
             </div>
           </div>
         </div>
