@@ -5,15 +5,16 @@
 export const getOptimizedImage = (url: string | null | undefined, options: { width?: number; height?: number; quality?: number; format?: 'webp' | 'avif' | 'origin' } = {}) => {
   if (!url) return '';
   
-  const { width, height, quality = 80, format = 'webp' } = options;
+  // Use AVIF as default format if supported by the transformation service
+  const { width, height, quality = 75, format = 'avif' } = options;
   
   // Only transform Supabase storage URLs
   if (url.includes('supabase.co') && url.includes('object/public')) {
     const baseUrl = url.split('?')[0].replace('object/public', 'render/image/public');
     const params = new URLSearchParams();
     
-    if (width) params.append('width', width.toString());
-    if (height) params.append('height', height.toString());
+    if (width) params.append('width', (width * 1.5).toString()); // Buffer for high DPI
+    if (height) params.append('height', (height * 1.5).toString());
     params.append('quality', quality.toString());
     params.append('format', format);
     params.append('resize', 'cover');

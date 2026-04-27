@@ -67,6 +67,9 @@ const CommercialStatusDropdown = ({ property, onStatusChange }: { property: Prop
         className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-primary font-bold rounded-sm ${COMMERCIAL_STATUS_COLORS[property.commercial_status]}`}
       >
         {t(COMMERCIAL_STATUS_LABELS[property.commercial_status])}
+        {property.is_manual_commercial_status && (
+          <span className="ml-1 text-[8px] bg-white/20 px-1 rounded-full" title="Manual">M</span>
+        )}
         <ChevronDown className="w-3 h-3" />
       </button>
       {open && (

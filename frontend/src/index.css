@@ -150,6 +150,35 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+/* --- Mobile & PWA Fluidity Optimizations --- */
+@layer base {
+  html {
+    /* Prevent text size adjustment after orientation change */
+    -webkit-text-size-adjust: 100%;
+    /* Smooth native scroll */
+    scroll-behavior: smooth;
+    /* Optimize for touch devices */
+    touch-action: manipulation;
+  }
+  
+  body {
+    /* Improve font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Avoid pull-to-refresh on certain browsers if needed */
+    overscroll-behavior-y: none;
+    /* Optimize paint cycles */
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* Optimization for off-screen rendering */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px; /* Placeholder size */
+}
+
+/* Optimize card lists for high-performance scrolling */
+.property-grid-container {
+  will-change: transform;
 }

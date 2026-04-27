@@ -565,15 +565,24 @@ export const AdminPropertyForm = () => {
           </div>
           <div className="flex flex-col gap-2">
             <label className={labelClass}>{t('admin.form.fields.commercial_status')}</label>
-            <select className={selectClass} value={form.commercial_status} onChange={e => {
-              const val = e.target.value as CommercialStatus;
-              set('commercial_status', val);
-              set('is_manual_commercial_status', true);
-            }}>
-              {(Object.entries(COMMERCIAL_STATUS_LABELS) as [CommercialStatus, string][]).map(([val, label]) => (
-                <option key={val} value={val}>{t(label)}</option>
-              ))}
-            </select>
+            <div className="flex flex-col gap-2">
+              <select className={selectClass} value={form.commercial_status} onChange={e => {
+                const val = e.target.value as CommercialStatus;
+                set('commercial_status', val);
+                set('is_manual_commercial_status', true);
+              }}>
+                {(Object.entries(COMMERCIAL_STATUS_LABELS) as [CommercialStatus, string][]).map(([val, label]) => (
+                  <option key={val} value={val}>{t(label)}</option>
+                ))}
+              </select>
+              <div className="flex items-center gap-2">
+                <ToggleField 
+                  label="Estado Manual (ignorar contratos)" 
+                  checked={form.is_manual_commercial_status ?? false} 
+                  onChange={v => set('is_manual_commercial_status', v)} 
+                />
+              </div>
+            </div>
           </div>
           <div className="flex flex-col gap-2">
             <label className={labelClass}>{t('admin.form.fields.public_status')}</label>

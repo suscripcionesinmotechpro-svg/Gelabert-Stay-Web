@@ -27,11 +27,12 @@ export function PremiumImage({ src, alt, className, wrapperClassName, ...props }
         src={src}
         alt={alt}
         loading="lazy"
+        decoding="async"
         onLoad={() => setIsLoaded(true)}
         onError={() => setError(true)}
         className={cn(
-          'w-full h-full object-cover transition-opacity duration-700 ease-in-out',
-          isLoaded && !error ? 'opacity-100' : 'opacity-0',
+          'w-full h-full object-cover transition-all duration-1000 ease-in-out',
+          isLoaded && !error ? 'opacity-100 scale-100' : 'opacity-0 scale-110',
           className
         )}
         {...props}
