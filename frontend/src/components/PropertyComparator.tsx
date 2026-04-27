@@ -78,9 +78,9 @@ const ROWS_CONFIG: FeatureRow[] = [
 ];
 
 export const PropertyComparator = ({ properties = [], onRemove, onClear }: any) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [showOnlyDifferences, setShowOnlyDifferences] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const [hasError] = useState(false);
 
   // Ultimate Catch-All
   const validProperties = useMemo(() => {
@@ -156,7 +156,9 @@ export const PropertyComparator = ({ properties = [], onRemove, onClear }: any) 
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-[#111] border-b border-white/10">
         <div className="flex items-center gap-4">
-          <span className="text-[#C9A962] font-bold uppercase tracking-widest text-xs">Comparador de Propiedades ({validProperties.length})</span>
+          <span className="text-[#C9A962] font-bold uppercase tracking-widest text-[10px]">
+            {t('property.comparator.comparing', { count: validProperties.length })}
+          </span>
           <button 
             onClick={() => setShowOnlyDifferences(!showOnlyDifferences)}
             className={cn(
