@@ -25,8 +25,6 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   imageUrl?: string;
   linkTo?: string;
   onClick?: () => void;
-  description?: string;
-  description_en?: string | null;
   track_id?: string | null;
   gallery?: string[] | null;
   floor?: string | number | null;
@@ -63,8 +61,6 @@ export const PropertyCard = memo(({
   linkTo,
   onClick,
   className,
-  description,
-  description_en,
   gallery,
   floor,
   orientation,
@@ -95,10 +91,7 @@ export const PropertyCard = memo(({
   );
 
   const { translatedText: autoTitle } = useAutoTranslate(title, title_en);
-  const { translatedText: autoDescription } = useAutoTranslate(description, description_en);
-
   const displayTitle = autoTitle;
-  const displayDescription = autoDescription ? autoDescription.replace(/<[^>]*>?/gm, '') : '';
 
   // Combine main image with gallery
   const images = [imageUrl, ...(gallery || [])].filter((img): img is string => !!img);
