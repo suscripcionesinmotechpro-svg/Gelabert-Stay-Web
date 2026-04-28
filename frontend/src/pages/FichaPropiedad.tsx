@@ -246,17 +246,21 @@ export const FichaPropiedad = () => {
   // Build a rich feature snippet for og:description — shows characteristics, not free text
   const featureSnippet = [
     property.area_m2 ? `${property.area_m2} m²` : null,
-    property.bedrooms > 0 ? `${property.bedrooms} hab.` : null,
-    property.bathrooms > 0 ? `${property.bathrooms} baños` : null,
-    property.has_parking ? 'Parking' : null,
-    property.has_pool ? 'Piscina' : null,
-    property.sea_views ? 'Vistas al mar' : null,
-    property.has_terrace ? 'Terraza' : null,
+    property.bedrooms > 0 ? `${property.bedrooms} ${t('property.labels.features.bedrooms')}` : null,
+    property.bathrooms > 0 ? `${property.bathrooms} ${t('property.labels.features.bathrooms')}` : null,
+    property.floor ? `${t('property.labels.features.floor')} ${property.floor}` : null,
+    property.has_elevator ? t('property.labels.features.has_elevator') : null,
+    property.is_furnished ? t('property.labels.features.is_furnished') : null,
+    property.has_parking ? t('property.labels.features.has_parking') : null,
+    property.has_pool ? t('property.labels.features.has_pool') : null,
+    property.has_terrace ? t('property.labels.features.has_terrace') : null,
+    property.sea_views ? t('property.labels.features.sea_views') : null,
     property.zone || property.city,
   ].filter(Boolean).join(' · ');
 
-  const seoDescription = property.meta_description
-    || (featureSnippet ? `${sharingTitleStr} — ${featureSnippet}` : (translatedDescription ? translatedDescription.replace(/<[^>]*>/g, '').slice(0, 160) : ''));
+  const seoDescription = featureSnippet 
+    ? featureSnippet 
+    : (translatedDescription ? translatedDescription.replace(/<[^>]*>/g, '').slice(0, 160) : '');
 
   // Usamos URL con slash final para mejorar compatibilidad con algunos scrapers
   const propertyUrl = `https://gelaberthomes.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${property.reference || property.slug || property.id}`;

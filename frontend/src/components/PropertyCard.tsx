@@ -376,13 +376,6 @@ export const PropertyCard = memo(({
           </h3>
           <p className="font-primary text-[#818181] text-xs uppercase tracking-widest">{location}</p>
         </div>
-
-        {description && (
-          <p className="font-primary text-[#888888] text-sm line-clamp-2 leading-relaxed h-[2.8rem]">
-            {displayDescription}
-          </p>
-        )}
-
         {/* Features Row */}
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[#888888] pt-1 opacity-80 group-hover:opacity-100 transition-opacity">
           <div className="flex items-center gap-1">
