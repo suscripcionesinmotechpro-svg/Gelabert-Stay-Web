@@ -25,6 +25,8 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   imageUrl?: string;
   linkTo?: string;
   onClick?: () => void;
+  description?: string;
+  description_en?: string | null;
   track_id?: string | null;
   gallery?: string[] | null;
   floor?: string | number | null;
@@ -61,6 +63,8 @@ export const PropertyCard = memo(({
   linkTo,
   onClick,
   className,
+  description: _description,
+  description_en: _description_en,
   gallery,
   floor,
   orientation,
