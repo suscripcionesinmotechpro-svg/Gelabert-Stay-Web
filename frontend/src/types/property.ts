@@ -212,7 +212,6 @@ export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
   terreno: 'property.labels.type.terreno',
   negocio: 'property.labels.type.negocio',
   habitacion: 'property.labels.type.habitacion',
-  general: 'common_area_types.general',
   otro: 'property.labels.type.otro',
 };
 

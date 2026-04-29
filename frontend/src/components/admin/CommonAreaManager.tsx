@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, X, Upload, Trash2, Play } from 'lucide-react';
 import { uploadPropertyMedia } from '../../hooks/useProperties';
-import type { PropertyCommonArea, PropertyVideo } from '../../types/property';
+import type { PropertyCommonArea } from '../../types/property';
 import { SortableImageGallery } from './SortableImageGallery';
 
 interface CommonAreaManagerProps {
