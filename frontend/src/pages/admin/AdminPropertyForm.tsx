@@ -978,9 +978,11 @@ export const AdminPropertyForm = () => {
       {/* MULTIMEDIA */}
       <div className={sectionClass}>
         <h2 className={sectionHeaderClass}>
-          {(form.is_room_rental || form.property_type === 'habitacion') 
-            ? 'Zonas Comunes (Fotos)' 
-            : t('admin.form.sections.multimedia')}
+          {form.property_type === 'habitacion'
+            ? 'La Habitación (Fotos)'
+            : form.is_room_rental
+              ? 'Zonas Comunes (Fotos)'
+              : t('admin.form.sections.multimedia')}
         </h2>
 
         <SortableImageGallery 
@@ -993,9 +995,11 @@ export const AdminPropertyForm = () => {
         {/* Galería de Vídeos */}
         <div className="mt-6 pt-6 border-t border-[#1F1F1F]">
           <h3 className="font-primary text-[#FAF8F5] font-bold text-xs uppercase tracking-wider mb-4">
-            {(form.is_room_rental || form.property_type === 'habitacion') 
-              ? 'Zonas Comunes (Vídeos)' 
-              : 'Galería de Vídeos'}
+            {form.property_type === 'habitacion'
+              ? 'La Habitación (Vídeos)'
+              : form.is_room_rental
+                ? 'Zonas Comunes (Vídeos)'
+                : 'Galería de Vídeos'}
           </h3>
           <SortableVideoGallery 
             videos={form.videos_metadata || []}
