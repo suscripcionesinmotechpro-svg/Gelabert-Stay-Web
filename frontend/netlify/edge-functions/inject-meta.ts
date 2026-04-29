@@ -205,7 +205,7 @@ export default async (request: Request, context: Context) => {
 
       // ── Image logic — GUARANTEED for all properties ──
       // Priority: main_image → gallery[0] → logo-og.png (not logo.png which is square/tiny)
-      const siteFallback = "https://gelaberthomes.es/logo-og.png?v=2";
+      const siteFallback = "https://gelaberthomes.es/logo-meta-v3.png?v=3";
 
       let rawImage = "";
       if (prop.main_image && prop.main_image.trim()) {

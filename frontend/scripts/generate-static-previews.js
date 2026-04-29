@@ -109,7 +109,7 @@ async function generateStaticPreviews() {
     for (const prop of properties) {
       // PROCESAR IMAGEN OG PRINCIPAL
       let mainImage = prop.main_image || (prop.gallery && prop.gallery.length > 0 ? prop.gallery[0] : "");
-      let previewImage = "https://gelaberthomes.es/logo-og.png";
+      let previewImage = "https://gelaberthomes.es/logo-meta-v3.png?v=3";
       
       if (mainImage) {
         const processedImageUrl = await processImage(mainImage, prop);
