@@ -153,11 +153,11 @@ export const FichaPropiedad = () => {
     
     const combined = [
       ...(main ? [main] : []),
-      ...gallery.filter(img => normalize(img) !== mainNorm)
+      ...gallery.filter((img: string) => normalize(img) !== mainNorm)
     ];
     
     const seen = new Set();
-    return combined.filter(img => {
+    return combined.filter((img: string) => {
       const n = normalize(img);
       if (seen.has(n)) return false;
       seen.add(n);

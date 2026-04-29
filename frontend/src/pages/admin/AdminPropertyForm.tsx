@@ -247,11 +247,11 @@ export const AdminPropertyForm = () => {
     
     const combined = [
       ...(main ? [main] : []),
-      ...gallery.filter(img => normalize(img) !== mainNorm)
+      ...gallery.filter((img: string) => normalize(img) !== mainNorm)
     ];
     
     const seen = new Set();
-    return combined.filter(img => {
+    return combined.filter((img: string) => {
       const n = normalize(img);
       if (seen.has(n)) return false;
       seen.add(n);
@@ -263,7 +263,7 @@ export const AdminPropertyForm = () => {
     // Normalización robusta para evitar duplicados visuales (mismo archivo, distinta URL/token)
     const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
     const seen = new Set();
-    const unique = newImages.filter(img => {
+    const unique = newImages.filter((img: string) => {
       const n = normalize(img);
       if (seen.has(n)) return false;
       seen.add(n);
@@ -465,9 +465,9 @@ export const AdminPropertyForm = () => {
       const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
       const mainNorm = mainImg ? normalize(mainImg) : '';
       
-      const uniqueGallery = rawGallery.filter(img => img && normalize(img) !== mainNorm);
+      const uniqueGallery = rawGallery.filter((img: string) => img && normalize(img) !== mainNorm);
       const seenGallery = new Set();
-      data.gallery = uniqueGallery.filter(img => {
+      data.gallery = uniqueGallery.filter((img: string) => {
         const n = normalize(img);
         if (seenGallery.has(n)) return false;
         seenGallery.add(n);

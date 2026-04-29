@@ -65,7 +65,7 @@ export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({ areas, onC
       const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
       const combined = [...currentImages, ...urls];
       const seen = new Set();
-      const unique = combined.filter(img => {
+      const unique = combined.filter((img: string) => {
         const n = normalize(img);
         if (seen.has(n)) return false;
         seen.add(n);
@@ -206,7 +206,7 @@ export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({ areas, onC
                   onChange={(images) => {
                     const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
                     const seen = new Set();
-                    const unique = images.filter(img => {
+                    const unique = images.filter((img: string) => {
                       const n = normalize(img);
                       if (seen.has(n)) return false;
                       seen.add(n);
