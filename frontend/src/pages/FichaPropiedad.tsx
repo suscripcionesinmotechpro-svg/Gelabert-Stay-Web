@@ -77,10 +77,23 @@ export const FichaPropiedad = () => {
             if (!vid.url) return null;
             return { ...vid, title: vid.title || r.name, poster: r.images?.[0] || property?.main_image || undefined };
           }).filter(Boolean) 
-        : [])
+        : []),
+      // Vídeos de zonas comunes
+      ...(property?.common_areas ?? []).flatMap((ca: any) => {
+        const caVideos = ca.videos || [];
+        return caVideos.map((v: any, vIdx: number) => {
+          const vid = typeof v === 'string' ? { url: v, title: '' } : v;
+          if (!vid.url) return null;
+          return { 
+            ...vid, 
+            title: vid.title || ca.name || `${t(`common_area_types.${ca.type}`, { defaultValue: ca.type })} ${vIdx + 1}`, 
+            poster: ca.images?.[0] || property?.main_image || undefined 
+          };
+        }).filter(Boolean);
+      })
     ] as (PropertyVideo & { poster?: string })[];
     return videos;
-  }, [property]);
+  }, [property, t]);
 
   // Get the current video URL directly — no cache-busting
   const currentVideoUrl = allVideos[activeVideoIndex]?.url || '';
@@ -440,7 +453,7 @@ export const FichaPropiedad = () => {
             {(property.is_room_rental || property.property_type === 'habitacion') && (
               <h3 className="font-secondary text-xl text-[#C9A962] flex items-center gap-2">
                 <Compass className="w-5 h-5" />
-                ZONAS COMUNES
+                {property.property_type === 'habitacion' ? 'LA HABITACIÓN' : 'ZONAS COMUNES'}
               </h3>
             )}
             
@@ -980,6 +993,78 @@ export const FichaPropiedad = () => {
                     </div>
                   </div>
                 )})}
+              </div>
+            </div>
+          )}
+
+          {/* Zonas Comunes (Nuevo bloque detallado) */}
+          {property.common_areas && property.common_areas.length > 0 && (
+            <div className="flex flex-col gap-6 pt-6 border-t border-[#1F1F1F]">
+              <h2 className="font-secondary text-2xl text-[#FAF8F5]">Zonas Comunes</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {property.common_areas.map((area: any) => (
+                  <div key={area.id} className="flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] rounded-sm overflow-hidden group hover:border-[#C9A962] transition-colors relative">
+                    {area.images && area.images.length > 0 ? (
+                      <div 
+                        className="w-full h-48 overflow-hidden cursor-pointer relative"
+                        onClick={() => openLightbox(area.images, 0)}
+                      >
+                        <PremiumImage src={area.images[0]} alt={area.name || area.type} wrapperClassName="w-full h-full group-hover:scale-105 transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
+                        {area.images.length > 1 && (
+                          <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/60 text-[8px] text-white uppercase font-bold tracking-tighter z-30">
+                            + {area.images.length - 1} FOTOS
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="w-full h-48 bg-[#161616] flex items-center justify-center font-primary text-[10px] text-[#444444] uppercase tracking-widest">
+                        {t('common.no_image')}
+                      </div>
+                    )}
+                    <div className="p-4 flex items-center justify-between">
+                      <div className="flex flex-col gap-0.5">
+                        <h4 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-tight">
+                          {area.name || t(`common_area_types.${area.type}`, { defaultValue: area.type })}
+                        </h4>
+                        {area.is_private && (
+                          <span className="text-[9px] text-[#C9A962] font-bold uppercase tracking-widest">Privado</span>
+                        )}
+                      </div>
+                      <div className="px-2 py-1 bg-white/5 border border-white/10 text-[#888888] font-primary text-[9px] uppercase tracking-wider rounded-sm">
+                        {area.type}
+                      </div>
+                    </div>
+                    
+                    {/* Botones de vídeo para zona común */}
+                    {(area.videos && area.videos.length > 0) && (
+                      <div className="px-4 pb-4 mt-auto flex flex-col gap-2">
+                        {area.videos.map((v: any, vIdx: number) => {
+                          const vUrl = typeof v === 'string' ? v : v.url;
+                          const vTitle = typeof v === 'object' && v.title ? v.title : (area.name || `${t(`common_area_types.${area.type}`)} ${vIdx + 1}`);
+                          
+                          return (
+                            <button 
+                              key={vIdx}
+                              onClick={() => {
+                                const idx = allVideos.findIndex((av: any) => av.url === vUrl && av.title === vTitle);
+                                if (idx !== -1) {
+                                  setActiveTab('video');
+                                  setActiveVideoIndex(idx);
+                                  document.getElementById('media-tabs')?.scrollIntoView({ behavior: 'smooth' });
+                                }
+                              }}
+                              className="w-full flex items-center justify-center gap-2 py-2 border border-[#C9A962]/20 text-[9px] text-[#C9A962] font-bold uppercase tracking-widest hover:bg-[#C9A962]/10 transition-colors"
+                            >
+                              <Play className="w-3 h-3" />
+                              {vTitle.toUpperCase()}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}

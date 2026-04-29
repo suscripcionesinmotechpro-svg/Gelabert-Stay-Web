@@ -12,6 +12,7 @@ import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PropertyMap } from '../../components/PropertyMap';
 import { useJsApiLoader, Autocomplete } from '@react-google-maps/api';
 import { RoomManager } from '../../components/admin/RoomManager';
+import { CommonAreaManager } from '../../components/admin/CommonAreaManager';
 import type { PropertyVideo } from '../../types/property';
 
 const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"];
@@ -105,6 +106,7 @@ const DEFAULT_FORM: Partial<PropertyInsert> = {
   block_staircase: '', urbanization: '',
   is_room_rental: false,
   rooms: [],
+  common_areas: [],
 };
 
 
@@ -171,6 +173,7 @@ export const AdminPropertyForm = () => {
         urbanization: property.urbanization ?? '',
         is_room_rental: property.is_room_rental ?? false,
         rooms: property.rooms ?? [],
+        common_areas: property.common_areas ?? [],
         videos_metadata: property.videos_metadata ?? [],
       };
       setForm(newForm);
@@ -758,12 +761,22 @@ export const AdminPropertyForm = () => {
         </div>
       </div>
 
-      {/* ALQUILER POR HABITACIONES */}
-      {(form.is_room_rental || form.property_type === 'habitacion') && (
+      {/* ALQUILER POR HABITACIONES (PISO/CASA) */}
+      {form.is_room_rental && form.property_type !== 'habitacion' && (
         <div className={sectionClass}>
           <RoomManager 
             rooms={form.rooms || []} 
             onChange={(rooms) => set('rooms', rooms)}
+          />
+        </div>
+      )}
+
+      {/* ZONAS COMUNES (HABITACIÓN INDIVIDUAL) */}
+      {form.property_type === 'habitacion' && (
+        <div className={sectionClass}>
+          <CommonAreaManager 
+            areas={form.common_areas || []} 
+            onChange={(areas) => set('common_areas', areas)}
           />
         </div>
       )}

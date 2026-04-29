@@ -42,6 +42,15 @@ export interface PropertyRoom {
   _calculated_status?: 'disponible' | 'reservada' | 'alquilada';
 }
 
+export interface PropertyCommonArea {
+  id: string;
+  type: 'baño' | 'salon' | 'terraza' | 'cocina' | 'patio' | 'trastero' | 'general' | 'otro';
+  name?: string;
+  images: string[];
+  videos?: (string | PropertyVideo)[];
+  is_private?: boolean; // Principalmente para baños
+}
+
 export interface Property {
   id: string;
   created_at: string;
@@ -125,6 +134,7 @@ export interface Property {
   // Alquiler por habitaciones
   is_room_rental: boolean;
   rooms: PropertyRoom[] | null;
+  common_areas: PropertyCommonArea[] | null;
 
   // SEO
   slug: string | null;
@@ -202,6 +212,7 @@ export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
   terreno: 'property.labels.type.terreno',
   negocio: 'property.labels.type.negocio',
   habitacion: 'property.labels.type.habitacion',
+  general: 'common_area_types.general',
   otro: 'property.labels.type.otro',
 };
 

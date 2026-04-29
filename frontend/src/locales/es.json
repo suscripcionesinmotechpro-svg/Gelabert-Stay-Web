@@ -18,6 +18,16 @@
     "copied": "\u00a1Copiado!",
     "share_email": "Compartir por email"
   },
+  "common_area_types": {
+    "baño": "Baño",
+    "salon": "Salón",
+    "terraza": "Terraza",
+    "cocina": "Cocina",
+    "patio": "Patio",
+    "trastero": "Trastero",
+    "general": "General / Todas las zonas",
+    "otro": "Otro"
+  },
   "tags": {
     "premium": "Propiedad Seleccionada",
     "destacada": "Propiedad Destacada",
