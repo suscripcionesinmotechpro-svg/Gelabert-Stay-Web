@@ -239,7 +239,7 @@ export const usePropertyMutations = () => {
     // 1. Obtener la propiedad primero para conocer sus archivos
     const { data: property } = await supabase
       .from('properties')
-      .select('main_image, gallery, video_url, videos, floor_plan')
+      .select('main_image, gallery, video_url, videos, floor_plan, videos_metadata, common_areas, rooms')
       .eq('id', id)
       .maybeSingle();
 
@@ -251,42 +251,33 @@ export const usePropertyMutations = () => {
     if (property) {
       const filesToDelete: string[] = [];
       const extractPath = (url: string | null) => {
-        if (!url) return null;
+        if (!url || typeof url !== 'string') return null;
         const parts = url.split('property-images/');
         return parts.length > 1 ? parts[1] : null;
       };
 
-      if (property.main_image) {
-        const path = extractPath(property.main_image);
-        if (path) filesToDelete.push(path);
-      }
-      
-      if (property.gallery && Array.isArray(property.gallery)) {
-        property.gallery.forEach((url: string) => {
-          const path = extractPath(url);
-          if (path) filesToDelete.push(path);
-        });
-      }
+      // Add all potential media URLs to the deletion list
+      const allMedia = [
+        ...(property.main_image ? [property.main_image] : []),
+        ...(property.gallery || []),
+        ...(property.video_url ? [property.video_url] : []),
+        ...(property.videos || []),
+        ...(property.videos_metadata || []).map((v: any) => v.url),
+        ...(property.floor_plan ? [property.floor_plan] : []),
+        ...(property.common_areas || []).flatMap((ca: any) => ca.images || []),
+        ...(property.rooms || []).flatMap((r: any) => r.images || [])
+      ].filter(Boolean);
 
-      if (property.video_url) {
-        const path = extractPath(property.video_url);
+      allMedia.forEach((url: string) => {
+        const path = extractPath(url);
         if (path) filesToDelete.push(path);
-      }
-
-      if (property.videos && Array.isArray(property.videos)) {
-        property.videos.forEach((url: string) => {
-          const path = extractPath(url);
-          if (path) filesToDelete.push(path);
-        });
-      }
-
-      if (property.floor_plan) {
-        const path = extractPath(property.floor_plan);
-        if (path) filesToDelete.push(path);
-      }
+      });
 
       if (filesToDelete.length > 0) {
-        await supabase.storage.from('property-images').remove(filesToDelete);
+        // Unique paths only to avoid duplicate deletion requests
+        const uniquePaths = Array.from(new Set(filesToDelete));
+        console.log(`[Storage] Deleting ${uniquePaths.length} files for property ${id}`);
+        await supabase.storage.from('property-images').remove(uniquePaths);
       }
     }
   };
@@ -365,4 +356,29 @@ export const uploadPropertyMedia = async (rawFile: File, folder = 'main'): Promi
   
   const { data } = supabase.storage.from('property-images').getPublicUrl(filename);
   return data.publicUrl;
+};
+
+/**
+ * Deletes a file from Supabase storage using its public URL
+ */
+export const deletePropertyMedia = async (url: string): Promise<void> => {
+  if (!url || typeof url !== 'string') return;
+  
+  try {
+    // Extract the path from the public URL
+    // Format: https://.../storage/v1/object/public/property-images/folder/filename.ext
+    const parts = url.split('/public/property-images/');
+    if (parts.length < 2) return;
+    
+    const path = parts[1];
+    if (path) {
+      console.log(`[Storage] Deleting file: ${path}`);
+      const { error } = await supabase.storage.from('property-images').remove([path]);
+      if (error) {
+        console.warn(`[Storage Error] Failed to delete file ${path}:`, error.message);
+      }
+    }
+  } catch (err) {
+    console.warn('[Storage Error] Error during media deletion:', err);
+  }
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useProperty, usePropertyMutations, uploadPropertyMedia } from '../../hooks/useProperties';
+import { useProperty, usePropertyMutations, uploadPropertyMedia, deletePropertyMedia } from '../../hooks/useProperties';
 import { usePropertyContracts } from '../../hooks/useContracts';
 import type { PropertyInsert, PropertyOperation, PropertyType, PropertyStatus, CommercialStatus } from '../../types/property';
 import { AVAILABLE_TAGS, OPERATION_LABELS, PROPERTY_TYPE_LABELS, COMMERCIAL_STATUS_LABELS, STATUS_LABELS } from '../../types/property';
@@ -128,6 +128,7 @@ export const AdminPropertyForm = () => {
   const [latStr, setLatStr] = useState('');
   const [lonStr, setLonStr] = useState('');
   const [formReady, setFormReady] = useState(!isEditing); // true immediately for new props
+  const [initialMedia, setInitialMedia] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setFormReady(false);
@@ -177,11 +178,23 @@ export const AdminPropertyForm = () => {
         videos_metadata: property.videos_metadata ?? [],
       };
       setForm(newForm);
-      setLatStr(property.latitude?.toString() ?? '');
-      setLonStr(property.longitude?.toString() ?? '');
+      setLatStr(property.latitude?.toString() || '');
+      setLonStr(property.longitude?.toString() || '');
+
+      // Capture all initial media URLs to track deletions
+      const allInit = [
+        ...(property.main_image ? [property.main_image] : []),
+        ...(property.gallery || []),
+        ...(property.floor_plan ? [property.floor_plan] : []),
+        ...(property.videos_metadata || []).map((v: any) => v.url),
+        ...(property.common_areas || []).flatMap((ca: any) => ca.images || []),
+        ...(property.rooms || []).flatMap((r: any) => r.images || [])
+      ].filter(Boolean);
+      setInitialMedia(new Set(allInit));
+
       setFormReady(true);
     }
-  }, [property, isEditing]);
+  }, [isEditing, property]);
 
   // Sync string coords when form coords change (e.g. from auto-geocoding)
   useEffect(() => {
@@ -486,6 +499,28 @@ export const AdminPropertyForm = () => {
       } else {
         delete data.id;
         await createProperty(data);
+      }
+
+      // 8. Cleanup orphaned media from storage AFTER successful DB save
+      if (isEditing && initialMedia.size > 0) {
+        // Collect all final media URLs
+        const finalMedia = new Set([
+          ...(data.main_image ? [data.main_image] : []),
+          ...(data.gallery || []),
+          ...(data.floor_plan ? [data.floor_plan] : []),
+          ...(data.videos_metadata || []).map((v: any) => v.url),
+          ...(data.common_areas || []).flatMap((ca: any) => ca.images || []),
+          ...(data.rooms || []).flatMap((r: any) => r.images || [])
+        ].filter(Boolean));
+
+        // Identify URLs that were present but are now gone
+        const toDelete = Array.from(initialMedia).filter(url => !finalMedia.has(url));
+        
+        if (toDelete.length > 0) {
+          console.log(`[Admin] Cleaning up ${toDelete.length} orphaned files from storage...`);
+          // Use Promise.allSettled to not block navigation if some deletions fail
+          await Promise.allSettled(toDelete.map(url => deletePropertyMedia(url)));
+        }
       }
       
       setSaving(false);
