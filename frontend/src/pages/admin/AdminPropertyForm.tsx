@@ -439,7 +439,12 @@ export const AdminPropertyForm = () => {
         }
       }
 
-      // 6. Eliminar campos que NO deben ir en la mutación o que Postgres genera
+      // 6. Desduplicar imágenes (asegurar que main_image no esté en gallery y que gallery sea única)
+      const mainImg = data.main_image;
+      const rawGallery = Array.isArray(data.gallery) ? data.gallery : [];
+      data.gallery = Array.from(new Set(rawGallery.filter((img: string) => img !== mainImg)));
+
+      // 7. Eliminar campos que NO deben ir en la mutación o que Postgres genera
       delete data.created_at;
       delete data.updated_at;
       
