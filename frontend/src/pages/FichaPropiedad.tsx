@@ -143,10 +143,15 @@ export const FichaPropiedad = () => {
   };
 
   // General gallery images (excluding rooms if it's a room rental)
-  const generalImages = [
-    property?.main_image, 
-    ...(property?.gallery ?? [])
-  ].filter(Boolean) as string[];
+  const generalImages = useMemo(() => {
+    const main = property?.main_image;
+    const gallery = property?.gallery || [];
+    const combined = [
+      ...(main ? [main] : []),
+      ...gallery.filter(img => img !== main)
+    ];
+    return Array.from(new Set(combined));
+  }, [property]);
 
 
   // Lightbox key handling is handled internally by yet-another-react-lightbox

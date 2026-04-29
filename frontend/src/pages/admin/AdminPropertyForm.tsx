@@ -238,13 +238,22 @@ export const AdminPropertyForm = () => {
   const set = (field: keyof PropertyInsert, value: unknown) =>
     setForm(prev => ({ ...prev, [field]: value }));
 
-  const allImages = [form.main_image, ...(form.gallery ?? [])].filter(Boolean) as string[];
+  const allImages = useMemo(() => {
+    const main = form.main_image;
+    const gallery = form.gallery || [];
+    const combined = [
+      ...(main ? [main] : []),
+      ...gallery.filter(img => img !== main)
+    ];
+    return Array.from(new Set(combined));
+  }, [form.main_image, form.gallery]);
 
   const handleImagesChange = (newImages: string[]) => {
-    if (newImages.length === 0) {
+    const unique = Array.from(new Set(newImages));
+    if (unique.length === 0) {
       setForm(prev => ({ ...prev, main_image: '', gallery: [] }));
     } else {
-      setForm(prev => ({ ...prev, main_image: newImages[0], gallery: newImages.slice(1) }));
+      setForm(prev => ({ ...prev, main_image: unique[0], gallery: unique.slice(1) }));
     }
   };
 
