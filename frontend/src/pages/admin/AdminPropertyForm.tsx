@@ -185,8 +185,10 @@ export const AdminPropertyForm = () => {
       const allInit = [
         ...(property.main_image ? [property.main_image] : []),
         ...(property.gallery || []),
-        ...(property.floor_plan ? [property.floor_plan] : []),
+        ...(property.video_url ? [property.video_url] : []),
+        ...(property.videos || []),
         ...(property.videos_metadata || []).map((v: any) => v.url),
+        ...(property.floor_plan ? [property.floor_plan] : []),
         ...(property.common_areas || []).flatMap((ca: any) => ca.images || []),
         ...(property.rooms || []).flatMap((r: any) => r.images || [])
       ].filter(Boolean);
@@ -507,6 +509,8 @@ export const AdminPropertyForm = () => {
         const finalMedia = new Set([
           ...(data.main_image ? [data.main_image] : []),
           ...(data.gallery || []),
+          ...(data.video_url ? [data.video_url] : []),
+          ...(data.videos || []),
           ...(data.floor_plan ? [data.floor_plan] : []),
           ...(data.videos_metadata || []).map((v: any) => v.url),
           ...(data.common_areas || []).flatMap((ca: any) => ca.images || []),
