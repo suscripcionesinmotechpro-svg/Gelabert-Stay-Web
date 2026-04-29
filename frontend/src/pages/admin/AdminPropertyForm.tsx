@@ -241,15 +241,35 @@ export const AdminPropertyForm = () => {
   const allImages = useMemo(() => {
     const main = form.main_image;
     const gallery = form.gallery || [];
+    
+    const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
+    const mainNorm = main ? normalize(main) : '';
+    
     const combined = [
       ...(main ? [main] : []),
-      ...gallery.filter(img => img !== main)
+      ...gallery.filter(img => normalize(img) !== mainNorm)
     ];
-    return Array.from(new Set(combined));
+    
+    const seen = new Set();
+    return combined.filter(img => {
+      const n = normalize(img);
+      if (seen.has(n)) return false;
+      seen.add(n);
+      return true;
+    });
   }, [form.main_image, form.gallery]);
 
   const handleImagesChange = (newImages: string[]) => {
-    const unique = Array.from(new Set(newImages));
+    // Normalización robusta para evitar duplicados visuales (mismo archivo, distinta URL/token)
+    const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
+    const seen = new Set();
+    const unique = newImages.filter(img => {
+      const n = normalize(img);
+      if (seen.has(n)) return false;
+      seen.add(n);
+      return true;
+    });
+
     if (unique.length === 0) {
       setForm(prev => ({ ...prev, main_image: '', gallery: [] }));
     } else {
@@ -442,7 +462,17 @@ export const AdminPropertyForm = () => {
       // 6. Desduplicar imágenes (asegurar que main_image no esté en gallery y que gallery sea única)
       const mainImg = data.main_image;
       const rawGallery = Array.isArray(data.gallery) ? data.gallery : [];
-      data.gallery = Array.from(new Set(rawGallery.filter((img: string) => img !== mainImg)));
+      const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
+      const mainNorm = mainImg ? normalize(mainImg) : '';
+      
+      const uniqueGallery = rawGallery.filter(img => img && normalize(img) !== mainNorm);
+      const seenGallery = new Set();
+      data.gallery = uniqueGallery.filter(img => {
+        const n = normalize(img);
+        if (seenGallery.has(n)) return false;
+        seenGallery.add(n);
+        return true;
+      });
 
       // 7. Eliminar campos que NO deben ir en la mutación o que Postgres genera
       delete data.created_at;

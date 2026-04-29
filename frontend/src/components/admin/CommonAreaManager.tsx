@@ -62,7 +62,16 @@ export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({ areas, onC
         urls.push(url);
       }
       const currentImages = areas[index].images || [];
-      updateArea(index, { images: [...currentImages, ...urls] });
+      const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
+      const combined = [...currentImages, ...urls];
+      const seen = new Set();
+      const unique = combined.filter(img => {
+        const n = normalize(img);
+        if (seen.has(n)) return false;
+        seen.add(n);
+        return true;
+      });
+      updateArea(index, { images: unique });
     } catch (err) {
       console.error('Error uploading common area images:', err);
     } finally {
@@ -194,7 +203,17 @@ export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({ areas, onC
 
                 <SortableImageGallery 
                   images={area.images} 
-                  onChange={(images) => updateArea(idx, { images })} 
+                  onChange={(images) => {
+                    const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
+                    const seen = new Set();
+                    const unique = images.filter(img => {
+                      const n = normalize(img);
+                      if (seen.has(n)) return false;
+                      seen.add(n);
+                      return true;
+                    });
+                    updateArea(idx, { images: unique });
+                  }} 
                 />
               </div>
 

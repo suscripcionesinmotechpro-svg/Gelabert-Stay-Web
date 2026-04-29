@@ -146,11 +146,23 @@ export const FichaPropiedad = () => {
   const generalImages = useMemo(() => {
     const main = property?.main_image;
     const gallery = property?.gallery || [];
+    
+    // Normalización para comparar URLs sin parámetros de consulta
+    const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
+    const mainNorm = main ? normalize(main) : '';
+    
     const combined = [
       ...(main ? [main] : []),
-      ...gallery.filter(img => img !== main)
+      ...gallery.filter(img => normalize(img) !== mainNorm)
     ];
-    return Array.from(new Set(combined));
+    
+    const seen = new Set();
+    return combined.filter(img => {
+      const n = normalize(img);
+      if (seen.has(n)) return false;
+      seen.add(n);
+      return true;
+    });
   }, [property]);
 
 
