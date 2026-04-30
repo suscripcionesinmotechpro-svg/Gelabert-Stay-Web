@@ -317,6 +317,8 @@
       "button_add": "Add to my selection",
       "button_selected": "Selected",
       "button_added": "Added",
+      "add": "Add to my selection",
+      "added": "Selected",
       "note": "Add the services you're interested in to your selection. Once finished, complete the form and we will contact you as soon as possible.",
       "floating_view": "View my selection",
       "drawer_title": "Your Selection",

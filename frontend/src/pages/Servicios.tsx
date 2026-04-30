@@ -248,7 +248,7 @@ export const Servicios = () => {
       descKey: 'services.owner_services.seguro_impago.desc',
       title: t('services.owner_services.seguro_impago.title'),
       tag: t('services.owner_services.seguro_impago.tag'),
-      image: 'https://images.unsplash.com/photo-1584433144859-1fc3ab64a957?q=80&w=1000&auto=format&fit=crop',
+      image: 'https://images.unsplash.com/photo-1633526543814-9718c8922b7a?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.seguro_impago.desc'),
       bullets: t('services.owner_services.seguro_impago.bullets', { returnObjects: true }) as string[],
       className: "md:col-span-2 md:row-span-1 min-h-[400px]",

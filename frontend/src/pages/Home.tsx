@@ -124,7 +124,7 @@ export const Home = () => {
       <div className="absolute inset-0 z-0 bg-black">
         {/* Persistent Poster Image (Static Background) using a premium luxury villa */}
         <img 
-          src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop" 
+          src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop" 
           alt="Hero Background"
           className={`w-full h-full object-cover scale-105 transition-opacity duration-1000 ease-in-out ${
             videoLoaded ? 'opacity-0' : 'opacity-90'
@@ -445,10 +445,10 @@ export const Home = () => {
       <section className="relative w-full px-6 md:px-14 py-32 overflow-hidden">
         {/* Cinematic background: Arquitectura moderna interior premium */}
         <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop"
-            className="w-full h-full object-cover opacity-60 brightness-[0.8] saturate-[1.25] scale-105"
-            alt=""
+          <img 
+            src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop" 
+            className="w-full h-full object-cover brightness-[0.7] saturate-[1.2] scale-105"
+            alt="Luxury Villa"
             loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#0F0F0F]/80 via-[#0A0A0A]/40 to-[#0F0F0F]/80" />
