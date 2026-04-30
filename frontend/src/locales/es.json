@@ -497,6 +497,18 @@
         "Asesoramiento en contrato y documentación",
         "Acompañamiento durante todo el periodo que dure el contrato de alquiler"
       ]
+    },
+    "mortgage": {
+      "title": "Gestión Hipotecaria Especializada",
+      "tag": "SERVICIO PROFESIONAL",
+      "desc": "No te conformes con lo que te ofrece tu banco. Nuestro equipo de expertos analiza tu perfil para negociar con todas las entidades, consiguiendo condiciones exclusivas que maximizan tu ahorro.",
+      "bullets": [
+        "Análisis exhaustivo de perfil financiero",
+        "Comparativa entre más de 20 entidades bancarias",
+        "Negociación directa de tipos de interés y condiciones",
+        "Optimización de productos vinculados y comisiones",
+        "Gestión documental y acompañamiento hasta la firma"
+      ]
     }
   },
   "owners_page": {

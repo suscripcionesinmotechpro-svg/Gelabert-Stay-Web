@@ -251,6 +251,21 @@ export const Servicios = () => {
       className: "md:col-span-2 md:row-span-1 min-h-[400px]",
       highlight: true
     },
+    {
+      id: 'hipoteca',
+      icon: <Building2 className="w-6 h-6 text-[#C9A962]" />,
+      cartIcon: '🏦',
+      titleKey: 'services.mortgage.title',
+      tagKey: 'services.mortgage.tag',
+      descKey: 'services.mortgage.desc',
+      title: t('services.mortgage.title'),
+      tag: t('services.mortgage.tag'),
+      image: 'https://images.unsplash.com/photo-1621459548400-381bb08d3319?q=80&w=2000&auto=format&fit=crop',
+      desc: t('services.mortgage.desc'),
+      bullets: t('services.mortgage.bullets', { returnObjects: true }) as string[],
+      className: "md:col-span-2 md:row-span-1 min-h-[400px]",
+      highlight: true
+    }
   ];
 
   const whyChooseUsItems = [

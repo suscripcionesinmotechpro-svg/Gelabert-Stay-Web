@@ -479,6 +479,18 @@
         "Advice on contract and documentation",
         "Accompaniment throughout the duration of the rental contract"
       ]
+    },
+    "mortgage": {
+      "title": "Specialized Mortgage Management",
+      "tag": "PROFESSIONAL SERVICE",
+      "desc": "Don't settle for what your bank offers. Our team of experts analyzes your profile to negotiate with all entities, obtaining exclusive conditions that maximize your savings.",
+      "bullets": [
+        "Exhaustive financial profile analysis",
+        "Comparison between more than 20 banking entities",
+        "Direct negotiation of interest rates and conditions",
+        "Optimization of linked products and commissions",
+        "Document management and accompaniment until signing"
+      ]
     }
   },
   "owners_page": {
