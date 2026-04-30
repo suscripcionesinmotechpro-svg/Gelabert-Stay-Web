@@ -40,11 +40,10 @@
     font-family: var(--font-primary);
   }
 
-  /* Mejora global de nitidez y viveza en imágenes, vídeos y fondos sin afectar textos */
-  img, video, [style*="background-image"] {
-    filter: contrast(1.1) saturate(1.15) brightness(1.02);
+  /* Mejora global de renderizado de imágenes y vídeos */
+  img, video {
     image-rendering: high-quality;
-    -webkit-backface-visibility: hidden; /* Prevent flickering */
+    -webkit-backface-visibility: hidden;
   }
 }
 

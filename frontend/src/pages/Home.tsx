@@ -127,7 +127,7 @@ export const Home = () => {
           src="/images/hero-poster.png?v=2" 
           alt="Hero Background"
           className={`w-full h-full object-cover scale-105 transition-opacity duration-500 ease-in-out ${
-            videoLoaded ? 'opacity-0' : 'opacity-60'
+            videoLoaded ? 'opacity-0' : 'opacity-70'
           }`}
         />
         
@@ -141,7 +141,7 @@ export const Home = () => {
           fetchPriority="high"
           onCanPlay={() => setVideoLoaded(true)}
           className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-500 ease-in-out ${
-            videoLoaded ? 'opacity-60' : 'opacity-0'
+            videoLoaded ? 'opacity-70' : 'opacity-0'
           }`}
         >
           <source 
@@ -304,7 +304,7 @@ export const Home = () => {
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1534430480872-3498386e7856?q=80&w=2070&auto=format&fit=crop"
-            className="w-full h-full object-cover opacity-25 brightness-[0.5] scale-105"
+            className="w-full h-full object-cover opacity-35 brightness-[0.6] saturate-[1.2] scale-105"
             alt=""
             loading="lazy"
           />
@@ -447,7 +447,7 @@ export const Home = () => {
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop"
-            className="w-full h-full object-cover opacity-30 brightness-[0.55] scale-105"
+            className="w-full h-full object-cover opacity-40 brightness-[0.65] saturate-[1.2] scale-105"
             alt=""
             loading="lazy"
           />
@@ -498,7 +498,7 @@ export const Home = () => {
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop"
-            className="w-full h-full object-cover opacity-20 brightness-[0.4] scale-110"
+            className="w-full h-full object-cover opacity-30 brightness-[0.5] saturate-[1.2] scale-110"
             alt=""
             loading="lazy"
           />
@@ -560,7 +560,7 @@ export const Home = () => {
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=2070&auto=format&fit=crop"
-            className="w-full h-full object-cover opacity-45 brightness-[0.6] scale-105"
+            className="w-full h-full object-cover opacity-55 brightness-[0.7] saturate-[1.2] scale-105"
             alt=""
             loading="lazy"
           />
