@@ -221,10 +221,10 @@ export const Propiedades = () => {
       <section className="relative h-[40vh] min-h-[400px] flex items-center overflow-hidden border-b border-white/5">
         <div className="absolute inset-0 z-0">
           <div 
-            className="w-full h-full bg-cover bg-center brightness-[0.55] saturate-[1.2] transform scale-105 transition-transform duration-1000 ease-in-out"
+            className="w-full h-full bg-cover bg-center brightness-[0.7] saturate-[1.25] transform scale-105 transition-transform duration-1000 ease-in-out"
             style={{ backgroundImage: `url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop')` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/30 via-[#050505]/70 to-[#050505]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/20 via-[#050505]/50 to-[#050505]/95" />
         </div>
 
         <div className="relative z-10 w-full px-6 md:px-14 flex flex-col gap-6">

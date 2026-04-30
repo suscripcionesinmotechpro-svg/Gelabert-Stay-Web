@@ -127,7 +127,7 @@ export const Home = () => {
           src="/images/hero-poster.png?v=2" 
           alt="Hero Background"
           className={`w-full h-full object-cover scale-105 transition-opacity duration-500 ease-in-out ${
-            videoLoaded ? 'opacity-0' : 'opacity-70'
+            videoLoaded ? 'opacity-0' : 'opacity-90'
           }`}
         />
         
@@ -141,7 +141,7 @@ export const Home = () => {
           fetchPriority="high"
           onCanPlay={() => setVideoLoaded(true)}
           className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-500 ease-in-out ${
-            videoLoaded ? 'opacity-70' : 'opacity-0'
+            videoLoaded ? 'opacity-90' : 'opacity-0'
           }`}
         >
           <source 
@@ -149,7 +149,7 @@ export const Home = () => {
             type="video/mp4" 
           />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#0A0A0A]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-[#0A0A0A]/90" />
       </div>
 
       <div className="max-w-[1440px] w-full px-6 md:px-14 flex flex-col items-center text-center relative z-10">
@@ -304,12 +304,12 @@ export const Home = () => {
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1534430480872-3498386e7856?q=80&w=2070&auto=format&fit=crop"
-            className="w-full h-full object-cover opacity-35 brightness-[0.6] saturate-[1.2] scale-105"
+            className="w-full h-full object-cover opacity-60 brightness-[0.8] saturate-[1.25] scale-105"
             alt=""
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A] via-[#050505]/80 to-[#0A0A0A]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/60 via-transparent to-[#050505]/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/80 via-[#050505]/40 to-[#0A0A0A]/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/40 via-transparent to-[#050505]/40" />
         </div>
         {/* Línea dorada decorativa */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C9A962]/40 to-transparent" />
@@ -447,11 +447,11 @@ export const Home = () => {
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop"
-            className="w-full h-full object-cover opacity-40 brightness-[0.65] saturate-[1.2] scale-105"
+            className="w-full h-full object-cover opacity-60 brightness-[0.8] saturate-[1.25] scale-105"
             alt=""
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0F0F0F] via-[#0A0A0A]/75 to-[#0F0F0F]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0F0F0F]/80 via-[#0A0A0A]/40 to-[#0F0F0F]/80" />
         </div>
         <div className="relative z-10 flex flex-col gap-12">
           <motion.div
@@ -498,11 +498,11 @@ export const Home = () => {
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop"
-            className="w-full h-full object-cover opacity-30 brightness-[0.5] saturate-[1.2] scale-110"
+            className="w-full h-full object-cover opacity-50 brightness-[0.7] saturate-[1.25] scale-110"
             alt=""
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A] via-[#0F0F0F]/85 to-[#0A0A0A]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/80 via-[#0F0F0F]/50 to-[#0A0A0A]/80" />
         </div>
         <div className="relative z-10 flex flex-col gap-12">
         <div className="text-center flex flex-col gap-3">
@@ -560,11 +560,11 @@ export const Home = () => {
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=2070&auto=format&fit=crop"
-            className="w-full h-full object-cover opacity-55 brightness-[0.7] saturate-[1.2] scale-105"
+            className="w-full h-full object-cover opacity-70 brightness-[0.85] saturate-[1.25] scale-105"
             alt=""
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A] via-transparent to-[#0A0A0A]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/80 via-transparent to-[#0A0A0A]/80" />
           <div className="absolute inset-0 bg-[#C9A962]/[0.04] mix-blend-overlay" />
         </div>
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C9A962]/30 to-transparent" />

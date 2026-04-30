@@ -64,11 +64,11 @@ const ServiceCard = ({
       <img
         src={image}
         alt={title}
-        className={`w-full h-full object-cover transition-all duration-1000 saturate-[1.2] ${
-          isInCart ? 'brightness-[0.55] scale-105' : 'brightness-[0.35] group-hover:brightness-[0.45] group-hover:scale-110'
+        className={`w-full h-full object-cover transition-all duration-1000 saturate-[1.25] ${
+          isInCart ? 'brightness-[0.65] scale-105' : 'brightness-[0.5] group-hover:brightness-[0.6] group-hover:scale-110'
         }`}
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0A] via-transparent to-transparent opacity-80" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0A]/70 via-transparent to-transparent opacity-70" />
     </div>
 
     {/* Shine effect */}
@@ -306,10 +306,10 @@ export const Servicios = () => {
           className="absolute inset-0 z-0"
         >
           <div 
-            className="w-full h-full bg-cover bg-center brightness-[0.25] saturate-[1.2]"
+            className="w-full h-full bg-cover bg-center brightness-[0.45] saturate-[1.25]"
             style={{ backgroundImage: `url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=2070&auto=format&fit=crop')` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/50 to-[#050505]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/30 to-[#050505]/90" />
         </motion.div>
 
         <div className="relative z-10 px-6 max-w-7xl mx-auto text-center">
@@ -524,10 +524,10 @@ export const Servicios = () => {
           {/* Imagen: Vivienda de lujo moderna con piscina / exterior propiedad premium */}
           <img 
             src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=2000&auto=format&fit=crop" 
-            className="w-full h-full object-cover opacity-45 brightness-[0.7] saturate-[1.2] scale-105"
+            className="w-full h-full object-cover opacity-65 brightness-[0.85] saturate-[1.25] scale-105"
             alt=""
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-transparent to-[#050505]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-[#050505]/80" />
         </div>
         
         <div className="absolute inset-0 bg-[#C9A962]/[0.05] mix-blend-overlay z-[1]" />

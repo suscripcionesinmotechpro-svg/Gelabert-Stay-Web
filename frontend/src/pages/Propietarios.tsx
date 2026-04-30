@@ -43,10 +43,10 @@ export const Propietarios = () => {
         {/* Imagen: Villa de lujo con fachada blanca, piscina y palmeras — estilo mediterráneo premium */}
         <img 
           src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2000&auto=format&fit=crop" 
-          className="w-full h-full object-cover opacity-50 brightness-[0.7] saturate-[1.2] scale-105"
+          className="w-full h-full object-cover opacity-75 brightness-[0.85] saturate-[1.3] scale-105"
           alt=""
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-[#050505] via-[#050505]/55 to-[#050505]/85" />
+        <div className="absolute inset-0 bg-gradient-to-l from-[#050505]/90 via-[#050505]/40 to-[#050505]/70" />
       </div>
 
       {/* Background Mesh */}
