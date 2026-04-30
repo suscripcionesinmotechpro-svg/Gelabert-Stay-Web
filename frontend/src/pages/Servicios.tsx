@@ -307,7 +307,7 @@ export const Servicios = () => {
         >
           <div 
             className="w-full h-full bg-cover bg-center brightness-[0.45] saturate-[1.25]"
-            style={{ backgroundImage: `url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=2070&auto=format&fit=crop')` }}
+            style={{ backgroundImage: `url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop')` }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/30 to-[#050505]/90" />
         </motion.div>

@@ -83,9 +83,9 @@ export const Contacto = () => {
 
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {/* Imagen: Agente inmobiliario atendiedo a clientes en reunión */}
+        {/* Imagen: Agente inmobiliario atendiendo a clientes en reunión */}
         <img 
-          src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2000&auto=format&fit=crop" 
+          src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?q=80&w=2000&auto=format&fit=crop" 
           className="w-full h-full object-cover opacity-70 brightness-[0.85] saturate-[1.3] scale-105"
           alt=""
         />

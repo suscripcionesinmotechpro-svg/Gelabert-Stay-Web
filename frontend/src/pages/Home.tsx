@@ -443,10 +443,10 @@ export const Home = () => {
 
       {/* Why Choose Us */}
       <section className="relative w-full px-6 md:px-14 py-32 overflow-hidden">
-        {/* Cinematic background: Villa de lujo interior de diseño */}
+        {/* Cinematic background: Arquitectura moderna interior premium */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop"
+            src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop"
             className="w-full h-full object-cover opacity-60 brightness-[0.8] saturate-[1.25] scale-105"
             alt=""
             loading="lazy"
@@ -492,19 +492,9 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="relative w-full px-6 md:px-14 py-24 overflow-hidden">
-        {/* Cinematic background: Skyline urbano de noche */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop"
-            className="w-full h-full object-cover opacity-50 brightness-[0.7] saturate-[1.25] scale-110"
-            alt=""
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/80 via-[#0F0F0F]/50 to-[#0A0A0A]/80" />
-        </div>
-        <div className="relative z-10 flex flex-col gap-12">
+      {/* Testimonials — clean dark section for visual breathing room */}
+      <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A]">
+        <div className="flex flex-col gap-12">
         <div className="text-center flex flex-col gap-3">
           <span className="font-primary text-[#C9A962] text-xs uppercase tracking-[0.3em] font-bold">{t('home.testimonials.badge') || 'Lo que dicen nuestros clientes'}</span>
           <h2 className="font-secondary text-4xl md:text-5xl text-[#FAF8F5]">{t('home.testimonials.title')}</h2>
@@ -522,7 +512,7 @@ export const Home = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.12 }}
-              className="flex flex-col gap-5 p-8 border border-[#1F1F1F] bg-[#0A0A0A] hover:border-[#C9A962]/30 transition-colors group"
+              className="flex flex-col gap-5 p-8 border border-[#1F1F1F] bg-[#0F0F0F] hover:border-[#C9A962]/30 transition-colors group"
             >
               {/* Stars */}
               <div className="flex gap-0.5">
