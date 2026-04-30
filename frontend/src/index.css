@@ -39,6 +39,13 @@
     color: var(--foreground);
     font-family: var(--font-primary);
   }
+
+  /* Mejora global de nitidez y viveza en imágenes sin afectar textos */
+  img {
+    filter: contrast(1.1) saturate(1.15) brightness(1.02);
+    image-rendering: high-quality;
+    -webkit-backface-visibility: hidden; /* Prevent flickering */
+  }
 }
 
 @utility bg-mesh {
