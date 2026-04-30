@@ -145,12 +145,7 @@ export const Home = () => {
           }`}
         >
           <source 
-            src="https://assets.mixkit.co/videos/preview/mixkit-modern-luxury-house-exterior-at-dusk-154-large.mp4" 
-            type="video/mp4" 
-          />
-          {/* Fallback local video just in case */}
-          <source 
-            src="/videos/hero-drone.mp4?v=1" 
+            src="/videos/hero-luxury.mp4?v=1" 
             type="video/mp4" 
           />
         </video>

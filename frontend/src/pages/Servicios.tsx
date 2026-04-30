@@ -248,7 +248,7 @@ export const Servicios = () => {
       descKey: 'services.owner_services.seguro_impago.desc',
       title: t('services.owner_services.seguro_impago.title'),
       tag: t('services.owner_services.seguro_impago.tag'),
-      image: 'https://images.unsplash.com/photo-1633526543814-9718c8922b7a?q=80&w=1000&auto=format&fit=crop',
+      image: 'https://images.unsplash.com/photo-1584433144859-1fc3ab64a957?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.seguro_impago.desc'),
       bullets: t('services.owner_services.seguro_impago.bullets', { returnObjects: true }) as string[],
       className: "md:col-span-2 md:row-span-1 min-h-[400px]",
@@ -418,29 +418,93 @@ export const Servicios = () => {
           <div className="w-16 h-0.5 bg-[#C9A962] mx-auto opacity-40" />
         </motion.div>
 
-        <ServiceCard
-          id="tenant_search"
-          cartIcon="🔑"
-          title={t('services.tenant_search.title')}
-          tag={t('services.tenant_search.tag')}
-          icon={<Key className="w-6 h-6 text-[#C9A962]" />}
-          desc={t('services.tenants.description')}
-          image="https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?q=80&w=2073&auto=format&fit=crop"
-          bullets={t('services.tenant_search.bullets', { returnObjects: true }) as string[]}
-          highlight={true}
-          className="max-w-4xl mx-auto lg:h-[550px]"
-          isInCart={cart.isInCart('tenant_search')}
-          onToggle={() => cart.toggleService({
-            id: 'tenant_search',
-            titleKey: 'services.tenant_search.title',
-            tagKey: 'services.tenant_search.tag',
-            descKey: 'services.tenant_search.desc',
-            title: t('services.tenant_search.title'),
-            tag: t('services.tenant_search.tag'),
-            icon: "🔑",
-            desc: t('services.tenant_search.desc')
-          })}
-        />
+        <motion.div 
+          {...(fadeUp as any)}
+          className="relative w-full glass border border-white/10 rounded-sm overflow-hidden flex flex-col lg:flex-row group"
+        >
+          {/* Golden Mecha (Border animation) */}
+          <div className="absolute inset-0 pointer-events-none z-10">
+            <div className="absolute inset-0 border border-[#C9A962]/10" />
+            <div className="absolute inset-[-2px] border border-transparent rounded-sm animate-border-glow opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+              style={{
+                background: 'conic-gradient(from 0deg, transparent, #C9A962, transparent 25%) border-box',
+                WebkitMask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)',
+                WebkitMaskComposite: 'xor',
+                maskComposite: 'exclude',
+              } as any}
+            />
+          </div>
+
+          {/* Left Image Area */}
+          <div className="lg:w-1/2 relative min-h-[450px] overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?q=80&w=2073&auto=format&fit=crop" 
+              className="absolute inset-0 w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+              alt={t('services.tenants.title')}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/60 to-transparent" />
+          </div>
+
+          {/* Right Content Area */}
+          <div className="lg:w-1/2 p-10 md:p-16 flex flex-col justify-center gap-8 relative z-10 bg-[#0A0A0A]/60 backdrop-blur-md">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-black border border-[#C9A962]/30 flex items-center justify-center">
+                <Key className="w-6 h-6 text-[#C9A962]" />
+              </div>
+              <div>
+                <span className="block font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.2em] font-bold">
+                  {t('services.tenant_search.tag')}
+                </span>
+                <h3 className="font-secondary text-3xl text-white">
+                  {t('services.tenant_search.title')}
+                </h3>
+              </div>
+            </div>
+
+            <p className="font-primary text-white/60 text-lg leading-relaxed">
+              {t('services.tenants.description')}
+            </p>
+
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {(t('services.tenant_search.bullets', { returnObjects: true }) as string[]).map((bullet, idx) => (
+                <li key={idx} className="flex items-start gap-3">
+                  <Check className="w-4 h-4 text-[#C9A962] mt-1 shrink-0" />
+                  <span className="font-primary text-white/50 text-sm leading-tight">{bullet}</span>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              onClick={() => cart.toggleService({
+                id: 'tenant_search',
+                titleKey: 'services.tenant_search.title',
+                tagKey: 'services.tenant_search.tag',
+                descKey: 'services.tenant_search.desc',
+                title: t('services.tenant_search.title'),
+                tag: t('services.tenant_search.tag'),
+                icon: "🔑",
+                desc: t('services.tenant_search.desc')
+              })}
+              className={`w-fit px-8 py-4 font-primary text-[10px] uppercase tracking-[0.2em] font-bold transition-all duration-500 flex items-center gap-3 ${
+                cart.isInCart('tenant_search')
+                  ? 'bg-[#C9A962] text-black'
+                  : 'bg-transparent text-[#C9A962] border border-[#C9A962]/30 hover:bg-[#C9A962]/10 hover:border-[#C9A962]'
+              }`}
+            >
+              {cart.isInCart('tenant_search') ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  {t('services.cart.added')}
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" />
+                  {t('services.cart.add')}
+                </>
+              )}
+            </button>
+          </div>
+        </motion.div>
       </section>
 
       {/* Why Choose Us: Premium Reveal */}
