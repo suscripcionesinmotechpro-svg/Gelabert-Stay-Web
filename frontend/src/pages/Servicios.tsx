@@ -248,7 +248,7 @@ export const Servicios = () => {
       descKey: 'services.owner_services.seguro_impago.desc',
       title: t('services.owner_services.seguro_impago.title'),
       tag: t('services.owner_services.seguro_impago.tag'),
-      image: 'https://images.unsplash.com/photo-1633526543814-9718c8922b7a?q=80&w=1000&auto=format&fit=crop',
+      image: 'https://images.unsplash.com/photo-1633526543814-9718c8922b7a?q=80&w=1000&auto=format&fit=crop&v=2',
       desc: t('services.owner_services.seguro_impago.desc'),
       bullets: t('services.owner_services.seguro_impago.bullets', { returnObjects: true }) as string[],
       className: "md:col-span-2 md:row-span-1 min-h-[400px]",
@@ -438,8 +438,8 @@ export const Servicios = () => {
           {/* Left Image Area */}
           <div className="lg:w-1/2 relative min-h-[450px] overflow-hidden">
             <img 
-              src="https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?q=80&w=2073&auto=format&fit=crop" 
-              className="absolute inset-0 w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+              src="https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?q=80&w=2073&auto=format&fit=crop&v=2" 
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-700"
               alt={t('services.tenants.title')}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/60 to-transparent" />

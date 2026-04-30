@@ -145,7 +145,7 @@ export const Home = () => {
           }`}
         >
           <source 
-            src="/videos/hero-luxury.mp4?v=1" 
+            src="https://v1.pexels.com/video-files/4201389/4201389-uhd_2560_1440_30fps.mp4" 
             type="video/mp4" 
           />
         </video>
