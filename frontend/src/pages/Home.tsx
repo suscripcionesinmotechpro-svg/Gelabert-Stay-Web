@@ -122,11 +122,11 @@ export const Home = () => {
       <div className="relative w-full h-[90vh] md:h-[95vh] min-h-[600px] flex items-center justify-center overflow-hidden bg-black">
       {/* Cinematic Video Background */}
       <div className="absolute inset-0 z-0 bg-black">
-        {/* Persistent Poster Image (Static Background) using the user's screenshot */}
+        {/* Persistent Poster Image (Static Background) using a premium luxury villa */}
         <img 
-          src="/images/hero-poster.png?v=2" 
+          src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop" 
           alt="Hero Background"
-          className={`w-full h-full object-cover scale-105 transition-opacity duration-500 ease-in-out ${
+          className={`w-full h-full object-cover scale-105 transition-opacity duration-1000 ease-in-out ${
             videoLoaded ? 'opacity-0' : 'opacity-90'
           }`}
         />
@@ -137,19 +137,24 @@ export const Home = () => {
           loop
           muted
           playsInline
-          // @ts-ignore - fetchPriority is a valid attribute for performance optimization
+          // @ts-ignore
           fetchPriority="high"
           onCanPlay={() => setVideoLoaded(true)}
-          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-500 ease-in-out ${
+          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-1000 ease-in-out ${
             videoLoaded ? 'opacity-90' : 'opacity-0'
           }`}
         >
+          <source 
+            src="https://assets.mixkit.co/videos/preview/mixkit-modern-luxury-house-exterior-at-dusk-154-large.mp4" 
+            type="video/mp4" 
+          />
+          {/* Fallback local video just in case */}
           <source 
             src="/videos/hero-drone.mp4?v=1" 
             type="video/mp4" 
           />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-[#0A0A0A]/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-[#0A0A0A]/40 to-[#0A0A0A]/90" />
       </div>
 
       <div className="max-w-[1440px] w-full px-6 md:px-14 flex flex-col items-center text-center relative z-10">
