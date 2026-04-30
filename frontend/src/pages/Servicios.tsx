@@ -260,7 +260,7 @@ export const Servicios = () => {
       descKey: 'services.mortgage.desc',
       title: t('services.mortgage.title'),
       tag: t('services.mortgage.tag'),
-      image: 'https://images.unsplash.com/photo-1582408921715-18e7806365c1?q=80&w=1000&auto=format&fit=crop',
+      image: 'https://images.unsplash.com/photo-1621459548400-381bb08d3319?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.mortgage.desc'),
       bullets: t('services.mortgage.bullets', { returnObjects: true }) as string[],
       className: "md:col-span-2 md:row-span-1 min-h-[400px]",
