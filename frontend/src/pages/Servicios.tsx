@@ -248,7 +248,7 @@ export const Servicios = () => {
       descKey: 'services.owner_services.seguro_impago.desc',
       title: t('services.owner_services.seguro_impago.title'),
       tag: t('services.owner_services.seguro_impago.tag'),
-      image: 'https://images.unsplash.com/photo-1633526543814-9718c8922b7a?q=80&w=1000&auto=format&fit=crop&v=2',
+      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.seguro_impago.desc'),
       bullets: t('services.owner_services.seguro_impago.bullets', { returnObjects: true }) as string[],
       className: "md:col-span-2 md:row-span-1 min-h-[400px]",
@@ -438,7 +438,7 @@ export const Servicios = () => {
           {/* Left Image Area */}
           <div className="lg:w-1/2 relative min-h-[450px] overflow-hidden">
             <img 
-              src="https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?q=80&w=2073&auto=format&fit=crop&v=2" 
+              src="https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=2070&auto=format&fit=crop" 
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-700"
               alt={t('services.tenants.title')}
             />

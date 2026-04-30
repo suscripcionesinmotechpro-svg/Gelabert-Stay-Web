@@ -120,18 +120,8 @@ export const Home = () => {
       </Helmet>
       {/* Hero Section */}
       <div className="relative w-full h-[90vh] md:h-[95vh] min-h-[600px] flex items-center justify-center overflow-hidden bg-black">
-      {/* Cinematic Video Background */}
-      <div className="absolute inset-0 z-0 bg-black">
-        {/* Persistent Poster Image (Static Background) using a premium luxury villa */}
-        <img 
-          src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop" 
-          alt="Hero Background"
-          className={`w-full h-full object-cover scale-105 transition-opacity duration-1000 ease-in-out ${
-            videoLoaded ? 'opacity-0' : 'opacity-90'
-          }`}
-        />
-        
-        {/* Video Layer (Fades in over the poster) */}
+      {/* Cinematic Video Background — loads instantly, no poster */}
+      <div className="absolute inset-0 z-0 bg-[#080808]">
         <video
           autoPlay
           loop
@@ -139,17 +129,15 @@ export const Home = () => {
           playsInline
           // @ts-ignore
           fetchPriority="high"
-          onCanPlay={() => setVideoLoaded(true)}
-          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-1000 ease-in-out ${
-            videoLoaded ? 'opacity-90' : 'opacity-0'
-          }`}
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover scale-105"
         >
           <source 
-            src="https://v1.pexels.com/video-files/4201389/4201389-uhd_2560_1440_30fps.mp4" 
+            src="/videos/hero-luxury.mp4" 
             type="video/mp4" 
           />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-[#0A0A0A]/40 to-[#0A0A0A]/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-[#0A0A0A]/30 to-[#0A0A0A]/90" />
       </div>
 
       <div className="max-w-[1440px] w-full px-6 md:px-14 flex flex-col items-center text-center relative z-10">
@@ -446,9 +434,9 @@ export const Home = () => {
         {/* Cinematic background: Arquitectura moderna interior premium */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop" 
-            className="w-full h-full object-cover brightness-[0.7] saturate-[1.2] scale-105"
-            alt="Luxury Villa"
+            src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2070&auto=format&fit=crop" 
+            className="w-full h-full object-cover opacity-60 brightness-[0.8] saturate-[1.25] scale-105"
+            alt=""
             loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#0F0F0F]/80 via-[#0A0A0A]/40 to-[#0F0F0F]/80" />
