@@ -40,7 +40,6 @@ const AnimatedCounter = ({ target, suffix = '', decimals = 0 }: { target: number
 export const Home = () => {
   const { t, i18n } = useTranslation();
   const { properties: featuredProperties, loading } = useProperties({ is_featured: true, limit: 3 });
-  const [videoLoaded, setVideoLoaded] = useState(false);
 
   return (
     <div className="w-full pb-20">
