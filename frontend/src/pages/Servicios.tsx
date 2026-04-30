@@ -49,56 +49,58 @@ const ServiceCard = ({
     <motion.div
       {...(fadeUp as any)}
       onMouseMove={handleMouseMove}
-      className={`relative group overflow-hidden border transition-all duration-500 ${
-        isInCart 
-          ? 'border-[#C9A962]/60 bg-[#C9A962]/5 shadow-[0_0_40px_rgba(201,169,98,0.1)]' 
-          : 'border-white/5 bg-white/[0.02] backdrop-blur-xl hover:border-[#C9A962]/40 hover:bg-white/[0.04]'
-      } ${className}`}
+      className={`relative group p-[2px] rounded-sm overflow-hidden transition-all duration-500 shadow-[0_0_15px_rgba(201,169,98,0.15)] ${className}`}
       style={{
         ["--mouse-x" as any]: `${mousePos.x}px`,
         ["--mouse-y" as any]: `${mousePos.y}px`,
       }}
     >
-    {/* Image Background */}
-    <div className="absolute inset-0 z-0">
-      <img
-        src={image}
-        alt={title}
-        className={`w-full h-full object-cover transition-all duration-1000 saturate-[1.25] ${
-          isInCart ? 'brightness-[0.65] scale-105' : 'brightness-[0.5] group-hover:brightness-[0.6] group-hover:scale-110'
-        }`}
-      />
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0A]/70 via-transparent to-transparent opacity-70" />
-    </div>
-
-    {/* Shine effect */}
-    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none bg-[radial-gradient(400px_circle_at_var(--mouse-x)_var(--mouse-y),rgba(201,169,98,0.1),transparent)]" />
-
-    {/* Selected overlay */}
-    {isInCart && (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="absolute inset-0 z-[1] bg-[#C9A962]/5 border-[#C9A962]/20"
-      />
-    )}
-
-    {/* Content */}
-    <div className="relative z-10 p-8 h-full flex flex-col">
-      <div className="flex justify-between items-start mb-6">
-        <div className={`p-3 backdrop-blur-md rounded-sm border transition-all duration-300 ${
-          isInCart ? 'bg-[#C9A962]/20 border-[#C9A962]/40' : 'bg-black/40 border-[#C9A962]/30'
-        }`}>
-          {icon}
+      {/* Mecha dorada animada constante */}
+      <div className="absolute inset-[-1000%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(201,169,98,0)_0%,rgba(201,169,98,0.8)_50%,rgba(201,169,98,0)_100%)] opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Inner Content Container */}
+      <div className={`relative w-full h-full rounded-[1px] overflow-hidden z-10 transition-all duration-500 ${
+        isInCart 
+          ? 'bg-[#0A0A0A] shadow-[0_0_40px_rgba(201,169,98,0.2)]' 
+          : 'bg-[#0A0A0A]'
+      }`}>
+        {/* Image Background */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={image}
+            alt={title}
+            className={`w-full h-full object-cover transition-all duration-1000 saturate-[1.25] ${
+              isInCart ? 'brightness-[0.65] scale-105' : 'brightness-[0.4] group-hover:brightness-[0.5] group-hover:scale-110'
+            }`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0A]/90 via-[#0A0A0A]/70 to-transparent opacity-90" />
         </div>
-        <span className={`text-[10px] font-primary font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full border ${
-          highlight 
-            ? 'bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]' 
-            : 'bg-black/40 text-[#C9A962] border-[#C9A962]/40'
-        }`}>
-          {tag}
-        </span>
-      </div>
+
+        {/* Shine effect */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none bg-[radial-gradient(400px_circle_at_var(--mouse-x)_var(--mouse-y),rgba(201,169,98,0.15),transparent)]" />
+
+        {/* Selected overlay */}
+        {isInCart && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="absolute inset-0 z-[1] bg-[#C9A962]/10"
+          />
+        )}
+
+        {/* Content */}
+        <div className="relative z-10 p-8 h-full flex flex-col">
+          <div className="flex justify-between items-start mb-6">
+            <div className={`p-3 backdrop-blur-md rounded-sm border transition-all duration-300 ${
+              isInCart ? 'bg-[#C9A962]/20 border-[#C9A962]/40' : 'bg-black/40 border-[#C9A962]/30'
+            }`}>
+              {icon}
+            </div>
+            {/* Tag Dorado siempre */}
+            <span className="text-[10px] font-primary font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full border bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]">
+              {tag}
+            </span>
+          </div>
 
       <h3 className={`font-secondary text-2xl md:text-3xl mb-4 transition-colors duration-300 ${
         isInCart ? 'text-[#C9A962]' : 'text-white group-hover:text-[#C9A962]'
@@ -120,47 +122,48 @@ const ServiceCard = ({
           ))}
         </ul>
 
-        {/* Add to cart button with animated golden border */}
-        <div className={`relative p-[1px] rounded-sm overflow-hidden group/btn mt-auto transition-all ${isInCart ? '' : 'shadow-[0_0_20px_rgba(201,169,98,0.15)]'}`}>
-          {!isInCart && (
-            <div className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(201,169,98,0)_0%,rgba(201,169,98,0.8)_50%,rgba(201,169,98,0)_100%)]" />
-          )}
-          <motion.button
-            onClick={onToggle}
-            whileTap={{ scale: 0.98 }}
-            className={`relative w-full flex items-center justify-center gap-2 py-3.5 font-primary font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 rounded-sm ${
-              isInCart
-                ? 'bg-[#C9A962] text-[#0A0A0A] shadow-[0_0_20px_rgba(201,169,98,0.3)]'
-                : 'bg-[#0A0A0A]/90 backdrop-blur-xl text-[#C9A962] hover:bg-[#C9A962]/10 hover:text-white'
-            }`}
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              {isInCart ? (
-                <motion.span
-                  key="selected"
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  className="flex items-center gap-2"
-                >
-                  <Check className="w-3.5 h-3.5" /> {t('services.cart.button_selected')}
-                </motion.span>
-              ) : (
-                <motion.span
-                  key="add"
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  className="flex items-center gap-2"
-                >
-                  <Plus className="w-3.5 h-3.5" /> {t('services.cart.button_add')}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.button>
+          {/* Add to cart button with animated golden border */}
+          <div className={`relative p-[1px] rounded-sm overflow-hidden group/btn mt-auto transition-all ${isInCart ? '' : 'shadow-[0_0_20px_rgba(201,169,98,0.15)]'}`}>
+            {!isInCart && (
+              <div className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(201,169,98,0)_0%,rgba(201,169,98,0.8)_50%,rgba(201,169,98,0)_100%)]" />
+            )}
+            <motion.button
+              onClick={onToggle}
+              whileTap={{ scale: 0.98 }}
+              className={`relative w-full flex items-center justify-center gap-2 py-3.5 font-primary font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 rounded-sm ${
+                isInCart
+                  ? 'bg-[#C9A962] text-[#0A0A0A] shadow-[0_0_20px_rgba(201,169,98,0.3)]'
+                  : 'bg-[#0A0A0A]/90 backdrop-blur-xl text-[#C9A962] hover:bg-[#C9A962]/10 hover:text-white'
+              }`}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                {isInCart ? (
+                  <motion.span
+                    key="selected"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    className="flex items-center gap-2"
+                  >
+                    <Check className="w-3.5 h-3.5" /> {t('services.cart.button_selected')}
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="add"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> {t('services.cart.button_add')}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          </div>
         </div>
       </div>
-    </div>
+      </div>
     </motion.div>
   );
 };
@@ -403,85 +406,41 @@ export const Servicios = () => {
         </div>
       </section>
 
-      {/* Tenant Premium Banner */}
-      <section className="relative w-full py-40 bg-[#080808] border-y border-white/5 overflow-hidden">
-        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <motion.div {...(fadeUp as any)}>
-            <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold mb-4 block">
-              {t('services.tenants.badge')}
-            </span>
-            <h2 className="font-secondary text-4xl md:text-6xl text-[#FAF8F5] mb-8 leading-tight">
-              {t('services.tenants.title')}
-            </h2>
-            <div className="flex flex-col gap-6 text-[#888888] font-primary text-lg leading-relaxed mb-10">
-              <p>{t('services.tenants.description')}</p>
-              <div className="h-px w-full bg-gradient-to-r from-white/10 to-transparent" />
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                {(t('services.tenant_search.bullets', { returnObjects: true }) as string[]).map((b, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm text-white/50">
-                    <CheckCircle className="w-4 h-4 text-[#C9A962]" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className={`relative p-[1px] rounded-sm overflow-hidden group/btn transition-all ${cart.isInCart('tenant_search') ? '' : 'shadow-[0_0_20px_rgba(201,169,98,0.15)]'}`}>
-                {!cart.isInCart('tenant_search') && (
-                  <div className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(201,169,98,0)_0%,rgba(201,169,98,0.8)_50%,rgba(201,169,98,0)_100%)]" />
-                )}
-                <button
-                  onClick={() => cart.toggleService({
-                    id: 'tenant_search',
-                    titleKey: 'services.tenant_search.title',
-                    tagKey: 'services.tenant_search.tag',
-                    descKey: 'services.tenant_search.desc',
-                    title: t('services.tenant_search.title'),
-                    tag: t('services.tenant_search.tag'),
-                    icon: "🔑",
-                    desc: t('services.tenant_search.desc')
-                  })}
-                  className={`relative w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 font-primary font-bold text-xs uppercase tracking-widest transition-all rounded-sm ${
-                    cart.isInCart('tenant_search')
-                      ? "bg-[#C9A962] text-[#0A0A0A] shadow-[0_0_20px_rgba(201,169,98,0.3)]"
-                      : "bg-[#0A0A0A]/90 backdrop-blur-xl text-[#C9A962] hover:bg-[#C9A962]/10 hover:text-white"
-                  }`}
-                >
-                  {cart.isInCart('tenant_search') ? (
-                    <>
-                      <CheckCircle className="w-4 h-4" /> {t('services.cart.button_selected')}
-                    </>
-                  ) : (
-                    <>
-                      {t('services.tenants.request_search')} <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              </div>
-              <Link
-                to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades`}
-                className="flex items-center justify-center gap-3 px-8 py-4 border border-white/10 text-white font-primary font-bold text-xs uppercase tracking-widest hover:bg-white/5 rounded-sm transition-all"
-              >
-                {t('services.tenants.view_properties')}
-              </Link>
-            </div>
-          </motion.div>
+      {/* Tenant Service Card (Pestaña Inquilinos) */}
+      <section className="w-full px-6 py-20 max-w-7xl mx-auto">
+        <motion.div {...(fadeUp as any)} className="text-center mb-16">
+          <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold mb-4 block">
+            {t('services.tenants.badge')}
+          </span>
+          <h2 className="font-secondary text-4xl md:text-5xl text-[#FAF8F5] mb-4">
+            {t('services.tenants.title')}
+          </h2>
+          <div className="w-16 h-0.5 bg-[#C9A962] mx-auto opacity-40" />
+        </motion.div>
 
-          <motion.div 
-            {...fadeUp}
-            className="relative h-[400px] lg:h-[500px] rounded-sm overflow-hidden border border-white/5 group shadow-2xl"
-          >
-            <img 
-              src="https://images.unsplash.com/photo-1600607687644-c7171b42498f?q=80&w=2070&auto=format&fit=crop" 
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
-              alt="Hogar de calidad"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-          </motion.div>
-        </div>
+        <ServiceCard
+          id="tenant_search"
+          cartIcon="🔑"
+          title={t('services.tenant_search.title')}
+          tag={t('services.tenant_search.tag')}
+          icon={<Key className="w-6 h-6 text-[#C9A962]" />}
+          desc={t('services.tenants.description')}
+          image="https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?q=80&w=2073&auto=format&fit=crop"
+          bullets={t('services.tenant_search.bullets', { returnObjects: true }) as string[]}
+          highlight={true}
+          className="max-w-4xl mx-auto lg:h-[550px]"
+          isInCart={cart.isInCart('tenant_search')}
+          onToggle={() => cart.toggleService({
+            id: 'tenant_search',
+            titleKey: 'services.tenant_search.title',
+            tagKey: 'services.tenant_search.tag',
+            descKey: 'services.tenant_search.desc',
+            title: t('services.tenant_search.title'),
+            tag: t('services.tenant_search.tag'),
+            icon: "🔑",
+            desc: t('services.tenant_search.desc')
+          })}
+        />
       </section>
 
       {/* Why Choose Us: Premium Reveal */}
