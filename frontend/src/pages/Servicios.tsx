@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useRef, useState } from 'react';
 import {
   Key, Building2, Briefcase, ShieldCheck,
-  CheckCircle, Phone, ArrowRight, Star, Sparkles, Plus, Check, ShoppingBag
+  CheckCircle, Phone, Star, Sparkles, Plus, Check, ShoppingBag
 } from 'lucide-react';
 import { useServiceCart, type CartService } from '../hooks/useServiceCart';
 import { ServiceCartDrawer } from '../components/ServiceCartDrawer';
@@ -31,7 +31,7 @@ interface ServiceCardProps {
 }
 
 const ServiceCard = ({ 
-  title, tag, icon, desc, image, bullets, highlight, className = "",
+  title, tag, icon, desc, image, bullets, className = "",
   isInCart, onToggle 
 }: ServiceCardProps & { isInCart?: boolean; onToggle?: () => void }) => {
   const { t } = useTranslation();
