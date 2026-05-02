@@ -39,9 +39,12 @@ const AnimatedCounter = ({ target, suffix = '', decimals = 0 }: { target: number
 
 // Hero slideshow — imágenes únicas no usadas en ninguna otra sección del sitio
 const HERO_SLIDES = [
-  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1920&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?q=80&w=1920&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1920&auto=format&fit=crop',
+  // Villa de lujo al atardecer — única, no usada en ninguna otra sección
+  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1920&auto=format&fit=crop',
+  // Villa moderna con piscina y vistas al mar — única
+  'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1920&auto=format&fit=crop',
+  // Casa clásica de lujo exterior — única
+  'https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=1920&auto=format&fit=crop',
 ];
 const VIDEO_SLIDE_INDEX = HERO_SLIDES.length; // = 3
 const TOTAL_SLIDES = HERO_SLIDES.length + 1;  // = 4
@@ -227,28 +230,28 @@ export const Home = () => {
               {t('hero.contact_us')}
             </Link>
           </motion.div>
-        </div>
 
-        {/* Slide indicator dots — clicables, visibles en móvil */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 1 }}
-          className="absolute bottom-24 md:bottom-20 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2.5"
-        >
-          {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setHeroIndex(i)}
-              aria-label={`Ir al slide ${i + 1}`}
-              className={`rounded-full transition-all duration-500 ease-in-out border ${
-                heroIndex === i
-                  ? 'w-6 h-2 bg-[#C9A962] border-[#C9A962] shadow-[0_0_8px_rgba(201,169,98,0.6)]'
-                  : 'w-2 h-2 bg-white/30 border-white/20 hover:bg-white/60 hover:border-white/40'
-              }`}
-            />
-          ))}
-        </motion.div>
+          {/* Slide indicator dots — fluyen con el contenido, sin solapar EXPLORAR */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 1 }}
+            className="flex items-center gap-2.5 mt-8"
+          >
+            {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setHeroIndex(i)}
+                aria-label={`Ir al slide ${i + 1}`}
+                className={`rounded-full transition-all duration-500 ease-in-out border ${
+                  heroIndex === i
+                    ? 'w-6 h-2 bg-[#C9A962] border-[#C9A962] shadow-[0_0_8px_rgba(201,169,98,0.6)]'
+                    : 'w-2 h-2 bg-white/30 border-white/20 hover:bg-white/60 hover:border-white/40'
+                }`}
+              />
+            ))}
+          </motion.div>
+        </div>
 
         {/* Scroll Indicator */}
         <motion.div 
