@@ -54,24 +54,41 @@ export const Home = () => {
   const { properties: featuredProperties, loading } = useProperties({ is_featured: true, limit: 3 });
   const [heroIndex, setHeroIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Avanza el slideshow automáticamente cada 6 segundos
+  // Un solo efecto controla timing y reproducción del vídeo
   useEffect(() => {
-    const timer = setInterval(() => {
-      setHeroIndex(prev => (prev + 1) % TOTAL_SLIDES);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
+    if (timerRef.current) clearTimeout(timerRef.current);
 
-  // Reproduce el vídeo solo cuando es el slide activo; lo pausa al salir
-  useEffect(() => {
     if (heroIndex === VIDEO_SLIDE_INDEX) {
-      videoRef.current?.play().catch(() => {});
-    } else if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
+      // Vídeo activo: reproducir; el avance lo controla onEnded
+      videoRef.current?.play().catch(() => {
+        // Si el vídeo no carga, avanzar tras 8s
+        timerRef.current = setTimeout(() => setHeroIndex(0), 8000);
+      });
+      // Red de seguridad: máx 30s por si el vídeo fuera muy largo
+      timerRef.current = setTimeout(() => setHeroIndex(0), 30000);
+    } else {
+      // Imagen activa: pausar/reiniciar vídeo y avanzar tras 6s
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.currentTime = 0;
+      }
+      timerRef.current = setTimeout(() => {
+        setHeroIndex(prev => (prev + 1) % TOTAL_SLIDES);
+      }, 6000);
     }
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, [heroIndex]);
+
+  // Vídeo termina de forma natural → volver a la primera imagen con transición suave
+  const handleVideoEnded = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setHeroIndex(0);
+  };
 
   return (
     <div className="w-full pb-20">
@@ -161,7 +178,7 @@ export const Home = () => {
             alt=""
             // @ts-ignore
             fetchPriority={i === 0 ? 'high' : 'low'}
-            className={`absolute inset-0 w-full h-full object-cover scale-[1.08] transition-opacity duration-[1500ms] ease-in-out ${
+            className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.2] brightness-[1.05] transition-opacity duration-[1500ms] ease-in-out ${
               heroIndex === i ? 'opacity-100' : 'opacity-0'
             }`}
           />
@@ -173,9 +190,10 @@ export const Home = () => {
           muted
           playsInline
           preload="auto"
+          onEnded={handleVideoEnded}
           // @ts-ignore
           fetchPriority="low"
-          className={`absolute inset-0 w-full h-full object-cover scale-[1.08] transition-opacity duration-[1500ms] ease-in-out ${
+          className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.15] brightness-[1.05] transition-opacity duration-[1500ms] ease-in-out ${
             heroIndex === VIDEO_SLIDE_INDEX ? 'opacity-100' : 'opacity-0'
           }`}
         >
