@@ -40,6 +40,7 @@ const AnimatedCounter = ({ target, suffix = '', decimals = 0 }: { target: number
 export const Home = () => {
   const { t, i18n } = useTranslation();
   const { properties: featuredProperties, loading } = useProperties({ is_featured: true, limit: 3 });
+  const [videoReady, setVideoReady] = useState(false);
 
   return (
     <div className="w-full pb-20">
@@ -119,8 +120,16 @@ export const Home = () => {
       </Helmet>
       {/* Hero Section */}
       <div className="relative w-full h-[90vh] md:h-[95vh] min-h-[600px] flex items-center justify-center overflow-hidden bg-black">
-      {/* Cinematic Video Background — loads instantly, no poster */}
+      {/* Cinematic Video Background — poster image loads instantly, video fades in */}
       <div className="absolute inset-0 z-0 bg-[#080808]">
+        {/* Poster image — visible INSTANTLY while video buffers, never shows black */}
+        <img
+          src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1920&auto=format&fit=crop"
+          alt=""
+          // @ts-ignore
+          fetchPriority="high"
+          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-1000 ${videoReady ? 'opacity-0' : 'opacity-100'}`}
+        />
         <video
           autoPlay
           loop
@@ -129,7 +138,8 @@ export const Home = () => {
           // @ts-ignore
           fetchPriority="high"
           preload="auto"
-          className="absolute inset-0 w-full h-full object-cover scale-105"
+          onCanPlay={() => setVideoReady(true)}
+          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-1000 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
         >
           <source 
             src="/videos/hero-luxury.mp4" 
