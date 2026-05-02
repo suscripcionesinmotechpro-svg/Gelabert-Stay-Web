@@ -229,6 +229,27 @@ export const Home = () => {
           </motion.div>
         </div>
 
+        {/* Slide indicator dots — clicables, visibles en móvil */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 1 }}
+          className="absolute bottom-24 md:bottom-20 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2.5"
+        >
+          {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setHeroIndex(i)}
+              aria-label={`Ir al slide ${i + 1}`}
+              className={`rounded-full transition-all duration-500 ease-in-out border ${
+                heroIndex === i
+                  ? 'w-6 h-2 bg-[#C9A962] border-[#C9A962] shadow-[0_0_8px_rgba(201,169,98,0.6)]'
+                  : 'w-2 h-2 bg-white/30 border-white/20 hover:bg-white/60 hover:border-white/40'
+              }`}
+            />
+          ))}
+        </motion.div>
+
         {/* Scroll Indicator */}
         <motion.div 
           initial={{ opacity: 0 }}
