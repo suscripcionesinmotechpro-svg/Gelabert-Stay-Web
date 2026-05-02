@@ -206,7 +206,7 @@ export const Servicios = () => {
       descKey: 'services.owner_services.alquiler.desc',
       title: t('services.owner_services.alquiler.title'),
       tag: t('services.owner_services.alquiler.tag'),
-      image: 'https://images.unsplash.com/photo-1560472355-536de3962603?q=80&w=1000&auto=format&fit=crop',
+      image: 'https://images.unsplash.com/photo-1733244766159-f58f4184fd38?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.alquiler.desc'),
       bullets: t('services.owner_services.alquiler.bullets', { returnObjects: true }) as string[],
       className: "md:col-span-1 md:row-span-1 min-h-[480px]"
@@ -248,7 +248,7 @@ export const Servicios = () => {
       descKey: 'services.owner_services.seguro_impago.desc',
       title: t('services.owner_services.seguro_impago.title'),
       tag: t('services.owner_services.seguro_impago.tag'),
-      image: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=1000&auto=format&fit=crop',
+      image: 'https://images.unsplash.com/photo-1769028885299-c5c3503d6778?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.seguro_impago.desc'),
       bullets: t('services.owner_services.seguro_impago.bullets', { returnObjects: true }) as string[],
       className: "md:col-span-2 md:row-span-1 min-h-[400px]",

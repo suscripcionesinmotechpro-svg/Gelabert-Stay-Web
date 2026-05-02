@@ -85,7 +85,7 @@ export const Contacto = () => {
       <div className="absolute inset-0 z-0 overflow-hidden">
         {/* Imagen: Modern luxury office for real estate contact */}
         <img 
-          src="https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?q=80&w=2000&auto=format&fit=crop" 
+          src="https://images.unsplash.com/photo-1690378820474-b468b8ee64d3?q=80&w=2000&auto=format&fit=crop" 
           className="w-full h-full object-cover opacity-70 brightness-[0.85] saturate-[1.3] scale-105"
           alt=""
         />
