@@ -354,8 +354,8 @@ export const Servicios = () => {
       </section>
 
       {/* Main Services Bento Grid */}
-      <section className="relative z-10 w-full px-6 py-32 max-w-7xl mx-auto">
-        <motion.div {...(fadeUp as any)} className="flex flex-col items-center text-center gap-4 mb-20">
+      <section className="relative z-10 w-full px-6 py-10 md:py-32 max-w-7xl mx-auto">
+        <motion.div {...(fadeUp as any)} className="flex flex-col items-center text-center gap-4 mb-6 md:mb-20">
           <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold">
             {t('services.owners.badge')}
           </span>
@@ -368,7 +368,7 @@ export const Servicios = () => {
         {/* Info Note about selection */}
         <motion.div 
           {...(fadeUp as any)}
-          className="max-w-4xl mx-auto mb-16 p-8 md:p-10 bg-white/[0.02] border border-[#C9A962]/20 backdrop-blur-xl rounded-sm flex flex-col md:flex-row items-center gap-8 text-center md:text-left shadow-2xl relative overflow-hidden group"
+          className="max-w-4xl mx-auto mb-6 md:mb-16 p-6 md:p-10 bg-white/[0.02] border border-[#C9A962]/20 backdrop-blur-xl rounded-sm flex flex-col md:flex-row items-center gap-6 md:gap-8 text-center md:text-left shadow-2xl relative overflow-hidden group"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#C9A962]/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-[#C9A962]/10 transition-colors duration-700" />
           
@@ -611,7 +611,7 @@ export const Servicios = () => {
                 {cart.count}
               </motion.span>
             </div>
-            <span className="font-primary text-[10px] uppercase tracking-[0.2em] font-bold">
+            <span className="hidden sm:inline font-primary text-[10px] uppercase tracking-[0.2em] font-bold">
               {t('services.cart.floating_view')}
             </span>
           </motion.button>
