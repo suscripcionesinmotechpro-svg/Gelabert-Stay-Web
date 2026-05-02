@@ -39,12 +39,12 @@ const AnimatedCounter = ({ target, suffix = '', decimals = 0 }: { target: number
 
 // Hero slideshow — imágenes únicas no usadas en ninguna otra sección del sitio
 const HERO_SLIDES = [
-  // Villa de lujo al atardecer — única, no usada en ninguna otra sección
-  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1920&auto=format&fit=crop',
-  // Villa moderna con piscina y vistas al mar — única
-  'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1920&auto=format&fit=crop',
-  // Casa clásica de lujo exterior — única
-  'https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=1920&auto=format&fit=crop',
+  // Villa moderna arquitectura limpia — verificada, única en la web
+  'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?q=80&w=1920&auto=format&fit=crop',
+  // Villa blanca con piscina rectangular — verificada, única en la web
+  'https://images.unsplash.com/photo-1613977257592-4871e5fcd7c4?q=80&w=1920&auto=format&fit=crop',
+  // Villa contemporánea con pool y palmeras — verificada, única en la web
+  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1920&auto=format&fit=crop',
 ];
 const VIDEO_SLIDE_INDEX = HERO_SLIDES.length; // = 3
 const TOTAL_SLIDES = HERO_SLIDES.length + 1;  // = 4
