@@ -124,7 +124,7 @@ export const Home = () => {
       <div className="absolute inset-0 z-0 bg-[#080808]">
         {/* Poster image — visible INSTANTLY while video buffers, never shows black */}
         <img
-          src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1920&auto=format&fit=crop"
+          src="https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=1920&auto=format&fit=crop"
           alt=""
           // @ts-ignore
           fetchPriority="high"
