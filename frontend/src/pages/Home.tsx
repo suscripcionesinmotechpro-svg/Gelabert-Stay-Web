@@ -37,10 +37,38 @@ const AnimatedCounter = ({ target, suffix = '', decimals = 0 }: { target: number
   return <span ref={ref}>{display}{suffix}</span>;
 };
 
+// Hero slideshow — imágenes únicas no usadas en ninguna otra sección del sitio
+const HERO_SLIDES = [
+  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1920&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?q=80&w=1920&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1920&auto=format&fit=crop',
+];
+const VIDEO_SLIDE_INDEX = HERO_SLIDES.length; // = 3
+const TOTAL_SLIDES = HERO_SLIDES.length + 1;  // = 4
+
 export const Home = () => {
   const { t, i18n } = useTranslation();
   const { properties: featuredProperties, loading } = useProperties({ is_featured: true, limit: 3 });
-  const [videoReady, setVideoReady] = useState(false);
+  const [heroIndex, setHeroIndex] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Avanza el slideshow automáticamente cada 6 segundos
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroIndex(prev => (prev + 1) % TOTAL_SLIDES);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Reproduce el vídeo solo cuando es el slide activo; lo pausa al salir
+  useEffect(() => {
+    if (heroIndex === VIDEO_SLIDE_INDEX) {
+      videoRef.current?.play().catch(() => {});
+    } else if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }, [heroIndex]);
 
   return (
     <div className="w-full pb-20">
@@ -120,32 +148,38 @@ export const Home = () => {
       </Helmet>
       {/* Hero Section */}
       <div className="relative w-full h-[90vh] md:h-[95vh] min-h-[600px] flex items-center justify-center overflow-hidden bg-black">
-      {/* Cinematic Video Background — poster image loads instantly, video fades in */}
+      {/* Hero Cinematic Slideshow — 3 imágenes únicas + vídeo, rotación cada 6s */}
       <div className="absolute inset-0 z-0 bg-[#080808]">
-        {/* Poster image — visible INSTANTLY while video buffers, never shows black */}
-        <img
-          src="https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=1920&auto=format&fit=crop"
-          alt=""
-          // @ts-ignore
-          fetchPriority="high"
-          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-1000 ${videoReady ? 'opacity-0' : 'opacity-100'}`}
-        />
+        {/* Image slides */}
+        {HERO_SLIDES.map((src, i) => (
+          <img
+            key={i}
+            src={src}
+            alt=""
+            // @ts-ignore
+            fetchPriority={i === 0 ? 'high' : 'low'}
+            className={`absolute inset-0 w-full h-full object-cover scale-[1.08] transition-opacity duration-[1500ms] ease-in-out ${
+              heroIndex === i ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        ))}
+
+        {/* Video slide — se activa solo cuando le toca */}
         <video
-          autoPlay
-          loop
+          ref={videoRef}
           muted
           playsInline
-          // @ts-ignore
-          fetchPriority="high"
           preload="auto"
-          onCanPlay={() => setVideoReady(true)}
-          className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-1000 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
+          // @ts-ignore
+          fetchPriority="low"
+          className={`absolute inset-0 w-full h-full object-cover scale-[1.08] transition-opacity duration-[1500ms] ease-in-out ${
+            heroIndex === VIDEO_SLIDE_INDEX ? 'opacity-100' : 'opacity-0'
+          }`}
         >
-          <source 
-            src="/videos/hero-luxury.mp4" 
-            type="video/mp4" 
-          />
+          <source src="/videos/hero-luxury.mp4" type="video/mp4" />
         </video>
+
+        {/* Gradient overlay permanente */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-[#0A0A0A]/30 to-[#0A0A0A]/90" />
       </div>
 
