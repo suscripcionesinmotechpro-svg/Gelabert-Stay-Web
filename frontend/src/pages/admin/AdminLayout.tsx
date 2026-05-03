@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../../lib/supabase';
 import {
-  LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X, Receipt, Users, CalendarDays
+  LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X, Receipt, Users, CalendarDays, Bot
 } from 'lucide-react';
 
 export const AdminLayout = () => {
@@ -11,6 +12,27 @@ export const AdminLayout = () => {
   const {} = useTranslation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [newLeadsCount, setNewLeadsCount] = useState(0);
+
+  useEffect(() => {
+    const fetchNewLeads = async () => {
+      const { count } = await supabase
+        .from('leads_crm')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'nuevo');
+      setNewLeadsCount(count || 0);
+    };
+    if (user) fetchNewLeads();
+
+    // Subscribe to new leads
+    const channel = supabase.channel('leads_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads_crm' }, () => {
+        fetchNewLeads();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
 
 
   const navItems = [
@@ -20,6 +42,7 @@ export const AdminLayout = () => {
     { to: `/admin/facturas`, icon: <Receipt className="w-4 h-4" />, label: "Contabilidad" },
     { to: `/admin/inquilinos`, icon: <Users className="w-4 h-4" />, label: "Inquilinos" },
     { to: `/admin/reservas`, icon: <CalendarDays className="w-4 h-4" />, label: "Reservas" },
+    { to: `/admin/leads`, icon: <Bot className="w-4 h-4" />, label: "CRM Leads (Bot)" },
 
   ];
 
@@ -62,15 +85,22 @@ export const AdminLayout = () => {
             end={item.to === '/admin/dashboard'}
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 font-primary text-sm transition-all ${
+              `flex items-center justify-between px-3 py-2.5 font-primary text-sm transition-all ${
                 isActive
                   ? 'bg-[#C9A962]/10 text-[#C9A962] border-l-2 border-[#C9A962]'
                   : 'text-[#888888] hover:text-[#FAF8F5] hover:bg-[#1F1F1F]'
               }`
             }
           >
-            {item.icon}
-            {item.label}
+            <div className="flex items-center gap-3">
+              {item.icon}
+              {item.label}
+            </div>
+            {item.label === "CRM Leads (Bot)" && newLeadsCount > 0 && (
+              <span className="bg-[#C9A962] text-[#0A0A0A] text-[10px] font-bold px-2 py-0.5 rounded-full">
+                {newLeadsCount}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>

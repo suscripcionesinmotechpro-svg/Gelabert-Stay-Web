@@ -7,6 +7,7 @@ import { Footer } from './Footer';
 import { CookieBanner } from './CookieBanner';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { FloatingContact } from './FloatingContact';
+import { Gelabot } from './Gelabot';
 
 export const Layout = () => {
   const { t, i18n } = useTranslation();
@@ -133,6 +134,7 @@ export const Layout = () => {
       <Footer />
       <CookieBanner />
       <FloatingContact />
+      <Gelabot />
     </div>
   );
 };
