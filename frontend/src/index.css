@@ -44,6 +44,7 @@
   img, video {
     image-rendering: high-quality;
     -webkit-backface-visibility: hidden;
+    filter: saturate(1.2) brightness(1.05) contrast(1.05);
   }
 }
 

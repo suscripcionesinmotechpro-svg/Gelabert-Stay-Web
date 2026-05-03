@@ -25,29 +25,34 @@ serve(async (req) => {
     // Group all found contracts by user_id so we send 1 email per admin
     const pendingAlerts: Record<string, any[]> = {}
 
-    for (const days of alertDays) {
-      // Date in exactly N days
-      const targetDate = new Date()
-      targetDate.setDate(targetDate.getDate() + days)
-      const targetDateStr = targetDate.toISOString().split('T')[0]
+    // Helper to calculate exact days exactly like the dashboard does
+    const daysUntilExpiry = (endDate: string): number => {
+      const end = new Date(endDate)
+      const now = new Date()
+      now.setHours(0, 0, 0, 0)
+      return Math.round((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    }
 
-      const { data: contracts, error } = await supabaseAdmin
-        .from('contracts')
-        .select(`
-          *,
-          tenant:tenants(id, first_name, last_name, email, phone),
-          property:properties(id, rooms, is_room_rental)
-        `)
-        .eq('status', 'active')
-        .eq('end_date', targetDateStr)
+    const { data: contracts, error } = await supabaseAdmin
+      .from('contracts')
+      .select(`
+        *,
+        tenant:tenants(id, first_name, last_name, email, phone),
+        property:properties(id, rooms, is_room_rental)
+      `)
+      .eq('status', 'active')
 
-      if (error) {
-        console.error(`Error fetching contracts for ${days} days:`, error)
-        continue
-      }
+    if (error) {
+      console.error(`Error fetching contracts:`, error)
+      return new Response(JSON.stringify({ error: error.message }), { status: 500 })
+    }
 
-      if (contracts && contracts.length > 0) {
-        for (const contract of contracts) {
+    if (contracts && contracts.length > 0) {
+      for (const contract of contracts) {
+        const days = daysUntilExpiry(contract.end_date)
+        
+        // Solo alertamos si los días exactos coinciden con nuestra matriz de alertas
+        if (alertDays.includes(days)) {
           const userId = contract.user_id
           if (!pendingAlerts[userId]) pendingAlerts[userId] = []
           pendingAlerts[userId].push({ ...contract, days_remaining: days })

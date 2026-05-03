@@ -27,7 +27,7 @@ serve(async (req) => {
           <h2 style="color: #C9A962;">¡Hola ${leadData.name || ''}!</h2>
           <p>Gracias por contactar con <strong>Gelabert Homes</strong>.</p>
           <p>Hemos recibido correctamente tu perfil y tus requisitos inmobiliarios. Nuestro equipo de expertos ya está evaluando tu solicitud y nos pondremos en contacto contigo lo antes posible para asesorarte de manera personalizada.</p>
-          <p style="font-size: 12px; color: #666;"><em>Nota: Si tienes alguna duda sobre nuestras comisiones o honorarios, nuestro agente te informará de todo detalladamente durante nuestra conversación.</em></p>
+          <p style="font-size: 12px; color: #666;"><em>Nota: Nuestro agente te informará de todos los detalles durante nuestra conversación.</em></p>
       `;
 
       if (matches && matches.length > 0) {
@@ -53,7 +53,14 @@ serve(async (req) => {
       }
 
       clientHtml += `
-          <p style="margin-top: 30px;">Un saludo cordial,<br><strong>El equipo de Gelabert Homes</strong></p>
+          <div style="margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px; text-align: center;">
+            <img src="https://gelaberthomes.com/logo.png" alt="Gelabert Homes Logo" style="height: 60px; margin-bottom: 15px;" />
+            <p style="margin: 5px 0; color: #333; font-weight: bold;">Gelabert Homes Real Estate</p>
+            <p style="margin: 5px 0; color: #666; font-size: 14px;">📍 Málaga, España</p>
+            <p style="margin: 5px 0; color: #666; font-size: 14px;">📞 +34 628 49 00 28</p>
+            <p style="margin: 5px 0; color: #666; font-size: 14px;">✉️ <a href="mailto:info@gelaberthomes.es" style="color: #C9A962; text-decoration: none;">info@gelaberthomes.es</a></p>
+            <p style="margin: 5px 0; color: #666; font-size: 14px;">🌐 <a href="https://gelaberthomes.com" style="color: #C9A962; text-decoration: none;">www.gelaberthomes.com</a></p>
+          </div>
         </div>
       `;
 
