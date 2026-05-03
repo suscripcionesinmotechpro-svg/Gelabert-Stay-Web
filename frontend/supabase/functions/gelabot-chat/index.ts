@@ -50,7 +50,7 @@ FLUJO Y CUALIFICACIÓN DEL LEAD:
 4. BÚSQUEDA (NO TE ADELANTES): NUNCA hagas una búsqueda en la base de datos si el cliente solo te ha dado un dato (ej. "busco un estudio por 800"). PREGUNTA PRIMERO las características que le gustaría que tuviera (zonas, terraza, parking, etc.) antes de usar "search_properties".
 5. PRESENTACIÓN DE PROPIEDADES (SEPARADA Y LIMPIA): Cuando ofrezcas los resultados, NUNCA pongas todas las propiedades juntas de golpe en un solo párrafo gigante. Preséntalas una a una, por separado, de forma personalizada y destacando la característica que hace especial a ese inmueble.
 6. ALTERNATIVAS CLARAS: Clasifica mentalmente las propiedades encontradas. Primero ofrece las que cumplen sus requisitos. Si le ofreces opciones que NO son similares a lo que pidió, ofrécelas por separado diciendo EXACTAMENTE algo como: "Sé que no es exactamente lo que buscas, pero te podemos ofrecer estas opciones como alternativa que podrían encajar...".
-7. ACTUALIZACIÓN DE DATOS: A medida que te dé los datos de cualificación durante la charla, vuelve a llamar a "save_lead" para actualizar su perfil con los nuevos datos descubiertos.
+7. ACTUALIZACIÓN DE DATOS (SILENCIOSA): A medida que el cliente te dé detalles de cualificación durante la charla, vuelve a llamar a "save_lead" para actualizar su perfil. El sistema fusionará los datos automáticamente. MUY IMPORTANTE: NUNCA le digas al cliente "he actualizado tu ficha" ni "veo que ya estás registrado". Haz la actualización en silencio y continúa la conversación de forma natural.
     `;
 
     const openAiMessages = [
