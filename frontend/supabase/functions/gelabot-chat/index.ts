@@ -90,7 +90,7 @@ FLUJO Y CUALIFICACIÓN DEL LEAD:
               notes: { type: "string", description: "Resumen MUY detallado de la conversación y lo que busca/ofrece." },
               // Inquilinos
               num_people: { type: "number", description: "Cantidad de personas" },
-              move_in_date: { type: "string", description: "Fecha en la que buscan mudarse" },
+              move_in_date: { type: "string", description: "Fecha en la que buscan mudarse. FORMATO OBLIGATORIO: YYYY-MM-DD" },
               occupation: { type: "string", description: "A qué se dedican" },
               monthly_income: { type: "number", description: "Ingresos mensuales" },
               age: { type: "number", description: "Edad/Edades" },
@@ -101,7 +101,7 @@ FLUJO Y CUALIFICACIÓN DEL LEAD:
               max_price: { type: "number", description: "Presupuesto máximo de compra o alquiler" },
               mortgage_approved: { type: "boolean", description: "Si tienen la hipoteca aprobada" },
               needs_mortgage_service: { type: "boolean", description: "Si no la tienen, si necesitan servicio de broker" },
-              buy_deadline: { type: "string", description: "Fecha en la que piensan comprar" },
+              buy_deadline: { type: "string", description: "Fecha en la que piensan comprar. FORMATO OBLIGATORIO: YYYY-MM-DD" },
               
               // Vendedores / Propietarios Alquiler
               sell_property_address: { type: "string", description: "Dirección completa de la propiedad" },
@@ -257,7 +257,7 @@ FLUJO Y CUALIFICACIÓN DEL LEAD:
                 agent_notes: args.notes,
                 // Inquilino
                 num_people: args.num_people,
-                move_in_date: args.move_in_date ? new Date(args.move_in_date).toISOString().split('T')[0] : null,
+                move_in_date: (() => { try { return args.move_in_date ? new Date(args.move_in_date).toISOString().split('T')[0] : null; } catch { return null; } })(),
                 occupation: args.occupation,
                 monthly_income: args.monthly_income,
                 age: args.age,
@@ -268,7 +268,7 @@ FLUJO Y CUALIFICACIÓN DEL LEAD:
                 max_buy_price: args.intent === 'comprar' ? args.max_price : null,
                 mortgage_approved: args.mortgage_approved,
                 needs_mortgage_service: args.needs_mortgage_service,
-                buy_deadline: args.buy_deadline ? new Date(args.buy_deadline).toISOString().split('T')[0] : null,
+                buy_deadline: (() => { try { return args.buy_deadline ? new Date(args.buy_deadline).toISOString().split('T')[0] : null; } catch { return null; } })(),
                 // Vendedor / Propietario Alquiler
                 sell_property_address: args.sell_property_address,
                 sell_property_type: args.sell_property_type,
