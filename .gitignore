@@ -23,3 +23,6 @@ logs
 # System files
 .DS_Store
 Thumbs.db
+
+# Supabase
+frontend/supabase/.temp
