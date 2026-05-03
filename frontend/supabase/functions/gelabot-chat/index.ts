@@ -37,8 +37,10 @@ REGLAS DE COMUNICACIÓN CRÍTICAS:
 
 FLUJO Y CUALIFICACIÓN DEL LEAD:
 1. CUALIFICACIÓN CONVERSACIONAL SEGÚN INTENCIÓN: Tienes que recopilar los datos clave paso a paso y de forma amigable (no todo de golpe):
-   - SI BUSCAN COMPRAR O ALQUILAR: Presupuesto máximo, zonas preferidas, mínimo de habitaciones/baños, y extras (terraza, piscina, si tienen mascotas).
-   - SI QUIEREN VENDER O OFRECER EN ALQUILER: Dirección exacta, tipo de inmueble, estado (reformado, amueblado), metros cuadrados y el precio estimado que tienen en mente.
+   - INQUILINO (Busca alquilar): Pregunta por la cantidad de personas, fecha en la que buscan mudarse, a qué se dedican/ingresos, edades, de dónde son, mascotas y presupuesto máximo.
+   - PROPIETARIO (Ofrece alquiler): Dirección completa, características (habitaciones, terrazas, baños, m2, parking), fecha de disponibilidad y precio pensado.
+   - COMPRADOR (Busca comprar): Presupuesto máximo, fecha pensada de compra, zonas y si TIENEN HIPOTECA APROBADA. Si no la tienen, OFRÉCELES NUESTRO SERVICIO DE BROKER DE HIPOTECAS.
+   - VENDEDOR (Ofrece venta): Dirección completa de la propiedad, características (habitaciones, baños, salón independiente, cocina, etc.) y precio pensado. NUNCA hables de "comisiones", dile que un agente le contactará.
 2. BÚSQUEDA: Cuando tengas una buena imagen de lo que buscan, usa "search_properties" para encontrar coincidencias.
 3. PRESENTACIÓN DE PROPIEDADES: NUNCA pongas todas las características de todas las opciones de golpe. Preséntalas de forma muy limpia y elegante, destacando solo el precio, la zona y un gran atractivo.
 4. ALTERNATIVAS: Si algo no cumple el 100% de sus requisitos, ofrécelo con tacto. Ejemplo: "Sé que no tiene piscina como me pediste, pero es un ático espectacular con una gran terraza...".
@@ -86,19 +88,34 @@ FLUJO Y CUALIFICACIÓN DEL LEAD:
               phone: { type: "string" },
               intent: { type: "string", enum: ["alquilar", "comprar", "vender", "alquilar_propietario"] },
               notes: { type: "string", description: "Resumen MUY detallado de la conversación y lo que busca/ofrece." },
-              // Detalles de Búsqueda (Alquilar/Comprar)
-              max_price: { type: "number", description: "Presupuesto máximo de compra o alquiler" },
-              min_bedrooms: { type: "number" },
-              preferred_zones: { type: "array", items: { type: "string" } },
+              // Inquilinos
+              num_people: { type: "number", description: "Cantidad de personas" },
+              move_in_date: { type: "string", description: "Fecha en la que buscan mudarse" },
+              occupation: { type: "string", description: "A qué se dedican" },
+              monthly_income: { type: "number", description: "Ingresos mensuales" },
+              age: { type: "number", description: "Edad/Edades" },
+              city_origin: { type: "string", description: "De dónde son" },
               has_pets: { type: "boolean", description: "Si tiene mascotas" },
-              wants_terrace: { type: "boolean" },
-              wants_pool: { type: "boolean" },
-              wants_parking: { type: "boolean" },
-              // Detalles de Venta / Ofrecer Alquiler
-              sell_property_address: { type: "string" },
+              
+              // Compradores
+              max_price: { type: "number", description: "Presupuesto máximo de compra o alquiler" },
+              mortgage_approved: { type: "boolean", description: "Si tienen la hipoteca aprobada" },
+              needs_mortgage_service: { type: "boolean", description: "Si no la tienen, si necesitan servicio de broker" },
+              buy_deadline: { type: "string", description: "Fecha en la que piensan comprar" },
+              
+              // Vendedores / Propietarios Alquiler
+              sell_property_address: { type: "string", description: "Dirección completa de la propiedad" },
               sell_property_type: { type: "string" },
-              sell_estimated_price: { type: "number" },
-              sell_is_reformed: { type: "boolean" }
+              sell_estimated_price: { type: "number", description: "Precio pensado o renta pensada" },
+              sell_num_bedrooms: { type: "number" },
+              sell_num_bathrooms: { type: "number" },
+              sell_has_terrace: { type: "boolean" },
+              sell_has_parking: { type: "boolean" },
+              sell_area_m2: { type: "number" },
+              
+              // Comunes Búsqueda
+              min_bedrooms: { type: "number" },
+              preferred_zones: { type: "array", items: { type: "string" } }
             },
             required: ["name", "email", "phone", "intent"]
           }
@@ -238,13 +255,29 @@ FLUJO Y CUALIFICACIÓN DEL LEAD:
                 intent: args.intent || 'indefinido',
                 status: 'nuevo',
                 agent_notes: args.notes,
+                // Inquilino
+                num_people: args.num_people,
+                move_in_date: args.move_in_date ? new Date(args.move_in_date).toISOString().split('T')[0] : null,
+                occupation: args.occupation,
+                monthly_income: args.monthly_income,
+                age: args.age,
+                city_origin: args.city_origin,
                 has_pets: args.has_pets,
                 max_rent: args.intent === 'alquilar' ? args.max_price : null,
+                // Comprador
                 max_buy_price: args.intent === 'comprar' ? args.max_price : null,
+                mortgage_approved: args.mortgage_approved,
+                needs_mortgage_service: args.needs_mortgage_service,
+                buy_deadline: args.buy_deadline ? new Date(args.buy_deadline).toISOString().split('T')[0] : null,
+                // Vendedor / Propietario Alquiler
                 sell_property_address: args.sell_property_address,
                 sell_property_type: args.sell_property_type,
                 sell_estimated_price: args.sell_estimated_price,
-                sell_is_reformed: args.sell_is_reformed
+                sell_num_bedrooms: args.sell_num_bedrooms,
+                sell_num_bathrooms: args.sell_num_bathrooms,
+                sell_has_terrace: args.sell_has_terrace,
+                sell_has_parking: args.sell_has_parking,
+                sell_area_m2: args.sell_area_m2
               }])
               .select()
               .single();
