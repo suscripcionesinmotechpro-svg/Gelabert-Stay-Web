@@ -85,7 +85,8 @@ export const AdminLeadsCRM = () => {
                 className="flex-1 bg-[#1A1A1A] border border-[#333333] rounded-md px-3 py-2 text-sm text-[#FAF8F5] focus:border-[#C9A962] outline-none"
               >
                 <option value="todos">Toda intención</option>
-                <option value="alquilar">Alquilar</option>
+                <option value="alquilar">Alquilar (Inquilino)</option>
+                <option value="alquilar_propietario">Alquilar (Propietario)</option>
                 <option value="comprar">Comprar</option>
                 <option value="vender">Vender</option>
               </select>
@@ -127,7 +128,9 @@ export const AdminLeadsCRM = () => {
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-[#888888] mb-1">
-                      <span className="capitalize text-[#C9A962]">{lead.intent}</span>
+                      <span className="capitalize text-[#C9A962]">
+                        {lead.intent === 'alquilar_propietario' ? 'Alquilar (Propietario)' : lead.intent}
+                      </span>
                       <span>•</span>
                       <span>{format(new Date(lead.created_at), "d MMM yyyy HH:mm", { locale: es })}</span>
                     </div>
@@ -213,7 +216,7 @@ export const AdminLeadsCRM = () => {
                       </div>
                     )}
 
-                    {/* Venta Fields */}
+                    {/* Venta / Alquilar Propietario Fields */}
                     {selectedLead.sell_property_address && (
                       <div>
                         <span className="block text-[#666666] text-xs mb-1">Dirección a Vender</span>

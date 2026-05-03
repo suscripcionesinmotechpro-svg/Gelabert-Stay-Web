@@ -5,7 +5,7 @@ export interface LeadCRM {
   id: string;
   created_at: string;
   updated_at: string;
-  intent: 'alquilar' | 'comprar' | 'vender';
+  intent: 'alquilar' | 'comprar' | 'vender' | 'alquilar_propietario';
   status: 'nuevo' | 'contactado' | 'cualificado' | 'cerrado' | 'descartado';
   name: string;
   email: string;

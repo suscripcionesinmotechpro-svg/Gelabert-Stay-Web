@@ -11,7 +11,7 @@ export const Gelabot = () => {
   const [isTyping, setIsTyping] = useState(false);
   
   // Flows
-  const [flow, setFlow] = useState<'none'|'alquilar'|'comprar'|'vender'|'alquilar_form'|'comprar_form'|'vender_form'|'success'>('none');
+  const [flow, setFlow] = useState<'none'|'alquilar'|'alquilar_propietario'|'comprar'|'vender'|'alquilar_form'|'comprar_form'|'vender_form'|'success'>('none');
   const [step, setStep] = useState(0);
   
   // Data Collection
@@ -39,11 +39,11 @@ export const Gelabot = () => {
     }
   };
 
-  const handleStartFlow = (type: 'alquilar'|'comprar'|'vender') => {
+  const handleStartFlow = (type: 'alquilar'|'alquilar_propietario'|'comprar'|'vender') => {
     setFlow(type);
     setStep(0);
-    setSearchParams({ operation: type });
-    addMessage('user', type === 'alquilar' ? 'Busco alquilar' : type === 'comprar' ? 'Busco comprar' : 'Quiero vender mi propiedad');
+    setSearchParams({ operation: type === 'alquilar_propietario' ? 'alquilar' : type });
+    addMessage('user', type === 'alquilar' ? 'Busco alquilar' : type === 'alquilar_propietario' ? 'Ofrezco mi propiedad en alquiler' : type === 'comprar' ? 'Busco comprar' : 'Quiero vender mi propiedad');
     addMessage('bot', 'Excelente. Para poder dirigirme a ti correctamente y guardar tu registro, ¿cómo te llamas completo?', 1000);
   };
 
@@ -343,6 +343,56 @@ export const Gelabot = () => {
         setFlow('success');
         addMessage('bot', '¡Todo listo! 🚀 Tu solicitud de venta ya está en nuestro sistema. Un experto de Gelabert Homes te contactará muy pronto para darte el mejor servicio.');
       }
+    // ─── ALQUILAR PROPIETARIO FLOW ───
+    else if (flow === 'alquilar_propietario') {
+      if (step === 0) {
+        setLeadData(prev => ({ ...prev, name: input }));
+        addMessage('bot', `Gracias, ${input}. Para empezar, ¿cuál es la dirección exacta del inmueble que quieres poner en alquiler (Málaga Capital o Costa del Sol)?`, 800);
+        setStep(1);
+      } else if (step === 1) {
+        setLeadData(prev => ({ ...prev, sell_property_address: input }));
+        addMessage('bot', 'Perfecto. ¿A partir de qué fecha estará disponible la propiedad para entrar a vivir?', 800);
+        setStep(2);
+      } else if (step === 2) {
+        setLeadData(prev => ({ ...prev, agent_notes: (prev.agent_notes || '') + `Disponibilidad: ${input}` }));
+        addMessage('bot', 'Entendido. ¿Cuántas habitaciones y baños tiene?', 800);
+        setStep(3);
+      } else if (step === 3) {
+        const beds = parseInt(input.match(/\d+/)?.[0] || '0');
+        setLeadData(prev => ({ ...prev, sell_num_bedrooms: beds, sell_additional_info: input }));
+        addMessage('bot', '¿Destaca por algo especial? (Ej: terraza, piscina, garaje, amueblado...)', 800);
+        setStep(4);
+      } else if (step === 4) {
+        const txt = input.toLowerCase();
+        setLeadData(prev => ({ 
+          ...prev, 
+          sell_has_terrace: txt.includes('terraza'),
+          sell_has_pool: txt.includes('piscina'),
+          sell_is_furnished: txt.includes('amueblad'),
+          sell_has_parking: txt.includes('garaje') || txt.includes('parking'),
+          sell_additional_info: prev.sell_additional_info + ' | Extras: ' + input
+        }));
+        addMessage('bot', 'Muy bien. ¿Qué precio mensual tienes pensado pedir por el alquiler o prefieres una valoración nuestra?', 800);
+        setStep(5);
+      } else if (step === 5) {
+        setLeadData(prev => ({ ...prev, sell_estimated_price: parseInt(input.replace(/\D/g, '')) || undefined }));
+        addMessage('bot', '¿Hay algún detalle adicional o comentario sobre la propiedad o las condiciones que quieras añadir?', 800);
+        setStep(6);
+      } else if (step === 6) {
+        setLeadData(prev => ({ ...prev, agent_notes: (prev.agent_notes ? prev.agent_notes + ' | ' : '') + `Comentarios Adicionales: ${input}` }));
+        addMessage('bot', 'Para enviarte nuestra propuesta y ponernos en contacto, ¿cuál es tu correo electrónico?', 800);
+        setStep(7);
+      } else if (step === 7) {
+        setLeadData(prev => ({ ...prev, email: input }));
+        addMessage('bot', 'Y finalmente, ¿cuál es tu número de teléfono de contacto?', 800);
+        setStep(8);
+      } else if (step === 8) {
+        setIsTyping(true);
+        await saveLeadFromBot({ ...leadData, phone: input, intent: 'alquilar_propietario', status: 'nuevo' });
+        setIsTyping(false);
+        setFlow('success');
+        addMessage('bot', '¡Todo listo! 🚀 Tu solicitud de alquiler ya está en nuestro sistema. Un experto de Gelabert Homes te contactará muy pronto para asesorarte.');
+      }
     } 
   };
 
@@ -350,7 +400,11 @@ export const Gelabot = () => {
     <div className="flex flex-col gap-2 mt-4 w-[85%]">
       <button onClick={() => handleStartFlow('alquilar')} className="flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#333333] hover:border-[#C9A962] rounded-lg transition-colors text-left group">
         <div className="p-2 bg-[#0A0A0A] rounded-md text-[#C9A962]"><Home size={18} /></div>
-        <div className="flex-1"><p className="font-primary text-sm text-[#FAF8F5]">Quiero Alquilar</p><p className="text-xs text-[#888888]">Busco vivienda en alquiler</p></div>
+        <div className="flex-1"><p className="font-primary text-sm text-[#FAF8F5]">Busco Alquiler</p><p className="text-xs text-[#888888]">Soy inquilino, busco vivienda</p></div>
+      </button>
+      <button onClick={() => handleStartFlow('alquilar_propietario')} className="flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#333333] hover:border-[#C9A962] rounded-lg transition-colors text-left group">
+        <div className="p-2 bg-[#0A0A0A] rounded-md text-[#C9A962]"><Building2 size={18} /></div>
+        <div className="flex-1"><p className="font-primary text-sm text-[#FAF8F5]">Ofrezco Alquiler</p><p className="text-xs text-[#888888]">Soy propietario, quiero alquilar</p></div>
       </button>
       <button onClick={() => handleStartFlow('comprar')} className="flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#333333] hover:border-[#C9A962] rounded-lg transition-colors text-left group">
         <div className="p-2 bg-[#0A0A0A] rounded-md text-[#C9A962]"><Building2 size={18} /></div>
