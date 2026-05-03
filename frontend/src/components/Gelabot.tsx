@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, X, Send, MapPin, Bed, Home, Building2, TrendingUp } from 'lucide-react';
-import { searchPropertiesForBot, saveLeadFromBot, sendLeadEmail, PropertySearchParams, ScoredProperty } from '../hooks/useLeadsCRM';
+import { Bot, X, Send, Home, Building2, TrendingUp } from 'lucide-react';
+import type { PropertySearchParams, ScoredProperty } from '../hooks/useLeadsCRM';
+import { searchPropertiesForBot, saveLeadFromBot, sendLeadEmail } from '../hooks/useLeadsCRM';
 
 export const Gelabot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,11 +62,11 @@ export const Gelabot = () => {
     // ─── ONBOARDING (Capture Drop-offs Early) ───
     if (flow === 'onboarding') {
       if (step === 0) {
-        setLeadData(prev => ({ ...prev, name: input }));
+        setLeadData((prev: any) => ({ ...prev, name: input }));
         addMessage('bot', `Gracias, ${input}. Por si se corta la conexión, ¿cuál es tu correo electrónico?`, 800);
         setStep(1);
       } else if (step === 1) {
-        setLeadData(prev => ({ ...prev, email: input }));
+        setLeadData((prev: any) => ({ ...prev, email: input }));
         addMessage('bot', '¿Y tu número de teléfono de contacto?', 800);
         setStep(2);
       } else if (step === 2) {
@@ -74,7 +75,7 @@ export const Gelabot = () => {
         const saved = await saveLeadFromBot(dataToSave);
         setIsTyping(false);
         
-        setLeadData(prev => ({ ...prev, phone: input, id: saved?.id }));
+        setLeadData((prev: any) => ({ ...prev, phone: input, id: saved?.id }));
         setFlow(intent!);
         setStep(0);
         
@@ -93,16 +94,16 @@ export const Gelabot = () => {
     // ─── ALQUILAR FLOW ───
     else if (flow === 'alquilar') {
       if (step === 0) {
-        setSearchParams(prev => ({ ...prev, zones: [input] }));
+        setSearchParams((prev: any) => ({ ...prev, zones: [input] }));
         addMessage('bot', 'Genial. ¿Cuál es tu presupuesto máximo mensual para el alquiler?', 800);
         setStep(1);
       } else if (step === 1) {
-        setSearchParams(prev => ({ ...prev, max_price: parseInt(input.replace(/\D/g, '')) || undefined }));
+        setSearchParams((prev: any) => ({ ...prev, max_price: parseInt(input.replace(/\D/g, '')) || undefined }));
         addMessage('bot', 'Anotado. ¿Cuántas habitaciones y baños necesitas como mínimo?', 800);
         setStep(2);
       } else if (step === 2) {
         const beds = parseInt(input.match(/\d+/)?.[0] || '0');
-        setSearchParams(prev => ({ ...prev, min_bedrooms: beds }));
+        setSearchParams((prev: any) => ({ ...prev, min_bedrooms: beds }));
         addMessage('bot', '¿Buscas alguna característica especial? (Ej: terraza, ascensor, piscina, admite mascotas...)', 800);
         setStep(3);
       } else if (step === 3) {
@@ -163,23 +164,23 @@ export const Gelabot = () => {
     // ─── FORM FLOW: ALQUILAR ───
     else if (flow === 'alquilar_form') {
       if (step === 0) {
-        setLeadData(prev => ({ ...prev, age: parseInt(input) || undefined }));
+        setLeadData((prev: any) => ({ ...prev, age: parseInt(input) || undefined }));
         addMessage('bot', '¿De dónde eres (ciudad o nacionalidad)?', 800);
         setStep(1);
       } else if (step === 1) {
-        setLeadData(prev => ({ ...prev, nationality: input }));
+        setLeadData((prev: any) => ({ ...prev, nationality: input }));
         addMessage('bot', '¿A qué te dedicas profesionalmente?', 800);
         setStep(2);
       } else if (step === 2) {
-        setLeadData(prev => ({ ...prev, occupation: input }));
+        setLeadData((prev: any) => ({ ...prev, occupation: input }));
         addMessage('bot', 'Para el estudio de solvencia, ¿cuáles son tus ingresos mensuales netos aproximados?', 800);
         setStep(3);
       } else if (step === 3) {
-        setLeadData(prev => ({ ...prev, monthly_income: parseInt(input.replace(/\D/g, '')) || undefined }));
+        setLeadData((prev: any) => ({ ...prev, monthly_income: parseInt(input.replace(/\D/g, '')) || undefined }));
         addMessage('bot', '¿Qué antigüedad tienes en tu empresa actual?', 800);
         setStep(4);
       } else if (step === 4) {
-        setLeadData(prev => ({ ...prev, employment_seniority: input }));
+        setLeadData((prev: any) => ({ ...prev, employment_seniority: input }));
         addMessage('bot', '¿Hay algún detalle adicional o comentario que quieras dejar anotado en tu perfil antes de finalizar?', 800);
         setStep(5);
       } else if (step === 5) {
@@ -202,16 +203,16 @@ export const Gelabot = () => {
     // ─── COMPRAR FLOW ───
     else if (flow === 'comprar') {
       if (step === 0) {
-        setSearchParams(prev => ({ ...prev, zones: [input] }));
+        setSearchParams((prev: any) => ({ ...prev, zones: [input] }));
         addMessage('bot', 'Genial. ¿Cuál es tu presupuesto máximo estimado?', 800);
         setStep(1);
       } else if (step === 1) {
-        setSearchParams(prev => ({ ...prev, max_price: parseInt(input.replace(/\D/g, '')) || undefined }));
+        setSearchParams((prev: any) => ({ ...prev, max_price: parseInt(input.replace(/\D/g, '')) || undefined }));
         addMessage('bot', 'Anotado. ¿Cuántas habitaciones y baños necesitas como mínimo?', 800);
         setStep(2);
       } else if (step === 2) {
         const beds = parseInt(input.match(/\d+/)?.[0] || '0');
-        setSearchParams(prev => ({ ...prev, min_bedrooms: beds }));
+        setSearchParams((prev: any) => ({ ...prev, min_bedrooms: beds }));
         addMessage('bot', '¿Buscas alguna característica especial? (Ej: terraza, ascensor, piscina, jardín...)', 800);
         setStep(3);
       } else if (step === 3) {
@@ -228,19 +229,19 @@ export const Gelabot = () => {
       } else if (step === 4) {
         const txt = input.toLowerCase();
         const hasMortgage = txt.includes('si') || txt.includes('sí') || txt.includes('aprobada') || txt.includes('fondos');
-        setLeadData(prev => ({ ...prev, mortgage_approved: hasMortgage, agent_notes: (prev.agent_notes || '') + `Hipoteca/Fondos: ${input}` }));
+        setLeadData((prev: any) => ({ ...prev, mortgage_approved: hasMortgage, agent_notes: (prev.agent_notes || '') + `Hipoteca/Fondos: ${input}` }));
         
         addMessage('bot', 'En Gelabert Homes contamos con un servicio exclusivo de bróker hipotecario para conseguirte las mejores condiciones. ¿Te gustaría que te ofrezcamos este servicio gratuito de estudio? (Sí/No)', 800);
         setStep(5);
       } else if (step === 5) {
         const txt = input.toLowerCase();
         const wantsMortgageService = txt.includes('si') || txt.includes('sí') || txt.includes('quiero') || txt.includes('vale');
-        setLeadData(prev => ({ ...prev, needs_mortgage_service: wantsMortgageService }));
+        setLeadData((prev: any) => ({ ...prev, needs_mortgage_service: wantsMortgageService }));
         
         addMessage('bot', 'Perfecto. ¿Para qué fecha límite o plazo aproximado te gustaría tener comprada la propiedad?', 800);
         setStep(6);
       } else if (step === 6) {
-        setLeadData(prev => ({ ...prev, buy_deadline: input }));
+        setLeadData((prev: any) => ({ ...prev, buy_deadline: input }));
         
         addMessage('bot', '¡Gracias por todos los detalles! Dame un segundo, voy a analizar nuestro portfolio de ventas...', 800);
         
@@ -310,21 +311,21 @@ export const Gelabot = () => {
     // ─── VENDER FLOW ───
     else if (flow === 'vender') {
       if (step === 0) {
-        setLeadData(prev => ({ ...prev, sell_property_address: input }));
+        setLeadData((prev: any) => ({ ...prev, sell_property_address: input }));
         addMessage('bot', 'Perfecto. ¿Qué tipo de inmueble es? (Piso, chalet, ático, local...)', 800);
         setStep(1);
       } else if (step === 1) {
-        setLeadData(prev => ({ ...prev, sell_property_type: input }));
+        setLeadData((prev: any) => ({ ...prev, sell_property_type: input }));
         addMessage('bot', 'Entendido. Cuéntame un poco más: ¿cuántas habitaciones y baños tiene?', 800);
         setStep(2);
       } else if (step === 2) {
         const beds = parseInt(input.match(/\d+/)?.[0] || '0');
-        setLeadData(prev => ({ ...prev, sell_num_bedrooms: beds, sell_additional_info: input }));
+        setLeadData((prev: any) => ({ ...prev, sell_num_bedrooms: beds, sell_additional_info: input }));
         addMessage('bot', '¿Destaca por algo especial? (Ej: terraza amplia, piscina, cocina recién reformada, garaje, etc.)', 800);
         setStep(3);
       } else if (step === 3) {
         const txt = input.toLowerCase();
-        setLeadData(prev => ({ 
+        setLeadData((prev: any) => ({ 
           ...prev, 
           sell_has_terrace: txt.includes('terraza'),
           sell_has_pool: txt.includes('piscina'),
@@ -335,7 +336,7 @@ export const Gelabot = () => {
         addMessage('bot', 'Muy bien. ¿Tienes pensado ya un precio estimado de venta o prefieres que hagamos una valoración profesional gratuita?', 800);
         setStep(4);
       } else if (step === 4) {
-        setLeadData(prev => ({ ...prev, sell_estimated_price: parseInt(input.replace(/\D/g, '')) || undefined }));
+        setLeadData((prev: any) => ({ ...prev, sell_estimated_price: parseInt(input.replace(/\D/g, '')) || undefined }));
         addMessage('bot', '¿Hay algún detalle adicional o comentario sobre la propiedad o la venta que quieras añadir?', 800);
         setStep(5);
       } else if (step === 5) {
@@ -352,21 +353,21 @@ export const Gelabot = () => {
     // ─── ALQUILAR PROPIETARIO FLOW ───
     else if (flow === 'alquilar_propietario') {
       if (step === 0) {
-        setLeadData(prev => ({ ...prev, sell_property_address: input }));
+        setLeadData((prev: any) => ({ ...prev, sell_property_address: input }));
         addMessage('bot', 'Perfecto. ¿A partir de qué fecha estará disponible la propiedad para entrar a vivir?', 800);
         setStep(1);
       } else if (step === 1) {
-        setLeadData(prev => ({ ...prev, agent_notes: (prev.agent_notes || '') + `Disponibilidad: ${input}` }));
+        setLeadData((prev: any) => ({ ...prev, agent_notes: (prev.agent_notes || '') + `Disponibilidad: ${input}` }));
         addMessage('bot', 'Entendido. ¿Cuántas habitaciones y baños tiene?', 800);
         setStep(2);
       } else if (step === 2) {
         const beds = parseInt(input.match(/\d+/)?.[0] || '0');
-        setLeadData(prev => ({ ...prev, sell_num_bedrooms: beds, sell_additional_info: input }));
+        setLeadData((prev: any) => ({ ...prev, sell_num_bedrooms: beds, sell_additional_info: input }));
         addMessage('bot', '¿Destaca por algo especial? (Ej: terraza, piscina, garaje, amueblado...)', 800);
         setStep(3);
       } else if (step === 3) {
         const txt = input.toLowerCase();
-        setLeadData(prev => ({ 
+        setLeadData((prev: any) => ({ 
           ...prev, 
           sell_has_terrace: txt.includes('terraza'),
           sell_has_pool: txt.includes('piscina'),
@@ -377,7 +378,7 @@ export const Gelabot = () => {
         addMessage('bot', 'Muy bien. ¿Qué precio mensual tienes pensado pedir por el alquiler o prefieres una valoración nuestra?', 800);
         setStep(4);
       } else if (step === 4) {
-        setLeadData(prev => ({ ...prev, sell_estimated_price: parseInt(input.replace(/\D/g, '')) || undefined }));
+        setLeadData((prev: any) => ({ ...prev, sell_estimated_price: parseInt(input.replace(/\D/g, '')) || undefined }));
         addMessage('bot', 'Para finalizar y enviarte nuestra propuesta, ¿hay algún detalle adicional o comentario sobre la propiedad o las condiciones que quieras añadir?', 800);
         setStep(5);
       } else if (step === 5) {

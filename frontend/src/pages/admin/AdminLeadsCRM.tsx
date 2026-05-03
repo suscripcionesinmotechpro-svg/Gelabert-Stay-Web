@@ -1,19 +1,17 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
-import { Search, Filter, MessageSquare, User, Calendar, Home, CheckCircle, XCircle, Clock, MapPin, DollarSign } from 'lucide-react';
-import { useLeadsCRM, LeadCRM, updateLeadStatus, updateLeadNotes, searchPropertiesForBot, ScoredProperty } from '../../../hooks/useLeadsCRM';
+import { Search, MessageSquare, User } from 'lucide-react';
+import type { LeadCRM, ScoredProperty } from '../../hooks/useLeadsCRM';
+import { useLeadsCRM, updateLeadStatus, updateLeadNotes, searchPropertiesForBot } from '../../hooks/useLeadsCRM';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const AdminLeadsCRM = () => {
-  const { t } = useTranslation();
   const [filterIntent, setFilterIntent] = useState<string>('todos');
   const [filterStatus, setFilterStatus] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLead, setSelectedLead] = useState<LeadCRM | null>(null);
   
-  const { leads, loading, error, refetch } = useLeadsCRM({
+  const { leads, loading, refetch } = useLeadsCRM({
     intent: filterIntent,
     status: filterStatus,
     search: searchQuery,
@@ -114,7 +112,7 @@ export const AdminLeadsCRM = () => {
               <div className="p-8 text-center text-[#888888]">No se encontraron leads</div>
             ) : (
               <div className="divide-y divide-[#1F1F1F]">
-                {leads.map((lead) => (
+                {leads.map((lead: LeadCRM) => (
                   <button
                     key={lead.id}
                     onClick={() => {
@@ -289,7 +287,7 @@ export const AdminLeadsCRM = () => {
                       Transcripción del Chat
                     </h3>
                     <div className="bg-[#151515] rounded-md p-4 space-y-4 font-primary text-sm max-h-60 overflow-y-auto">
-                      {selectedLead.chat_transcript.map((msg, i) => (
+                      {selectedLead.chat_transcript.map((msg: any, i: number) => (
                         <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                           <div className={`max-w-[80%] rounded-lg px-4 py-2 ${msg.role === 'user' ? 'bg-[#C9A962] text-[#0A0A0A]' : 'bg-[#1F1F1F] text-[#FAF8F5]'}`}>
                             <p className="text-xs font-bold mb-1 opacity-60 uppercase">{msg.role === 'user' ? 'Cliente' : 'Gelabot'}</p>

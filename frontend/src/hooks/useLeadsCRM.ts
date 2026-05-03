@@ -129,10 +129,10 @@ export const saveLeadFromBot = async (
       } else {
         await supabase
           .from('leads_search_profiles')
-          .insert([{ ...searchProfile, lead_id: leadId, intent: leadData.intent }]);
+          .insert([{ ...searchProfile, lead_id: leadId, intent: leadData.intent || '' }]);
       }
     }
-    return { id: leadId };
+    return leadId ? { id: leadId } : null;
   } catch (err) {
     console.error('Error saving lead from bot:', err);
     return null;
@@ -302,7 +302,6 @@ export const searchPropertiesForBot = async (params: PropertySearchParams): Prom
   const scored: ScoredProperty[] = data.map((p: any) => {
     let score = 0;
     const reasons: string[] = [];
-    const totalCriteria = Object.keys(params).filter(k => params[k as keyof PropertySearchParams] !== undefined).length;
 
     // Price match
     if (params.max_price && p.price <= params.max_price) {
