@@ -56,7 +56,7 @@ const ServiceCard = ({
       }}
     >
       {/* Mecha dorada animada constante */}
-      <div className="absolute inset-[-1000%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(201,169,98,0)_0%,rgba(201,169,98,0.8)_50%,rgba(201,169,98,0)_100%)] opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute w-[300%] h-[300%] -top-[100%] -left-[100%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(201,169,98,0)_0%,rgba(201,169,98,0.8)_50%,rgba(201,169,98,0)_100%)] opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
       
       {/* Inner Content Container */}
       <div className={`relative w-full h-full rounded-[1px] overflow-hidden z-10 transition-all duration-500 ${
@@ -125,7 +125,7 @@ const ServiceCard = ({
           {/* Add to cart button with animated golden border */}
           <div className={`relative p-[1px] rounded-sm overflow-hidden group/btn mt-auto transition-all ${isInCart ? '' : 'shadow-[0_0_20px_rgba(201,169,98,0.15)]'}`}>
             {!isInCart && (
-              <div className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(201,169,98,0)_0%,rgba(201,169,98,0.8)_50%,rgba(201,169,98,0)_100%)]" />
+              <div className="absolute w-[400%] h-[400%] -top-[150%] -left-[150%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(201,169,98,0)_0%,rgba(201,169,98,0.8)_50%,rgba(201,169,98,0)_100%)]" />
             )}
             <motion.button
               onClick={onToggle}
@@ -298,8 +298,8 @@ export const Servicios = () => {
 
       {/* Premium Mesh Background */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#C9A962]/5 blur-[120px] rounded-full mix-blend-screen animate-pulse" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#C9A962]/3 blur-[150px] rounded-full mix-blend-screen animation-delay-2000" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#C9A962]/10 blur-[120px] rounded-full animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#C9A962]/5 blur-[150px] rounded-full animation-delay-2000" />
       </div>
 
       {/* Hero Section */}
@@ -425,7 +425,7 @@ export const Servicios = () => {
           {/* Golden Mecha (Border animation) */}
           <div className="absolute inset-0 pointer-events-none z-10">
             <div className="absolute inset-0 border border-[#C9A962]/10" />
-            <div className="absolute inset-[-2px] border border-transparent rounded-sm animate-border-glow opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+            <div className="absolute inset-[-2px] border border-transparent rounded-sm animate-[spin_4s_linear_infinite] opacity-0 group-hover:opacity-100 transition-opacity duration-700"
               style={{
                 background: 'conic-gradient(from 0deg, transparent, #C9A962, transparent 25%) border-box',
                 WebkitMask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)',

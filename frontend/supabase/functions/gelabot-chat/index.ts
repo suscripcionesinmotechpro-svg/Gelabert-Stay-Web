@@ -35,22 +35,35 @@ REGLAS DE COMUNICACIÓN CRÍTICAS:
 1. NO SEAS REPETITIVO. Varía tu vocabulario y no repitas la misma estructura o frase en cada mensaje. Conversa de forma natural y fluida.
 2. SÉ CONCISO. Evita bloques de texto gigantes. Tono: Profesional, lujoso, atento y resolutivo.
 
-FLUJO Y CUALIFICACIÓN DEL LEAD:
-1. CAPTACIÓN DE CONTACTO (INMEDIATA Y PASO A PASO): 
-   - PASO 1: Saluda amigablemente.
-   - PASO 2: Dile que para abrir su ficha de cliente y poder atenderle mejor (y enviarle opciones exclusivas en el futuro), necesitas su nombre completo.
-   - PASO 3: Pídele su teléfono y su email.
-   ¡IMPORTANTE! No empieces a buscar ni a cualificar profundamente hasta que no te dé estos tres datos (nombre, email y teléfono).
-2. GUARDADO EN TIEMPO REAL: En el instante exacto en el que te dé su nombre, email y teléfono, USA LA FUNCIÓN "save_lead" INMEDIATAMENTE para abrir su ficha en el sistema.
-3. CUALIFICACIÓN CONVERSACIONAL SEGÚN INTENCIÓN: Una vez tienes sus datos, pregúntale qué busca y recopila los datos clave paso a paso y de forma amigable:
-   - INQUILINO (Busca alquilar): Pregunta por la cantidad de personas, fecha en la que buscan mudarse, a qué se dedican/ingresos, edades, de dónde son, mascotas y presupuesto máximo.
-   - PROPIETARIO (Ofrece alquiler): Dirección completa, características (habitaciones, terrazas, baños, m2, parking), fecha de disponibilidad y precio pensado.
-   - COMPRADOR (Busca comprar): Presupuesto máximo, fecha pensada de compra, zonas y si TIENEN HIPOTECA APROBADA. Si no la tienen, OFRÉCELES NUESTRO SERVICIO DE BROKER DE HIPOTECAS.
-   - VENDEDOR (Ofrece venta): Dirección completa de la propiedad, características (habitaciones, baños, salón independiente, cocina, etc.) y precio pensado. NUNCA hables de "comisiones", dile que un agente le contactará.
-4. BÚSQUEDA (NO TE ADELANTES): NUNCA hagas una búsqueda en la base de datos si el cliente solo te ha dado un dato (ej. "busco un estudio por 800"). PREGUNTA PRIMERO las características que le gustaría que tuviera (zonas, terraza, parking, etc.) antes de usar "search_properties".
-5. PRESENTACIÓN DE PROPIEDADES (SEPARADA Y LIMPIA): Cuando ofrezcas los resultados, NUNCA pongas todas las propiedades juntas de golpe en un solo párrafo gigante. Preséntalas una a una, por separado, de forma personalizada y destacando la característica que hace especial a ese inmueble.
-6. ALTERNATIVAS CLARAS: Clasifica mentalmente las propiedades encontradas. Primero ofrece las que cumplen sus requisitos. Si le ofreces opciones que NO son similares a lo que pidió, ofrécelas por separado diciendo EXACTAMENTE algo como: "Sé que no es exactamente lo que buscas, pero te podemos ofrecer estas opciones como alternativa que podrían encajar...".
-7. ACTUALIZACIÓN DE DATOS (SILENCIOSA): A medida que el cliente te dé detalles de cualificación durante la charla, vuelve a llamar a "save_lead" para actualizar su perfil. El sistema fusionará los datos automáticamente. MUY IMPORTANTE: NUNCA le digas al cliente "he actualizado tu ficha" ni "veo que ya estás registrado". Haz la actualización en silencio y continúa la conversación de forma natural.
+FLUJO ESTRICTO DE CUALIFICACIÓN (Sigue este orden paso a paso):
+
+1. CAPTACIÓN DE CONTACTO BÁSICO:
+   - Saluda amigablemente y dile que para abrir su ficha necesitas su nombre completo, email y teléfono.
+   - ¡IMPORTANTE! NO preguntes NADA más (ni qué busca ni datos personales) hasta que te dé estos tres datos.
+   - En el instante en que te los dé, usa la función "save_lead" INMEDIATAMENTE.
+
+2. DESCUBRIMIENTO DE LA PROPIEDAD IDEAL (PASO A PASO):
+   - Una vez tienes sus datos de contacto, pregúntale qué tipo de operación desea (alquilar, comprar, vender).
+   - PREGUNTA LOS DETALLES DE LA PROPIEDAD (solo 1 o 2 preguntas a la vez para no agobiar):
+     * Si busca alquilar o comprar: ¿Qué zonas le interesan? ¿Presupuesto máximo? ¿Cuántas habitaciones y baños? ¿Características especiales (terraza, piscina, parking)? ¿Para qué fecha lo necesita?
+     * Si ofrece para vender o alquilar: ¿Dirección completa? ¿Características (m2, habitaciones, baños, terraza, parking)? ¿Precio pensado?
+
+3. BÚSQUEDA Y PRESENTACIÓN DE OPCIONES:
+   - SOLO cuando tengas claro qué busca o qué ofrece (al menos zonas, presupuesto, habitaciones), usa la función "search_properties" para buscar en la base de datos.
+   - Preséntale las opciones una a una, destacando lo que encaja con lo que pidió. Si no hay coincidencias exactas, ofrécele alternativas claras diciendo "Sé que no es exactamente lo que buscas, pero...".
+
+4. CUALIFICACIÓN DE PERFIL PERSONAL (DESPUÉS DE MOSTRAR OPCIONES):
+   - Una vez le has mostrado opciones y han comentado sobre ellas, es el momento de cualificar su perfil personal para nuestro equipo comercial.
+   - Pregunta de forma conversacional (no todo de golpe):
+     * Inquilino: ¿A qué se dedican / nivel de ingresos mensuales? ¿De dónde son? ¿Tienen mascotas?
+     * Comprador: ¿Tienen la hipoteca aprobada? Si no, ofrécele nuestro servicio de Broker.
+
+5. ACTUALIZACIÓN SILENCIOSA:
+   - Usa "save_lead" de nuevo en segundo plano para actualizar los nuevos datos que te vaya dando. Nunca le digas "he actualizado tu ficha".
+
+6. FINALIZACIÓN Y RESUMEN:
+   - Cuando tengas toda la información de la propiedad que busca/ofrece Y su perfil personal, dile que un agente experto se pondrá en contacto con él pronto.
+   - En ESE MISMO INSTANTE, usa obligatoriamente la función "send_summary_email" para enviarle el correo resumen con nuestra política de privacidad.
     `;
 
     const openAiMessages = [
@@ -123,6 +136,21 @@ FLUJO Y CUALIFICACIÓN DEL LEAD:
               preferred_zones: { type: "array", items: { type: "string" } }
             },
             required: ["name", "email", "phone"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "send_summary_email",
+          description: "Envía el correo de confirmación y resumen al cliente al finalizar la sesión. Úsalo SIEMPRE al final de la conversación, cuando le dices que un agente se pondrá en contacto con él.",
+          parameters: {
+            type: "object",
+            properties: {
+              email: { type: "string", description: "El correo electrónico del cliente" },
+              summary_html: { type: "string", description: "Un resumen detallado en formato HTML (con <ul>, <li>, <strong>) de toda la información que te ha dado (qué busca o ofrece, presupuesto, plazos, etc.)." }
+            },
+            required: ["email", "summary_html"]
           }
         }
       }
@@ -334,7 +362,7 @@ FLUJO Y CUALIFICACIÓN DEL LEAD:
               }]);
             }
 
-            // TRIGGER EMAIL NOTIFICATION
+            // TRIGGER EMAIL NOTIFICATION (Solo Admin en save_lead)
             try {
               await fetch(`${SUPABASE_URL}/functions/v1/notify-lead-matches`, {
                 method: 'POST',
@@ -345,7 +373,8 @@ FLUJO Y CUALIFICACIÓN DEL LEAD:
                 body: JSON.stringify({
                   leadData: leadDataIns,
                   matches: propertiesToRender || [], 
-                  type: args.intent
+                  type: args.intent,
+                  adminOnly: true
                 })
               });
             } catch (e) {
@@ -362,6 +391,57 @@ FLUJO Y CUALIFICACIÓN DEL LEAD:
               : isExisting 
                 ? "El cliente ya estaba registrado en nuestra base de datos. Se ha añadido su nueva consulta al historial de su perfil. Dile amablemente que hemos detectado que ya era cliente nuestro, que hemos actualizado su ficha con esta nueva petición, pregúntale si desea modificar algún dato adicional de su perfil, y que en breve le contactaremos."
                 : "Lead guardado correctamente en la base de datos CRM de Gelabert Homes, y se le ha enviado un email de confirmación. Dile al usuario amablemente que el equipo contactará con ellos pronto y que han recibido un email."
+          });
+
+          const secondResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: openAiMessages,
+              temperature: 0.7
+            })
+          });
+          const secondAiData = await secondResponse.json();
+          finalReply = secondAiData.choices[0].message.content;
+        }
+
+        if (toolCall.function.name === 'send_summary_email') {
+          const { data: leadDataIns } = await supabaseAdmin
+            .from('leads_crm')
+            .select('*')
+            .eq('email', args.email)
+            .limit(1)
+            .single();
+
+          if (leadDataIns) {
+            try {
+              await fetch(`${SUPABASE_URL}/functions/v1/notify-lead-matches`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+                },
+                body: JSON.stringify({
+                  leadData: leadDataIns,
+                  type: leadDataIns.intent,
+                  isSummary: true,
+                  summaryHtml: args.summary_html
+                })
+              });
+            } catch (e) {
+              console.error("Error triggering summary email", e);
+            }
+          }
+
+          openAiMessages.push(responseMessage);
+          openAiMessages.push({
+            role: "tool",
+            tool_call_id: toolCall.id,
+            content: "Correo resumen enviado correctamente. Despídete del usuario confirmando que se lo has enviado y recuérdale que el correo contiene nuestra política de privacidad."
           });
 
           const secondResponse = await fetch('https://api.openai.com/v1/chat/completions', {

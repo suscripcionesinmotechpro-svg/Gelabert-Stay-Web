@@ -14,21 +14,34 @@ serve(async (req) => {
   }
 
   try {
-    const { leadData, matches, type } = await req.json();
+    const { leadData, matches, type, isSummary, summaryHtml, adminOnly } = await req.json();
 
     if (!RESEND_API_KEY) {
       throw new Error('Missing RESEND_API_KEY');
     }
 
-    // 1. Enviar Email al Cliente (Si dejó su correo)
-    if (leadData.email) {
+    // 1. Enviar Email al Cliente (Si dejó su correo y NO es solo para admin)
+    if (leadData.email && !adminOnly) {
       let clientHtml = `
-        <div style="font-family: Arial, sans-serif; color: #333; max-w-width: 600px; margin: 0 auto; background-color: #FAF8F5; padding: 20px;">
+        <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; background-color: #FAF8F5; padding: 20px;">
           <h2 style="color: #C9A962;">¡Hola ${leadData.name || ''}!</h2>
           <p>Gracias por contactar con <strong>Gelabert Homes</strong>.</p>
-          <p>Hemos recibido correctamente tu perfil y tus requisitos inmobiliarios. Nuestro equipo de expertos ya está evaluando tu solicitud y nos pondremos en contacto contigo lo antes posible para asesorarte de manera personalizada.</p>
-          <p style="font-size: 12px; color: #666;"><em>Nota: Nuestro agente te informará de todos los detalles durante nuestra conversación.</em></p>
+          <p>Hemos recibido correctamente tu solicitud. Un agente de nuestro equipo de expertos se pondrá en contacto contigo lo antes posible para asesorarte de manera personalizada.</p>
       `;
+
+      if (isSummary && summaryHtml) {
+        clientHtml += `
+          <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #C9A962;">Resumen de tu solicitud:</h3>
+            ${summaryHtml}
+          </div>
+        `;
+      } else {
+        clientHtml += `
+          <p style="font-size: 12px; color: #666;"><em>Nota: Nuestro agente te informará de todos los detalles durante nuestra conversación.</em></p>
+        `;
+      }
+
 
       if (matches && matches.length > 0) {
         clientHtml += `
@@ -53,6 +66,11 @@ serve(async (req) => {
       }
 
       clientHtml += `
+          <div style="margin-top: 30px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #C9A962; font-size: 12px; color: #666;">
+            <strong>Política de Privacidad:</strong><br/>
+            De acuerdo con la legislación vigente en materia de protección de datos, te informamos que Gelabert Homes tratará tus datos personales con la finalidad de gestionar tu solicitud y ofrecerte nuestros servicios inmobiliarios. Tus datos no serán cedidos a terceros salvo obligación legal. Puedes ejercer tus derechos de acceso, rectificación, supresión y oposición en cualquier momento contactando con nosotros en info@gelaberthomes.es.
+          </div>
+
           <div style="margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px; text-align: center;">
             <img src="https://gelaberthomes.com/logo.png" alt="Gelabert Homes Logo" style="height: 60px; margin-bottom: 15px;" />
             <p style="margin: 5px 0; color: #333; font-weight: bold;">Gelabert Homes Real Estate</p>
@@ -79,31 +97,33 @@ serve(async (req) => {
       });
     }
 
-    // 2. Enviar Email al Admin (Aviso interno)
-    const adminHtml = `
-      <h2>Nuevo Lead desde Gelabot</h2>
-      <p><strong>Nombre:</strong> ${leadData.name}</p>
-      <p><strong>Email:</strong> ${leadData.email}</p>
-      <p><strong>Teléfono:</strong> ${leadData.phone}</p>
-      <p><strong>Intención:</strong> ${type}</p>
-      <p><strong>Estado:</strong> ${leadData.status}</p>
-      <p><strong>Notas:</strong> ${leadData.agent_notes || 'Ninguna'}</p>
-      <p>Revisa el panel de administración CRM para ver todos los detalles financieros y de búsqueda.</p>
-    `;
+    // 2. Enviar Email al Admin (Aviso interno, solo si no es solo resumen)
+    if (!isSummary) {
+      const adminHtml = `
+        <h2>Nuevo Lead desde Gelabot</h2>
+        <p><strong>Nombre:</strong> ${leadData.name}</p>
+        <p><strong>Email:</strong> ${leadData.email}</p>
+        <p><strong>Teléfono:</strong> ${leadData.phone}</p>
+        <p><strong>Intención:</strong> ${type}</p>
+        <p><strong>Estado:</strong> ${leadData.status}</p>
+        <p><strong>Notas:</strong> ${leadData.agent_notes || 'Ninguna'}</p>
+        <p>Revisa el panel de administración CRM para ver todos los detalles financieros y de búsqueda.</p>
+      `;
 
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${RESEND_API_KEY}`
-      },
-      body: JSON.stringify({
-        from: 'Gelabot Notificaciones <onboarding@resend.dev>', // O tu dominio verificado
-        to: [ADMIN_EMAIL],
-        subject: `NUEVO LEAD: ${leadData.name} (${type})`,
-        html: adminHtml
-      })
-    });
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${RESEND_API_KEY}`
+        },
+        body: JSON.stringify({
+          from: 'Gelabot Notificaciones <onboarding@resend.dev>', // O tu dominio verificado
+          to: [ADMIN_EMAIL],
+          subject: `NUEVO LEAD: ${leadData.name} (${type})`,
+          html: adminHtml
+        })
+      });
+    }
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

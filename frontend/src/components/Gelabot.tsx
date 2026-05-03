@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { Bot, X, Send, Home, Building2, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 
 export const Gelabot = () => {
   const { i18n } = useTranslation();
+  const dragControls = useDragControls();
   const [isOpen, setIsOpen] = useState(false);
   const [userLang, setUserLang] = useState<'es'|'en'|null>(null);
   const lang = userLang || (i18n.language?.startsWith('en') ? 'en' : 'es');
@@ -149,7 +150,9 @@ export const Gelabot = () => {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            className="fixed bottom-6 left-6 z-50 flex items-center gap-4"
+            drag
+            dragMomentum={false}
+            className="fixed bottom-6 left-6 z-50 flex items-center gap-4 cursor-grab active:cursor-grabbing"
           >
             <button
               onClick={() => setIsOpen(true)}
@@ -174,9 +177,16 @@ export const Gelabot = () => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            drag
+            dragControls={dragControls}
+            dragListener={false}
+            dragMomentum={false}
             className="fixed bottom-6 left-6 z-50 w-[360px] h-[540px] max-h-[85vh] bg-[#0A0A0A] border border-[#1F1F1F] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
-            <div className="bg-[#1A1A1A] p-4 flex items-center justify-between border-b border-[#333333]">
+            <div 
+              className="bg-[#1A1A1A] p-4 flex items-center justify-between border-b border-[#333333] cursor-grab active:cursor-grabbing"
+              onPointerDown={(e) => dragControls.start(e)}
+            >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#C9A962] rounded-full flex items-center justify-center text-[#0A0A0A]">
                   <Bot size={20} />
