@@ -6,7 +6,7 @@ export interface LeadCRM {
   created_at: string;
   updated_at: string;
   intent: 'alquilar' | 'comprar' | 'vender' | 'alquilar_propietario';
-  status: 'nuevo' | 'contactado' | 'cualificado' | 'cerrado' | 'descartado';
+  status: 'nuevo' | 'contactado' | 'cualificado' | 'cerrado' | 'descartado' | 'incompleto';
   name: string;
   email: string;
   phone?: string;
@@ -88,30 +88,55 @@ export interface LeadSearchProfile {
 
 export interface LeadInsert extends Omit<LeadCRM, 'id' | 'created_at' | 'updated_at' | 'search_profile'> {}
 
-// ─── SAVE LEAD FROM CHATBOT ─────────────────────────────────────────────────
+// ─── SAVE OR UPDATE LEAD FROM CHATBOT ───────────────────────────────────────
 export const saveLeadFromBot = async (
-  leadData: Partial<LeadInsert>,
+  leadData: Partial<LeadInsert> & { id?: string },
   searchProfile?: Partial<LeadSearchProfile>
 ): Promise<{ id: string } | null> => {
-  const { data, error } = await supabase
-    .from('leads_crm')
-    .insert([leadData])
-    .select('id')
-    .single();
+  try {
+    let leadId = leadData.id;
+    
+    if (leadId) {
+      const { id: _, ...updateData } = leadData;
+      const { error } = await supabase
+        .from('leads_crm')
+        .update(updateData)
+        .eq('id', leadId);
+      if (error) throw error;
+    } else {
+      const { data, error } = await supabase
+        .from('leads_crm')
+        .insert([leadData])
+        .select('id')
+        .single();
+      if (error) throw error;
+      if (!data) return null;
+      leadId = data.id;
+    }
 
-  if (error) {
-    console.error('Error saving lead:', error);
-    throw error;
+    if (searchProfile && leadId) {
+      const { data: existingProfile } = await supabase
+        .from('leads_search_profiles')
+        .select('id')
+        .eq('lead_id', leadId)
+        .maybeSingle();
+        
+      if (existingProfile) {
+        await supabase
+          .from('leads_search_profiles')
+          .update(searchProfile)
+          .eq('id', existingProfile.id);
+      } else {
+        await supabase
+          .from('leads_search_profiles')
+          .insert([{ ...searchProfile, lead_id: leadId, intent: leadData.intent }]);
+      }
+    }
+    return { id: leadId };
+  } catch (err) {
+    console.error('Error saving lead from bot:', err);
+    return null;
   }
-
-  if (data?.id && searchProfile) {
-    const { error: spError } = await supabase
-      .from('leads_search_profiles')
-      .insert([{ ...searchProfile, lead_id: data.id }]);
-    if (spError) console.error('Error saving search profile:', spError);
-  }
-
-  return data;
 };
 
 // ─── LIST LEADS (ADMIN) ─────────────────────────────────────────────────────

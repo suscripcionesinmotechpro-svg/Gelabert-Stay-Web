@@ -11,7 +11,8 @@ export const Gelabot = () => {
   const [isTyping, setIsTyping] = useState(false);
   
   // Flows
-  const [flow, setFlow] = useState<'none'|'alquilar'|'alquilar_propietario'|'comprar'|'vender'|'alquilar_form'|'comprar_form'|'vender_form'|'success'>('none');
+  const [intent, setIntent] = useState<'alquilar'|'comprar'|'vender'|'alquilar_propietario'|null>(null);
+  const [flow, setFlow] = useState<'none'|'onboarding'|'alquilar'|'alquilar_propietario'|'comprar'|'vender'|'alquilar_form'|'comprar_form'|'vender_form'|'success'>('none');
   const [step, setStep] = useState(0);
   
   // Data Collection
@@ -40,7 +41,8 @@ export const Gelabot = () => {
   };
 
   const handleStartFlow = (type: 'alquilar'|'alquilar_propietario'|'comprar'|'vender') => {
-    setFlow(type);
+    setIntent(type);
+    setFlow('onboarding');
     setStep(0);
     setSearchParams({ operation: type === 'alquilar_propietario' ? 'alquilar' : type });
     addMessage('user', type === 'alquilar' ? 'Busco alquilar' : type === 'alquilar_propietario' ? 'Ofrezco mi propiedad en alquiler' : type === 'comprar' ? 'Busco comprar' : 'Quiero vender mi propiedad');
@@ -56,26 +58,54 @@ export const Gelabot = () => {
     addMessage('user', input);
     form.reset();
 
-    // ─── ALQUILAR FLOW ───
-    if (flow === 'alquilar') {
+    // ─── ONBOARDING (Capture Drop-offs Early) ───
+    if (flow === 'onboarding') {
       if (step === 0) {
         setLeadData(prev => ({ ...prev, name: input }));
-        addMessage('bot', `Encantada, ${input}. ¿En qué zona de Málaga Capital o la Costa del Sol estás buscando alquilar?`, 800);
+        addMessage('bot', `Gracias, ${input}. Por si se corta la conexión, ¿cuál es tu correo electrónico?`, 800);
         setStep(1);
       } else if (step === 1) {
-        setSearchParams(prev => ({ ...prev, zones: [input] }));
-        addMessage('bot', 'Genial. ¿Cuál es tu presupuesto máximo mensual para el alquiler?', 800);
+        setLeadData(prev => ({ ...prev, email: input }));
+        addMessage('bot', '¿Y tu número de teléfono de contacto?', 800);
         setStep(2);
       } else if (step === 2) {
+        setIsTyping(true);
+        const dataToSave = { ...leadData, phone: input, intent: intent!, status: 'incompleto' as const };
+        const saved = await saveLeadFromBot(dataToSave);
+        setIsTyping(false);
+        
+        setLeadData(prev => ({ ...prev, phone: input, id: saved?.id }));
+        setFlow(intent!);
+        setStep(0);
+        
+        if (intent === 'alquilar') {
+          addMessage('bot', `Perfecto. ¿En qué zona de Málaga Capital o la Costa del Sol estás buscando alquilar?`);
+        } else if (intent === 'comprar') {
+          addMessage('bot', `Perfecto. ¿En qué zona de Málaga Capital o la Costa del Sol estás buscando comprar?`);
+        } else if (intent === 'vender') {
+          addMessage('bot', `Perfecto. Para empezar nuestra valoración comercial, ¿cuál es la dirección exacta del inmueble (Málaga Capital o Costa del Sol)?`);
+        } else if (intent === 'alquilar_propietario') {
+          addMessage('bot', `Perfecto. Para empezar, ¿cuál es la dirección exacta del inmueble que quieres poner en alquiler (Málaga Capital o Costa del Sol)?`);
+        }
+      }
+    }
+
+    // ─── ALQUILAR FLOW ───
+    else if (flow === 'alquilar') {
+      if (step === 0) {
+        setSearchParams(prev => ({ ...prev, zones: [input] }));
+        addMessage('bot', 'Genial. ¿Cuál es tu presupuesto máximo mensual para el alquiler?', 800);
+        setStep(1);
+      } else if (step === 1) {
         setSearchParams(prev => ({ ...prev, max_price: parseInt(input.replace(/\D/g, '')) || undefined }));
         addMessage('bot', 'Anotado. ¿Cuántas habitaciones y baños necesitas como mínimo?', 800);
-        setStep(3);
-      } else if (step === 3) {
+        setStep(2);
+      } else if (step === 2) {
         const beds = parseInt(input.match(/\d+/)?.[0] || '0');
         setSearchParams(prev => ({ ...prev, min_bedrooms: beds }));
         addMessage('bot', '¿Buscas alguna característica especial? (Ej: terraza, ascensor, piscina, admite mascotas...)', 800);
-        setStep(4);
-      } else if (step === 4) {
+        setStep(3);
+      } else if (step === 3) {
         const txt = input.toLowerCase();
         const updatedParams = { ...searchParams };
         if (txt.includes('terraza')) updatedParams.wants_terrace = true;
@@ -150,20 +180,12 @@ export const Gelabot = () => {
         setStep(4);
       } else if (step === 4) {
         setLeadData(prev => ({ ...prev, employment_seniority: input }));
-        addMessage('bot', 'Ya casi estamos. ¿Cuál es tu correo electrónico para enviarte la información?', 800);
+        addMessage('bot', '¿Hay algún detalle adicional o comentario que quieras dejar anotado en tu perfil antes de finalizar?', 800);
         setStep(5);
       } else if (step === 5) {
-        setLeadData(prev => ({ ...prev, email: input }));
-        addMessage('bot', '¿Hay algún detalle adicional o comentario que quieras dejar anotado en tu perfil antes de finalizar?', 800);
-        setStep(6);
-      } else if (step === 6) {
-        setLeadData(prev => ({ ...prev, agent_notes: (prev.agent_notes ? prev.agent_notes + ' | ' : '') + `Comentarios: ${input}` }));
-        addMessage('bot', 'Y por último, ¿cuál es tu número de teléfono?', 800);
-        setStep(7);
-      } else if (step === 7) {
         const finalStatus = results.length > 0 ? 'cualificado' : 'nuevo';
         setIsTyping(true);
-        await saveLeadFromBot({ ...leadData, phone: input, intent: 'alquilar', status: finalStatus }, searchParams as any);
+        await saveLeadFromBot({ ...leadData, agent_notes: (leadData.agent_notes ? leadData.agent_notes + ' | ' : '') + `Comentarios: ${input}`, status: finalStatus }, searchParams as any);
         setIsTyping(false);
         setFlow('success');
         
@@ -178,23 +200,19 @@ export const Gelabot = () => {
     // ─── COMPRAR FLOW ───
     else if (flow === 'comprar') {
       if (step === 0) {
-        setLeadData(prev => ({ ...prev, name: input }));
-        addMessage('bot', `Encantada, ${input}. ¿En qué zona de Málaga Capital o la Costa del Sol estás buscando comprar?`, 800);
-        setStep(1);
-      } else if (step === 1) {
         setSearchParams(prev => ({ ...prev, zones: [input] }));
         addMessage('bot', 'Genial. ¿Cuál es tu presupuesto máximo estimado?', 800);
-        setStep(2);
-      } else if (step === 2) {
+        setStep(1);
+      } else if (step === 1) {
         setSearchParams(prev => ({ ...prev, max_price: parseInt(input.replace(/\D/g, '')) || undefined }));
         addMessage('bot', 'Anotado. ¿Cuántas habitaciones y baños necesitas como mínimo?', 800);
-        setStep(3);
-      } else if (step === 3) {
+        setStep(2);
+      } else if (step === 2) {
         const beds = parseInt(input.match(/\d+/)?.[0] || '0');
         setSearchParams(prev => ({ ...prev, min_bedrooms: beds }));
         addMessage('bot', '¿Buscas alguna característica especial? (Ej: terraza, ascensor, piscina, jardín...)', 800);
-        setStep(4);
-      } else if (step === 4) {
+        setStep(3);
+      } else if (step === 3) {
         const txt = input.toLowerCase();
         const updatedParams = { ...searchParams };
         if (txt.includes('terraza')) updatedParams.wants_terrace = true;
@@ -204,22 +222,22 @@ export const Gelabot = () => {
         setSearchParams(updatedParams);
         
         addMessage('bot', 'Para ayudarte mejor con la viabilidad: ¿Ya tienes una hipoteca aprobada o cuentas con los fondos necesarios? (Sí/No)', 800);
-        setStep(5);
-      } else if (step === 5) {
+        setStep(4);
+      } else if (step === 4) {
         const txt = input.toLowerCase();
         const hasMortgage = txt.includes('si') || txt.includes('sí') || txt.includes('aprobada') || txt.includes('fondos');
-        setLeadData(prev => ({ ...prev, mortgage_approved: hasMortgage, agent_notes: `Hipoteca/Fondos: ${input}` }));
+        setLeadData(prev => ({ ...prev, mortgage_approved: hasMortgage, agent_notes: (prev.agent_notes || '') + `Hipoteca/Fondos: ${input}` }));
         
         addMessage('bot', 'En Gelabert Homes contamos con un servicio exclusivo de bróker hipotecario para conseguirte las mejores condiciones. ¿Te gustaría que te ofrezcamos este servicio gratuito de estudio? (Sí/No)', 800);
-        setStep(6);
-      } else if (step === 6) {
+        setStep(5);
+      } else if (step === 5) {
         const txt = input.toLowerCase();
         const wantsMortgageService = txt.includes('si') || txt.includes('sí') || txt.includes('quiero') || txt.includes('vale');
         setLeadData(prev => ({ ...prev, needs_mortgage_service: wantsMortgageService }));
         
         addMessage('bot', 'Perfecto. ¿Para qué fecha límite o plazo aproximado te gustaría tener comprada la propiedad?', 800);
-        setStep(7);
-      } else if (step === 7) {
+        setStep(6);
+      } else if (step === 6) {
         setLeadData(prev => ({ ...prev, buy_deadline: input }));
         
         addMessage('bot', '¡Gracias por todos los detalles! Dame un segundo, voy a analizar nuestro portfolio de ventas...', 800);
@@ -259,11 +277,11 @@ export const Gelabot = () => {
               <div>
                 <p>¡He encontrado {res.length} opciones fantásticas!</p>
                 {resultsNode}
-                <p className="mt-3">Para poder enviarte los dosieres y organizar visitas, ¿cuál es tu correo electrónico?</p>
+                <p className="mt-3">Para finalizar y poder enviarte los dosieres completos, ¿hay algún detalle adicional o comentario que quieras dejar anotado?</p>
               </div>
             ));
           } else {
-            addMessage('bot', 'Actualmente no dispongo de una propiedad 100% exacta. Sin embargo, para pasarte opciones "Off-Market" y avisarte de nuevas exclusivas, ¿cuál es tu correo electrónico?');
+            addMessage('bot', 'Actualmente no dispongo de una propiedad 100% exacta. Sin embargo, para pasarte opciones "Off-Market" y avisarte de nuevas exclusivas, ¿hay algún detalle adicional que deba tener en cuenta?');
           }
         }, 2000);
       }
@@ -271,17 +289,9 @@ export const Gelabot = () => {
     // ─── FORM FLOW: COMPRAR ───
     else if (flow === 'comprar_form') {
       if (step === 0) {
-        setLeadData(prev => ({ ...prev, email: input }));
-        addMessage('bot', '¿Hay algún detalle adicional o comentario que quieras dejar anotado en tu perfil antes de finalizar?', 800);
-        setStep(1);
-      } else if (step === 1) {
-        setLeadData(prev => ({ ...prev, agent_notes: (prev.agent_notes ? prev.agent_notes + ' | ' : '') + `Comentarios: ${input}` }));
-        addMessage('bot', 'Y por último, ¿cuál es tu número de teléfono?', 800);
-        setStep(2);
-      } else if (step === 2) {
         const finalStatus = results.length > 0 ? 'cualificado' : 'nuevo';
         setIsTyping(true);
-        await saveLeadFromBot({ ...leadData, phone: input, intent: 'comprar', status: finalStatus }, searchParams as any);
+        await saveLeadFromBot({ ...leadData, agent_notes: (leadData.agent_notes ? leadData.agent_notes + ' | ' : '') + `Comentarios: ${input}`, status: finalStatus }, searchParams as any);
         setIsTyping(false);
         setFlow('success');
 
@@ -296,23 +306,19 @@ export const Gelabot = () => {
     // ─── VENDER FLOW ───
     else if (flow === 'vender') {
       if (step === 0) {
-        setLeadData(prev => ({ ...prev, name: input }));
-        addMessage('bot', `Gracias, ${input}. Para empezar nuestra valoración comercial, ¿cuál es la dirección exacta del inmueble (Málaga Capital o Costa del Sol)?`, 800);
-        setStep(1);
-      } else if (step === 1) {
         setLeadData(prev => ({ ...prev, sell_property_address: input }));
         addMessage('bot', 'Perfecto. ¿Qué tipo de inmueble es? (Piso, chalet, ático, local...)', 800);
-        setStep(2);
-      } else if (step === 2) {
+        setStep(1);
+      } else if (step === 1) {
         setLeadData(prev => ({ ...prev, sell_property_type: input }));
         addMessage('bot', 'Entendido. Cuéntame un poco más: ¿cuántas habitaciones y baños tiene?', 800);
-        setStep(3);
-      } else if (step === 3) {
+        setStep(2);
+      } else if (step === 2) {
         const beds = parseInt(input.match(/\d+/)?.[0] || '0');
         setLeadData(prev => ({ ...prev, sell_num_bedrooms: beds, sell_additional_info: input }));
         addMessage('bot', '¿Destaca por algo especial? (Ej: terraza amplia, piscina, cocina recién reformada, garaje, etc.)', 800);
-        setStep(4);
-      } else if (step === 4) {
+        setStep(3);
+      } else if (step === 3) {
         const txt = input.toLowerCase();
         setLeadData(prev => ({ 
           ...prev, 
@@ -323,46 +329,36 @@ export const Gelabot = () => {
           sell_additional_info: prev.sell_additional_info + ' | Extras: ' + input
         }));
         addMessage('bot', 'Muy bien. ¿Tienes pensado ya un precio estimado de venta o prefieres que hagamos una valoración profesional gratuita?', 800);
+        setStep(4);
+      } else if (step === 4) {
+        setLeadData(prev => ({ ...prev, sell_estimated_price: parseInt(input.replace(/\D/g, '')) || undefined }));
+        addMessage('bot', '¿Hay algún detalle adicional o comentario sobre la propiedad o la venta que quieras añadir?', 800);
         setStep(5);
       } else if (step === 5) {
-        setLeadData(prev => ({ ...prev, sell_estimated_price: parseInt(input.replace(/\D/g, '')) || undefined }));
-        addMessage('bot', '¡Fantástico! Tenemos toda la información del inmueble. Para enviarte nuestro dossier y ponernos en contacto, ¿cuál es tu correo electrónico?', 800);
-        setStep(6);
-      } else if (step === 6) {
-        setLeadData(prev => ({ ...prev, email: input }));
-        addMessage('bot', '¿Hay algún detalle adicional o comentario sobre la propiedad o la venta que quieras añadir?', 800);
-        setStep(7);
-      } else if (step === 7) {
-        setLeadData(prev => ({ ...prev, agent_notes: (prev.agent_notes ? prev.agent_notes + ' | ' : '') + `Comentarios: ${input}` }));
-        addMessage('bot', 'Por último, ¿cuál es tu número de teléfono de contacto?', 800);
-        setStep(8);
-      } else if (step === 8) {
         setIsTyping(true);
-        await saveLeadFromBot({ ...leadData, phone: input, intent: 'vender', status: 'nuevo' });
+        await saveLeadFromBot({ ...leadData, agent_notes: (leadData.agent_notes ? leadData.agent_notes + ' | ' : '') + `Comentarios: ${input}`, status: 'nuevo' });
         setIsTyping(false);
         setFlow('success');
         addMessage('bot', '¡Todo listo! 🚀 Tu solicitud de venta ya está en nuestro sistema. Un experto de Gelabert Homes te contactará muy pronto para darte el mejor servicio.');
       }
+    } 
+
     // ─── ALQUILAR PROPIETARIO FLOW ───
     else if (flow === 'alquilar_propietario') {
       if (step === 0) {
-        setLeadData(prev => ({ ...prev, name: input }));
-        addMessage('bot', `Gracias, ${input}. Para empezar, ¿cuál es la dirección exacta del inmueble que quieres poner en alquiler (Málaga Capital o Costa del Sol)?`, 800);
-        setStep(1);
-      } else if (step === 1) {
         setLeadData(prev => ({ ...prev, sell_property_address: input }));
         addMessage('bot', 'Perfecto. ¿A partir de qué fecha estará disponible la propiedad para entrar a vivir?', 800);
-        setStep(2);
-      } else if (step === 2) {
+        setStep(1);
+      } else if (step === 1) {
         setLeadData(prev => ({ ...prev, agent_notes: (prev.agent_notes || '') + `Disponibilidad: ${input}` }));
         addMessage('bot', 'Entendido. ¿Cuántas habitaciones y baños tiene?', 800);
-        setStep(3);
-      } else if (step === 3) {
+        setStep(2);
+      } else if (step === 2) {
         const beds = parseInt(input.match(/\d+/)?.[0] || '0');
         setLeadData(prev => ({ ...prev, sell_num_bedrooms: beds, sell_additional_info: input }));
         addMessage('bot', '¿Destaca por algo especial? (Ej: terraza, piscina, garaje, amueblado...)', 800);
-        setStep(4);
-      } else if (step === 4) {
+        setStep(3);
+      } else if (step === 3) {
         const txt = input.toLowerCase();
         setLeadData(prev => ({ 
           ...prev, 
@@ -373,22 +369,14 @@ export const Gelabot = () => {
           sell_additional_info: prev.sell_additional_info + ' | Extras: ' + input
         }));
         addMessage('bot', 'Muy bien. ¿Qué precio mensual tienes pensado pedir por el alquiler o prefieres una valoración nuestra?', 800);
+        setStep(4);
+      } else if (step === 4) {
+        setLeadData(prev => ({ ...prev, sell_estimated_price: parseInt(input.replace(/\D/g, '')) || undefined }));
+        addMessage('bot', 'Para finalizar y enviarte nuestra propuesta, ¿hay algún detalle adicional o comentario sobre la propiedad o las condiciones que quieras añadir?', 800);
         setStep(5);
       } else if (step === 5) {
-        setLeadData(prev => ({ ...prev, sell_estimated_price: parseInt(input.replace(/\D/g, '')) || undefined }));
-        addMessage('bot', '¿Hay algún detalle adicional o comentario sobre la propiedad o las condiciones que quieras añadir?', 800);
-        setStep(6);
-      } else if (step === 6) {
-        setLeadData(prev => ({ ...prev, agent_notes: (prev.agent_notes ? prev.agent_notes + ' | ' : '') + `Comentarios Adicionales: ${input}` }));
-        addMessage('bot', 'Para enviarte nuestra propuesta y ponernos en contacto, ¿cuál es tu correo electrónico?', 800);
-        setStep(7);
-      } else if (step === 7) {
-        setLeadData(prev => ({ ...prev, email: input }));
-        addMessage('bot', 'Y finalmente, ¿cuál es tu número de teléfono de contacto?', 800);
-        setStep(8);
-      } else if (step === 8) {
         setIsTyping(true);
-        await saveLeadFromBot({ ...leadData, phone: input, intent: 'alquilar_propietario', status: 'nuevo' });
+        await saveLeadFromBot({ ...leadData, agent_notes: (leadData.agent_notes ? leadData.agent_notes + ' | ' : '') + `Comentarios Adicionales: ${input}`, status: 'nuevo' });
         setIsTyping(false);
         setFlow('success');
         addMessage('bot', '¡Todo listo! 🚀 Tu solicitud de alquiler ya está en nuestro sistema. Un experto de Gelabert Homes te contactará muy pronto para asesorarte.');

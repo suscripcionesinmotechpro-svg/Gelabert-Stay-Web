@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Search, Filter, MessageSquare, User, Calendar, Home, CheckCircle, XCircle, Clock, MapPin, DollarSign } from 'lucide-react';
-import { useLeadsCRM, LeadCRM, updateLeadStatus, updateLeadNotes } from '../../../hooks/useLeadsCRM';
+import { useLeadsCRM, LeadCRM, updateLeadStatus, updateLeadNotes, searchPropertiesForBot, ScoredProperty } from '../../../hooks/useLeadsCRM';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -20,6 +20,8 @@ export const AdminLeadsCRM = () => {
   });
 
   const [notes, setNotes] = useState('');
+  const [isSearchingMatches, setIsSearchingMatches] = useState(false);
+  const [leadMatches, setLeadMatches] = useState<ScoredProperty[] | null>(null);
 
   const handleUpdateStatus = async (id: string, status: LeadCRM['status']) => {
     try {
@@ -118,6 +120,7 @@ export const AdminLeadsCRM = () => {
                     onClick={() => {
                       setSelectedLead(lead);
                       setNotes(lead.agent_notes || '');
+                      setLeadMatches(null);
                     }}
                     className={`w-full text-left p-4 hover:bg-[#1A1A1A] transition-colors ${selectedLead?.id === lead.id ? 'bg-[#1A1A1A] border-l-2 border-[#C9A962]' : 'border-l-2 border-transparent'}`}
                   >
@@ -232,6 +235,52 @@ export const AdminLeadsCRM = () => {
                     )}
                   </div>
                 </section>
+
+                {/* Reverse Matching (Mejora C) */}
+                {(selectedLead.intent === 'alquilar' || selectedLead.intent === 'comprar') && selectedLead.search_profile && (
+                  <section>
+                    <div className="flex items-center justify-between mb-4 border-b border-[#1F1F1F] pb-2">
+                      <h3 className="text-[#C9A962] font-primary text-sm uppercase tracking-wider">
+                        Cruce Inverso Automático
+                      </h3>
+                      <button
+                        onClick={async () => {
+                          setIsSearchingMatches(true);
+                          const matches = await searchPropertiesForBot(selectedLead.search_profile as any);
+                          setLeadMatches(matches);
+                          setIsSearchingMatches(false);
+                        }}
+                        disabled={isSearchingMatches}
+                        className="text-xs bg-[#C9A962] text-[#0A0A0A] px-3 py-1.5 rounded uppercase font-bold hover:bg-[#D4B673] transition-colors disabled:opacity-50"
+                      >
+                        {isSearchingMatches ? 'Buscando...' : 'Buscar Coincidencias Ahora'}
+                      </button>
+                    </div>
+                    
+                    {leadMatches && leadMatches.length > 0 && (
+                      <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+                        {leadMatches.map(p => (
+                          <div key={p.id} className="min-w-[200px] max-w-[200px] bg-[#1A1A1A] border border-[#333333] rounded-lg overflow-hidden flex-shrink-0">
+                            <div className="h-24 bg-gray-800 relative">
+                              {p.main_image && <img src={p.main_image} alt={p.title} className="w-full h-full object-cover" />}
+                              <div className="absolute top-2 right-2 bg-[#C9A962] text-[#0A0A0A] text-[10px] font-bold px-1.5 py-0.5 rounded">
+                                {p.score}% Match
+                              </div>
+                            </div>
+                            <div className="p-2.5">
+                              <h4 className="font-secondary text-xs text-[#FAF8F5] truncate mb-1">{p.title}</h4>
+                              <p className="text-sm text-[#C9A962] font-semibold">{p.price}€</p>
+                              <a href={`/propiedades/${p.slug}`} target="_blank" rel="noreferrer" className="mt-2 block text-center py-1 border border-[#C9A962] text-[#C9A962] hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-colors rounded text-[10px] uppercase font-bold w-full">Ver Propiedad</a>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {leadMatches && leadMatches.length === 0 && (
+                      <div className="text-sm text-[#888888] italic">No se encontraron propiedades que superen el 70% de coincidencia actualmente.</div>
+                    )}
+                  </section>
+                )}
 
                 {/* AI Chat Transcript */}
                 {selectedLead.chat_transcript && selectedLead.chat_transcript.length > 0 && (
