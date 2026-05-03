@@ -412,6 +412,86 @@ export const Gelabot = () => {
     } 
   };
 
+  const handleStartFlow = async (type: 'alquilar'|'alquilar_propietario'|'comprar'|'vender') => {
+    setFlow('ai_chat');
+    const startMsg = type === 'alquilar' ? botT('Busco alquilar', 'I am looking to rent') : 
+      type === 'alquilar_propietario' ? botT('Ofrezco mi propiedad en alquiler', 'I want to rent out my property') : 
+      type === 'comprar' ? botT('Busco comprar', 'I am looking to buy') : 
+      botT('Quiero vender mi propiedad', 'I want to sell my property');
+    
+    addMessage('user', startMsg);
+    
+    const newMessages = [...messages, { role: 'user', content: startMsg }];
+    
+    setIsTyping(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('gelabot-chat', {
+        body: { messages: newMessages }
+      });
+      if (error) throw error;
+      setIsTyping(false);
+      addMessage('bot', data.reply);
+    } catch (err) {
+      setIsTyping(false);
+      addMessage('bot', botT('Ha ocurrido un error al conectar con mi servidor. Por favor, intenta de nuevo.', 'An error occurred connecting to my server. Please try again.'));
+    }
+  };
+
+  const handleInputSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const input = (form.elements.namedItem('msg') as HTMLInputElement).value.trim();
+    if (!input) return;
+    
+    // Auto-detect English on first input
+    if (!userLang && /hello|hi|how|rent|buy|sell|property|house|apartment|yes|no|thanks/i.test(input)) {
+      setUserLang('en');
+    } else if (!userLang) {
+      setUserLang('es');
+    }
+
+    addMessage('user', input);
+    form.reset();
+
+    const newMessages = [...messages, { role: 'user', content: input }];
+    setIsTyping(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('gelabot-chat', {
+        body: { messages: newMessages }
+      });
+
+      if (error) throw error;
+
+      setIsTyping(false);
+      addMessage('bot', data.reply);
+
+      if (data.properties && data.properties.length > 0) {
+        const resultsNode = (
+          <div className="flex gap-3 overflow-x-auto pb-2 mt-3 custom-scrollbar w-full" style={{ scrollSnapType: 'x mandatory' }}>
+            {data.properties.map((p: any) => (
+              <div key={p.id} className="min-w-[220px] max-w-[220px] bg-[#1A1A1A] border border-[#333333] rounded-lg overflow-hidden flex-shrink-0" style={{ scrollSnapAlign: 'start' }}>
+                <div className="h-28 bg-gray-800 relative">
+                  {p.main_image && <img src={p.main_image} alt={p.title} className="w-full h-full object-cover" />}
+                </div>
+                <div className="p-2.5">
+                  <h4 className="font-secondary text-xs text-[#FAF8F5] truncate mb-1">{p.title}</h4>
+                  <p className="text-sm text-[#C9A962] font-semibold">{p.price}€</p>
+                  <a href={`/propiedades/${p.slug}`} target="_blank" rel="noreferrer" className="mt-2 flex items-center justify-center py-1.5 border border-[#C9A962] text-[#C9A962] hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-colors rounded text-[10px] uppercase font-bold w-full">Ver Detalles</a>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+        addMessage('bot', resultsNode);
+      }
+    } catch (err) {
+      console.error(err);
+      setIsTyping(false);
+      addMessage('bot', botT('Lo siento, ha habido un error procesando tu mensaje. ¿Puedes repetirlo?', 'Sorry, there was an error processing your message. Could you repeat it?'));
+    }
+  };
+
   const renderInitialOptions = () => (
     <div className="flex flex-col gap-2 mt-4 w-[85%]">
       <button onClick={() => handleStartFlow('alquilar')} className="flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#333333] hover:border-[#C9A962] rounded-lg transition-colors text-left group">
