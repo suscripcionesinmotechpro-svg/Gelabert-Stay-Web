@@ -200,27 +200,59 @@ Tono: Profesional, lujoso, atento, conciso y resolutivo. NO hagas respuestas exc
         }
 
         if (toolCall.function.name === 'save_lead') {
-          // Save to CRM leads table
-          const { data: leadDataIns, error: leadError } = await supabaseAdmin
+          // Check if lead already exists
+          const { data: existingLeads, error: checkError } = await supabaseAdmin
             .from('leads_crm')
-            .insert([{
-              name: args.name,
-              email: args.email,
-              phone: args.phone,
-              intent: args.intent || 'indefinido',
-              status: 'nuevo',
-              agent_notes: args.notes,
-              // Map the expanded data fields
-              has_pets: args.has_pets,
-              max_rent: args.intent === 'alquilar' ? args.max_price : null,
-              max_buy_price: args.intent === 'comprar' ? args.max_price : null,
-              sell_property_address: args.sell_property_address,
-              sell_property_type: args.sell_property_type,
-              sell_estimated_price: args.sell_estimated_price,
-              sell_is_reformed: args.sell_is_reformed
-            }])
-            .select()
-            .single();
+            .select('*')
+            .eq('email', args.email)
+            .limit(1);
+
+          const existingLead = existingLeads && existingLeads.length > 0 ? existingLeads[0] : null;
+
+          let leadDataIns;
+          let leadError = null;
+          let isExisting = false;
+
+          if (existingLead) {
+            isExisting = true;
+            // Append notes
+            const newNotes = existingLead.agent_notes 
+              ? `${existingLead.agent_notes}\n\n--- Nueva Consulta ---\n${args.notes}`
+              : args.notes;
+
+            const { data: updatedLead, error: updateError } = await supabaseAdmin
+              .from('leads_crm')
+              .update({ agent_notes: newNotes })
+              .eq('id', existingLead.id)
+              .select()
+              .single();
+
+            leadDataIns = updatedLead;
+            leadError = updateError;
+          } else {
+            // Save to CRM leads table
+            const { data: newLead, error: insertError } = await supabaseAdmin
+              .from('leads_crm')
+              .insert([{
+                name: args.name,
+                email: args.email,
+                phone: args.phone,
+                intent: args.intent || 'indefinido',
+                status: 'nuevo',
+                agent_notes: args.notes,
+                has_pets: args.has_pets,
+                max_rent: args.intent === 'alquilar' ? args.max_price : null,
+                max_buy_price: args.intent === 'comprar' ? args.max_price : null,
+                sell_property_address: args.sell_property_address,
+                sell_property_type: args.sell_property_type,
+                sell_estimated_price: args.sell_estimated_price,
+                sell_is_reformed: args.sell_is_reformed
+              }])
+              .select()
+              .single();
+            leadDataIns = newLead;
+            leadError = insertError;
+          }
             
           if (!leadError && leadDataIns) {
             leadSaved = true;
@@ -263,7 +295,11 @@ Tono: Profesional, lujoso, atento, conciso y resolutivo. NO hagas respuestas exc
           openAiMessages.push({
             role: "tool",
             tool_call_id: toolCall.id,
-            content: leadError ? "Error guardando el lead en la base de datos." : "Lead guardado correctamente en la base de datos CRM de Gelabert Homes, y se le ha enviado un email de confirmación. Dile al usuario amablemente que el equipo contactará con ellos pronto y que han recibido un email."
+            content: leadError 
+              ? "Error guardando el lead en la base de datos." 
+              : isExisting 
+                ? "El cliente ya estaba registrado en nuestra base de datos. Se ha añadido su nueva consulta al historial de su perfil. Dile amablemente que hemos detectado que ya era cliente nuestro, que hemos actualizado su ficha con esta nueva petición, pregúntale si desea modificar algún dato adicional de su perfil, y que en breve le contactaremos."
+                : "Lead guardado correctamente en la base de datos CRM de Gelabert Homes, y se le ha enviado un email de confirmación. Dile al usuario amablemente que el equipo contactará con ellos pronto y que han recibido un email."
           });
 
           const secondResponse = await fetch('https://api.openai.com/v1/chat/completions', {
