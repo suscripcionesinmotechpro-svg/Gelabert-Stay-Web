@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, X, Send, MapPin, Bed, Home, Building2, TrendingUp } from 'lucide-react';
-import { searchPropertiesForBot, saveLeadFromBot, PropertySearchParams, ScoredProperty } from '../hooks/useLeadsCRM';
+import { searchPropertiesForBot, saveLeadFromBot, sendLeadEmail, PropertySearchParams, ScoredProperty } from '../hooks/useLeadsCRM';
 
 export const Gelabot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -184,8 +184,10 @@ export const Gelabot = () => {
         setStep(5);
       } else if (step === 5) {
         const finalStatus = results.length > 0 ? 'cualificado' : 'nuevo';
+        const finalData = { ...leadData, agent_notes: (leadData.agent_notes ? leadData.agent_notes + ' | ' : '') + `Comentarios: ${input}`, status: finalStatus };
         setIsTyping(true);
-        await saveLeadFromBot({ ...leadData, agent_notes: (leadData.agent_notes ? leadData.agent_notes + ' | ' : '') + `Comentarios: ${input}`, status: finalStatus }, searchParams as any);
+        await saveLeadFromBot(finalData, searchParams as any);
+        await sendLeadEmail(finalData, results, 'Alquiler');
         setIsTyping(false);
         setFlow('success');
         
@@ -290,8 +292,10 @@ export const Gelabot = () => {
     else if (flow === 'comprar_form') {
       if (step === 0) {
         const finalStatus = results.length > 0 ? 'cualificado' : 'nuevo';
+        const finalData = { ...leadData, agent_notes: (leadData.agent_notes ? leadData.agent_notes + ' | ' : '') + `Comentarios: ${input}`, status: finalStatus };
         setIsTyping(true);
-        await saveLeadFromBot({ ...leadData, agent_notes: (leadData.agent_notes ? leadData.agent_notes + ' | ' : '') + `Comentarios: ${input}`, status: finalStatus }, searchParams as any);
+        await saveLeadFromBot(finalData, searchParams as any);
+        await sendLeadEmail(finalData, results, 'Compra');
         setIsTyping(false);
         setFlow('success');
 
@@ -335,8 +339,10 @@ export const Gelabot = () => {
         addMessage('bot', '¿Hay algún detalle adicional o comentario sobre la propiedad o la venta que quieras añadir?', 800);
         setStep(5);
       } else if (step === 5) {
+        const finalData = { ...leadData, agent_notes: (leadData.agent_notes ? leadData.agent_notes + ' | ' : '') + `Comentarios: ${input}`, status: 'nuevo' as const };
         setIsTyping(true);
-        await saveLeadFromBot({ ...leadData, agent_notes: (leadData.agent_notes ? leadData.agent_notes + ' | ' : '') + `Comentarios: ${input}`, status: 'nuevo' });
+        await saveLeadFromBot(finalData);
+        await sendLeadEmail(finalData, [], 'Venta');
         setIsTyping(false);
         setFlow('success');
         addMessage('bot', '¡Todo listo! 🚀 Tu solicitud de venta ya está en nuestro sistema. Un experto de Gelabert Homes te contactará muy pronto para darte el mejor servicio.');
@@ -375,8 +381,10 @@ export const Gelabot = () => {
         addMessage('bot', 'Para finalizar y enviarte nuestra propuesta, ¿hay algún detalle adicional o comentario sobre la propiedad o las condiciones que quieras añadir?', 800);
         setStep(5);
       } else if (step === 5) {
+        const finalData = { ...leadData, agent_notes: (leadData.agent_notes ? leadData.agent_notes + ' | ' : '') + `Comentarios Adicionales: ${input}`, status: 'nuevo' as const };
         setIsTyping(true);
-        await saveLeadFromBot({ ...leadData, agent_notes: (leadData.agent_notes ? leadData.agent_notes + ' | ' : '') + `Comentarios Adicionales: ${input}`, status: 'nuevo' });
+        await saveLeadFromBot(finalData);
+        await sendLeadEmail(finalData, [], 'Alquiler (Propietario)');
         setIsTyping(false);
         setFlow('success');
         addMessage('bot', '¡Todo listo! 🚀 Tu solicitud de alquiler ya está en nuestro sistema. Un experto de Gelabert Homes te contactará muy pronto para asesorarte.');

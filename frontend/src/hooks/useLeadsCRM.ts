@@ -205,12 +205,27 @@ export const updateLeadStatus = async (id: string, status: LeadCRM['status']) =>
 };
 
 // ─── UPDATE LEAD NOTES (ADMIN) ──────────────────────────────────────────────
-export const updateLeadNotes = async (id: string, notes: string) => {
+export const updateLeadNotes = async (id: string, agent_notes: string) => {
   const { error } = await supabase
     .from('leads_crm')
-    .update({ agent_notes: notes })
+    .update({ agent_notes })
     .eq('id', id);
-  if (error) throw error;
+
+  if (error) {
+    console.error('Error updating lead notes:', error);
+    throw error;
+  }
+};
+
+// ─── TRIGGER EMAIL NOTIFICATIONS ────────────────────────────────────────────
+export const sendLeadEmail = async (leadData: any, matches: ScoredProperty[], type: string) => {
+  try {
+    await supabase.functions.invoke('notify-lead-matches', {
+      body: { leadData, matches, type }
+    });
+  } catch (err) {
+    console.error('Error sending lead emails via Edge Function:', err);
+  }
 };
 
 // ─── SEARCH PROPERTIES FOR BOT ──────────────────────────────────────────────
