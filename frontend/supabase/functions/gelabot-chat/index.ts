@@ -36,16 +36,21 @@ REGLAS DE COMUNICACIÓN CRÍTICAS:
 2. SÉ CONCISO. Evita bloques de texto gigantes. Tono: Profesional, lujoso, atento y resolutivo.
 
 FLUJO Y CUALIFICACIÓN DEL LEAD:
-1. CUALIFICACIÓN CONVERSACIONAL SEGÚN INTENCIÓN: Tienes que recopilar los datos clave paso a paso y de forma amigable (no todo de golpe):
+1. CAPTACIÓN DE CONTACTO (INMEDIATA Y PASO A PASO): 
+   - PASO 1: Saluda amigablemente.
+   - PASO 2: Dile que para abrir su ficha de cliente y poder atenderle mejor (y enviarle opciones exclusivas en el futuro), necesitas su nombre completo.
+   - PASO 3: Pídele su teléfono y su email.
+   ¡IMPORTANTE! No empieces a buscar ni a cualificar profundamente hasta que no te dé estos tres datos (nombre, email y teléfono).
+2. GUARDADO EN TIEMPO REAL: En el instante exacto en el que te dé su nombre, email y teléfono, USA LA FUNCIÓN "save_lead" INMEDIATAMENTE para abrir su ficha en el sistema.
+3. CUALIFICACIÓN CONVERSACIONAL SEGÚN INTENCIÓN: Una vez tienes sus datos, pregúntale qué busca y recopila los datos clave paso a paso y de forma amigable:
    - INQUILINO (Busca alquilar): Pregunta por la cantidad de personas, fecha en la que buscan mudarse, a qué se dedican/ingresos, edades, de dónde son, mascotas y presupuesto máximo.
    - PROPIETARIO (Ofrece alquiler): Dirección completa, características (habitaciones, terrazas, baños, m2, parking), fecha de disponibilidad y precio pensado.
    - COMPRADOR (Busca comprar): Presupuesto máximo, fecha pensada de compra, zonas y si TIENEN HIPOTECA APROBADA. Si no la tienen, OFRÉCELES NUESTRO SERVICIO DE BROKER DE HIPOTECAS.
    - VENDEDOR (Ofrece venta): Dirección completa de la propiedad, características (habitaciones, baños, salón independiente, cocina, etc.) y precio pensado. NUNCA hables de "comisiones", dile que un agente le contactará.
-2. BÚSQUEDA (NO TE ADELANTES): NUNCA hagas una búsqueda en la base de datos si el cliente solo te ha dado un dato (ej. "busco un estudio por 800"). PREGUNTA PRIMERO las características que le gustaría que tuviera (zonas, terraza, parking, etc.) antes de usar "search_properties".
-3. PRESENTACIÓN DE PROPIEDADES (SEPARADA Y LIMPIA): Cuando ofrezcas los resultados, NUNCA pongas todas las propiedades juntas de golpe en un solo párrafo gigante. Preséntalas una a una, por separado, de forma personalizada y destacando la característica que hace especial a ese inmueble.
-4. ALTERNATIVAS CLARAS: Clasifica mentalmente las propiedades encontradas. Primero ofrece las que cumplen sus requisitos. Si le ofreces opciones que NO son similares a lo que pidió, ofrécelas por separado diciendo EXACTAMENTE algo como: "Sé que no es exactamente lo que buscas, pero te podemos ofrecer estas opciones como alternativa que podrían encajar...".
-5. EL CEBO Y LOS DATOS DE CONTACTO: SOLO cuando el cliente muestre interés, le guste una propiedad o cuando vayas a enviarle información exclusiva, pídele sus datos de contacto (Nombre, Email y Teléfono). Justifícalo diciendo que es para enviarle un "dossier VIP" o "agendar una visita privada".
-6. En cuanto te den sus datos de contacto (y ya hayas recogido sus datos de cualificación), USA INMEDIATAMENTE "save_lead" para registrar su perfil completo.
+4. BÚSQUEDA (NO TE ADELANTES): NUNCA hagas una búsqueda en la base de datos si el cliente solo te ha dado un dato (ej. "busco un estudio por 800"). PREGUNTA PRIMERO las características que le gustaría que tuviera (zonas, terraza, parking, etc.) antes de usar "search_properties".
+5. PRESENTACIÓN DE PROPIEDADES (SEPARADA Y LIMPIA): Cuando ofrezcas los resultados, NUNCA pongas todas las propiedades juntas de golpe en un solo párrafo gigante. Preséntalas una a una, por separado, de forma personalizada y destacando la característica que hace especial a ese inmueble.
+6. ALTERNATIVAS CLARAS: Clasifica mentalmente las propiedades encontradas. Primero ofrece las que cumplen sus requisitos. Si le ofreces opciones que NO son similares a lo que pidió, ofrécelas por separado diciendo EXACTAMENTE algo como: "Sé que no es exactamente lo que buscas, pero te podemos ofrecer estas opciones como alternativa que podrían encajar...".
+7. ACTUALIZACIÓN DE DATOS: A medida que te dé los datos de cualificación durante la charla, vuelve a llamar a "save_lead" para actualizar su perfil con los nuevos datos descubiertos.
     `;
 
     const openAiMessages = [
@@ -117,7 +122,7 @@ FLUJO Y CUALIFICACIÓN DEL LEAD:
               min_bedrooms: { type: "number" },
               preferred_zones: { type: "array", items: { type: "string" } }
             },
-            required: ["name", "email", "phone", "intent"]
+            required: ["name", "email", "phone"]
           }
         }
       }
@@ -230,14 +235,40 @@ FLUJO Y CUALIFICACIÓN DEL LEAD:
 
           if (existingLead) {
             isExisting = true;
-            // Append notes
-            const newNotes = existingLead.agent_notes 
-              ? `${existingLead.agent_notes}\n\n--- Nueva Consulta ---\n${args.notes}`
-              : args.notes;
+            // Prepare fields to update
+            const updateFields: any = {};
+            if (args.notes) updateFields.agent_notes = existingLead.agent_notes ? `${existingLead.agent_notes}\n\n--- Nueva Consulta ---\n${args.notes}` : args.notes;
+            if (args.intent) updateFields.intent = args.intent;
+            if (args.phone) updateFields.phone = args.phone;
+            if (args.name) updateFields.name = args.name;
+            
+            // Only update fields if they are provided
+            if (args.num_people) updateFields.num_people = args.num_people;
+            if (args.move_in_date) updateFields.move_in_date = (() => { try { return new Date(args.move_in_date).toISOString().split('T')[0]; } catch { return null; } })();
+            if (args.occupation) updateFields.occupation = args.occupation;
+            if (args.monthly_income) updateFields.monthly_income = args.monthly_income;
+            if (args.age) updateFields.age = args.age;
+            if (args.city_origin) updateFields.city_origin = args.city_origin;
+            if (args.has_pets !== undefined) updateFields.has_pets = args.has_pets;
+            if (args.intent === 'alquilar' && args.max_price) updateFields.max_rent = args.max_price;
+            
+            if (args.intent === 'comprar' && args.max_price) updateFields.max_buy_price = args.max_price;
+            if (args.mortgage_approved !== undefined) updateFields.mortgage_approved = args.mortgage_approved;
+            if (args.needs_mortgage_service !== undefined) updateFields.needs_mortgage_service = args.needs_mortgage_service;
+            if (args.buy_deadline) updateFields.buy_deadline = (() => { try { return new Date(args.buy_deadline).toISOString().split('T')[0]; } catch { return null; } })();
+            
+            if (args.sell_property_address) updateFields.sell_property_address = args.sell_property_address;
+            if (args.sell_property_type) updateFields.sell_property_type = args.sell_property_type;
+            if (args.sell_estimated_price) updateFields.sell_estimated_price = args.sell_estimated_price;
+            if (args.sell_num_bedrooms) updateFields.sell_num_bedrooms = args.sell_num_bedrooms;
+            if (args.sell_num_bathrooms) updateFields.sell_num_bathrooms = args.sell_num_bathrooms;
+            if (args.sell_has_terrace !== undefined) updateFields.sell_has_terrace = args.sell_has_terrace;
+            if (args.sell_has_parking !== undefined) updateFields.sell_has_parking = args.sell_has_parking;
+            if (args.sell_area_m2) updateFields.sell_area_m2 = args.sell_area_m2;
 
             const { data: updatedLead, error: updateError } = await supabaseAdmin
               .from('leads_crm')
-              .update({ agent_notes: newNotes })
+              .update(updateFields)
               .eq('id', existingLead.id)
               .select()
               .single();
