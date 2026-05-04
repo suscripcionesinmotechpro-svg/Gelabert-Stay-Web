@@ -217,6 +217,19 @@ export const updateLeadNotes = async (id: string, agent_notes: string) => {
   }
 };
 
+// ─── DELETE LEAD (ADMIN) ────────────────────────────────────────────────────
+export const deleteLead = async (id: string) => {
+  const { error } = await supabase
+    .from('leads_crm')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting lead:', error);
+    throw error;
+  }
+};
+
 // ─── TRIGGER EMAIL NOTIFICATIONS ────────────────────────────────────────────
 export const sendLeadEmail = async (leadData: any, matches: ScoredProperty[], type: string) => {
   try {

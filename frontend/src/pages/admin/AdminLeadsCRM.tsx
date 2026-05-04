@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Search, MessageSquare, User } from 'lucide-react';
+import { Search, MessageSquare, User, Trash2 } from 'lucide-react';
 import type { LeadCRM, ScoredProperty } from '../../hooks/useLeadsCRM';
-import { useLeadsCRM, updateLeadStatus, updateLeadNotes, searchPropertiesForBot } from '../../hooks/useLeadsCRM';
+import { useLeadsCRM, updateLeadStatus, updateLeadNotes, searchPropertiesForBot, deleteLead } from '../../hooks/useLeadsCRM';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -41,6 +41,21 @@ export const AdminLeadsCRM = () => {
       setSelectedLead({ ...selectedLead, agent_notes: notes });
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const handleDeleteLead = async (id: string) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar este lead? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    try {
+      await deleteLead(id);
+      setSelectedLead(null);
+      refetch();
+    } catch (e) {
+      console.error(e);
+      alert('Error al eliminar el lead');
     }
   };
 
@@ -155,19 +170,29 @@ export const AdminLeadsCRM = () => {
                     {selectedLead.phone && <span className="flex items-center gap-1"><User className="w-4 h-4" /> {selectedLead.phone}</span>}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-[#888888] mr-2">Estado:</span>
-                  <select
-                    value={selectedLead.status}
-                    onChange={(e) => handleUpdateStatus(selectedLead.id, e.target.value as LeadCRM['status'])}
-                    className={`text-xs px-3 py-1.5 rounded-md border outline-none cursor-pointer uppercase tracking-wider ${getStatusColor(selectedLead.status)}`}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-[#888888] mr-2">Estado:</span>
+                    <select
+                      value={selectedLead.status}
+                      onChange={(e) => handleUpdateStatus(selectedLead.id, e.target.value as LeadCRM['status'])}
+                      className={`text-xs px-3 py-1.5 rounded-md border outline-none cursor-pointer uppercase tracking-wider ${getStatusColor(selectedLead.status)}`}
+                    >
+                      <option value="nuevo">Nuevo</option>
+                      <option value="contactado">Contactado</option>
+                      <option value="cualificado">Cualificado</option>
+                      <option value="cerrado">Cerrado</option>
+                      <option value="descartado">Descartado</option>
+                    </select>
+                  </div>
+                  
+                  <button
+                    onClick={() => handleDeleteLead(selectedLead.id)}
+                    className="p-2 text-[#888888] hover:text-red-500 transition-colors border border-[#1F1F1F] rounded-md hover:border-red-500/20 bg-[#1A1A1A]"
+                    title="Eliminar Lead"
                   >
-                    <option value="nuevo">Nuevo</option>
-                    <option value="contactado">Contactado</option>
-                    <option value="cualificado">Cualificado</option>
-                    <option value="cerrado">Cerrado</option>
-                    <option value="descartado">Descartado</option>
-                  </select>
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
 
