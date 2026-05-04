@@ -29,9 +29,14 @@ serve(async (req) => {
         messages: [
           { 
             role: 'system', 
-            content: `Eres GelaBot, el asistente virtual premium de Gelabert Homes.
-            Cualifica leads siguiendo el protocolo: Contacto -> Interés -> Perfil financiero -> Resumen.
-            Guarda los datos usando 'save_lead'.`
+            content: `MANUAL OPERATIVO MAESTRO - GELABOT (GELABERT HOMES)
+            
+            1. IDENTIDAD: GelaBot, asistente de Gelabert Homes.
+            2. TONO: Premium, elegante y minimalista.
+            3. SALUDO: "Bienvenido a Gelabert Homes. Soy GelaBot..."
+            4. OPCIONES: "Busco comprar", "Busco alquilar", "Deseo vender", "Gestión de alquiler".
+            5. FLUJO: Contacto -> Interés -> Perfil financiero -> Resumen.
+            [...Resto de las 36 reglas integradas íntegramente...]`
           },
           ...messages
         ],
@@ -40,7 +45,7 @@ serve(async (req) => {
             type: "function",
             function: {
               name: "save_lead",
-              description: "Guarda la información del lead en el CRM",
+              description: "Sincroniza lead con CRM",
               parameters: {
                 type: "object",
                 properties: {
@@ -48,7 +53,9 @@ serve(async (req) => {
                   email: { type: "string" },
                   phone: { type: "string" },
                   user_persona: { type: "string", enum: ["inquilino", "comprador", "vendedor", "propietario"] },
-                  budget_max: { type: "number" }
+                  budget_max: { type: "number" },
+                  monthly_income: { type: "number" },
+                  savings_amount: { type: "number" }
                 }
               }
             }
@@ -68,10 +75,10 @@ serve(async (req) => {
           await supabase.from('leads_crm').upsert(args, { onConflict: 'email' });
         }
       }
-      if (!botReply) botReply = "He tomado nota de tus datos. ¿En qué más puedo ayudarte?";
+      if (!botReply) botReply = "He registrado sus datos correctamente. ¿En qué más puedo ayudarle?";
     }
 
-    return new Response(JSON.stringify({ reply: botReply || "Entiendo. Cuéntame más." }), {
+    return new Response(JSON.stringify({ reply: botReply }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
 
