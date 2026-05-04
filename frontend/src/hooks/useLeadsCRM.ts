@@ -190,7 +190,25 @@ export const useLeadsCRM = (filters?: LeadFilters) => {
     }
   }, [filters?.intent, filters?.status, filters?.search]);
 
-  useEffect(() => { fetchLeads(); }, [fetchLeads]);
+  useEffect(() => { 
+    fetchLeads(); 
+
+    // Subscribe to realtime changes for instant updates
+    const channel = supabase
+      .channel('leads_crm_changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'leads_crm' 
+      }, () => {
+        fetchLeads();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchLeads]);
 
   return { leads, loading, error, refetch: fetchLeads };
 };
