@@ -74,8 +74,8 @@ export const AdminLeadsCRM = () => {
     <div className="flex flex-col h-[calc(100vh-8rem)]">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-secondary text-[#C9A962]">CRM Leads (Gelabot)</h1>
-          <p className="text-[#888888] font-primary text-sm mt-1">Gestión de prospectos captados por IA</p>
+          <h1 className="text-2xl font-secondary text-[#C9A962]">CRM Leads</h1>
+          <p className="text-[#888888] font-primary text-sm mt-1">Gestión de prospectos captados</p>
         </div>
       </div>
 
