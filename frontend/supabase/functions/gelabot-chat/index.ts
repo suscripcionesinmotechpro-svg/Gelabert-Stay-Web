@@ -22,20 +22,22 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'Eres GelaBot, asistente de Gelabert Homes.' },
+          { role: 'system', content: 'Eres GelaBot, asistente de Gelabert Homes. Sigue las 36 reglas.' },
           ...messages
         ]
       })
     })
 
     const data = await response.json()
-    return new Response(JSON.stringify(data), {
+    const botReply = data.choices?.[0]?.message?.content || "Lo siento, no he podido procesar tu mensaje.";
+
+    return new Response(JSON.stringify({ reply: botReply }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
 
   } catch (err) {
-    return new Response(JSON.stringify({
-      choices: [{ message: { content: "Error de conexión." } }]
-    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    return new Response(JSON.stringify({ reply: "Error de conexión." }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 })

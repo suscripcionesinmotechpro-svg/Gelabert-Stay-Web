@@ -86,11 +86,18 @@ export const Gelabot = () => {
     setIsTyping(true);
 
     try {
+      console.log('Invocando GelaBot...', { messages: newMessages });
+      
       const { data, error } = await supabase.functions.invoke('gelabot-chat', {
-        body: { messages: newMessages }
+        body: { messages: newMessages },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error al invocar GelaBot:', error);
+        throw error;
+      }
+
+      console.log('Respuesta de GelaBot recibida:', data);
 
       setIsTyping(false);
       addMessage('bot', data.reply);
