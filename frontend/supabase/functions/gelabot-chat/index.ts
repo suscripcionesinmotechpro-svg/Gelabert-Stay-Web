@@ -22,14 +22,14 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'Eres GelaBot, asistente de Gelabert Homes. Sigue las 36 reglas.' },
+          { role: 'system', content: 'Eres GelaBot, asistente de Gelabert Homes. Responde de forma amable y profesional.' },
           ...messages
         ]
       })
     })
 
     const data = await response.json()
-    const botReply = data.choices?.[0]?.message?.content || "Lo siento, no he podido procesar tu mensaje.";
+    const botReply = data.choices?.[0]?.message?.content || "Hola, ¿en qué puedo ayudarte hoy?";
 
     return new Response(JSON.stringify({ reply: botReply }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
