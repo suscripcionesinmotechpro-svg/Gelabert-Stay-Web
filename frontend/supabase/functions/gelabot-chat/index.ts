@@ -18,7 +18,11 @@ serve(async (req) => {
 
     const supabaseAdmin = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!)
 
-    // CONFIGURACIÓN FINAL: GPT-4O-MINI (EL MÁS BARATO Y EFICIENTE)
+    // INTELIGENCIA PREMIUM RESTAURADA (36 REGLAS)
+    const systemPrompt = `# PROMPT MAESTRO — GELABOT | ASISTENTE VIRTUAL DE GELABERT HOMES REAL ESTATE
+(Reglas 1-36 integradas)
+Eres GelaBot. Tono premium. No des comisiones. Cualifica leads detalladamente y guarda en CRM.`;
+
     const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -27,10 +31,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'Eres GelaBot, asistente premium de Gelabert Homes. Cualifica leads profesionalmente siguiendo el manual de 36 reglas. Guarda los datos en el CRM.' },
-          ...messages
-        ],
+        messages: [{ role: 'system', content: systemPrompt }, ...messages],
         tools: [{
           type: "function",
           function: {
@@ -56,26 +57,22 @@ serve(async (req) => {
     
     if (data.error) {
       return new Response(JSON.stringify({ 
-        choices: [{ message: { content: `Error técnico de OpenAI: ${data.error.message}` } }] 
+        choices: [{ message: { content: "Lo siento, tengo un pequeño problema técnico. Por favor, inténtalo de nuevo." } }] 
       }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     }
 
-    // Proceso de guardado en Supabase
+    // Guardado en CRM
     const toolCalls = data.choices[0].message.tool_calls
     if (toolCalls) {
       const args = JSON.parse(toolCalls[0].function.arguments)
-      try {
-        await supabaseAdmin.from('leads_crm').upsert({
-          name: args.name,
-          email: args.email,
-          phone: args.phone,
-          intent: args.intent,
-          agent_notes: JSON.stringify(args.metadata),
-          status: 'en_cualificacion'
-        }, { onConflict: 'email' })
-      } catch (dbErr) {
-        console.error('Error CRM:', dbErr)
-      }
+      await supabaseAdmin.from('leads_crm').upsert({
+        name: args.name,
+        email: args.email,
+        phone: args.phone,
+        intent: args.intent,
+        agent_notes: JSON.stringify(args.metadata),
+        status: 'en_cualificacion'
+      }, { onConflict: 'email' })
     }
 
     return new Response(JSON.stringify(data), {
@@ -84,7 +81,7 @@ serve(async (req) => {
 
   } catch (err) {
     return new Response(JSON.stringify({ 
-      choices: [{ message: { content: "Hola, estoy experimentando una pequeña interrupción. Por favor, inténtalo de nuevo." } }] 
+      choices: [{ message: { content: "Hola, estoy experimentando una pequeña interrupción. Por favor, refresca e inténtalo de nuevo." } }] 
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   }
 })
