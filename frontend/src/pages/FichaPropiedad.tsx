@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { PropertyMap } from '../components/PropertyMap';
 import { PropertyReference } from '../components/PropertyReference';
+import { sortPropertiesByAvailability } from '../utils/propertySorting';
 import { supabase } from '../lib/supabase';
 import { useTranslation, Trans } from 'react-i18next';
 import { getWhatsAppLink } from '../utils/whatsapp';
@@ -172,7 +173,12 @@ export const FichaPropiedad = () => {
     operation: property?.operation,
     zone: property?.zone || undefined,
   });
-  const similarProps = similar.filter(p => p.id !== property?.id).slice(0, 3);
+  
+  const similarProps = useMemo(() => {
+    return sortPropertiesByAvailability(similar)
+      .filter(p => p.id !== property?.id)
+      .slice(0, 3);
+  }, [similar, property?.id]);
 
   if (loading) {
     return (

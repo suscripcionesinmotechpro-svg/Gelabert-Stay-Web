@@ -152,6 +152,7 @@ export const PropertyCard = memo(({
       style={{ willChange: 'transform, opacity' }}
       className={cn(
         "group h-full flex flex-col bg-[#0D0D0D] border border-[#1F1F1F] hover:border-[#C9A962]/60 hover:shadow-2xl hover:shadow-[#C9A962]/10 transition-all duration-500 overflow-hidden relative rounded-2xl",
+        commercialStatus && commercialStatus !== 'disponible' && "opacity-80",
         className
       )}
       {...props}
@@ -165,7 +166,10 @@ export const PropertyCard = memo(({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute inset-0"
+            className={cn(
+              "absolute inset-0",
+              commercialStatus && commercialStatus !== 'disponible' && "grayscale-[0.4] group-hover:grayscale-0 transition-all duration-700"
+            )}
           >
             <PremiumImage
               src={getOptimizedImage(images[currentImageIndex], { width: 600, height: 400, format: 'webp' })} 

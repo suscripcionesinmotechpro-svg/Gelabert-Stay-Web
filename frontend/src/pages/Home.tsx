@@ -5,7 +5,8 @@ import { PropertyCardSkeleton } from '../components/ui/Skeleton';
 import { Link } from 'react-router-dom';
 import { Building, Key, Briefcase, ShieldCheck, Home as HomeIcon, CheckCircle, Star } from 'lucide-react';
 import { useProperties } from '../hooks/useProperties';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
+import { sortPropertiesByAvailability } from '../utils/propertySorting';
 
 import { Helmet } from 'react-helmet-async';
 
@@ -51,7 +52,11 @@ const TOTAL_SLIDES = HERO_SLIDES.length + 1;  // = 4
 
 export const Home = () => {
   const { t, i18n } = useTranslation();
-  const { properties: featuredProperties, loading } = useProperties({ is_featured: true, limit: 3 });
+  const { properties: featuredPropertiesData, loading } = useProperties({ is_featured: true, limit: 3 });
+  
+  const featuredProperties = useMemo(() => {
+    return sortPropertiesByAvailability(featuredPropertiesData);
+  }, [featuredPropertiesData]);
   const [heroIndex, setHeroIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

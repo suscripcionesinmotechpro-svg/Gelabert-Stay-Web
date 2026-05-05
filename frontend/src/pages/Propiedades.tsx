@@ -14,6 +14,7 @@ import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from '../hooks/useDebounce';
+import { sortPropertiesByAvailability } from '../utils/propertySorting';
 
 
 const inputClass = "h-11 bg-white/[0.03] border border-white/10 px-4 font-primary text-white/70 text-sm outline-none focus:border-[#C9A962] focus:bg-white/[0.05] transition-all rounded-sm placeholder:text-white/20";
@@ -140,6 +141,11 @@ export const Propiedades = () => {
     ...filtersBool,
     is_room_rental: propertyType === 'habitacion'
   });
+
+  // Ordenar propiedades: Disponibles -> Reservadas -> Alquiladas/Vendidas/Traspasadas
+  const sortedProperties = useMemo(() => {
+    return sortPropertiesByAvailability(properties);
+  }, [properties]);
 
   const handleTagClick = useCallback((tag: string) => {
     setKeyword(tag);
@@ -386,7 +392,7 @@ export const Propiedades = () => {
         {/* Count */}
         <div className="flex justify-between items-center mb-10 pb-6 border-b border-white/5">
           <p className="font-primary text-white/40 text-xs font-bold tracking-widest uppercase">
-            {loading ? t('property.labels.features.loading') : error ? t('property.labels.features.error') : `${properties.length} ${t('property.labels.features.results')}`}
+            {loading ? t('property.labels.features.loading') : error ? t('property.labels.features.error') : `${sortedProperties.length} ${t('property.labels.features.results')}`}
           </p>
         </div>
 
@@ -408,7 +414,7 @@ export const Propiedades = () => {
             </button>
           </div>
         ) : viewMode === 'map' ? (
-          <PropertiesMap properties={properties} />
+          <PropertiesMap properties={sortedProperties} />
         ) : (
           <motion.div 
             initial="hidden"
@@ -425,7 +431,7 @@ export const Propiedades = () => {
             }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           >
-            {properties.map((p, index) => (
+            {sortedProperties.map((p, index) => (
               <motion.div 
                 key={p.id}
                 variants={{
