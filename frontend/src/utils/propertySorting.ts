@@ -1,4 +1,4 @@
-import { Property } from '../types/property';
+import type { Property } from '../types/property';
 
 /**
  * Priority map for commercial status.
