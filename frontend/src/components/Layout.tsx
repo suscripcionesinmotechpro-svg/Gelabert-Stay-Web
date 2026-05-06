@@ -7,6 +7,7 @@ import { Footer } from './Footer';
 import { CookieBanner } from './CookieBanner';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { FloatingContact } from './FloatingContact';
+import Gelabot from './Gelabot';
 
 
 export const Layout = () => {
@@ -134,6 +135,7 @@ export const Layout = () => {
       <Footer />
       <CookieBanner />
       <FloatingContact />
+      <Gelabot />
 
     </div>
   );
