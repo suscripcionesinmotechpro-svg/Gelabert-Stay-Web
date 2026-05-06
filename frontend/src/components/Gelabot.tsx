@@ -57,11 +57,15 @@ export const Gelabot = () => {
       type === 'alquilar_propietario' ? 'soy propietario y ofrezco alquiler' : 
       type === 'vender' ? 'vender' : 'comprar';
     
+    const latestUserMsg = { role: 'user' as const, content: startMsg };
     addMessage('user', startMsg);
     
-    const newMessages = [...messages.filter(m => typeof m.content === 'string'), { role: 'user', content: startMsg }];
+    const filteredHistory = messages.filter(m => typeof m.content === 'string').map(m => ({
+      role: m.role,
+      content: m.content as string
+    }));
     
-    processAIResponse(newMessages);
+    processAIResponse([...filteredHistory, latestUserMsg]);
   };
 
   const processAIResponse = async (chatMessages: any[]) => {
@@ -110,10 +114,16 @@ export const Gelabot = () => {
   };
 
   const handleFormSubmit = async (type: string, formData: any) => {
+    const content = `He completado el formulario de ${type} con los siguientes datos: ${JSON.stringify(formData)}`;
+    const latestUserMsg = { role: 'user' as const, content };
     addMessage('user', botT('He completado el formulario.', 'I have completed the form.'));
-    const newMessages = [...messages.filter(m => typeof m.content === 'string'), 
-      { role: 'user', content: `He completado el formulario de ${type} con los siguientes datos: ${JSON.stringify(formData)}` }];
-    processAIResponse(newMessages);
+    
+    const filteredHistory = messages.filter(m => typeof m.content === 'string').map(m => ({
+      role: m.role,
+      content: m.content as string
+    }));
+    
+    processAIResponse([...filteredHistory, latestUserMsg]);
   };
 
   const handleInputSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -122,11 +132,16 @@ export const Gelabot = () => {
     const input = (form.elements.namedItem('msg') as HTMLInputElement).value.trim();
     if (!input) return;
     
+    const latestUserMsg = { role: 'user' as const, content: input };
     addMessage('user', input);
     form.reset();
 
-    const newMessages = [...messages.filter(m => typeof m.content === 'string'), { role: 'user', content: input }];
-    processAIResponse(newMessages);
+    const filteredHistory = messages.filter(m => typeof m.content === 'string').map(m => ({
+      role: m.role,
+      content: m.content as string
+    }));
+    
+    processAIResponse([...filteredHistory, latestUserMsg]);
   };
 
   // Interceptar clicks en enlaces de propiedades para el panel lateral
