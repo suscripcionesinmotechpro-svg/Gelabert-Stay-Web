@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useDragControls } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, X, Send, Home, Building2, TrendingUp, User, MapPin, Euro, Users, Briefcase, Calendar, ShieldCheck, ExternalLink, Maximize2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
@@ -18,9 +18,8 @@ interface PropertyDetails {
 
 export const Gelabot = () => {
   const { i18n } = useTranslation();
-  const dragControls = useDragControls();
   const [isOpen, setIsOpen] = useState(false);
-  const [userLang, setUserLang] = useState<'es'|'en'|null>(null);
+  const [userLang] = useState<'es'|'en'|null>(null);
   const lang = userLang || (i18n.language?.startsWith('en') ? 'en' : 'es');
 
   const botT = (es: string | React.ReactNode, en: string | React.ReactNode) => lang === 'en' ? en : es;
@@ -306,12 +305,15 @@ export const Gelabot = () => {
                 </motion.div>
               )}
             </AnimatePresence>
+            </div>
           </div>
         )}
       </AnimatePresence>
     </>
   );
 };
+
+export default Gelabot;
 
 const ChatForm = ({ type, onSubmit }: { type: string, onSubmit: (data: any) => void }) => {
   const [formData, setFormData] = useState<any>({});
