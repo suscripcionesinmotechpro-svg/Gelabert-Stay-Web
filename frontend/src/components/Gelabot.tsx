@@ -60,9 +60,9 @@ export const Gelabot = () => {
     const latestUserMsg = { role: 'user' as const, content: startMsg };
     addMessage('user', startMsg);
     
-    const filteredHistory = messages.filter(m => typeof m.content === 'string').map(m => ({
-      role: m.role,
-      content: m.content as string
+    const filteredHistory = messages.map(m => ({
+      role: m.role === 'bot' ? 'assistant' : m.role,
+      content: typeof m.content === 'string' ? m.content : '[Formulario interactivo mostrado]'
     }));
     
     processAIResponse([...filteredHistory, latestUserMsg]);
@@ -118,9 +118,9 @@ export const Gelabot = () => {
     const latestUserMsg = { role: 'user' as const, content };
     addMessage('user', botT('He completado el formulario.', 'I have completed the form.'));
     
-    const filteredHistory = messages.filter(m => typeof m.content === 'string').map(m => ({
-      role: m.role,
-      content: m.content as string
+    const filteredHistory = messages.map(m => ({
+      role: m.role === 'bot' ? 'assistant' : m.role,
+      content: typeof m.content === 'string' ? m.content : '[Formulario interactivo mostrado]'
     }));
     
     processAIResponse([...filteredHistory, latestUserMsg]);
@@ -136,9 +136,9 @@ export const Gelabot = () => {
     addMessage('user', input);
     form.reset();
 
-    const filteredHistory = messages.filter(m => typeof m.content === 'string').map(m => ({
-      role: m.role,
-      content: m.content as string
+    const filteredHistory = messages.map(m => ({
+      role: m.role === 'bot' ? 'assistant' : m.role,
+      content: typeof m.content === 'string' ? m.content : '[Formulario interactivo mostrado]'
     }));
     
     processAIResponse([...filteredHistory, latestUserMsg]);
