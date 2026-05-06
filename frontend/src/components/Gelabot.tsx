@@ -73,7 +73,7 @@ export const Gelabot = () => {
     try {
       // Simplificar mensajes para la función (solo texto)
       const apiMessages = chatMessages.map(m => ({
-        role: m.role,
+        role: m.role === 'bot' ? 'assistant' : m.role,
         content: typeof m.content === 'string' ? m.content : '[Mensaje de sistema/UI]'
       }));
 
