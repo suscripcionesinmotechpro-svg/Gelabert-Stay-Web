@@ -19,25 +19,20 @@ serve(async (req) => {
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')
 
     const systemPrompt = `# GELABOT — AGENTE VIRTUAL GELABERT HOMES
-Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es captar leads y cualificarlos siguiendo un flujo estricto pero natural.
+Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es captar leads y cualificarlos siguiendo este flujo estricto:
 
-## REGLAS DE ORO (MANDATORIAS)
-1. SOLO hablas de temas inmobiliarios de Gelabert Homes.
-2. COMISIONES: "El agente le informará detalladamente sobre honorarios y condiciones durante la llamada." No des cifras.
-3. NO detectar duplicados en la misma sesión. 
-4. NUNCA inventes datos de propiedades.
-5. CIERRE: Menciona que se enviará un correo con el resumen.
-
-## FLUJO DE CONVERSACIÓN
-1. **Saludo**: "¿Qué estás buscando?" (Inquilino, Propietario, Vender, Comprar).
-2. **Identidad**: Pide Nombre completo, Teléfono y Correo. Si el usuario da uno, pide los otros. NO repitas la misma pregunta si ya tienes el dato.
-3. **Guardar**: Usa \`save_lead\` cuando tengas los datos (el email es obligatorio para el CRM).
-4. **Preferencias**: Pregunta zona y presupuesto.
-5. **Búsqueda**: Usa \`search_properties\` y ofrece enlaces.
-6. **Cualificación**: Muestra el formulario correspondiente usando [SHOW_FORM:tipo].
+## REGLAS DE ORO
+1. SOLO temas inmobiliarios.
+2. COMISIONES: No des cifras, deriva al agente.
+3. IDENTIDAD (CRÍTICO): Una vez el usuario elige qué busca (Inquilino, Propietario, Venta, Compra), DEBES pedirle Nombre, Teléfono y Correo.
+   - Pide los 3 datos juntos: "Perfecto. Para abrir su ficha en nuestro sistema, ¿podría facilitarme su nombre completo, teléfono y correo electrónico?"
+   - Si el usuario da solo su nombre (ej: "José"), di: "Encantado José. ¿Me facilitas también un teléfono y un correo electrónico para completar tu ficha?"
+   - NO repitas la misma pregunta si ya tienes el dato. Si tienes el nombre, NO lo vuelvas a pedir.
+4. BÚSQUEDA: Tras identificarse, pregunta zona y presupuesto. Busca propiedades reales con \`search_properties\`.
+5. CUALIFICACIÓN: Tras mostrar propiedades (o si no hay), muestra el formulario: [SHOW_FORM:tipo].
 
 ## COMANDOS
-- Formularios: [SHOW_FORM:inquilino], [SHOW_FORM:propietario_alquiler], [SHOW_FORM:propietario_venta], [SHOW_FORM:comprador].
+- Formularios: [SHOW_FORM:inquilino], [SHOW_FORM:propietario_alquiler], [SHOW_FORM:propietario_venta], [SHOW_FORM:comprador]
 - Propiedades: Propiedad [N]: [Título] - [URL]
 `
 
@@ -66,10 +61,10 @@ Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es cap
                   email: { type: "string" },
                   phone: { type: "string" },
                   intent: { type: "string", enum: ["alquilar", "alquilar_propietario", "vender", "comprar"] },
-                  search_preferences: { type: "string", description: "Campo 'tipo busqueda' con zona, precio, etc." },
-                  qualification_data: { type: "object", description: "Datos del formulario" }
+                  search_preferences: { type: "string" },
+                  qualification_data: { type: "object" }
                 },
-                required: ["email"]
+                required: ["intent"]
               }
             }
           },
@@ -105,13 +100,22 @@ Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es cap
           const args = JSON.parse(call.function.arguments)
           const q = args.qualification_data || {}
           
+          if (!args.email) {
+            toolResults.push({
+              tool_call_id: call.id,
+              role: "tool",
+              name: "save_lead",
+              content: "Falta el correo electrónico para guardar en el CRM."
+            })
+            continue
+          }
+
           const leadData = {
             name: args.full_name || q.nombre,
             email: args.email,
             phone: args.phone || q.telefono,
             intent: args.intent,
             status: 'nuevo',
-            // Mapeo de cualificación a columnas reales del CRM
             num_people: q.personas ? parseInt(q.personas) : undefined,
             occupation: q.ocupacion,
             monthly_income: q.ingresos ? parseFloat(q.ingresos.replace(/[^0-9.]/g, '')) : undefined,
@@ -159,7 +163,7 @@ Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es cap
             tool_call_id: call.id,
             role: "tool",
             name: "save_lead",
-            content: error ? `Error: ${error.message}` : "Lead guardado y notificado."
+            content: error ? `Error: ${error.message}` : "Lead guardado correctamente."
           })
         }
 
@@ -182,7 +186,6 @@ Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es cap
         }
       }
 
-      // Segunda llamada para procesar resultados de herramientas
       const secondResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -203,10 +206,6 @@ Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es cap
       botReply = secondData.choices?.[0]?.message?.content || ""
     }
 
-    // Si el bot dice que ha terminado o guardado todo, podríamos disparar el email aquí
-    // Pero el usuario dice "al finalizar el chat", lo cual es mejor manejarlo desde el frontend o con un hook.
-    // De momento, devolvemos la respuesta.
-
     return new Response(JSON.stringify({ reply: botReply }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
@@ -217,4 +216,3 @@ Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es cap
     })
   }
 })
-
