@@ -30,20 +30,50 @@ export const Gelabot = () => {
 
   const botT = (es: any, en: any): any => lang === 'en' ? en : es;
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'bot', content: botT('Hola soy GelaBot el agente Virtual de Gelabert Homes Real Estate, ¿qué estás buscando?', 'Hi, I am GelaBot, the Virtual Agent of Gelabert Homes Real Estate, what are you looking for?') }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [flow, setFlow] = useState<'none' | 'ai_chat'>('none');
   const [activeProperty, setActiveProperty] = useState<PropertyDetails | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Mantenemos una referencia del historial para la IA (sin elementos React)
-  const aiHistoryRef = useRef<{ role: 'assistant' | 'user', content: string }[]>([
-    { role: 'assistant', content: 'Hola soy GelaBot el agente Virtual de Gelabert Homes Real Estate, ¿qué estás buscando?' }
-  ]);
-
+  const [externalId, setExternalId] = useState<string>('');
+  const aiHistoryRef = useRef<{ role: 'assistant' | 'user', content: string }[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Inicializar ID y cargar historial
+  useEffect(() => {
+    let id = localStorage.getItem('gelabot_external_id');
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem('gelabot_external_id', id);
+    }
+    const finalId = id || crypto.randomUUID();
+    setExternalId(finalId);
+    loadHistory(finalId);
+  }, []);
+
+  const loadHistory = async (id: string) => {
+    const { data } = await supabase.from('gelabot_conversations').select('messages').eq('external_id', id).single();
+    if (data && data.messages && data.messages.length > 0) {
+      const history = data.messages.map((m: any) => ({
+        role: m.role === 'assistant' ? 'bot' : 'user',
+        content: m.content
+      }));
+      setMessages(history);
+      aiHistoryRef.current = data.messages;
+      setFlow('ai_chat'); // Si hay historial, ya estamos en modo chat
+    } else {
+      setMessages([{
+        role: 'bot',
+        content: botT('Hola soy GelaBot el agente Virtual de Gelabert Homes Real Estate, ¿qué estás buscando?', 'Hi, I am GelaBot, the Virtual Agent of Gelabert Homes Real Estate, what are you looking for?')
+      }]);
+      aiHistoryRef.current = [{
+        role: 'assistant',
+        content: 'Hola soy GelaBot el agente Virtual de Gelabert Homes Real Estate, ¿qué estás buscando?'
+      }];
+    }
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -53,7 +83,6 @@ export const Gelabot = () => {
   const addMessage = (role: 'bot' | 'user', content: React.ReactNode, isForm = false) => {
     setMessages(prev => [...prev, { role, content, isForm }]);
     
-    // Si es texto, lo añadimos al historial de la IA
     if (typeof content === 'string') {
       aiHistoryRef.current.push({
         role: role === 'bot' ? 'assistant' : 'user',
@@ -81,19 +110,25 @@ export const Gelabot = () => {
     setIsTyping(true);
     try {
       const { data, error } = await supabase.functions.invoke('gelabot-chat', {
-        body: { messages: aiHistoryRef.current }
+        body: { 
+          messages: aiHistoryRef.current.slice(-10), // Solo enviamos los últimos 10 para ahorrar tokens, el Edge Function cargará el resto si es necesario
+          externalId 
+        }
       });
       if (error) throw error;
+
+      if (data.externalId && data.externalId !== externalId) {
+        setExternalId(data.externalId);
+        localStorage.setItem('gelabot_external_id', data.externalId);
+      }
 
       setIsTyping(false);
       let reply = data.reply;
 
-      // Manejar comandos especiales como [SHOW_FORM:xxx]
       if (reply.includes('[SHOW_FORM:')) {
         const formType = reply.match(/\[SHOW_FORM:([^\]]+)\]/)?.[1];
         const cleanReply = reply.replace(/\[SHOW_FORM:[^\]]+\]/g, '').trim();
         if (cleanReply) addMessage('bot', cleanReply);
-
         if (formType) {
           addMessage('bot', <ChatForm type={formType} onSubmit={(formData) => handleFormSubmit(formType, formData)} />, true);
         }
@@ -102,17 +137,14 @@ export const Gelabot = () => {
       }
     } catch (err) {
       setIsTyping(false);
-      addMessage('bot', botT('Ha ocurrido un error de conexión.', 'A connection error occurred.'));
+      addMessage('bot', botT('Error de conexión.', 'Connection error.'));
     }
   };
 
   const handleFormSubmit = async (type: string, formData: any) => {
     const content = `He completado el formulario de ${type} con los siguientes datos: ${JSON.stringify(formData)}`;
     addMessage('user', botT('He completado el formulario.', 'I have completed the form.'));
-    
-    // Sobrescribir el último mensaje de la IA en la ref para incluir los datos JSON reales
     aiHistoryRef.current[aiHistoryRef.current.length - 1].content = content;
-    
     processAIResponse();
   };
 
@@ -127,7 +159,6 @@ export const Gelabot = () => {
     processAIResponse();
   };
 
-  // Interceptar clicks en enlaces de propiedades para el panel lateral
   useEffect(() => {
     const handleLinkClick = async (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -136,9 +167,7 @@ export const Gelabot = () => {
         const slug = target.getAttribute('href')?.split('/').pop();
         if (slug) {
           const { data } = await supabase.from('properties').select('*').eq('slug', slug).single();
-          if (data) {
-            setActiveProperty(data);
-          }
+          if (data) setActiveProperty(data);
         }
       }
     };
@@ -166,7 +195,7 @@ export const Gelabot = () => {
                     <h2 className="text-[#FAF8F5] font-secondary font-bold tracking-tight">GelaBot</h2>
                     <div className="flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                      <span className="text-[10px] text-[#888888] uppercase tracking-widest font-primary font-medium">Virtual Agent</span>
+                      <span className="text-[10px] text-[#888888] uppercase tracking-widest font-primary font-medium">Memoria Activa</span>
                     </div>
                   </div>
                 </div>
