@@ -19,22 +19,22 @@ serve(async (req) => {
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')
 
     const systemPrompt = `# GELABOT — AGENTE VIRTUAL GELABERT HOMES
-Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es captar leads y cualificarlos siguiendo este flujo estricto:
+Eres GelaBot. Tu objetivo es captar leads de forma directa y profesional.
 
-## REGLAS DE ORO
-1. SOLO temas inmobiliarios.
-2. COMISIONES: No des cifras, deriva al agente.
-3. IDENTIDAD (UNIVÉRSAL - PASO OBLIGATORIO): Independientemente de lo que el usuario busque (Inquilino, Propietario, Venta o Compra), el SIGUIENTE paso tras el saludo es SIEMPRE pedir los datos de contacto.
-   - Pide los 3 datos juntos: "Perfecto. Para abrir su ficha en nuestro sistema y poder ayudarle, ¿podría facilitarme su nombre completo, teléfono y correo electrónico?"
-   - Si el usuario da solo un dato (ej: su nombre), reconócelo y pide los que falten inmediatamente.
-   - **REGLA ANTI-BUCLE**: Antes de pedir el nombre, revisa el historial. Si el usuario ya lo dijo o tú ya le has saludado por su nombre (ej: "Encantado José"), TIENES el nombre. Pide solo lo que falte. **NUNCA vuelvas a pedir el nombre si ya aparece en los mensajes anteriores.**
-   - NO pases a preguntar zonas, precios o mostrar formularios hasta que tengas estos datos de contacto.
-4. BÚSQUEDA: Tras identificarse, pregunta zona y presupuesto. Busca propiedades reales con \`search_properties\`.
-5. CUALIFICACIÓN: Tras mostrar propiedades (o si no hay), muestra el formulario: [SHOW_FORM:tipo].
+## REGLAS CRÍTICAS:
+1. **Identidad**: Si NO conoces el Nombre, Teléfono o Correo, PÍDELOS (los 3 en un solo mensaje).
+2. **Historial**: REVISA EL HISTORIAL. Si el usuario ya dio su nombre o tú ya le saludaste por su nombre, NO LO VUELVAS A PEDIR.
+3. **Acción**: Solo usa \`save_lead\` cuando tengas al menos el Email.
+4. **Respuesta**: Tras identificarse, pregunta zona/presupuesto y busca propiedades reales.
 
-## COMANDOS
-- Formularios: [SHOW_FORM:inquilino], [SHOW_FORM:propietario_alquiler], [SHOW_FORM:propietario_venta], [SHOW_FORM:comprador]
-- Propiedades: Propiedad [N]: [Título] - [URL]
+## FLUJO:
+- Usuario elige intención.
+- GelaBot pide: Nombre, Teléfono y Correo (3 datos juntos).
+- GelaBot confirma y pide detalles de búsqueda.
+- GelaBot muestra propiedades y el formulario final: [SHOW_FORM:tipo].
+
+## COMANDOS:
+- [SHOW_FORM:inquilino] | [SHOW_FORM:propietario_alquiler] | [SHOW_FORM:propietario_venta] | [SHOW_FORM:comprador]
 `
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -54,7 +54,7 @@ Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es cap
             type: "function",
             function: {
               name: "save_lead",
-              description: "Guarda o actualiza un lead en el CRM",
+              description: "Guarda el lead en el CRM",
               parameters: {
                 type: "object",
                 properties: {
@@ -65,7 +65,7 @@ Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es cap
                   search_preferences: { type: "string" },
                   qualification_data: { type: "object" }
                 },
-                required: ["intent"]
+                required: ["intent", "email"]
               }
             }
           },
@@ -73,14 +73,12 @@ Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es cap
             type: "function",
             function: {
               name: "search_properties",
-              description: "Busca propiedades en la base de datos",
+              description: "Busca propiedades reales",
               parameters: {
                 type: "object",
                 properties: {
                   type: { type: "string", enum: ["alquiler", "venta"] },
-                  max_price: { type: "number" },
-                  zone: { type: "string" },
-                  min_rooms: { type: "number" }
+                  max_price: { type: "number" }
                 }
               }
             }
@@ -99,85 +97,30 @@ Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es cap
       for (const call of toolCalls) {
         if (call.function.name === "save_lead") {
           const args = JSON.parse(call.function.arguments)
-          const q = args.qualification_data || {}
-          
-          if (!args.email) {
-            toolResults.push({
-              tool_call_id: call.id,
-              role: "tool",
-              name: "save_lead",
-              content: "Falta el correo electrónico para guardar en el CRM."
-            })
-            continue
-          }
-
-          const leadData = {
-            name: args.full_name || q.nombre,
+          const { error } = await supabase.from('leads_crm').upsert({
+            name: args.full_name,
             email: args.email,
-            phone: args.phone || q.telefono,
+            phone: args.phone,
             intent: args.intent,
-            status: 'nuevo',
-            num_people: q.personas ? parseInt(q.personas) : undefined,
-            occupation: q.ocupacion,
-            monthly_income: q.ingresos ? parseFloat(q.ingresos.replace(/[^0-9.]/g, '')) : undefined,
-            employment_seniority: q.antiguedad,
-            city_origin: q.procedencia || q.edades_procedencia,
-            move_in_date: q.fecha_disponibilidad,
-            max_rent: args.intent === 'alquilar' ? (args.search_preferences ? parseFloat(args.search_preferences.match(/\d+/)?.[0] || '0') : undefined) : undefined,
-            max_buy_price: args.intent === 'comprar' ? (args.search_preferences ? parseFloat(args.search_preferences.match(/\d+/)?.[0] || '0') : undefined) : undefined,
-            agent_notes: `Búsqueda: ${args.search_preferences || ''}. Detalles: ${q.adicionales || ''}`,
-            sell_property_address: q.direccion,
-            sell_num_bedrooms: q.habitaciones ? parseInt(q.habitaciones) : undefined,
-            sell_num_bathrooms: q.banos ? parseInt(q.banos) : undefined,
-            sell_area_m2: q.m2 ? parseInt(q.m2) : undefined,
-            sell_floor: q.planta,
-            sell_has_parking: q.parking,
-            sell_estimated_price: q.precio ? parseFloat(q.precio) : undefined,
-            needs_mortgage_service: q.hipoteca === 'necesito',
-            buy_deadline: q.fecha_compra
-          }
-
-          const { data: lead, error } = await supabase.from('leads_crm').upsert(leadData, { onConflict: 'email' }).select().single()
-          
-          if (!error && args.qualification_data) {
-            try {
-              await supabase.functions.invoke('notify-lead-matches', {
-                body: { 
-                  leadData: {
-                    name: leadData.name,
-                    email: leadData.email,
-                    phone: leadData.phone,
-                    status: 'nuevo',
-                    agent_notes: leadData.agent_notes
-                  },
-                  type: args.intent,
-                  isSummary: true,
-                  summaryHtml: `<ul>${Object.entries(q).map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`).join('')}</ul>`
-                }
-              })
-            } catch (e) {
-              console.error('Error enviando notificación:', e)
-            }
-          }
+            status: 'nuevo'
+          }, { onConflict: 'email' })
 
           toolResults.push({
             tool_call_id: call.id,
             role: "tool",
             name: "save_lead",
-            content: error ? `Error: ${error.message}` : "Lead guardado correctamente."
+            content: error ? `Error: ${error.message}` : "Datos guardados en CRM."
           })
         }
 
         if (call.function.name === "search_properties") {
           const args = JSON.parse(call.function.arguments)
           let query = supabase.from('properties').select('*').eq('commercial_status', 'disponible')
-          
           if (args.type === 'alquiler') query = query.eq('operation', 'alquiler')
           if (args.type === 'venta') query = query.eq('operation', 'venta')
           if (args.max_price) query = query.lte('price', args.max_price)
           
-          const { data: props, error } = await query.limit(5)
-          
+          const { data: props } = await query.limit(3)
           toolResults.push({
             tool_call_id: call.id,
             role: "tool",
@@ -212,7 +155,7 @@ Eres GelaBot, el agente virtual de Gelabert Homes Real Estate. Tu misión es cap
     })
 
   } catch (err) {
-    return new Response(JSON.stringify({ reply: "Lo siento, he tenido un problema técnico. ¿Podemos intentarlo de nuevo?" }), {
+    return new Response(JSON.stringify({ reply: "Hubo un error. ¿Podemos reintentar?" }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
