@@ -214,8 +214,7 @@ serve(async (req) => {
             email: args.email,
             phone: args.phone || null,
             intent: args.intent,
-            status: 'nuevo',
-            notes: args.notes || null
+            status: 'nuevo'
           }, { onConflict: 'email' })
 
         if (leadError) {
@@ -224,9 +223,13 @@ serve(async (req) => {
             tool_call_id: call.id,
             role: 'tool',
             name: 'save_lead',
-            content: `Error al guardar: ${leadError.message}. Continúa la conversación normalmente.`
+            content: `Error al guardar el lead: ${leadError.message}`
           })
         } else {
+          // Intenta añadir notes si la columna existe (falla silenciosamente si no)
+          if (args.notes) {
+            await supabase.from('leads_crm').update({ notes: args.notes }).eq('email', args.email)
+          }
           toolResults.push({
             tool_call_id: call.id,
             role: 'tool',
