@@ -207,7 +207,13 @@ export const Gelabot = () => {
 
   return (
     <>
-      <div className={`fixed bottom-6 left-6 z-[9999] flex flex-col items-start gap-4`}>
+      <motion.div
+        drag
+        dragMomentum={false}
+        dragElastic={0}
+        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+        style={{ position: 'fixed', bottom: 24, left: 24, zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 16 }}
+      >
         <AnimatePresence>
           {isOpen && (
             <motion.div
@@ -383,20 +389,17 @@ export const Gelabot = () => {
           )}
         </AnimatePresence>
 
-        {/* Trigger button */}
+        {/* Trigger button — round, draggable, no green dot */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsOpen(v => !v)}
-          className="w-16 h-16 bg-[#C9A962] rounded-2xl flex items-center justify-center shadow-xl shadow-[#C9A962]/25 border border-[#FAF8F5]/15 group relative overflow-hidden"
+          className="w-16 h-16 bg-[#C9A962] rounded-full flex items-center justify-center shadow-xl shadow-[#C9A962]/30 border border-[#FAF8F5]/10 group relative overflow-hidden cursor-grab active:cursor-grabbing"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
           <Bot className="text-[#0A0A0A] group-hover:rotate-12 transition-transform duration-300" size={30} />
-          {!isOpen && (
-            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-[#0A0A0A]" />
-          )}
         </motion.button>
-      </div>
+      </motion.div>
     </>
   );
 };
