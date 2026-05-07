@@ -18,11 +18,10 @@ serve(async (req) => {
     )
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')
 
-    // Intentar detectar si el usuario ha dado su email en esta sesión
-    const emailMatch = messages.find((m: any) => m.role === 'user' && m.content.includes('@'))?.content.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)?.[0]
+    // Detectar email para vinculación
+    const emailMatch = messages.find((m: any) => m.role === 'user' && typeof m.content === 'string' && m.content.includes('@'))?.content.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)?.[0]
     
     if (emailMatch && emailMatch !== externalId) {
-      // El usuario se ha identificado con un email. Intentamos migrar el historial anónimo al email.
       const { data: anonConv } = await supabase.from('gelabot_conversations').select('*').eq('external_id', externalId).single()
       const { data: emailConv } = await supabase.from('gelabot_conversations').select('*').eq('external_id', emailMatch).single()
       
@@ -33,31 +32,29 @@ serve(async (req) => {
           messages: mergedMessages,
           updated_at: new Date().toISOString()
         }, { onConflict: 'external_id' })
-        
-        // Borrar el anónimo para no duplicar
         await supabase.from('gelabot_conversations').delete().eq('external_id', externalId)
-        externalId = emailMatch // Ahora el ID es el email
+        externalId = emailMatch
       }
     }
 
-    // 1. Recuperar historial persistente
-    let fullHistory = []
-    if (externalId) {
-      const { data: conv } = await supabase.from('gelabot_conversations').select('messages').eq('external_id', externalId).single()
-      if (conv) fullHistory = conv.messages || []
-    }
-
-    // Combinar (evitando duplicar el último mensaje que ya viene en 'messages')
-    const contextMessages = [...fullHistory, ...messages.slice(-1)]
+    // ELIMINADO EL FILTRO messages.slice(-1) QUE CAUSABA PÉRDIDA DE CONTEXTO
+    // Usamos el historial que viene del frontend como base de la sesión actual
+    const contextMessages = messages
 
     const systemPrompt = `# GELABOT — AGENTE VIRTUAL CON MEMORIA
-Eres GelaBot. Tienes memoria a largo plazo. REVISA EL HISTORIAL para saber si ya conoces al usuario.
+Eres GelaBot. Tienes memoria a largo plazo. REVISA EL HISTORIAL DETALLADAMENTE.
 
 ## REGLAS CRÍTICAS:
-1. **Identidad**: Si ya conoces al usuario (está en el historial), salúdalo por su nombre y no le pidas los datos de nuevo.
-2. **Contexto**: Si el usuario vuelve tras un tiempo, pregúntale si quiere continuar con su búsqueda anterior o si necesita algo nuevo.
-3. **Acción**: Solo usa \`save_lead\` cuando tengas el Email.
-4. **Naturalidad**: Habla de forma humana, recordando detalles que el usuario te dio antes (zonas, presupuesto, etc).
+1. **Identidad**: Si el usuario ya dio su Nombre, Email o Teléfono en CUALQUIER punto del historial, NO los vuelvas a pedir. Salúdalo y pasa a la fase de búsqueda.
+2. ** save_lead**: Llama a esta función en cuanto tengas el Email.
+3. **Bucle**: Si detectas que vas a preguntar algo que ya está en el historial, ¡PARA! Avanza en el proceso.
+4. **Propiedades**: Tras identificarse, pregunta zona y presupuesto, usa \`search_properties\` y muestra opciones.
+
+## FLUJO:
+1. Identificación (si no está en el historial).
+2. Intereses (Compra, Venta, Alquiler).
+3. Búsqueda de zona/precio.
+4. Mostrar propiedades y formulario final [SHOW_FORM:tipo].
 `
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {

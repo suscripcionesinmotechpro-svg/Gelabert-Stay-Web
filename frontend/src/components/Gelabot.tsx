@@ -111,7 +111,7 @@ export const Gelabot = () => {
     try {
       const { data, error } = await supabase.functions.invoke('gelabot-chat', {
         body: { 
-          messages: aiHistoryRef.current.slice(-10), // Solo enviamos los últimos 10 para ahorrar tokens, el Edge Function cargará el resto si es necesario
+          messages: aiHistoryRef.current.slice(-40), // Enviamos hasta 40 mensajes para contexto total
           externalId 
         }
       });
@@ -177,7 +177,7 @@ export const Gelabot = () => {
 
   return (
     <>
-      <div className={`fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-4 ${isExpanded ? 'w-[calc(100%-48px)] sm:w-auto' : ''}`}>
+      <div className={`fixed bottom-6 left-6 z-[9999] flex flex-col items-start gap-4 ${isExpanded ? 'w-[calc(100%-48px)] sm:w-auto' : ''}`}>
         <AnimatePresence>
           {isOpen && (
             <motion.div
