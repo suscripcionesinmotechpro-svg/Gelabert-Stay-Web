@@ -45,16 +45,38 @@ export const Gelabot = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // ─── Init ───────────────────────────────────────────────────────────────────
+  const SESSION_TIMEOUT = 2 * 60 * 60 * 1000; // 2 horas de inactividad para reset visual
 
   useEffect(() => {
     let id = localStorage.getItem('gelabot_uid');
+    const lastActive = localStorage.getItem('gelabot_last_active');
+    const now = Date.now();
+
     if (!id) {
       id = crypto.randomUUID();
       localStorage.setItem('gelabot_uid', id);
     }
     externalIdRef.current = id;
-    initChat(id);
+
+    // Si ha pasado mucho tiempo, no cargamos historial (reset visual)
+    if (lastActive && (now - parseInt(lastActive)) > SESSION_TIMEOUT) {
+      console.log('GelaBot: Sesión expirada, iniciando chat limpio.');
+      localStorage.removeItem('gelabot_last_active');
+      initWelcome();
+    } else {
+      initChat(id);
+    }
   }, []);
+
+  const initWelcome = () => {
+    const welcome = t(
+      'Hola, soy GelaBot, el asistente virtual de Gelabert Homes. ¿Qué estás buscando?',
+      'Hi, I am GelaBot, the virtual assistant of Gelabert Homes. What are you looking for?'
+    );
+    setMessages([{ role: 'bot', content: welcome }]);
+    aiHistoryRef.current = [{ role: 'assistant', content: welcome }];
+    setFlow('none');
+  };
 
   const initChat = async (id: string) => {
     // Intentar cargar historial previo de Supabase
@@ -65,7 +87,6 @@ export const Gelabot = () => {
       .maybeSingle();
 
     if (data && data.messages && data.messages.length > 0) {
-      // Reconstruir la vista de mensajes desde el historial (solo rol assistant y user)
       const uiMessages: ChatMessage[] = (data.messages as AIMessage[])
         .filter((m) => m.role === 'user' || m.role === 'assistant')
         .map((m) => ({
@@ -78,13 +99,7 @@ export const Gelabot = () => {
       );
       setFlow('chat');
     } else {
-      // Primera vez: mostrar bienvenida
-      const welcome = t(
-        'Hola, soy GelaBot, el asistente virtual de Gelabert Homes. ¿Qué estás buscando?',
-        'Hi, I am GelaBot, the virtual assistant of Gelabert Homes. What are you looking for?'
-      );
-      setMessages([{ role: 'bot', content: welcome }]);
-      aiHistoryRef.current = [{ role: 'assistant', content: welcome }];
+      initWelcome();
     }
   };
 
@@ -92,13 +107,25 @@ export const Gelabot = () => {
     if (window.confirm(t('¿Quieres borrar la conversación y empezar de cero?', 'Do you want to clear the conversation and start over?'))) {
       const newId = crypto.randomUUID();
       localStorage.setItem('gelabot_uid', newId);
+      localStorage.setItem('gelabot_last_active', Date.now().toString());
       externalIdRef.current = newId;
       aiHistoryRef.current = [];
       setMessages([]);
       setFlow('none');
-      
-      const welcome = t(
-        'Hola, soy GelaBot, el asistente virtual de Gelabert Homes. ¿Qué estás buscando?',
+      initWelcome();
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      localStorage.setItem('gelabot_last_active', Date.now().toString());
+    }
+  }, [isOpen, messages]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isTyping]);
+ asistente virtual de Gelabert Homes. ¿Qué estás buscando?',
         'Hi, I am GelaBot, the virtual assistant of Gelabert Homes. What are you looking for?'
       );
       setMessages([{ role: 'bot', content: welcome }]);
