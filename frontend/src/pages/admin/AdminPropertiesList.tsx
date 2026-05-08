@@ -7,7 +7,7 @@ import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck } 
 import { PropertyReference } from '../../components/PropertyReference';
 import { useTranslation } from 'react-i18next';
 import { getOptimizedImage } from '../../utils/images';
-import { getCommunityShareLink } from '../../utils/whatsapp';
+import { getCommunityShareMessage } from '../../utils/whatsapp';
 
 const WhatsAppIcon = () => (
   <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -110,12 +110,7 @@ export const AdminPropertiesList = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleShareToChannel = (p: Property) => {
-    const propertyUrl = `https://gelaberthomes.es/propiedades/${p.slug || p.id}`;
-    const priceStr = p.price 
-      ? `${p.price.toLocaleString(i18n.language === 'es' ? 'es-ES' : 'en-US')}€${p.operation === 'alquiler' ? '/mes' : ''}`
-      : 'Consultar';
-    
-    const text = `🏠 *¡Nueva propiedad disponible!*\n\n*${p.title}*\n💰 Precio: ${priceStr}\n\n🔗 Ver más detalles y fotos:\n${propertyUrl}`;
+    const text = getCommunityShareMessage(p);
     
     navigator.clipboard.writeText(text).then(() => {
       setCopiedId(p.id);

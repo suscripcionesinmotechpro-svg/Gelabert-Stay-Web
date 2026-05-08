@@ -52,9 +52,9 @@ export const getWhatsAppLink = ({
 };
 
 /**
- * Generates a WhatsApp share link for community publication.
+ * Generates the raw text message for community publication.
  */
-export const getCommunityShareLink = (property: { 
+export const getCommunityShareMessage = (property: { 
   title: string; 
   price?: number | null; 
   slug?: string | null; 
@@ -66,8 +66,20 @@ export const getCommunityShareLink = (property: {
     ? `${property.price.toLocaleString('es-ES')}€${property.operation === 'alquiler' ? '/mes' : ''}`
     : 'Consultar';
   
-  const message = `🏠 *¡Nueva propiedad disponible!*\n\n*${property.title}*\n💰 Precio: ${priceStr}\n\n🔗 Ver más detalles y fotos:\n${propertyUrl}`;
-  
+  return `🏠 *¡Nueva propiedad disponible!*\n\n*${property.title}*\n💰 Precio: ${priceStr}\n\n🔗 Ver más detalles y fotos:\n${propertyUrl}`;
+};
+
+/**
+ * Generates a WhatsApp share link for community publication.
+ */
+export const getCommunityShareLink = (property: { 
+  title: string; 
+  price?: number | null; 
+  slug?: string | null; 
+  reference?: string | null; 
+  operation: string;
+}) => {
+  const message = getCommunityShareMessage(property);
   return `https://wa.me/?text=${encodeURIComponent(message)}`;
 };
 
