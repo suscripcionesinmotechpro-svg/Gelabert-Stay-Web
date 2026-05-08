@@ -6,6 +6,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').trim();
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
@@ -34,8 +38,9 @@ serve(async (req) => {
     return Response.redirect('https://gelaberthomes.es/propiedades')
   }
 
+  const cleanDescription = stripHtml(property.description || '');
   const title = `${property.title} | Gelabert Homes`
-  const description = `${property.operation === 'alquiler' ? 'Alquiler' : 'Venta'}: ${property.price?.toLocaleString('es-ES')}€ - ${property.description?.substring(0, 150)}...`
+  const description = `${property.operation === 'alquiler' ? 'Alquiler' : 'Venta'}: ${property.price?.toLocaleString('es-ES')}€ - ${cleanDescription.substring(0, 160)}...`
   const image = property.main_image || 'https://gelaberthomes.es/logo-meta-v3.png'
   const targetUrl = `https://gelaberthomes.es/propiedades/${property.slug}`
 

@@ -16,6 +16,11 @@ function optimizeSupabaseImage(rawUrl: string): string {
   return rawUrl.split("?")[0];
 }
 
+function stripHtml(html: string): string {
+  if (!html) return "";
+  return html.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').trim();
+}
+
 export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
   const path = url.pathname;
@@ -200,7 +205,10 @@ export default async (request: Request, context: Context) => {
       const extraDesc = isEn
         ? prop.short_description_en || prop.meta_description_en || prop.short_description
         : prop.short_description || prop.meta_description;
-      if (extraDesc) description += ` | ${extraDesc}`;
+      
+      if (extraDesc) {
+        description += ` | ${stripHtml(extraDesc)}`;
+      }
       description = description.trim() || title || "Gelabert Homes Real Estate";
 
       // ── Image logic — GUARANTEED for all properties ──

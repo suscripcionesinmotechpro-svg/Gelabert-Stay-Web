@@ -61,14 +61,14 @@ export const getCommunityShareMessage = (property: {
   reference?: string | null; 
   operation: string;
 }) => {
-  // Use the Edge Function for dynamic social previews (OG tags)
-  const previewUrl = `https://aumqjpqngmhpbwytpets.supabase.co/functions/v1/property-preview?slug=${property.slug || property.reference || ''}`;
+  // Use the professional domain for sharing
+  const propertyUrl = `https://gelaberthomes.es/propiedades/${property.slug || property.reference || ''}`;
   
   const priceStr = property.price 
     ? `${property.price.toLocaleString('es-ES')}€${property.operation === 'alquiler' ? '/mes' : ''}`
     : 'Consultar';
   
-  return `🏠 *¡NUEVA PROPIEDAD DISPONIBLE!*\n\n*${property.title.toUpperCase()}*\n💰 *Precio:* ${priceStr}\n\n📸 *Ver más detalles y fotos en la web:*\n${previewUrl}`;
+  return `🏠 *¡NUEVA PROPIEDAD DISPONIBLE!*\n\n*${property.title.toUpperCase()}*\n💰 *Precio:* ${priceStr}\n\n📸 *Ver más detalles y fotos en la web:*\n${propertyUrl}`;
 };
 
 /**
