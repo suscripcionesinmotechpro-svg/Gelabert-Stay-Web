@@ -33,7 +33,7 @@ Cuando el usuario indique qué propiedad le interesa (o si es propietario que qu
 Pide estos datos UNA SOLA VEZ.
 
 FASE 4 — GUARDAR Y CONFIRMAR:
-En cuanto tengas el email, llama a save_lead() con todos los datos recopilados.
+En cuanto tengas el email, llama a save_lead() con TODOS los datos recopilados durante la conversación (ingresos, ocupación, zona, mascotas, fechas, características del inmueble, etc.). Incluye un resumen completo en el campo notes.
 Confirma: "Gracias [nombre], hemos registrado tu consulta. Un agente te contactará pronto."
 Luego muestra el formulario final según el perfil.
 
@@ -44,16 +44,18 @@ PREGUNTAS DE CUALIFICACIÓN POR PERFIL:
 INQUILINO (busca alquiler) — intent: alquilar:
 1. ¿Cuántas personas viviréis y a qué os dedicáis?
 2. ¿Cuáles son los ingresos netos mensuales del hogar y cuánta antigüedad laboral tenéis?
-3. ¿Qué zona preferís y cuál es el presupuesto máximo de alquiler?
-4. ¿Cuándo necesitáis entrar?
+3. ¿Tenéis mascotas?
+4. ¿Qué zona preferís y cuál es el presupuesto máximo de alquiler?
+5. ¿Cuándo necesitáis entrar?
 Busca con search_properties(operation:"alquiler", max_price: X) y presenta numerado.
 Formulario final: [SHOW_FORM:inquilino]
 
 PROPIETARIO QUE QUIERE ALQUILAR — intent: alquilar_propietario:
 1. ¿Dónde está el inmueble? (ciudad y barrio aproximado)
 2. ¿Cuántas habitaciones y baños tiene? ¿Tiene garaje o trastero?
-3. ¿Qué precio de alquiler mensual tienes en mente?
-4. ¿Está actualmente ocupado o disponible?
+3. ¿Cuántos metros cuadrados tiene aproximadamente?
+4. ¿Qué precio de alquiler mensual tienes en mente?
+5. ¿Está actualmente ocupado o disponible?
 No busques propiedades. Explica que Gelabert Homes gestiona todo: publicación, selección de inquilinos y contratos.
 Formulario final: [SHOW_FORM:propietario_alquiler]
 
@@ -86,6 +88,33 @@ Escribe el comando exacto al final de tu mensaje cuando sea el momento:
 USUARIOS QUE REGRESAN:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Si el historial ya tiene datos de una conversación anterior, saluda al usuario por su nombre y pregúntale si quiere continuar con su búsqueda anterior o necesita algo nuevo.`
+
+// ── Helpers de parseo ─────────────────────────────────────────────────────────
+
+function parseDate(dateStr: string | undefined | null): string | null {
+  if (!dateStr) return null
+  try {
+    const d = new Date(dateStr)
+    if (!isNaN(d.getTime())) return d.toISOString().split('T')[0]
+  } catch { /* ignore */ }
+  return null
+}
+
+function parseNumber(val: any): number | null {
+  const n = parseFloat(String(val ?? ''))
+  return isNaN(n) ? null : n
+}
+
+function parseBool(val: any): boolean | null {
+  if (val === null || val === undefined) return null
+  if (typeof val === 'boolean') return val
+  const s = String(val).toLowerCase()
+  if (s === 'true' || s === 'si' || s === 'sí' || s === 'yes' || s === '1') return true
+  if (s === 'false' || s === 'no' || s === '0') return false
+  return null
+}
+
+// ── Main handler ──────────────────────────────────────────────────────────────
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
@@ -123,10 +152,11 @@ serve(async (req) => {
             type: 'function',
             function: {
               name: 'save_lead',
-              description: 'Guarda los datos del cliente en el CRM. Llamar en cuanto se tenga el email del usuario.',
+              description: 'Guarda los datos completos del cliente en el CRM. Llamar en cuanto se tenga el email. Incluir TODOS los datos recopilados durante la conversación.',
               parameters: {
                 type: 'object',
                 properties: {
+                  // Datos básicos de contacto
                   full_name: { type: 'string', description: 'Nombre completo del usuario' },
                   email: { type: 'string', description: 'Email del usuario' },
                   phone: { type: 'string', description: 'Teléfono de contacto' },
@@ -135,7 +165,45 @@ serve(async (req) => {
                     enum: ['alquilar', 'comprar', 'vender', 'alquilar_propietario'],
                     description: 'Intención principal del usuario'
                   },
-                  notes: { type: 'string', description: 'Resumen de necesidades y preferencias del usuario recopiladas en la conversación' }
+                  notes: { type: 'string', description: 'Resumen COMPLETO y detallado de todas las necesidades, preferencias y datos recopilados en la conversación' },
+
+                  // Datos personales / perfil
+                  occupation: { type: 'string', description: 'Ocupación o profesión del cliente' },
+                  monthly_income: { type: 'number', description: 'Ingresos netos mensuales en euros' },
+                  employment_seniority: { type: 'string', description: 'Antigüedad laboral (ej: 2 años, 6 meses)' },
+                  num_people: { type: 'number', description: 'Número de personas que vivirán en el inmueble' },
+                  has_pets: { type: 'boolean', description: 'Si el inquilino tiene mascotas' },
+                  nationality: { type: 'string', description: 'Nacionalidad del cliente' },
+                  city_origin: { type: 'string', description: 'Ciudad de origen del cliente' },
+
+                  // Preferencias de búsqueda — inquilinos y compradores
+                  max_rent: { type: 'number', description: 'Presupuesto máximo de alquiler mensual en euros' },
+                  max_buy_price: { type: 'number', description: 'Presupuesto máximo de compra en euros' },
+                  move_in_date: { type: 'string', description: 'Fecha deseada de entrada (formato YYYY-MM-DD)' },
+                  buy_deadline: { type: 'string', description: 'Fecha límite para cerrar compra (formato YYYY-MM-DD)' },
+                  mortgage_approved: { type: 'boolean', description: 'Si tiene hipoteca aprobada' },
+                  needs_mortgage_service: { type: 'boolean', description: 'Si necesita ayuda para conseguir hipoteca' },
+                  min_lease_months: { type: 'number', description: 'Meses mínimos de contrato que busca' },
+
+                  // Datos del inmueble a vender o alquilar (propietarios)
+                  sell_property_address: { type: 'string', description: 'Dirección del inmueble a vender o alquilar' },
+                  sell_property_type: { type: 'string', description: 'Tipo de inmueble: piso, chalet, local, etc.' },
+                  sell_num_bedrooms: { type: 'number', description: 'Número de habitaciones del inmueble' },
+                  sell_num_bathrooms: { type: 'number', description: 'Número de baños del inmueble' },
+                  sell_area_m2: { type: 'number', description: 'Superficie en metros cuadrados' },
+                  sell_estimated_price: { type: 'number', description: 'Precio estimado por el propietario en euros' },
+                  sell_has_terrace: { type: 'boolean', description: 'Si tiene terraza' },
+                  sell_has_parking: { type: 'boolean', description: 'Si tiene garaje o parking' },
+                  sell_has_pool: { type: 'boolean', description: 'Si tiene piscina' },
+                  sell_has_elevator: { type: 'boolean', description: 'Si tiene ascensor' },
+                  sell_is_furnished: { type: 'boolean', description: 'Si está amueblado' },
+                  sell_is_reformed: { type: 'boolean', description: 'Si está reformado recientemente' },
+                  sell_has_garden: { type: 'boolean', description: 'Si tiene jardín' },
+                  sell_has_balcony: { type: 'boolean', description: 'Si tiene balcón' },
+                  sell_floor: { type: 'string', description: 'Planta del inmueble' },
+                  sell_orientation: { type: 'string', description: 'Orientación del inmueble (sur, norte, este, oeste)' },
+                  sell_property_condition: { type: 'string', description: 'Estado del inmueble: nuevo, buen estado, a reformar' },
+                  sell_additional_info: { type: 'string', description: 'Información adicional sobre el inmueble' },
                 },
                 required: ['email', 'intent']
               }
@@ -204,18 +272,71 @@ serve(async (req) => {
         console.error('Error parsing tool arguments:', call.function.arguments)
       }
 
+      // ── save_lead ───────────────────────────────────────────────────────────
       if (call.function.name === 'save_lead') {
         console.log('Saving lead:', JSON.stringify(args))
 
+        // Construir objeto con todos los campos mapeados
+        const leadData: Record<string, any> = {
+          name: args.full_name || null,
+          email: args.email,
+          phone: args.phone || null,
+          intent: args.intent,
+          status: 'nuevo',
+
+          // Perfil personal
+          occupation: args.occupation || null,
+          monthly_income: parseNumber(args.monthly_income),
+          employment_seniority: args.employment_seniority || null,
+          num_people: parseNumber(args.num_people),
+          has_pets: parseBool(args.has_pets),
+          nationality: args.nationality || null,
+          city_origin: args.city_origin || null,
+
+          // Preferencias búsqueda
+          max_rent: parseNumber(args.max_rent),
+          max_buy_price: parseNumber(args.max_buy_price),
+          move_in_date: parseDate(args.move_in_date),
+          buy_deadline: parseDate(args.buy_deadline),
+          mortgage_approved: parseBool(args.mortgage_approved),
+          needs_mortgage_service: parseBool(args.needs_mortgage_service),
+          min_lease_months: parseNumber(args.min_lease_months),
+
+          // Datos inmueble (propietarios)
+          sell_property_address: args.sell_property_address || null,
+          sell_property_type: args.sell_property_type || null,
+          sell_num_bedrooms: parseNumber(args.sell_num_bedrooms),
+          sell_num_bathrooms: parseNumber(args.sell_num_bathrooms),
+          sell_area_m2: parseNumber(args.sell_area_m2),
+          sell_estimated_price: parseNumber(args.sell_estimated_price),
+          sell_has_terrace: parseBool(args.sell_has_terrace),
+          sell_has_parking: parseBool(args.sell_has_parking),
+          sell_has_pool: parseBool(args.sell_has_pool),
+          sell_has_elevator: parseBool(args.sell_has_elevator),
+          sell_is_furnished: parseBool(args.sell_is_furnished),
+          sell_is_reformed: parseBool(args.sell_is_reformed),
+          sell_has_garden: parseBool(args.sell_has_garden),
+          sell_has_balcony: parseBool(args.sell_has_balcony),
+          sell_floor: args.sell_floor || null,
+          sell_orientation: args.sell_orientation || null,
+          sell_property_condition: args.sell_property_condition || null,
+          sell_additional_info: args.sell_additional_info || null,
+
+          // Transcript y notas
+          agent_notes: args.notes || null,
+          chat_transcript: messages,
+          privacy_accepted: true,
+          privacy_accepted_at: new Date().toISOString(),
+        }
+
+        // Limpiar nulos para no sobreescribir con upsert si ya hay datos
+        const cleanLeadData = Object.fromEntries(
+          Object.entries(leadData).filter(([_, v]) => v !== null && v !== undefined)
+        )
+
         const { error: leadError } = await supabase
           .from('leads_crm')
-          .upsert({
-            name: args.full_name || null,
-            email: args.email,
-            phone: args.phone || null,
-            intent: args.intent,
-            status: 'nuevo'
-          }, { onConflict: 'email' })
+          .upsert(cleanLeadData, { onConflict: 'email' })
 
         if (leadError) {
           console.error('save_lead DB error:', JSON.stringify(leadError))
@@ -226,25 +347,52 @@ serve(async (req) => {
             content: `Error al guardar el lead: ${leadError.message}`
           })
         } else {
-          // Intenta añadir notes si la columna existe (falla silenciosamente si no)
-          if (args.notes) {
-            await supabase.from('leads_crm').update({ notes: args.notes }).eq('email', args.email)
+          console.log('Lead guardado correctamente:', args.email)
+          
+          // Trigger Notification
+          try {
+            const notifyUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/notify-lead-matches`
+            const summaryLines = (args.notes || '').split('\n').filter((l: string) => l.trim().length > 0)
+            const summaryHtml = summaryLines.map((l: string) => `<li>${l}</li>`).join('')
+            
+            fetch(notifyUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
+              },
+              body: JSON.stringify({
+                leadData: {
+                  name: args.full_name,
+                  email: args.email,
+                  phone: args.phone,
+                  agent_notes: args.notes
+                },
+                type: args.intent,
+                isSummary: true,
+                summaryHtml: summaryHtml ? `<ul>${summaryHtml}</ul>` : null
+              })
+            }).catch(err => console.error('Notification trigger error:', err))
+          } catch (notifyErr) {
+            console.error('Failed to prepare notification:', notifyErr)
           }
+
           toolResults.push({
             tool_call_id: call.id,
             role: 'tool',
             name: 'save_lead',
-            content: `Lead guardado correctamente. Email: ${args.email}, Intent: ${args.intent}.`
+            content: `Lead guardado correctamente. Email: ${args.email}, Intent: ${args.intent}. Todos los datos de la conversación han sido registrados en el CRM.`
           })
         }
       }
 
+      // ── search_properties ───────────────────────────────────────────────────
       if (call.function.name === 'search_properties') {
         console.log('Searching properties:', JSON.stringify(args))
 
         let query = supabase
           .from('properties')
-          .select('id, title, price, slug, operation, description, bedrooms, bathrooms, sqft, main_image')
+          .select('id, title, price, slug, operation, description, bedrooms, bathrooms, area_m2, zone, city')
           .eq('commercial_status', 'disponible')
 
         if (args.operation) query = query.eq('operation', args.operation)
@@ -271,8 +419,10 @@ serve(async (req) => {
         } else {
           const list = props.map((p: any, i: number) => {
             const beds = p.bedrooms ? `${p.bedrooms} hab.` : 'estudio'
-            const sqft = p.sqft ? ` — ${p.sqft}m²` : ''
-            return `${i + 1}. ${p.title} — ${p.price?.toLocaleString('es-ES')}€ — ${beds}${sqft}`
+            const area = p.area_m2 ? ` — ${p.area_m2}m²` : ''
+            const zone = p.zone || p.city || ''
+            const location = zone ? ` — ${zone}` : ''
+            return `${i + 1}. ${p.title} — ${p.price?.toLocaleString('es-ES')}€ — ${beds}${area}${location}`
           }).join('\n')
 
           toolResults.push({
@@ -321,7 +471,7 @@ serve(async (req) => {
   }
 })
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
+// ── persistConversation ────────────────────────────────────────────────────────
 
 async function persistConversation(supabase: any, externalId: string, previousMessages: any[], botReply: string) {
   if (!externalId) return

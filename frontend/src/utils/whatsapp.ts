@@ -52,6 +52,26 @@ export const getWhatsAppLink = ({
 };
 
 /**
+ * Generates a WhatsApp share link for community publication.
+ */
+export const getCommunityShareLink = (property: { 
+  title: string; 
+  price?: number | null; 
+  slug?: string | null; 
+  reference?: string | null; 
+  operation: string;
+}) => {
+  const propertyUrl = `https://gelaberthomes.es/propiedades/${property.slug || property.reference || ''}`;
+  const priceStr = property.price 
+    ? `${property.price.toLocaleString('es-ES')}€${property.operation === 'alquiler' ? '/mes' : ''}`
+    : 'Consultar';
+  
+  const message = `🏠 *¡Nueva propiedad disponible!*\n\n*${property.title}*\n💰 Precio: ${priceStr}\n\n🔗 Ver más detalles y fotos:\n${propertyUrl}`;
+  
+  return `https://wa.me/?text=${encodeURIComponent(message)}`;
+};
+
+/**
  * Determines the WhatsApp context based on the current URL path.
  * Used by the FloatingContact component to send relevant pre-filled messages.
  */
