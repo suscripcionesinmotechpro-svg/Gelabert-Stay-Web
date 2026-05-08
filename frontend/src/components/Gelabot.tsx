@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bot, X, Send, Home, Building2, TrendingUp, MapPin,
-  Euro, Users, Briefcase, Calendar, ShieldCheck, ExternalLink, Maximize2, Trash2, RotateCcw
+  Euro, Users, Briefcase, Calendar, ShieldCheck, ExternalLink, Maximize2, RotateCcw
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
@@ -86,8 +86,10 @@ export const Gelabot = () => {
       setMessages([{ role: 'bot', content: welcome }]);
       aiHistoryRef.current = [{ role: 'assistant', content: welcome }];
     }
+  };
+
   const handleResetChat = () => {
-    if (confirm(t('¿Quieres borrar la conversación y empezar de cero?', 'Do you want to clear the conversation and start over?'))) {
+    if (window.confirm(t('¿Quieres borrar la conversación y empezar de cero?', 'Do you want to clear the conversation and start over?'))) {
       const newId = crypto.randomUUID();
       localStorage.setItem('gelabot_uid', newId);
       externalIdRef.current = newId;
@@ -257,6 +259,7 @@ export const Gelabot = () => {
                     </div>
                   </div>
                 </div>
+                <div className="flex items-center gap-1">
                   <button 
                     onClick={handleResetChat} 
                     className="p-2 text-[#888888] hover:text-[#C9A962] transition-colors"
