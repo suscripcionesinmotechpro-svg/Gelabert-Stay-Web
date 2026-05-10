@@ -31,24 +31,8 @@ serve(async (req) => {
     }
 
     // Paso 1: Buscar el Place ID usando nombre + coordenadas
-    const findUrl = new URL('https://maps.googleapis.com/maps/api/place/findplacefromtext/json');
-    findUrl.searchParams.set('input', 'Gelabert Homes Real Estate');
-    findUrl.searchParams.set('inputtype', 'textquery');
-    findUrl.searchParams.set('fields', 'place_id,name,rating');
-    findUrl.searchParams.set('locationbias', 'point:36.5236896,-4.6026549');
-    findUrl.searchParams.set('key', GOOGLE_MAPS_API_KEY);
-
-    const findRes = await fetch(findUrl.toString());
-    const findData = await findRes.json();
-    const placeId: string | undefined = findData.candidates?.[0]?.place_id;
-
-    if (!placeId) {
-      const empty = { reviews: [], rating: 0, total: 0 };
-      cachedResult = { data: empty, ts: Date.now() };
-      return new Response(JSON.stringify(empty), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    // Hardcoded Place ID for Gelabert Homes Real Estate
+    const placeId = 'ChIJwfd_aeVM70oRetjIGPwX69c';
 
     // Paso 2: Obtener detalles con reseñas
     const detailsUrl = new URL('https://maps.googleapis.com/maps/api/place/details/json');

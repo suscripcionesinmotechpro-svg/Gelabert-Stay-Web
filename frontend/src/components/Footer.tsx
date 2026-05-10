@@ -164,7 +164,7 @@ const GoogleFooterBadge = () => {
   const [total, setTotal] = useState<number>(0);
 
   useEffect(() => {
-    const cached = sessionStorage.getItem('gelabert_google_reviews');
+    const cached = sessionStorage.getItem('gelabert_google_reviews_v2');
     if (cached) {
       try {
         const { rating: r, total: tot } = JSON.parse(cached);
@@ -175,7 +175,7 @@ const GoogleFooterBadge = () => {
       if (data?.rating) {
         setRating(data.rating);
         setTotal(data.total || 0);
-        sessionStorage.setItem('gelabert_google_reviews', JSON.stringify(data));
+        sessionStorage.setItem('gelabert_google_reviews_v2', JSON.stringify(data));
       }
     });
   }, []);
