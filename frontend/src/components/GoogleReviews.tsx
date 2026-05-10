@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useGoogleReviews, GoogleReview } from '../hooks/useGoogleReviews';
+import { useGoogleReviews } from '../hooks/useGoogleReviews';
+import type { GoogleReview } from '../hooks/useGoogleReviews';
 
 // ─── Google Logo SVG ─────────────────────────────────────────────────────────
 

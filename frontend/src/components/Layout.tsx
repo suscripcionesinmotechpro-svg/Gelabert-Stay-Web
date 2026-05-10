@@ -7,7 +7,6 @@ import { Footer } from './Footer';
 import { CookieBanner } from './CookieBanner';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { FloatingContact } from './FloatingContact';
-import Gelabot from './Gelabot';
 
 
 export const Layout = () => {
@@ -32,7 +31,6 @@ export const Layout = () => {
     { name: t('nav.services'), path: `${langPrefix}/servicios` },
     { name: t('nav.owners'), path: `${langPrefix}/propietarios` },
     { name: t('nav.contact'), path: `${langPrefix}/contacto` },
-    { name: t('nav.reviews'), path: `${langPrefix}${langPrefix ? '/reviews' : '/reseñas'}` },
   ];
 
   return (
@@ -136,8 +134,6 @@ export const Layout = () => {
       <Footer />
       <CookieBanner />
       <FloatingContact />
-      <Gelabot />
-
     </div>
   );
 };

@@ -7,7 +7,6 @@ import { Building, Key, Briefcase, ShieldCheck, Home as HomeIcon, CheckCircle, S
 import { useProperties } from '../hooks/useProperties';
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { sortPropertiesByAvailability } from '../utils/propertySorting';
-import { GoogleReviewsSection } from '../components/GoogleReviews';
 
 import { Helmet } from 'react-helmet-async';
 
@@ -623,8 +622,7 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* Google Reviews — live feed from Google Business Profile */}
-      <GoogleReviewsSection />
+      {/* Testimonials — clean dark section for visual breathing room */}
 
       {/* Final CTA Section — Cinematic */}
       <section className="relative w-full py-40 flex flex-col items-center justify-center overflow-hidden">
