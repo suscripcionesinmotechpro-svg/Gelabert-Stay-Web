@@ -1,63 +1,84 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
+
+// Cache in-memory: evita llamadas repetidas a la API de Google en la misma instancia
+let cachedResult: { data: unknown; ts: number } | null = null;
+const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 horas
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
 
   try {
-    const GOOGLE_API_KEY = Deno.env.get('GOOGLE_MAPS_API_KEY')
-    const PLACE_ID = Deno.env.get('GOOGLE_PLACE_ID') ?? 'ChIJwfAWHrUN9I0RcUL0WR0B0lE'
+    // Devolver caché si sigue siendo válida
+    if (cachedResult && Date.now() - cachedResult.ts < CACHE_TTL_MS) {
+      return new Response(JSON.stringify(cachedResult.data), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-    if (!GOOGLE_API_KEY) {
-      return new Response(JSON.stringify({ error: 'Missing Google API Key' }), {
+    const GOOGLE_MAPS_API_KEY = Deno.env.get('GOOGLE_MAPS_API_KEY');
+    if (!GOOGLE_MAPS_API_KEY) {
+      return new Response(JSON.stringify({ error: 'API key not configured', reviews: [], rating: 0, total: 0 }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      });
     }
 
-    // Fetch place details including reviews
-    const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${PLACE_ID}&fields=name,rating,user_ratings_total,reviews&language=es&reviews_sort=newest&key=${GOOGLE_API_KEY}`
+    // Paso 1: Buscar el Place ID usando nombre + coordenadas
+    const findUrl = new URL('https://maps.googleapis.com/maps/api/place/findplacefromtext/json');
+    findUrl.searchParams.set('input', 'Gelabert Homes Real Estate');
+    findUrl.searchParams.set('inputtype', 'textquery');
+    findUrl.searchParams.set('fields', 'place_id,name,rating');
+    findUrl.searchParams.set('locationbias', 'point:36.5236896,-4.6026549');
+    findUrl.searchParams.set('key', GOOGLE_MAPS_API_KEY);
 
-    const response = await fetch(url)
-    const data = await response.json()
+    const findRes = await fetch(findUrl.toString());
+    const findData = await findRes.json();
+    const placeId: string | undefined = findData.candidates?.[0]?.place_id;
 
-    if (data.status !== 'OK') {
-      console.error('Google Places API error:', data.status, data.error_message)
-      return new Response(JSON.stringify({ error: data.status, message: data.error_message }), {
-        status: 400,
+    if (!placeId) {
+      const empty = { reviews: [], rating: 0, total: 0 };
+      cachedResult = { data: empty, ts: Date.now() };
+      return new Response(JSON.stringify(empty), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      });
     }
 
-    const place = data.result
-    const reviews = (place.reviews ?? []).map((r: any) => ({
-      author: r.author_name,
-      rating: r.rating,
-      text: r.text,
-      date: r.relative_time_description,
-      avatar: r.profile_photo_url,
-      url: r.author_url,
-    }))
+    // Paso 2: Obtener detalles con reseñas
+    const detailsUrl = new URL('https://maps.googleapis.com/maps/api/place/details/json');
+    detailsUrl.searchParams.set('place_id', placeId);
+    detailsUrl.searchParams.set('fields', 'name,rating,reviews,user_ratings_total');
+    detailsUrl.searchParams.set('reviews_sort', 'newest');
+    detailsUrl.searchParams.set('language', 'es');
+    detailsUrl.searchParams.set('key', GOOGLE_MAPS_API_KEY);
 
-    return new Response(JSON.stringify({
-      name: place.name,
-      rating: place.rating,
-      total: place.user_ratings_total,
-      reviews,
-    }), {
+    const detailsRes = await fetch(detailsUrl.toString());
+    const detailsData = await detailsRes.json();
+    const place = detailsData.result;
+
+    const result = {
+      reviews: place?.reviews || [],
+      rating: place?.rating || 0,
+      total: place?.user_ratings_total || 0,
+      placeId,
+    };
+
+    cachedResult = { data: result, ts: Date.now() };
+
+    return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
-
+    });
   } catch (err) {
-    console.error('google-reviews crash:', err)
-    return new Response(JSON.stringify({ error: 'Internal error' }), {
-      status: 500,
+    console.error('google-reviews error:', err);
+    return new Response(JSON.stringify({ error: String(err), reviews: [], rating: 0, total: 0 }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+      status: 500,
+    });
   }
-})
+});
