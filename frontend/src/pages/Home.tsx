@@ -135,15 +135,19 @@ export const Home = () => {
     };
   }, [heroIndex]);
 
-  // Pre-cargar todas las imágenes para que aparezcan instantáneamente
+  // Pre-cargar de forma inteligente la siguiente imagen para evitar cuellos de botella
+  // pero asegurando que la transición sea instantánea
   useEffect(() => {
-    HERO_SLIDES.forEach((slide) => {
-      if (slide.type === 'image') {
+    const preloadNextImage = () => {
+      const nextIndex = (heroIndex + 1) % TOTAL_SLIDES;
+      const nextSlide = HERO_SLIDES[nextIndex];
+      if (nextSlide.type === 'image') {
         const img = new Image();
-        img.src = slide.src;
+        img.src = nextSlide.src;
       }
-    });
-  }, []);
+    };
+    preloadNextImage();
+  }, [heroIndex]);
 
   // Vídeo termina de forma natural → avanzar al siguiente slide
   const handleVideoEnded = () => {
@@ -154,6 +158,9 @@ export const Home = () => {
   return (
     <div className="w-full pb-20">
       <Helmet>
+        {HERO_SLIDES[0].type === 'image' && (
+          <link rel="preload" as="image" href={HERO_SLIDES[0].src} fetchPriority="high" />
+        )}
         <title>{t('home.seo.title')}</title>
         <meta name="description" content={t('home.seo.description')} />
         <meta name="keywords" content="inmobiliaria málaga, comprar casa málaga, alquiler piso málaga, venta casas málaga, costa del sol inmobiliaria, gelabert homes real estate, pisos en venta málaga, apartamentos alquiler málaga" />
