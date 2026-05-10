@@ -18,11 +18,12 @@ i18n
       },
     },
     fallbackLng: 'es',
+    supportedLngs: ['es', 'en'],
     interpolation: {
       escapeValue: false, // react already safes from xss
     },
     detection: {
-      order: ['path', 'querystring', 'localStorage', 'navigator'],
+      order: ['path', 'querystring', 'localStorage'],
       lookupFromPathIndex: 0,
       lookupQuerystring: 'lang',
       caches: ['localStorage'],

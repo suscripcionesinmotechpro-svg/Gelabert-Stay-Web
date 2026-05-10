@@ -17,7 +17,7 @@ export const LanguageSwitcher = () => {
     { code: 'en', name: 'EN', flag: '🇬🇧', label: 'English' }
   ];
 
-  const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
+  const currentLanguage = languages.find(lang => i18n.language.startsWith(lang.code)) || languages[0];
 
   const toggleLanguage = (code: string) => {
     i18n.changeLanguage(code);
@@ -85,7 +85,7 @@ export const LanguageSwitcher = () => {
                 key={lang.code}
                 onClick={() => toggleLanguage(lang.code)}
                 className={`w-full text-left px-4 py-3 text-[11px] font-bold tracking-[0.1em] transition-all duration-300 flex items-center justify-between group/item
-                  ${i18n.language === lang.code 
+                  ${i18n.language.startsWith(lang.code) 
                     ? 'text-[#C9A962] bg-[#C9A962]/5' 
                     : 'text-[#888888] hover:text-[#FAF8F5] hover:bg-white/5'}
                 `}
@@ -94,7 +94,7 @@ export const LanguageSwitcher = () => {
                   <span className="text-sm filter grayscale group-hover/item:grayscale-0 transition-all duration-500">{lang.flag}</span>
                   <span className="uppercase">{lang.label}</span>
                 </div>
-                {i18n.language === lang.code && (
+                {i18n.language.startsWith(lang.code) && (
                   <motion.div 
                     layoutId="active-indicator"
                     className="w-1 h-1 rounded-full bg-[#C9A962] shadow-[0_0_8px_#C9A962]"
