@@ -125,17 +125,7 @@ export const Gelabot = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
- asistente virtual de Gelabert Homes. ¿Qué estás buscando?',
-        'Hi, I am GelaBot, the virtual assistant of Gelabert Homes. What are you looking for?'
-      );
-      setMessages([{ role: 'bot', content: welcome }]);
-      aiHistoryRef.current = [{ role: 'assistant', content: welcome }];
-    }
-  };
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
 
   // ─── Helpers ────────────────────────────────────────────────────────────────
 

@@ -59,6 +59,7 @@
     "services": "Services",
     "owners": "Owners",
     "contact": "Contact",
+    "reviews": "Reviews",
     "clientArea": "Private Access"
   },
   "property": {
@@ -1112,5 +1113,12 @@
   },
   "contact": {
     "call": "Call now"
+  },
+  "reviews": {
+    "title": "Our Clients",
+    "subtitle": "Our clients' satisfaction is our greatest reward. Discover why they trust Gelabert Homes.",
+    "viewAll": "View all reviews",
+    "allReviews": "All reviews",
+    "writeReview": "Write a review on Google"
   }
 }

@@ -69,6 +69,7 @@
     "services": "Servicios",
     "owners": "Propietarios",
     "contact": "Contacto",
+    "reviews": "Reseñas",
     "clientArea": "Acceso Privado"
   },
   "property": {
@@ -1126,5 +1127,12 @@
   },
   "contact": {
     "call": "Llamar ahora"
+  },
+  "reviews": {
+    "title": "Nuestros Clientes",
+    "subtitle": "La satisfacción de nuestros clientes es nuestra mayor recompensa. Descubre por qué confían en Gelabert Homes.",
+    "viewAll": "Ver todas las reseñas",
+    "allReviews": "Todas las reseñas",
+    "writeReview": "Escribir una reseña en Google"
   }
 }
