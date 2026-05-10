@@ -43,19 +43,38 @@ type Slide = {
   src: string;
 };
 
-// Hero slideshow — Selección exclusiva de imágenes generadas y vídeos cinemáticos
+// Hero slideshow — Todas las imágenes de WEB/images y todos los vídeos de public/videos
 const HERO_SLIDES: Slide[] = [
-  // 1-4. Imágenes Únicas Generadas (Cero repetición)
-  { type: 'image', src: '/images/hero-gen-1.png' },
-  { type: 'image', src: '/images/hero-gen-2.png' },
-  { type: 'image', src: '/images/hero-gen-3.png' },
-  { type: 'image', src: '/images/hero-gen-4.png' },
-  // 5. Vídeo Villa Pool (Drone Cinematográfico - Sin palmeras)
-  { type: 'video', src: '/videos/hero-drone-v2.mp4' },
-  // 6. Vídeo Luxury Mansion (Nueva perspectiva)
+  // Imágenes de WEB/images
+  { type: 'image', src: '/images/carousel/generated-1773179473489.png' },
+  { type: 'image', src: '/images/carousel/generated-1773179848841.png' },
+  { type: 'image', src: '/images/carousel/generated-1773179860778.png' },
+  { type: 'image', src: '/images/carousel/generated-1773179911372.png' },
+  { type: 'image', src: '/images/carousel/generated-1773179922956.png' },
+  { type: 'image', src: '/images/carousel/generated-1773179953611.png' },
+  { type: 'image', src: '/images/carousel/generated-1773179966632.png' },
+  { type: 'image', src: '/images/carousel/generated-1773179998210.png' },
+  { type: 'image', src: '/images/carousel/generated-1773180014794.png' },
+  { type: 'image', src: '/images/carousel/generated-1773180775213.png' },
+  { type: 'image', src: '/images/carousel/generated-1773181079127.png' },
+  { type: 'image', src: '/images/carousel/generated-1773181089592.png' },
+  { type: 'image', src: '/images/carousel/generated-1773181413432.png' },
+  { type: 'image', src: '/images/carousel/generated-1773181414755.png' },
+  { type: 'image', src: '/images/carousel/generated-1773181488277.png' },
+  { type: 'image', src: '/images/carousel/generated-1773181525401.png' },
+  { type: 'image', src: '/images/carousel/generated-1773181526162.png' },
+  { type: 'image', src: '/images/carousel/generated-1773182001681.png' },
+  { type: 'image', src: '/images/carousel/hero-gen-1.png' },
+  { type: 'image', src: '/images/carousel/hero-gen-2.png' },
+  { type: 'image', src: '/images/carousel/hero-gen-3.png' },
+  { type: 'image', src: '/images/carousel/hero-gen-4.png' },
+  { type: 'image', src: '/images/carousel/hero-luxury-villa-1.png' },
+  { type: 'image', src: '/images/carousel/hero-new-image-1.png' },
+  { type: 'image', src: '/images/carousel/hero-new-image-2.png' },
+  { type: 'image', src: '/images/carousel/hero-poster.png' },
+  // Vídeos de frontend/public/videos
+  { type: 'video', src: '/videos/hero-luxury.mp4' },
   { type: 'video', src: '/videos/hero-new-drone-1.mp4' },
-  // 7. Vídeo Costa del Sol / Málaga (Nuevo y espectacular)
-  { type: 'video', src: 'https://player.vimeo.com/external/517729253.hd.mp4?s=163ca28710f922718e24c25d81b36e8&profile_id=175' },
 ];
 
 const TOTAL_SLIDES = HERO_SLIDES.length;
