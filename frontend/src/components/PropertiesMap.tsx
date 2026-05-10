@@ -103,22 +103,68 @@ export const PropertiesMap = memo(({ properties }: PropertiesMapProps) => {
             position={{ lat: selectedProperty.latitude!, lng: selectedProperty.longitude! }}
             onCloseClick={() => setSelectedProperty(null)}
           >
-            <div className="flex flex-col gap-2 p-1 min-w-[200px]">
-              {selectedProperty.main_image && (
-                <img src={getOptimizedImage(selectedProperty.main_image, { width: 300, height: 200, format: 'webp' })} alt={selectedProperty.title} className="w-full h-24 object-cover rounded-sm" />
-              )}
-              <div>
-                <h4 className="font-secondary text-sm text-gray-900 mb-1 line-clamp-1">{selectedProperty.title}</h4>
-                <p className="font-primary text-xs font-bold text-[#C9A962]">
-                  {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(selectedProperty.price || 0)}
-                </p>
+            <div className="flex flex-col w-[260px] md:w-[300px] overflow-hidden rounded-sm -m-2">
+              {/* Imagen en Alta Definición con Overlays */}
+              <div className="relative w-full h-[180px] bg-gray-100">
+                {selectedProperty.main_image ? (
+                  <img 
+                    src={getOptimizedImage(selectedProperty.main_image, { width: 800, height: 600, format: 'webp' })} 
+                    alt={selectedProperty.title} 
+                    className="absolute inset-0 w-full h-full object-cover" 
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-400">
+                    <span className="text-xs uppercase tracking-widest font-bold">Sin imagen</span>
+                  </div>
+                )}
+                
+                {/* Badge Operación */}
+                <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md px-2.5 py-1 border border-white/20 rounded-sm">
+                  <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#FAF8F5]">
+                    {selectedProperty.operation}
+                  </span>
+                </div>
+
+                {/* Gradiente Oscuro para Precio */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 pt-12 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                  <p className="font-primary text-xl font-bold text-white drop-shadow-lg">
+                    {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(selectedProperty.price || 0)}
+                  </p>
+                </div>
               </div>
-              <Link 
-                to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${selectedProperty.reference || selectedProperty.slug || selectedProperty.id}`}
-                className="text-center py-2 bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-widest rounded-sm mt-1"
-              >
-                {t('property.labels.features.view_more')}
-              </Link>
+
+              {/* Información y Acción */}
+              <div className="flex flex-col gap-4 p-5 bg-white">
+                <h4 className="font-secondary text-base text-gray-900 leading-snug line-clamp-2">
+                  {selectedProperty.title}
+                </h4>
+                
+                {/* Detalles (Habitaciones, Baños, Área) */}
+                <div className="flex items-center gap-4 text-gray-500 font-primary text-[11px] uppercase tracking-wider border-b border-gray-100 pb-4">
+                  {selectedProperty.bedrooms > 0 && (
+                    <span className="flex items-center gap-1.5">
+                      <b className="text-gray-900">{selectedProperty.bedrooms}</b> {t('property.labels.features.bedrooms')}
+                    </span>
+                  )}
+                  {selectedProperty.bathrooms > 0 && (
+                    <span className="flex items-center gap-1.5 border-l border-gray-200 pl-4">
+                      <b className="text-gray-900">{selectedProperty.bathrooms}</b> {t('property.labels.features.bathrooms')}
+                    </span>
+                  )}
+                  {selectedProperty.area_m2 && selectedProperty.area_m2 > 0 && (
+                    <span className="flex items-center gap-1.5 border-l border-gray-200 pl-4">
+                      <b className="text-gray-900">{selectedProperty.area_m2}</b> m²
+                    </span>
+                  )}
+                </div>
+
+                <Link 
+                  to={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${selectedProperty.reference || selectedProperty.slug || selectedProperty.id}`}
+                  className="w-full text-center py-3 bg-[#0A0A0A] text-[#C9A962] text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-all duration-300 rounded-sm"
+                >
+                  {t('property.labels.features.view_more')}
+                </Link>
+              </div>
             </div>
           </InfoWindow>
         )}
