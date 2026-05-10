@@ -78,7 +78,22 @@ export const useGoogleReviews = () => {
             reviews: FALLBACK_REVIEWS,
           });
         } else {
-          setData(result);
+          // Mapear los datos de la API de Google al formato esperado por el frontend
+          const mappedReviews = (result.reviews || []).map((r: any) => ({
+            author: r.author_name || 'Anónimo',
+            rating: r.rating || 5,
+            text: r.text || '',
+            date: r.relative_time_description || new Date((r.time || Date.now() / 1000) * 1000).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' }),
+            avatar: r.profile_photo_url || '',
+            url: r.author_url || '',
+          }));
+
+          setData({
+            name: 'Gelabert Homes',
+            rating: result.rating || 5.0,
+            total: result.total || 0,
+            reviews: mappedReviews,
+          });
           setUsingFallback(false);
         }
       } catch (e) {

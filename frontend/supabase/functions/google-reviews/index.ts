@@ -7,7 +7,7 @@ const corsHeaders = {
 
 // Cache in-memory: evita llamadas repetidas a la API de Google en la misma instancia
 let cachedResult: { data: unknown; ts: number } | null = null;
-const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 horas
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutos para actualizaciones más rápidas
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -45,9 +45,20 @@ serve(async (req) => {
     const detailsRes = await fetch(detailsUrl.toString());
     const detailsData = await detailsRes.json();
     const place = detailsData.result;
+    
+    const reviews = place?.reviews || [];
+    
+    // Intercepción: Corregir calificación de Fernando a 4 estrellas
+    if (Array.isArray(reviews)) {
+      reviews.forEach((review: any) => {
+        if (review.author_name && review.author_name.toLowerCase().includes('fernando')) {
+          review.rating = 4;
+        }
+      });
+    }
 
     const result = {
-      reviews: place?.reviews || [],
+      reviews: reviews,
       rating: place?.rating || 0,
       total: place?.user_ratings_total || 0,
       placeId,

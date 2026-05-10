@@ -188,25 +188,9 @@ export const GoogleReviewsSection = () => {
   const CARDS_PER_PAGE = 3;
 
   useEffect(() => {
-    // Usamos sessionStorage (vive lo que dura la pestaña) para no machacar la API
-    const cached = sessionStorage.getItem('gelabert_google_reviews_v2');
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        if (parsed && parsed.rating) {
-          setData(parsed);
-          setLoading(false);
-          return;
-        }
-      } catch (e) {
-        /* ignorar caché corrupta */
-      }
-    }
-
     supabase.functions.invoke('google-reviews').then(({ data, error }) => {
       if (!error && data && data.rating) {
         setData(data);
-        sessionStorage.setItem('gelabert_google_reviews_v2', JSON.stringify(data));
       }
       setLoading(false);
     });
