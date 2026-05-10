@@ -23,7 +23,7 @@ i18n
       escapeValue: false, // react already safes from xss
     },
     detection: {
-      order: ['path', 'querystring', 'localStorage'],
+      order: ['path', 'querystring', 'localStorage', 'navigator'],
       lookupFromPathIndex: 0,
       lookupQuerystring: 'lang',
       caches: ['localStorage'],
