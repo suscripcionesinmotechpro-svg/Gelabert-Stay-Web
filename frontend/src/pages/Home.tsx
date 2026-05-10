@@ -135,6 +135,16 @@ export const Home = () => {
     };
   }, [heroIndex]);
 
+  // Pre-cargar todas las imágenes para que aparezcan instantáneamente
+  useEffect(() => {
+    HERO_SLIDES.forEach((slide) => {
+      if (slide.type === 'image') {
+        const img = new Image();
+        img.src = slide.src;
+      }
+    });
+  }, []);
+
   // Vídeo termina de forma natural → avanzar al siguiente slide
   const handleVideoEnded = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
