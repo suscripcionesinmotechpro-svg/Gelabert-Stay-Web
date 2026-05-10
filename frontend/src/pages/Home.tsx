@@ -45,15 +45,15 @@ type Slide = {
 
 // Hero slideshow — contenido 100% NUEVO y exclusivo
 const HERO_SLIDES: Slide[] = [
-  // 1. Imagen Nueva 1 (Villa moderna espectacular)
-  { type: 'image', src: '/images/hero-new-image-1.jpg' },
-  // 2. Imagen Nueva 2 (Fachada lujo vanguardista)
-  { type: 'image', src: '/images/hero-new-image-2.jpg' },
-  // 3. Vídeo Dron Nuevo 1 (Villa con piscina infinita)
+  // 1. Imagen Nueva 1 (Villa moderna espectacular - Generada)
+  { type: 'image', src: '/images/hero-new-image-1.png' },
+  // 2. Imagen Nueva 2 (Fachada lujo vanguardista - Generada)
+  { type: 'image', src: '/images/hero-new-image-2.png' },
+  // 3. Vídeo Dron Nuevo 1 (Vista aérea Costa del Sol)
   { type: 'video', src: '/videos/hero-new-drone-1.mp4' },
-  // 4. Vídeo Dron Nuevo 2 (Arquitectura moderna)
+  // 4. Vídeo Dron Nuevo 2 (Puerto de Málaga / Drone)
   { type: 'video', src: '/videos/hero-new-drone-2.mp4' },
-  // 5. Vídeo Dron Nuevo 3 (Vista aérea gran villa)
+  // 5. Vídeo Dron Nuevo 3 (Málaga Ciudad / Aerial)
   { type: 'video', src: '/videos/hero-new-drone-3.mp4' },
 ];
 
@@ -224,6 +224,7 @@ export const Home = () => {
                 muted
                 playsInline
                 preload="auto"
+                poster="/images/hero-poster.png"
                 onEnded={handleVideoEnded}
                 // @ts-ignore
                 fetchPriority="low"
