@@ -43,18 +43,18 @@ type Slide = {
   src: string;
 };
 
-// Hero slideshow — imágenes y vídeos de lujo
+// Hero slideshow — contenido 100% NUEVO y exclusivo
 const HERO_SLIDES: Slide[] = [
-  // 1. Villa de lujo nueva (reemplaza a la imagen 1 anterior)
-  { type: 'image', src: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1920&auto=format&fit=crop' },
-  // 2. Villa blanca con piscina rectangular (mantenida)
-  { type: 'image', src: 'https://images.unsplash.com/photo-1613977257592-4871e5fcd7c4?q=80&w=1920&auto=format&fit=crop' },
-  // 3. Nuevo vídeo tipo dron (reemplaza a la imagen 3)
-  { type: 'video', src: '/videos/hero-drone.mp4' },
-  // 4. Vídeo original (mantenido)
-  { type: 'video', src: '/videos/hero-luxury.mp4' },
-  // 5. Nuevo vídeo adicional
-  { type: 'video', src: '/videos/hero-drone.mp4#t=15' },
+  // 1. Imagen Nueva 1 (Villa moderna espectacular)
+  { type: 'image', src: '/images/hero-new-image-1.jpg' },
+  // 2. Imagen Nueva 2 (Fachada lujo vanguardista)
+  { type: 'image', src: '/images/hero-new-image-2.jpg' },
+  // 3. Vídeo Dron Nuevo 1 (Villa con piscina infinita)
+  { type: 'video', src: '/videos/hero-new-drone-1.mp4' },
+  // 4. Vídeo Dron Nuevo 2 (Arquitectura moderna)
+  { type: 'video', src: '/videos/hero-new-drone-2.mp4' },
+  // 5. Vídeo Dron Nuevo 3 (Vista aérea gran villa)
+  { type: 'video', src: '/videos/hero-new-drone-3.mp4' },
 ];
 
 const TOTAL_SLIDES = HERO_SLIDES.length;
