@@ -1,25 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface GoogleReview {
-  author_name: string;
-  rating: number;
-  text: string;
-  time: number;
-  profile_photo_url?: string;
-  relative_time_description?: string;
-}
-
-interface ReviewsData {
-  reviews: GoogleReview[];
-  rating: number;
-  total: number;
-}
+import { useGoogleReviews, GoogleReview } from '../hooks/useGoogleReviews';
 
 // ─── Google Logo SVG ─────────────────────────────────────────────────────────
 
@@ -73,7 +56,7 @@ const ReviewCard = ({ review, index }: { review: GoogleReview; index: number }) 
   const MAX_CHARS = 200;
   const needsTruncation = review.text.length > MAX_CHARS;
   const displayText = expanded || !needsTruncation ? review.text : review.text.slice(0, MAX_CHARS) + '…';
-  const initials = review.author_name
+  const initials = review.author
     .split(' ')
     .slice(0, 2)
     .map((n) => n[0])
@@ -95,10 +78,10 @@ const ReviewCard = ({ review, index }: { review: GoogleReview; index: number }) 
 
       {/* Author */}
       <div className="flex items-center gap-3 relative z-10">
-        {review.profile_photo_url ? (
+        {review.avatar ? (
           <img
-            src={review.profile_photo_url}
-            alt={review.author_name}
+            src={review.avatar}
+            alt={review.author}
             referrerPolicy="no-referrer"
             className="w-10 h-10 rounded-full object-cover border border-white/10"
           />
@@ -108,9 +91,9 @@ const ReviewCard = ({ review, index }: { review: GoogleReview; index: number }) 
           </div>
         )}
         <div className="flex flex-col min-w-0">
-          <span className="font-primary text-sm text-[#FAF8F5] font-semibold leading-tight truncate">{review.author_name}</span>
+          <span className="font-primary text-sm text-[#FAF8F5] font-semibold leading-tight truncate">{review.author}</span>
           <span className="font-primary text-[10px] text-[#555] uppercase tracking-wider">
-            {review.relative_time_description || new Date(review.time * 1000).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })}
+            {review.date}
           </span>
         </div>
         {/* Google badge */}
@@ -182,19 +165,9 @@ export const GoogleReviewsSection = () => {
   const lang = i18n.language?.startsWith('en') ? 'en' : 'es';
   const t = (es: string, en: string) => lang === 'en' ? en : es;
 
-  const [data, setData] = useState<ReviewsData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, loading } = useGoogleReviews();
   const [page, setPage] = useState(0);
   const CARDS_PER_PAGE = 3;
-
-  useEffect(() => {
-    supabase.functions.invoke('google-reviews').then(({ data, error }) => {
-      if (!error && data && data.rating) {
-        setData(data);
-      }
-      setLoading(false);
-    });
-  }, []);
 
   const reviews = data?.reviews || [];
   const totalPages = Math.ceil(reviews.length / CARDS_PER_PAGE);

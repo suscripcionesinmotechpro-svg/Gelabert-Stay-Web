@@ -44,6 +44,15 @@ serve(async (req) => {
 
     const detailsRes = await fetch(detailsUrl.toString());
     const detailsData = await detailsRes.json();
+
+    if (detailsData.status !== 'OK') {
+      console.error('Google Maps API Error:', detailsData);
+      return new Response(JSON.stringify({ error: `Google API Error: ${detailsData.status}`, reviews: [], rating: 0, total: 0 }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      });
+    }
+
     const place = detailsData.result;
     
     const reviews = place?.reviews || [];
