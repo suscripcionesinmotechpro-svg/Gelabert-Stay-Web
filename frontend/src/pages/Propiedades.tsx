@@ -406,7 +406,7 @@ export const Propiedades = () => {
               </div>
             </div>
             <a 
-              href="https://chat.whatsapp.com/invite_link_here" 
+              href="https://whatsapp.com/channel/0029Vb7ZmzoJUM2Ugg1Tdt0m" 
               target="_blank" 
               rel="noopener noreferrer"
               className="shrink-0 px-8 py-4 bg-[#25D366] text-black font-primary font-bold text-[10px] tracking-[0.2em] uppercase hover:bg-[#20bd5a] hover:scale-105 transition-all duration-300 rounded-sm shadow-[0_0_20px_rgba(37,211,102,0.3)] flex items-center gap-3"
