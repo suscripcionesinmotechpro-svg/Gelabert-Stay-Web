@@ -43,18 +43,20 @@ type Slide = {
   src: string;
 };
 
-// Hero slideshow — contenido 100% NUEVO y exclusivo
+// Hero slideshow — Combinación premium de nuevos assets y clásicos restaurados
 const HERO_SLIDES: Slide[] = [
-  // 1. Imagen Nueva 1 (Villa moderna espectacular - Generada)
+  // 1 & 2. Imágenes Nuevas Actuales
   { type: 'image', src: '/images/hero-new-image-1.png' },
-  // 2. Imagen Nueva 2 (Fachada lujo vanguardista - Generada)
   { type: 'image', src: '/images/hero-new-image-2.png' },
-  // 3. Vídeo Dron Nuevo 1 (Vista aérea Costa del Sol)
-  { type: 'video', src: '/videos/hero-new-drone-1.mp4' },
-  // 4. Vídeo Dron Nuevo 2 (Puerto de Málaga / Drone)
+  // 3 & 4. Imágenes de lujo anteriores (Restauradas)
+  { type: 'image', src: '/images/hero-luxury-villa-1.png' },
+  { type: 'image', src: 'https://images.unsplash.com/photo-1613977252367-a8fe0628d631?q=80&w=2070&auto=format&fit=crop' },
+  // 5. Vídeo Dron Original (Villa con piscina azul - Restaurado)
+  { type: 'video', src: '/videos/hero-drone.mp4' },
+  // 6. Vídeo Villa de Lujo Nueva (Diferente y exclusivo)
+  { type: 'video', src: '/videos/hero-luxury.mp4' },
+  // 7. Vídeo Málaga (Puerto y Ciudad)
   { type: 'video', src: '/videos/hero-new-drone-2.mp4' },
-  // 5. Vídeo Dron Nuevo 3 (Málaga Ciudad / Aerial)
-  { type: 'video', src: '/videos/hero-new-drone-3.mp4' },
 ];
 
 const TOTAL_SLIDES = HERO_SLIDES.length;
