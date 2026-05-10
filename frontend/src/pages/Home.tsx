@@ -38,17 +38,26 @@ const AnimatedCounter = ({ target, suffix = '', decimals = 0 }: { target: number
   return <span ref={ref}>{display}{suffix}</span>;
 };
 
-// Hero slideshow — imágenes únicas no usadas en ninguna otra sección del sitio
-const HERO_SLIDES = [
-  // Villa moderna arquitectura limpia — verificada, única en la web
-  'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?q=80&w=1920&auto=format&fit=crop',
-  // Villa blanca con piscina rectangular — verificada, única en la web
-  'https://images.unsplash.com/photo-1613977257592-4871e5fcd7c4?q=80&w=1920&auto=format&fit=crop',
-  // Villa contemporánea con pool y palmeras — verificada, única en la web
-  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1920&auto=format&fit=crop',
+type Slide = {
+  type: 'image' | 'video';
+  src: string;
+};
+
+// Hero slideshow — imágenes y vídeos de lujo
+const HERO_SLIDES: Slide[] = [
+  // 1. Villa de lujo nueva (reemplaza a la imagen 1 anterior)
+  { type: 'image', src: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1920&auto=format&fit=crop' },
+  // 2. Villa blanca con piscina rectangular (mantenida)
+  { type: 'image', src: 'https://images.unsplash.com/photo-1613977257592-4871e5fcd7c4?q=80&w=1920&auto=format&fit=crop' },
+  // 3. Nuevo vídeo tipo dron (reemplaza a la imagen 3)
+  { type: 'video', src: '/videos/hero-drone.mp4' },
+  // 4. Vídeo original (mantenido)
+  { type: 'video', src: '/videos/hero-luxury.mp4' },
+  // 5. Nuevo vídeo adicional
+  { type: 'video', src: '/videos/hero-drone.mp4#t=15' },
 ];
-const VIDEO_SLIDE_INDEX = HERO_SLIDES.length; // = 3
-const TOTAL_SLIDES = HERO_SLIDES.length + 1;  // = 4
+
+const TOTAL_SLIDES = HERO_SLIDES.length;
 
 export const Home = () => {
   const { t, i18n } = useTranslation();
@@ -58,27 +67,44 @@ export const Home = () => {
     return sortPropertiesByAvailability(featuredPropertiesData);
   }, [featuredPropertiesData]);
   const [heroIndex, setHeroIndex] = useState(0);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  // Create refs for multiple videos
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Un solo efecto controla timing y reproducción del vídeo
+  // Un solo efecto controla timing y reproducción
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
-    if (heroIndex === VIDEO_SLIDE_INDEX) {
-      // Vídeo activo: reproducir; el avance lo controla onEnded
-      videoRef.current?.play().catch(() => {
-        // Si el vídeo no carga, avanzar tras 8s
-        timerRef.current = setTimeout(() => setHeroIndex(0), 8000);
+    const currentSlide = HERO_SLIDES[heroIndex];
+
+    if (currentSlide.type === 'video') {
+      const activeVideo = videoRefs.current[heroIndex];
+      // Pausar todos los demás vídeos
+      videoRefs.current.forEach((v, i) => {
+        if (i !== heroIndex && v) {
+          v.pause();
+          v.currentTime = 0;
+        }
       });
-      // Red de seguridad: máx 30s por si el vídeo fuera muy largo
-      timerRef.current = setTimeout(() => setHeroIndex(0), 30000);
-    } else {
-      // Imagen activa: pausar/reiniciar vídeo y avanzar tras 6s
-      if (videoRef.current) {
-        videoRef.current.pause();
-        videoRef.current.currentTime = 0;
+
+      if (activeVideo) {
+        activeVideo.currentTime = currentSlide.src.includes('#t=') ? parseInt(currentSlide.src.split('#t=')[1]) || 0 : 0;
+        activeVideo.play().catch(() => {
+          // Si el vídeo no carga, avanzar tras 8s
+          timerRef.current = setTimeout(() => setHeroIndex(prev => (prev + 1) % TOTAL_SLIDES), 8000);
+        });
+        // Red de seguridad: máx 30s por si el vídeo fuera muy largo
+        timerRef.current = setTimeout(() => setHeroIndex(prev => (prev + 1) % TOTAL_SLIDES), 30000);
       }
+    } else {
+      // Imagen activa: pausar todos los vídeos
+      videoRefs.current.forEach((v) => {
+        if (v) {
+          v.pause();
+          v.currentTime = 0;
+        }
+      });
       timerRef.current = setTimeout(() => {
         setHeroIndex(prev => (prev + 1) % TOTAL_SLIDES);
       }, 6000);
@@ -89,10 +115,10 @@ export const Home = () => {
     };
   }, [heroIndex]);
 
-  // Vídeo termina de forma natural → volver a la primera imagen con transición suave
+  // Vídeo termina de forma natural → avanzar al siguiente slide
   const handleVideoEnded = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
-    setHeroIndex(0);
+    setHeroIndex(prev => (prev + 1) % TOTAL_SLIDES);
   };
 
   return (
@@ -175,35 +201,41 @@ export const Home = () => {
       <div className="relative w-full h-[90vh] md:h-[95vh] min-h-[600px] flex items-center justify-center overflow-hidden bg-black">
       {/* Hero Cinematic Slideshow — 3 imágenes únicas + vídeo, rotación cada 6s */}
       <div className="absolute inset-0 z-0 bg-[#080808]">
-        {/* Image slides */}
-        {HERO_SLIDES.map((src, i) => (
-          <img
-            key={i}
-            src={src}
-            alt=""
-            // @ts-ignore
-            fetchPriority={i === 0 ? 'high' : 'low'}
-            className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.2] brightness-[1.05] transition-opacity duration-[1500ms] ease-in-out ${
-              heroIndex === i ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
-        ))}
-
-        {/* Video slide — se activa solo cuando le toca */}
-        <video
-          ref={videoRef}
-          muted
-          playsInline
-          preload="auto"
-          onEnded={handleVideoEnded}
-          // @ts-ignore
-          fetchPriority="low"
-          className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.15] brightness-[1.05] transition-opacity duration-[1500ms] ease-in-out ${
-            heroIndex === VIDEO_SLIDE_INDEX ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          <source src="/videos/hero-luxury.mp4" type="video/mp4" />
-        </video>
+        {/* Mixed media slides */}
+        {HERO_SLIDES.map((slide, i) => {
+          if (slide.type === 'image') {
+            return (
+              <img
+                key={i}
+                src={slide.src}
+                alt=""
+                // @ts-ignore
+                fetchPriority={i === 0 ? 'high' : 'low'}
+                className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.2] brightness-[1.05] transition-opacity duration-[1500ms] ease-in-out ${
+                  heroIndex === i ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+            );
+          } else {
+            return (
+              <video
+                key={i}
+                ref={(el) => { videoRefs.current[i] = el; }}
+                muted
+                playsInline
+                preload="auto"
+                onEnded={handleVideoEnded}
+                // @ts-ignore
+                fetchPriority="low"
+                className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.15] brightness-[1.05] transition-opacity duration-[1500ms] ease-in-out ${
+                  heroIndex === i ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                <source src={slide.src} type="video/mp4" />
+              </video>
+            );
+          }
+        })}
 
         {/* Gradient overlay permanente */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-[#0A0A0A]/30 to-[#0A0A0A]/90" />
