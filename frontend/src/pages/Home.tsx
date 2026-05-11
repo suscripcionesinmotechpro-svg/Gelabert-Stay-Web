@@ -276,16 +276,17 @@ export const Home = () => {
           }
         })}
 
-        {/* Gradient overlay permanente - Very light for maximum brightness */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
+        {/* Gradient overlay permanente - Slightly darkened for better text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70" />
       </div>
 
       <div className="max-w-[1440px] w-full px-6 md:px-14 flex flex-col items-center text-center relative z-10">
+        <div className="flex flex-col items-center py-10 px-6 md:px-12 rounded-2xl backdrop-blur-[2px] bg-black/5">
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-secondary text-[2.8rem] md:text-[4.2rem] lg:text-[4.9rem] text-[#FAF8F5] leading-[0.9] tracking-tighter relative group drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+            className="font-secondary text-[2.8rem] md:text-[4.2rem] lg:text-[4.9rem] text-[#FAF8F5] leading-[0.9] tracking-tighter relative group drop-shadow-[0_8px_24px_rgba(0,0,0,0.8)]"
           >
             <span className="relative inline-block">
               {t('hero.hero_title')}
@@ -297,7 +298,7 @@ export const Home = () => {
               />
             </span>
             <br/> 
-            <span className="text-[#C9A962] italic font-light block mt-4 text-[2.3rem] md:text-[3.3rem] tracking-normal drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+            <span className="text-[#C9A962] italic font-light block mt-4 text-[2.3rem] md:text-[3.3rem] tracking-normal drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]">
               Real Estate
             </span>
           </motion.h1>
@@ -306,7 +307,7 @@ export const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="font-primary text-base md:text-lg text-[#DFDFE6] max-w-2xl font-light tracking-wide opacity-90 mt-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]"
+            className="font-primary text-base md:text-lg text-[#DFDFE6] max-w-2xl font-light tracking-wide opacity-90 mt-6 drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)]"
           >
             {t('hero.hero_subtitle')}
           </motion.p>
@@ -324,6 +325,7 @@ export const Home = () => {
               {t('hero.contact_us')}
             </Link>
           </motion.div>
+        </div>
 
           {/* Slide indicator dots — intelligent handling for many slides */}
           <motion.div
@@ -481,7 +483,7 @@ export const Home = () => {
             src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" 
             alt="Property Management"
             loading="lazy" 
-            className="w-full h-full object-cover border border-[#1F1F1F]"
+            className="w-full h-full object-cover border border-[#1F1F1F] saturate-[1.3] brightness-[1.15] contrast-[1.1]"
           />
         </motion.div>
       </section>

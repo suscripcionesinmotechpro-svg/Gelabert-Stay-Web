@@ -30,7 +30,6 @@ export const Layout = () => {
     { name: t('nav.properties'), path: `${langPrefix}/propiedades` },
     { name: t('nav.services'), path: `${langPrefix}/servicios` },
     { name: t('nav.owners'), path: `${langPrefix}/propietarios` },
-    { name: t('nav.investors'), path: `${langPrefix}/inversores` },
     { name: t('nav.contact'), path: `${langPrefix}/contacto` },
   ];
 

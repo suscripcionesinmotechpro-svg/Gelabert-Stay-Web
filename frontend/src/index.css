@@ -44,6 +44,8 @@
   img, video {
     image-rendering: high-quality;
     -webkit-backface-visibility: hidden;
+    filter: saturate(1.05) contrast(1.02);
+    transition: filter 0.5s ease-in-out;
   }
 }
 

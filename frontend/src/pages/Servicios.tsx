@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useServiceCart, type CartService } from '../hooks/useServiceCart';
 import { ServiceCartDrawer } from '../components/ServiceCartDrawer';
+import { InvestorServices } from '../components/InvestorServices';
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -405,6 +406,11 @@ export const Servicios = () => {
           ))}
         </div>
       </section>
+
+      {/* Investor Solutions Section - Integrated here */}
+      <div id="investors" className="scroll-mt-24">
+        <InvestorServices />
+      </div>
 
       {/* Tenant Service Card (Pestaña Inquilinos) */}
       <section className="w-full px-6 py-20 max-w-7xl mx-auto">
