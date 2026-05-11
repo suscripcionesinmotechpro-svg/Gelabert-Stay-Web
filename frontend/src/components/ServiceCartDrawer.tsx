@@ -1,11 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingBag, Send, CheckCircle, Trash2, Sparkles, Loader2 } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { X, ShoppingBag, Send, Check, Trash2, Loader2 } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { CartService } from '../hooks/useServiceCart';
-
 
 interface ServiceCartDrawerProps {
   isOpen: boolean;
@@ -15,18 +14,6 @@ interface ServiceCartDrawerProps {
   onClear: () => void;
 }
 
-const OVERLAY_VARIANTS = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-};
-
-const inputClass = `
-  w-full bg-white/[0.03] border border-white/10 px-5 py-4 
-  font-primary text-white text-sm outline-none 
-  focus:border-[#C9A962] focus:bg-white/[0.06] 
-  transition-all placeholder:text-white/20 rounded-sm
-`;
-
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
 export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClear }: ServiceCartDrawerProps) => {
@@ -34,7 +21,6 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [formState, setFormState] = useState<FormState>('idle');
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
 
   const isEmpty = cartItems.length === 0;
 
@@ -69,7 +55,6 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
 
       if (supabaseError) {
         console.error('Error insertando en Supabase:', supabaseError);
-        // Continuamos de todas formas para intentar Netlify
       }
 
       // 2. Enviar a Netlify Forms
@@ -100,7 +85,8 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
       } else {
         setFormState('error');
       }
-    } catch {
+    } catch (err) {
+      console.error('Error en el envío:', err);
       setFormState('error');
     }
   };
@@ -111,6 +97,7 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
     <AnimatePresence>
       {isOpen && (
         <>
+          {/* Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -119,6 +106,7 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
             className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100]"
           />
 
+          {/* Drawer */}
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
@@ -126,6 +114,7 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed top-0 right-0 h-full w-full max-w-lg bg-[#0A0A0A] border-l border-white/5 shadow-2xl z-[101] flex flex-col"
           >
+            {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-white/5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-[#C9A962]/10 flex items-center justify-center">
@@ -134,7 +123,7 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                 <div>
                   <h2 className="text-white font-secondary text-xl tracking-wide">{t('services.cart.drawer_title')}</h2>
                   <p className="text-white/40 text-[10px] uppercase tracking-widest font-primary">
-                    {cartItems.length === 0 
+                    {isEmpty 
                       ? t('services.cart.drawer_count_zero')
                       : cartItems.length === 1
                         ? t('services.cart.drawer_count_one', { count: 1 })
@@ -148,183 +137,147 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
               </button>
             </div>
 
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex flex-col items-center justify-center py-16 gap-4 text-center"
-                    >
-                      <div className="p-5 border border-white/5 rounded-full bg-white/[0.02]">
-                        <ShoppingBag className="w-8 h-8 text-white/10" />
-                      </div>
-                      <p className="font-primary text-white/30 text-sm">
-                        {t('services.cart.drawer_empty')}
-                      </p>
-                      <p className="font-primary text-white/20 text-xs">
-                        {t('services.cart.drawer_empty_desc')}
-                      </p>
-                    </motion.div>
-                  ) : (
-                    <div className="flex flex-col gap-3">
-                      {cartItems.map((service, i) => (
-                        <motion.div
-                          key={service.id}
-                          layout
-                          initial={{ opacity: 0, x: 30 }}
-                          animate={{ opacity: 1, x: 0, transition: { delay: i * 0.05 } }}
-                          exit={{ opacity: 0, x: 30, scale: 0.95 }}
-                          className="flex items-start gap-4 p-4 bg-white/[0.02] border border-white/[0.06] rounded-sm group hover:border-[#C9A962]/20 transition-colors"
-                        >
-                          <div className="p-2.5 bg-[#C9A962]/10 border border-[#C9A962]/20 rounded-sm text-xl shrink-0">
-                            {service.icon}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-secondary text-white text-base leading-tight">
-                              {service.titleKey ? t(service.titleKey) : service.title}
-                            </p>
-                            <span className="font-primary text-[9px] text-[#C9A962] uppercase tracking-[0.2em] font-bold">
-                              {service.tagKey ? t(service.tagKey) : service.tag}
-                            </span>
-                            <p className="font-primary text-white/30 text-xs mt-1 leading-relaxed line-clamp-2">
-                              {service.descKey ? t(service.descKey) : service.desc}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => onRemove(service.id)}
-                            className="text-white/40 hover:text-red-400 transition-colors p-1 shrink-0 md:opacity-0 md:group-hover:opacity-100"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </motion.div>
-                      ))}
-
-                      {cartItems.length > 1 && (
-                        <button
-                          onClick={onClear}
-                          className="font-primary text-[9px] text-white/20 hover:text-white/40 uppercase tracking-widest transition-colors text-right mt-1"
-                        >
-                          {t('services.cart.drawer_clear')}
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* Divider */}
-              {!isEmpty && (
-                <div className="px-8 py-4">
-                  <div className="flex items-center gap-4">
-                    <div className="h-px flex-1 bg-white/[0.05]" />
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-3 h-3 text-[#C9A962]" />
-                      <span className="font-primary text-[9px] text-[#C9A962]/60 uppercase tracking-[0.3em]">{t('services.cart.drawer_form_title')}</span>
-                    </div>
-                    <div className="h-px flex-1 bg-white/[0.05]" />
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+              {isEmpty ? (
+                <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
+                  <div className="w-20 h-20 rounded-full bg-white/[0.02] flex items-center justify-center">
+                    <ShoppingBag className="text-white/10" size={40} />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-secondary text-lg">{t('services.cart.drawer_empty')}</h3>
+                    <p className="text-white/40 text-sm max-w-[240px] mx-auto mt-2 font-primary">
+                      {t('services.cart.drawer_empty_desc')}
+                    </p>
                   </div>
                 </div>
-              )}
-
-              {/* Form */}
-              {!isEmpty && (
-                <div className="px-8 pb-8">
-                  {formState === 'success' ? (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="flex flex-col items-center gap-4 py-12 text-center"
-                    >
+              ) : formState === 'success' ? (
+                <div className="h-full flex flex-col items-center justify-center text-center space-y-6">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center"
+                  >
+                    <Check className="text-green-500" size={40} />
+                  </motion.div>
+                  <div>
+                    <h3 className="text-white font-secondary text-2xl">{t('services.cart.drawer_success_title')}</h3>
+                    <p className="text-white/60 mt-2 font-primary">
+                      {t('services.cart.drawer_success_desc')}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-8 pb-10">
+                  {/* Items List */}
+                  <div className="space-y-4">
+                    {cartItems.map((item) => (
                       <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: 'spring', delay: 0.1 }}
-                        className="w-16 h-16 bg-[#C9A962]/10 border border-[#C9A962]/30 rounded-full flex items-center justify-center"
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        key={item.id}
+                        className="group relative bg-white/[0.02] border border-white/5 rounded-sm p-4 flex items-center gap-4 hover:border-[#C9A962]/30 transition-all duration-300"
                       >
-                        <CheckCircle className="w-8 h-8 text-[#C9A962]" />
+                        <div className="w-12 h-12 rounded-sm bg-white/[0.03] flex items-center justify-center text-2xl">
+                          {item.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[10px] text-[#C9A962] font-primary uppercase tracking-[0.2em] block mb-1">
+                            {item.tagKey ? t(item.tagKey) : item.tag}
+                          </span>
+                          <h4 className="text-white font-primary font-bold text-sm truncate">
+                            {item.titleKey ? t(item.titleKey) : item.title}
+                          </h4>
+                        </div>
+                        <button
+                          onClick={() => onRemove(item.id)}
+                          className="p-2 text-white/20 hover:text-red-400 hover:bg-red-400/5 rounded-full transition-all"
+                        >
+                          <Trash2 size={18} />
+                        </button>
                       </motion.div>
-                      <h3 className="font-secondary text-2xl text-white">{t('services.cart.drawer_success_title')}</h3>
-                      <p className="font-primary text-white/40 text-sm">
-                        {t('services.cart.drawer_success_desc')}
-                      </p>
-                    </motion.div>
-                  ) : (
-                    <form
-                      ref={formRef}
-                      name="service-inquiry"
-                      data-netlify="true"
-                      data-netlify-honeypot="bot-field"
-                      onSubmit={handleSubmit}
-                      className="flex flex-col gap-4"
+                    ))}
+                    
+                    <button 
+                      onClick={onClear}
+                      className="text-[10px] text-white/30 hover:text-white font-primary uppercase tracking-widest transition-colors flex items-center gap-2 mx-auto pt-2"
                     >
-                      <input type="hidden" name="form-name" value="service-inquiry" />
-                      <input name="bot-field" className="hidden" />
+                      {t('services.cart.drawer_clear')}
+                    </button>
+                  </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="flex flex-col gap-1.5">
-                          <label className="font-primary text-[9px] text-white/30 uppercase tracking-[0.2em]">{t('services.cart.drawer_form_name')}</label>
-                          <input
-                            className={inputClass}
-                            placeholder={t('services.cart.drawer_form_name_placeholder')}
-                            name="name"
-                            value={form.name}
-                            onChange={handleChange}
-                            required
-                          />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="font-primary text-[9px] text-white/30 uppercase tracking-[0.2em]">{t('services.cart.drawer_form_phone')}</label>
-                          <input
-                            className={inputClass}
-                            placeholder="+34 600 000 000"
-                            name="phone"
-                            type="tel"
-                            value={form.phone}
-                            onChange={handleChange}
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-primary text-[9px] text-white/30 uppercase tracking-[0.2em]">{t('services.cart.drawer_form_email')}</label>
+                  {/* Form */}
+                  <div className="bg-white/[0.02] border border-white/5 rounded-sm p-6 space-y-6">
+                    <h3 className="text-white font-secondary text-lg flex items-center gap-2">
+                      <div className="w-1 h-6 bg-[#C9A962]" />
+                      {t('services.cart.drawer_form_title')}
+                    </h3>
+                    
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] text-white/40 uppercase tracking-widest mb-2 font-primary">{t('services.cart.drawer_form_name')}</label>
                         <input
-                          className={inputClass}
-                          placeholder="tu@email.com"
-                          name="email"
-                          type="email"
-                          value={form.email}
-                          onChange={handleChange}
+                          type="text"
+                          name="name"
                           required
+                          className={inputClass}
+                          placeholder={t('services.cart.drawer_form_name_placeholder')}
+                          value={form.name}
+                          onChange={handleChange}
                         />
                       </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-primary text-[9px] text-white/30 uppercase tracking-[0.2em]">{t('services.cart.drawer_form_message')}</label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] text-white/40 uppercase tracking-widest mb-2 font-primary">{t('services.cart.drawer_form_email')}</label>
+                          <input
+                            type="email"
+                            name="email"
+                            required
+                            className={inputClass}
+                            placeholder="Email"
+                            value={form.email}
+                            onChange={handleChange}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-white/40 uppercase tracking-widest mb-2 font-primary">{t('services.cart.drawer_form_phone')}</label>
+                          <input
+                            type="tel"
+                            name="phone"
+                            required
+                            className={inputClass}
+                            placeholder="+34 600 000 000"
+                            value={form.phone}
+                            onChange={handleChange}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] text-white/40 uppercase tracking-widest mb-2 font-primary">{t('services.cart.drawer_form_message')}</label>
                         <textarea
-                          className={`${inputClass} resize-none`}
-                          rows={3}
-                          placeholder={t('services.cart.drawer_form_message_placeholder')}
                           name="message"
+                          rows={3}
+                          className={`${inputClass} resize-none`}
+                          placeholder={t('services.cart.drawer_form_message_placeholder')}
                           value={form.message}
                           onChange={handleChange}
                         />
                       </div>
 
-                      {/* Legal Disclaimer */}
-                      <div className="bg-white/[0.02] border border-white/[0.05] p-4 rounded-sm">
-                        <p className="font-primary text-[10px] text-white/40 leading-relaxed text-justify">
-                          {t('forms.legal_disclaimers.owners')}
-                        </p>
-                      </div>
-
-                      {/* Privacy Checkbox */}
-                      <div className="flex items-start gap-3 mt-1">
-                        <input
-                          type="checkbox"
-                          id="privacy-cart"
-                          checked={privacyAccepted}
-                          onChange={(e) => setPrivacyAccepted(e.target.checked)}
-                          className="mt-1 shrink-0 accent-[#C9A962]"
-                          required
-                        />
-                        <label htmlFor="privacy-cart" className="font-primary text-[11px] text-white/50 leading-snug cursor-pointer hover:text-white/70 transition-colors">
+                      <div className="flex items-start gap-3 pt-2">
+                        <div className="relative flex items-center h-5">
+                          <input
+                            type="checkbox"
+                            id="privacy"
+                            required
+                            checked={privacyAccepted}
+                            onChange={e => setPrivacyAccepted(e.target.checked)}
+                            className="w-4 h-4 rounded border-white/20 bg-white/5 text-[#C9A962] focus:ring-[#C9A962] transition-colors cursor-pointer"
+                          />
+                        </div>
+                        <label htmlFor="privacy" className="text-xs text-white/50 leading-relaxed cursor-pointer hover:text-white transition-colors font-primary">
                           <Trans 
                             i18nKey="forms.owner_inquiry.privacy_accept" 
                             components={{ 
@@ -334,36 +287,36 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
                         </label>
                       </div>
 
+                      <button
+                        type="submit"
+                        disabled={formState === 'submitting' || !privacyAccepted}
+                        className="w-full bg-[#C9A962] disabled:bg-white/10 text-[#0A0A0A] disabled:text-white/20 py-4 font-primary text-xs font-bold uppercase tracking-widest transition-all duration-300 rounded-sm flex items-center justify-center gap-3 group overflow-hidden relative shadow-lg active:scale-[0.98]"
+                      >
+                        {formState === 'submitting' && (
+                          <div className="absolute inset-0 bg-white/20 animate-pulse" />
+                        )}
+                        <span className="relative flex items-center gap-2">
+                          {formState === 'submitting' ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              {t('services.cart.drawer_form_sending')}
+                            </>
+                          ) : (
+                            <>
+                              <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                              {t('services.cart.drawer_form_submit')}
+                            </>
+                          )}
+                        </span>
+                      </button>
+
                       {formState === 'error' && (
-                        <p className="font-primary text-red-400/80 text-xs text-center">
+                        <p className="text-red-400 text-[10px] text-center font-primary uppercase tracking-widest">
                           {t('services.cart.drawer_form_error')}
                         </p>
                       )}
-
-                      <motion.button
-                        type="submit"
-                        disabled={formState === 'submitting' || !privacyAccepted}
-                        whileTap={{ scale: 0.98 }}
-                        className="relative mt-2 flex items-center justify-center gap-3 px-8 py-5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-[10px] uppercase tracking-[0.25em] hover:brightness-110 transition-all disabled:opacity-50 shadow-[0_10px_40px_rgba(201,169,98,0.2)] hover:shadow-[0_10px_40px_rgba(201,169,98,0.4)]"
-                      >
-                        {formState === 'submitting' ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            {t('services.cart.drawer_form_sending')}
-                          </>
-                        ) : (
-                          <>
-                            <Send className="w-4 h-4" />
-                            {t('services.cart.drawer_form_submit')}
-                          </>
-                        )}
-                      </motion.button>
-
-                      <p className="font-primary text-[9px] text-white/20 text-center leading-relaxed">
-                        {t('services.cart.drawer_form_policy')}
-                      </p>
                     </form>
-                  )}
+                  </div>
                 </div>
               )}
             </div>
