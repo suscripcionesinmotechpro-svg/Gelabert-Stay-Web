@@ -76,7 +76,6 @@ const ROWS_CONFIG: FeatureRow[] = [
 export const PropertyComparator = ({ properties = [], onRemove, onClear }: any) => {
   const { t } = useTranslation();
   const [isMinimized, setIsMinimized] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const validProperties = useMemo(() => {
     if (!Array.isArray(properties)) return [];
