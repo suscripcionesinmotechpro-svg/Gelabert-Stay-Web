@@ -35,7 +35,6 @@
 # --- HTML & SPA Fallback: NEVER CACHE ---
 /*
   Cache-Control: no-cache, no-store, must-revalidate
-  # Security headers
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
