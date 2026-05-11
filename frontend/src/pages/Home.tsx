@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { PropertyCard } from '../components/PropertyCard';
 import { PropertyCardSkeleton } from '../components/ui/Skeleton';
 import { Link } from 'react-router-dom';
-import { Building, Key, Briefcase, ShieldCheck, Home as HomeIcon, CheckCircle, Star, ArrowRight, TrendingUp } from 'lucide-react';
+import { Building, Key, Briefcase, ShieldCheck, Home as HomeIcon, CheckCircle, Star, ArrowRight } from 'lucide-react';
 import { useProperties } from '../hooks/useProperties';
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { sortPropertiesByAvailability } from '../utils/propertySorting';

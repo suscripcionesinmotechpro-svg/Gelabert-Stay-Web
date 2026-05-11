@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { useRef, useState } from 'react';
-import {
-  Key, Building2, Briefcase, ShieldCheck, TrendingUp,
   CheckCircle, Phone, Star, Sparkles, Plus, Check, ShoppingBag
 } from 'lucide-react';
 import { useServiceCart, type CartService } from '../hooks/useServiceCart';
