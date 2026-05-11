@@ -6,7 +6,7 @@ export const getOptimizedImage = (url: string | null | undefined, options: { wid
   if (!url) return '';
   
   // Use AVIF as default format if supported by the transformation service
-  const { width, height, quality = 75, format = 'avif' } = options;
+  const { width, height, quality = 90, format = 'avif' } = options;
   
   // Only transform Supabase storage URLs
   if (url.includes('supabase.co') && url.includes('object/public')) {

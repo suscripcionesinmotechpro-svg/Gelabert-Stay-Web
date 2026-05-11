@@ -172,7 +172,7 @@ export const PropertyCard = memo(({
             )}
           >
             <PremiumImage
-              src={getOptimizedImage(images[currentImageIndex], { width: 600, height: 400, format: 'webp' })} 
+              src={getOptimizedImage(images[currentImageIndex], { width: 1200, height: 800, quality: 100, format: 'webp' })} 
               alt={title}
               className="w-full h-full object-cover"
               wrapperClassName="w-full h-full"
