@@ -121,7 +121,7 @@ export const BlogPost = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full bg-[#050505] rounded-xl overflow-hidden shadow-2xl border border-[#1F1F1F]"
+            className="w-full rounded-xl overflow-hidden shadow-2xl border border-[#1F1F1F]"
           >
             {post.cover_image.match(/\.(mp4|webm|mov)(\?.*)?$/i) ? (
               <video
@@ -130,13 +130,13 @@ export const BlogPost = () => {
                 loop
                 muted
                 playsInline
-                className="w-full max-h-[70vh] object-contain mx-auto"
+                className="w-full h-auto block"
               />
             ) : (
               <img
                 src={post.cover_image}
                 alt={post.title}
-                className="w-full max-h-[70vh] object-contain mx-auto"
+                className="w-full h-auto block"
               />
             )}
           </motion.div>

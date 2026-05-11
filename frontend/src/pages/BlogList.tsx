@@ -101,7 +101,7 @@ export const BlogList = () => {
                 transition={{ delay: index * 0.1 }}
                 className="group flex flex-col gap-5 border border-[#1F1F1F] bg-[#0F0F0F] hover:border-[#C9A962]/40 transition-colors rounded-xl overflow-hidden"
               >
-                <Link to={`${langPrefix}/blog/${post.slug}`} className="relative h-64 overflow-hidden block bg-[#050505] border-b border-[#1F1F1F]">
+                <Link to={`${langPrefix}/blog/${post.slug}`} className="relative h-auto overflow-hidden block border-b border-[#1F1F1F]">
                   {post.cover_image ? (
                     post.cover_image.match(/\.(mp4|webm|mov)(\?.*)?$/i) ? (
                       <video
@@ -110,17 +110,17 @@ export const BlogList = () => {
                         loop
                         muted
                         playsInline
-                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+                        className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                     ) : (
                       <img
                         src={post.cover_image}
                         alt={post.title}
-                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+                        className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                     )
                   ) : (
-                    <div className="w-full h-full bg-[#1A1A1A] flex items-center justify-center">
+                    <div className="w-full h-64 bg-[#1A1A1A] flex items-center justify-center">
                       <span className="text-[#333333]">Sin multimedia</span>
                     </div>
                   )}
