@@ -82,7 +82,7 @@ const TOTAL_SLIDES = HERO_SLIDES.length;
 
 export const Home = () => {
   const { t, i18n } = useTranslation();
-  const { properties: featuredPropertiesData, loading } = useProperties({ is_featured: true, limit: 3 });
+  const { properties: featuredPropertiesData, loading } = useProperties({ is_featured: true, commercial_status: 'disponible', limit: 3 });
   
   const featuredProperties = useMemo(() => {
     return sortPropertiesByAvailability(featuredPropertiesData);
