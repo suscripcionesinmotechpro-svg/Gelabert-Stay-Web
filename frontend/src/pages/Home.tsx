@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { PropertyCard } from '../components/PropertyCard';
 import { PropertyCardSkeleton } from '../components/ui/Skeleton';
 import { Link } from 'react-router-dom';
-import { Building, Key, Briefcase, ShieldCheck, Home as HomeIcon, CheckCircle, Star, ArrowRight } from 'lucide-react';
+import { Building, Key, Briefcase, ShieldCheck, Home as HomeIcon, CheckCircle, Star, ArrowRight, TrendingUp } from 'lucide-react';
 import { useProperties } from '../hooks/useProperties';
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { sortPropertiesByAvailability } from '../utils/propertySorting';
@@ -249,7 +249,7 @@ export const Home = () => {
                 alt=""
                 // @ts-ignore
                 fetchPriority={i === 0 ? 'high' : 'low'}
-                className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.2] brightness-[1.05] transition-opacity duration-[1500ms] ease-in-out ${
+                className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.2] brightness-[1.1] transition-opacity duration-[1500ms] ease-in-out ${
                   heroIndex === i ? 'opacity-100' : 'opacity-0'
                 }`}
               />
@@ -266,7 +266,7 @@ export const Home = () => {
                 onEnded={handleVideoEnded}
                 // @ts-ignore
                 fetchPriority="low"
-                className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.15] brightness-[1.05] transition-opacity duration-[1500ms] ease-in-out ${
+                className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.2] brightness-[1.1] transition-opacity duration-[1500ms] ease-in-out ${
                   heroIndex === i ? 'opacity-100' : 'opacity-0'
                 }`}
               >
@@ -276,8 +276,8 @@ export const Home = () => {
           }
         })}
 
-        {/* Gradient overlay permanente */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-[#0A0A0A]/30 to-[#0A0A0A]/90" />
+        {/* Gradient overlay permanente - Very light for maximum brightness */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
       </div>
 
       <div className="max-w-[1440px] w-full px-6 md:px-14 flex flex-col items-center text-center relative z-10">
@@ -421,12 +421,13 @@ export const Home = () => {
         >
           {t('home.services.title')}
         </motion.h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
             { title: t('home.services.rent.title'), icon: <Key className="w-8 h-8 text-[#C9A962]" />, desc: t('home.services.rent.desc') },
             { title: t('home.services.sale.title'), icon: <Building className="w-8 h-8 text-[#C9A962]" />, desc: t('home.services.sale.desc') },
-            { title: t('home.services.transfers.title'), icon: <Briefcase className="w-8 h-8 text-[#C9A962]" />, desc: t('home.services.transfers.desc') },
-            { title: t('home.services.management.title'), icon: <ShieldCheck className="w-8 h-8 text-[#C9A962]" />, desc: t('home.services.management.desc') }
+            { title: t('home.services.management.title'), icon: <ShieldCheck className="w-8 h-8 text-[#C9A962]" />, desc: t('home.services.management.desc') },
+            { title: t('Inversión', 'Investment'), icon: <TrendingUp className="w-8 h-8 text-[#C9A962]" />, desc: t('Gestión integral de activos y maximización de rentabilidad para inversores.', 'Comprehensive asset management and yield maximization for investors.') },
+            { title: t('home.services.transfers.title'), icon: <Briefcase className="w-8 h-8 text-[#C9A962]" />, desc: t('home.services.transfers.desc') }
           ].map((srv, i) => (
             <motion.div 
               key={i} 
@@ -494,7 +495,7 @@ export const Home = () => {
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1534430480872-3498386e7856?q=80&w=2070&auto=format&fit=crop"
-            className="w-full h-full object-cover opacity-60 brightness-[0.8] saturate-[1.25] scale-105"
+            className="w-full h-full object-cover opacity-80 brightness-[0.9] saturate-[1.25] scale-105"
             alt=""
             loading="lazy"
           />

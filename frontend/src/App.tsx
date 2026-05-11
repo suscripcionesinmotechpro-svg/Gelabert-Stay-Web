@@ -13,6 +13,7 @@ const FichaPropiedad = lazy(() => import('./pages/FichaPropiedad').then(m => ({ 
 const Servicios = lazy(() => import('./pages/Servicios').then(m => ({ default: m.Servicios })));
 const Propietarios = lazy(() => import('./pages/Propietarios').then(m => ({ default: m.Propietarios })));
 const Contacto = lazy(() => import('./pages/Contacto').then(m => ({ default: m.Contacto })));
+const Inversores = lazy(() => import('./pages/Inversores'));
 const Reviews = lazy(() => import('./pages/Reviews').then(m => ({ default: m.Reviews })));
 
 // Lazy load admin pages
@@ -54,6 +55,7 @@ function App() {
           <Route path="propiedades/:id" element={<FichaPropiedad />} />
           <Route path="servicios" element={<Servicios />} />
           <Route path="propietarios" element={<Propietarios />} />
+          <Route path="inversores" element={<Inversores />} />
           <Route path="contacto" element={<Contacto />} />
           <Route path="reseñas" element={<Reviews />} />
           <Route path="aviso-legal" element={<AvisoLegal />} />
@@ -68,6 +70,7 @@ function App() {
           <Route path="propiedades/:id" element={<FichaPropiedad />} />
           <Route path="servicios" element={<Servicios />} />
           <Route path="propietarios" element={<Propietarios />} />
+          <Route path="inversores" element={<Inversores />} />
           <Route path="contacto" element={<Contacto />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="aviso-legal" element={<AvisoLegal />} />
