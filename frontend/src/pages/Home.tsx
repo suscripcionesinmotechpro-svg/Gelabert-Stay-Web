@@ -1,5 +1,5 @@
 import { motion, useInView } from 'framer-motion';
-import { InvestorServices } from '../components/InvestorServices';
+
 import { useTranslation } from 'react-i18next';
 import { PropertyCard } from '../components/PropertyCard';
 import { PropertyCardSkeleton } from '../components/ui/Skeleton';
@@ -421,22 +421,21 @@ export const Home = () => {
         >
           {t('home.services.title')}
         </motion.h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { title: t('home.services.rent.title'), icon: <Key className="w-8 h-8 text-[#C9A962]" />, desc: t('home.services.rent.desc') },
             { title: t('home.services.sale.title'), icon: <Building className="w-8 h-8 text-[#C9A962]" />, desc: t('home.services.sale.desc') },
             { title: t('home.services.management.title'), icon: <ShieldCheck className="w-8 h-8 text-[#C9A962]" />, desc: t('home.services.management.desc') },
-            { title: t('Inversión', 'Investment'), icon: <TrendingUp className="w-8 h-8 text-[#C9A962]" />, desc: t('Gestión integral de activos y maximización de rentabilidad para inversores.', 'Comprehensive asset management and yield maximization for investors.') },
             { title: t('home.services.transfers.title'), icon: <Briefcase className="w-8 h-8 text-[#C9A962]" />, desc: t('home.services.transfers.desc') }
           ].map((srv, i) => (
             <motion.div 
-              key={i} 
+              key={i}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
               whileHover={{ y: -8, transition: { duration: 0.2 } }}
-              className="flex flex-col gap-4 p-8 border border-[#1F1F1F] bg-[#0A0A0A] hover:border-[#C9A962] transition-colors group cursor-pointer"
+              className="flex flex-col gap-4 p-8 border border-[#1F1F1F] bg-[#0A0A0A] hover:border-[#C9A962] transition-colors group h-full"
             >
               <div className="transform group-hover:scale-110 transition-transform duration-300">
                 {srv.icon}
@@ -446,6 +445,23 @@ export const Home = () => {
             </motion.div>
           ))}
         </div>
+
+        {/* CTA hacia servicios completos */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="flex justify-center"
+        >
+          <Link
+            to={`${i18n.language.startsWith('en') ? '/en' : ''}/servicios`}
+            className="flex items-center gap-3 px-10 py-4 border border-[#C9A962]/30 text-[#C9A962] font-primary font-bold text-[11px] uppercase tracking-[0.25em] hover:bg-[#C9A962]/10 hover:border-[#C9A962] transition-all duration-300"
+          >
+            <ArrowRight className="w-4 h-4" />
+            {i18n.language.startsWith('en') ? 'View all services for owners' : 'Ver todos los servicios para propietarios'}
+          </Link>
+        </motion.div>
       </section>
 
       {/* Owners Block */}
@@ -486,8 +502,7 @@ export const Home = () => {
         </motion.div>
       </section>
 
-      {/* Investor Solutions Section */}
-      <InvestorServices />
+
 
       {/* Stats Section */}
       <section className="relative w-full px-6 md:px-14 py-28 overflow-hidden">

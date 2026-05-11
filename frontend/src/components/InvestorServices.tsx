@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { TrendingUp, Hammer, Key, BarChart3, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { TrendingUp, Hammer, Key, BarChart3, ArrowRight, CheckCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const InvestmentPillar = ({ icon: Icon, title, description, delay }: { icon: any, title: string, description: string, delay: number }) => (
@@ -57,7 +57,7 @@ export const InvestorServices = () => {
   ];
 
   return (
-    <section id="investors" className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] relative overflow-hidden">
+    <section id="investor-solutions" className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] relative overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden p-8 md:p-16 relative">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#C9A962]/[0.03] rounded-full blur-[100px] -mr-64 -mt-64 pointer-events-none" />
@@ -125,7 +125,7 @@ export const InvestorServices = () => {
                       transition={{ delay: 0.1 * i }}
                       className="flex items-center gap-3"
                     >
-                      <CheckCircle2 size={16} className="text-[#C9A962] shrink-0" />
+                      <CheckCircle size={16} className="text-[#C9A962] shrink-0" />
                       <span className="font-primary text-xs text-white/70">{benefit}</span>
                     </motion.div>
                   ))}

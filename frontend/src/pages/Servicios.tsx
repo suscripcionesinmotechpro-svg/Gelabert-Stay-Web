@@ -261,20 +261,7 @@ export const Servicios = () => {
       bullets: t('services.owner_services.seguro_impago.bullets', { returnObjects: true }) as string[],
       className: "md:col-span-1 md:row-span-1 min-h-[480px]"
     },
-    {
-      id: 'inversores',
-      icon: <TrendingUp className="w-6 h-6 text-[#C9A962]" />,
-      cartIcon: '📈',
-      titleKey: 'services.owner_services.inversores.title',
-      tagKey: 'services.owner_services.inversores.tag',
-      descKey: 'services.owner_services.inversores.desc',
-      title: t('services.owner_services.inversores.title'),
-      tag: t('services.owner_services.inversores.tag'),
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop',
-      desc: t('services.owner_services.inversores.desc'),
-      bullets: t('services.owner_services.inversores.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1 min-h-[480px]"
-    },
+
     {
       id: 'hipoteca',
       icon: <Building2 className="w-6 h-6 text-[#C9A962]" />,
@@ -524,6 +511,7 @@ export const Servicios = () => {
           </div>
         </motion.div>
       </section>
+
 
       {/* Why Choose Us: Premium Reveal */}
       <section className="w-full px-6 py-32 max-w-7xl mx-auto overflow-hidden">

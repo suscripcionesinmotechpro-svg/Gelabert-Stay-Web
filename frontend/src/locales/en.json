@@ -468,6 +468,18 @@
           "Unlimited legal defense and judicial costs",
           "Risk analysis and intervention for illegal squatting"
         ]
+      },
+      "inversores": {
+        "title": "Investor Solutions",
+        "tag": "HIGH PROFITABILITY",
+        "desc": "360º comprehensive service for real estate investors. From Off-Market asset acquisition to renovation management and profitability.",
+        "bullets": [
+          "Strategic Off-Market asset sourcing",
+          "Comprehensive renovation and design management",
+          "Profitability and ROI analysis",
+          "Exit Strategy planning",
+          "360º rental and maintenance management"
+        ]
       }
     },
     "tenant_search": {

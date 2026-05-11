@@ -486,6 +486,18 @@
           "Defensa jurídica y gastos judiciales ilimitados",
           "Análisis de riesgo e intervención por ocupación ilegal"
         ]
+      },
+      "inversores": {
+        "title": "Soluciones para Inversores",
+        "tag": "ALTA RENTABILIDAD",
+        "desc": "Servicio integral 360º para inversores inmobiliarios. Desde la captación de activos Off-Market hasta la gestión de reformas y rentabilidad.",
+        "bullets": [
+          "Captación de activos estratégicos Off-Market",
+          "Gestión integral de reformas y diseño",
+          "Análisis de rentabilidad y ROI",
+          "Estrategia de salida (Exit Strategy)",
+          "Gestión 360º de alquiler y mantenimiento"
+        ]
       }
     },
     "tenant_search": {
