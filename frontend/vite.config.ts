@@ -115,9 +115,16 @@ export default defineConfig({
       },
     })
   ],
+  define: {
+    'process.env': {}
+  },
   build: {
     target: 'esnext',
     minify: 'esbuild',
+    commonjsOptions: {
+      transformMixedEsModules: true,
+      include: [/node_modules/]
+    },
     rollupOptions: {
       output: {
         manualChunks: {
