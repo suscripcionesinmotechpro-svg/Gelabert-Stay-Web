@@ -69,13 +69,20 @@ export const useBlog = () => {
       const seo_title = data.seo_title || data.title;
       // Strip HTML tags for description and limit to 160 chars
       const plainTextContent = data.content.replace(/<[^>]*>?/gm, '').trim();
-      const seo_description = data.seo_description || (plainTextContent.substring(0, 157) + '...');
+      const seo_description = data.seo_description || (plainTextContent.substring(0, 157) + (plainTextContent.length > 157 ? '...' : ''));
+
+      // Auto-generate SEO EN
+      const seo_title_en = data.seo_title_en || data.title_en || data.title;
+      const plainTextContentEn = (data.content_en || '').replace(/<[^>]*>?/gm, '').trim();
+      const seo_description_en = data.seo_description_en || (plainTextContentEn ? (plainTextContentEn.substring(0, 157) + (plainTextContentEn.length > 157 ? '...' : '')) : '');
 
       const postData = {
         ...data,
         slug,
         seo_title,
         seo_description,
+        seo_title_en,
+        seo_description_en,
         published_at: data.status === 'published' && !data.published_at ? new Date().toISOString() : data.published_at
       };
 

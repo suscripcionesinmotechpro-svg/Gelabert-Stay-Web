@@ -46,24 +46,33 @@ export const BlogPost = () => {
   if (loading) return <PageLoading />;
   if (!post) return null;
 
+  const isEn = i18n.language.startsWith('en');
+  const displayTitle = isEn ? (post.title_en || post.title) : post.title;
+  const displayContent = isEn ? (post.content_en || post.content) : post.content;
+  const displaySeoTitle = isEn ? (post.seo_title_en || post.seo_title || displayTitle) : (post.seo_title || post.title);
+  const displaySeoDescription = isEn ? (post.seo_description_en || post.seo_description || '') : (post.seo_description || '');
+  
+  const coverUrl = post.cover_video || post.cover_image;
+  const isVideo = !!post.cover_video || (post.cover_image?.match(/\.(mp4|webm|mov)(\?.*)?$/i));
+
   return (
     <div className="w-full min-h-screen bg-[#0A0A0A] text-[#FAF8F5] pb-24">
       <Helmet>
-        <title>{post.seo_title || `${post.title} | Gelabert Homes Blog`}</title>
-        <meta name="description" content={post.seo_description || ''} />
-        <meta property="og:title" content={post.seo_title || post.title} />
-        <meta property="og:description" content={post.seo_description || ''} />
+        <title>{displaySeoTitle} | Gelabert Homes Blog</title>
+        <meta name="description" content={displaySeoDescription} />
+        <meta property="og:title" content={displaySeoTitle} />
+        <meta property="og:description" content={displaySeoDescription} />
         {post.cover_image && <meta property="og:image" content={post.cover_image} />}
       </Helmet>
 
       {/* Hero Section */}
       <section className="relative w-full pt-32 pb-20 px-6 md:px-14 min-h-[50vh] flex flex-col items-center justify-center border-b border-[#1F1F1F]">
-        {post.cover_image && (
+        {coverUrl && (
           <>
             <div className="absolute inset-0 z-0 bg-[#050505]">
-              {post.cover_image.match(/\.(mp4|webm|mov)(\?.*)?$/i) ? (
+              {isVideo ? (
                 <video
-                  src={post.cover_image}
+                  src={coverUrl}
                   autoPlay
                   loop
                   muted
@@ -72,7 +81,7 @@ export const BlogPost = () => {
                 />
               ) : (
                 <img
-                  src={post.cover_image}
+                  src={coverUrl}
                   className="w-full h-full object-cover opacity-20 blur-sm"
                   alt=""
                 />
@@ -88,7 +97,7 @@ export const BlogPost = () => {
             className="self-start md:self-auto flex items-center gap-2 font-primary text-[10px] uppercase tracking-[0.2em] text-[#C9A962] hover:text-white transition-colors mb-4"
           >
             <ArrowLeft className="w-3 h-3" />
-            Volver al Blog
+            {isEn ? 'Back to Blog' : 'Volver al Blog'}
           </Link>
 
           {post.category && (
@@ -98,7 +107,7 @@ export const BlogPost = () => {
           )}
 
           <h1 className="font-secondary text-4xl md:text-6xl text-white leading-tight">
-            {post.title}
+            {displayTitle}
           </h1>
 
           <div className="flex flex-wrap items-center justify-center gap-6 mt-4 font-primary text-xs text-[#888888] uppercase tracking-wider">
@@ -109,23 +118,23 @@ export const BlogPost = () => {
             <div className="w-1 h-1 rounded-full bg-[#333]" />
             <div className="flex items-center gap-2">
               <User className="w-4 h-4 text-[#C9A962]" />
-              Equipo Gelabert
+              {isEn ? 'Gelabert Team' : 'Equipo Gelabert'}
             </div>
           </div>
         </div>
       </section>
 
       {/* Featured Image/Video (Clear) */}
-      {post.cover_image && (
+      {coverUrl && (
         <section className="w-full max-w-5xl mx-auto px-6 md:px-14 -mt-10 relative z-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="w-full rounded-xl overflow-hidden shadow-2xl border border-[#1F1F1F]"
           >
-            {post.cover_image.match(/\.(mp4|webm|mov)(\?.*)?$/i) ? (
+            {isVideo ? (
               <video
-                src={post.cover_image}
+                src={coverUrl}
                 autoPlay
                 loop
                 muted
@@ -134,8 +143,8 @@ export const BlogPost = () => {
               />
             ) : (
               <img
-                src={post.cover_image}
-                alt={post.title}
+                src={coverUrl}
+                alt={displayTitle}
                 className="w-full h-auto block"
               />
             )}
@@ -159,7 +168,7 @@ export const BlogPost = () => {
             prose-blockquote:border-l-4 prose-blockquote:border-[#C9A962] prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-[#888888]
             prose-img:rounded-xl prose-img:border prose-img:border-[#1F1F1F] prose-img:w-full prose-img:h-auto prose-img:my-10 prose-img:shadow-2xl
             [&_video]:rounded-xl [&_video]:w-full [&_video]:my-10 [&_video]:shadow-2xl [&_video]:border [&_video]:border-[#1F1F1F]"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: displayContent }}
         />
       </section>
     </div>

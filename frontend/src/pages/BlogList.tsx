@@ -45,7 +45,7 @@ export const BlogList = () => {
       <section className="relative w-full pt-40 pb-20 px-6 md:px-14 flex items-end justify-center overflow-hidden min-h-[40vh]">
         <div className="absolute inset-0 z-0">
           <img
-            src="/images/carousel/generated-1773179473489.webp"
+            src="/images/carousel/generated-1773179848841.webp"
             className="w-full h-full object-cover opacity-40 brightness-75"
             alt=""
           />
@@ -93,81 +93,89 @@ export const BlogList = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {posts.map((post, index) => (
-              <motion.article
-                key={post.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="group flex flex-col gap-5 border border-[#1F1F1F] bg-[#0F0F0F] hover:border-[#C9A962]/40 transition-colors rounded-xl overflow-hidden"
-              >
-                <Link to={`${langPrefix}/blog/${post.slug}`} className="relative h-auto overflow-hidden block border-b border-[#1F1F1F]">
-                  {post.cover_image ? (
-                    post.cover_image.match(/\.(mp4|webm|mov)(\?.*)?$/i) ? (
-                      <video
-                        src={post.cover_image}
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
-                      />
+            {posts.map((post, index) => {
+              const isEn = i18n.language.startsWith('en');
+              const displayTitle = isEn ? (post.title_en || post.title) : post.title;
+              const displayDescription = isEn ? (post.seo_description_en || post.seo_description || '') : (post.seo_description || '');
+              const coverUrl = post.cover_video || post.cover_image;
+              const isVideo = !!post.cover_video || (post.cover_image?.match(/\.(mp4|webm|mov)(\?.*)?$/i));
+
+              return (
+                <motion.article
+                  key={post.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="group flex flex-col gap-5 border border-[#1F1F1F] bg-[#0F0F0F] hover:border-[#C9A962]/40 transition-colors rounded-xl overflow-hidden"
+                >
+                  <Link to={`${langPrefix}/blog/${post.slug}`} className="relative h-auto overflow-hidden block border-b border-[#1F1F1F]">
+                    {coverUrl ? (
+                      isVideo ? (
+                        <video
+                          src={coverUrl}
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
+                        />
+                      ) : (
+                        <img
+                          src={coverUrl}
+                          alt={displayTitle}
+                          className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
+                        />
+                      )
                     ) : (
-                      <img
-                        src={post.cover_image}
-                        alt={post.title}
-                        className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
-                      />
-                    )
-                  ) : (
-                    <div className="w-full h-64 bg-[#1A1A1A] flex items-center justify-center">
-                      <span className="text-[#333333]">Sin multimedia</span>
-                    </div>
-                  )}
-                  {post.category && (
-                    <div className="absolute top-4 left-4 px-3 py-1 bg-black/60 backdrop-blur-md border border-white/10 font-primary text-[10px] uppercase tracking-wider text-[#C9A962] rounded-sm">
-                      {post.category}
-                    </div>
-                  )}
-                </Link>
-
-                <div className="p-6 pt-2 flex flex-col flex-1 gap-4">
-                  <div className="flex items-center gap-4 font-primary text-[11px] text-[#666666] uppercase tracking-wider">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5" />
-                      {new Date(post.published_at || post.created_at).toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </div>
-                  </div>
-
-                  <Link to={`${langPrefix}/blog/${post.slug}`} className="group-hover:text-[#C9A962] transition-colors">
-                    <h3 className="font-secondary text-2xl leading-tight text-[#FAF8F5] line-clamp-2">
-                      {post.title}
-                    </h3>
+                      <div className="w-full h-64 bg-[#1A1A1A] flex items-center justify-center">
+                        <span className="text-[#333333]">{isEn ? 'No media' : 'Sin multimedia'}</span>
+                      </div>
+                    )}
+                    {post.category && (
+                      <div className="absolute top-4 left-4 px-3 py-1 bg-black/60 backdrop-blur-md border border-white/10 font-primary text-[10px] uppercase tracking-wider text-[#C9A962] rounded-sm">
+                        {post.category}
+                      </div>
+                    )}
                   </Link>
 
-                  <p className="font-primary text-[#888888] text-sm leading-relaxed line-clamp-3">
-                    {post.seo_description}
-                  </p>
-
-                  <div className="mt-auto pt-4 flex items-center justify-between border-t border-[#1F1F1F]">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-[#C9A962]/20 border border-[#C9A962]/30 flex items-center justify-center text-[#C9A962]">
-                        <User className="w-3 h-3" />
+                  <div className="p-6 pt-2 flex flex-col flex-1 gap-4">
+                    <div className="flex items-center gap-4 font-primary text-[11px] text-[#666666] uppercase tracking-wider">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {new Date(post.published_at || post.created_at).toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
-                      <span className="font-primary text-xs text-[#888888]">Equipo Gelabert</span>
                     </div>
-                    
-                    <Link
-                      to={`${langPrefix}/blog/${post.slug}`}
-                      className="font-primary text-[11px] uppercase tracking-widest text-[#C9A962] flex items-center gap-2 group-hover:text-white transition-colors"
-                    >
-                      Leer más
-                      <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+
+                    <Link to={`${langPrefix}/blog/${post.slug}`} className="group-hover:text-[#C9A962] transition-colors">
+                      <h3 className="font-secondary text-2xl leading-tight text-[#FAF8F5] line-clamp-2">
+                        {displayTitle}
+                      </h3>
                     </Link>
+
+                    <p className="font-primary text-[#888888] text-sm leading-relaxed line-clamp-3">
+                      {displayDescription}
+                    </p>
+
+                    <div className="mt-auto pt-4 flex items-center justify-between border-t border-[#1F1F1F]">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-[#C9A962]/20 border border-[#C9A962]/30 flex items-center justify-center text-[#C9A962]">
+                          <User className="w-3 h-3" />
+                        </div>
+                        <span className="font-primary text-xs text-[#888888]">{isEn ? 'Gelabert Team' : 'Equipo Gelabert'}</span>
+                      </div>
+                      
+                      <Link
+                        to={`${langPrefix}/blog/${post.slug}`}
+                        className="font-primary text-[11px] uppercase tracking-widest text-[#C9A962] flex items-center gap-2 group-hover:text-white transition-colors"
+                      >
+                        {isEn ? 'Read more' : 'Leer más'}
+                        <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              </motion.article>
-            ))}
+                </motion.article>
+              );
+            })}
           </div>
         )}
       </section>

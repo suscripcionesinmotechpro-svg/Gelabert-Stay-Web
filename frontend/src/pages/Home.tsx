@@ -48,7 +48,6 @@ type Slide = {
 const HERO_SLIDES: Slide[] = [
   // Imágenes optimizadas a WebP para máxima velocidad
 
-  { type: 'image', src: '/images/carousel/generated-1773179848841.webp' },
   { type: 'image', src: '/images/carousel/generated-1773179860778.webp' },
   { type: 'image', src: '/images/carousel/generated-1773179911372.webp' },
   { type: 'image', src: '/images/carousel/generated-1773179922956.webp' },

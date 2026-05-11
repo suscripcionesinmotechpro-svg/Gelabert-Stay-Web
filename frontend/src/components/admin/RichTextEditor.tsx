@@ -208,10 +208,11 @@ export const RichTextEditor = ({ content, onChange, onUploadMedia }: RichTextEdi
       attributes: {
         class: 'prose prose-invert max-w-none min-h-[400px] p-6 outline-none font-primary text-base bg-[#0F0F0F] rounded-b-lg whitespace-pre-wrap',
       },
+      // @ts-ignore - parseOptions is valid in Prosemirror but might be missing in Tiptap's simplified types
       parseOptions: {
         preserveWhitespace: 'full',
       },
-    },
+    } as any,
   });
 
   useEffect(() => {

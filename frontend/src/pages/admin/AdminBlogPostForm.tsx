@@ -14,13 +14,20 @@ export const AdminBlogPostForm = () => {
 
   const [formData, setFormData] = useState<BlogPostFormData>({
     title: '',
+    title_en: '',
     content: '',
+    content_en: '',
     category: 'articulos',
     status: 'draft',
     seo_title: '',
+    seo_title_en: '',
     seo_description: '',
+    seo_description_en: '',
+    cover_image: '',
+    cover_video: '',
   });
 
+  const [activeTab, setActiveTab] = useState<'es' | 'en'>('es');
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
@@ -35,13 +42,21 @@ export const AdminBlogPostForm = () => {
     if (post) {
       setFormData({
         title: post.title,
+        title_en: post.title_en || '',
         content: post.content,
+        content_en: post.content_en || '',
         category: post.category,
         status: post.status,
         seo_title: post.seo_title || '',
+        seo_title_en: post.seo_title_en || '',
         seo_description: post.seo_description || '',
+        seo_description_en: post.seo_description_en || '',
+        cover_image: post.cover_image || '',
+        cover_video: post.cover_video || '',
       });
-      if (post.cover_image) {
+      if (post.cover_video) {
+        setCoverPreview(post.cover_video);
+      } else if (post.cover_image) {
         setCoverPreview(post.cover_image);
       }
     } else {
@@ -64,15 +79,27 @@ export const AdminBlogPostForm = () => {
       return;
     }
 
-    let coverUrl = formData.cover_image;
+    let coverImageUrl = formData.cover_image;
+    let coverVideoUrl = formData.cover_video;
+
     if (coverFile) {
       const uploadedUrl = await uploadImage(coverFile);
       if (uploadedUrl) {
-        coverUrl = uploadedUrl;
+        if (coverFile.type.startsWith('video/')) {
+          coverVideoUrl = uploadedUrl;
+          coverImageUrl = ''; // Clear image if video is uploaded
+        } else {
+          coverImageUrl = uploadedUrl;
+          coverVideoUrl = ''; // Clear video if image is uploaded
+        }
       }
     }
 
-    const finalData = { ...formData, cover_image: coverUrl };
+    const finalData = { 
+      ...formData, 
+      cover_image: coverImageUrl, 
+      cover_video: coverVideoUrl 
+    };
 
     if (id) {
       await updatePost(id, finalData);
@@ -111,60 +138,137 @@ export const AdminBlogPostForm = () => {
         </button>
       </div>
 
+      <div className="flex gap-4 border-b border-white/10 mb-6">
+        <button
+          onClick={() => setActiveTab('es')}
+          className={`pb-2 px-1 text-sm font-medium transition-colors relative ${
+            activeTab === 'es' ? 'text-[#C9A962]' : 'text-[#A3A3A3] hover:text-white'
+          }`}
+        >
+          Español
+          {activeTab === 'es' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C9A962]" />}
+        </button>
+        <button
+          onClick={() => setActiveTab('en')}
+          className={`pb-2 px-1 text-sm font-medium transition-colors relative ${
+            activeTab === 'en' ? 'text-[#C9A962]' : 'text-[#A3A3A3] hover:text-white'
+          }`}
+        >
+          English
+          {activeTab === 'en' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C9A962]" />}
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-[#1A1A1A] p-6 rounded-sm border border-white/10 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Título del Artículo *</label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={e => setFormData({ ...formData, title: e.target.value })}
-                className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-3 text-lg font-bold text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none transition-colors"
-                placeholder="Ej: Tendencias del mercado inmobiliario..."
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-[#A3A3A3] mb-2">Contenido *</label>
-              <div className="border border-white/10 rounded-sm overflow-hidden bg-[#0A0A0A]">
-                {/* Asumimos que RichTextEditor está implementado */}
-                <RichTextEditor
-                  content={formData.content}
-                  onChange={(content) => setFormData({ ...formData, content })}
-                  placeholder="Escribe tu artículo aquí..."
-                  onUploadMedia={uploadImage}
-                />
-              </div>
-            </div>
+          <div className="bg-[#1A1A1A] p-6 rounded-sm border border-white/10 space-y-6">
+            {activeTab === 'es' ? (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Título del Artículo (ES) *</label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={e => setFormData({ ...formData, title: e.target.value })}
+                    className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-3 text-lg font-bold text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none transition-colors"
+                    placeholder="Ej: Tendencias del mercado inmobiliario..."
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-[#A3A3A3] mb-2">Contenido (ES) *</label>
+                  <div className="border border-white/10 rounded-sm overflow-hidden bg-[#0A0A0A]">
+                    <RichTextEditor
+                      content={formData.content}
+                      onChange={(content) => setFormData({ ...formData, content })}
+                      placeholder="Escribe tu artículo aquí..."
+                      onUploadMedia={uploadImage}
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Article Title (EN)</label>
+                  <input
+                    type="text"
+                    value={formData.title_en}
+                    onChange={e => setFormData({ ...formData, title_en: e.target.value })}
+                    className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-3 text-lg font-bold text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none transition-colors"
+                    placeholder="Ex: Real estate market trends..."
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-[#A3A3A3] mb-2">Content (EN)</label>
+                  <div className="border border-white/10 rounded-sm overflow-hidden bg-[#0A0A0A]">
+                    <RichTextEditor
+                      content={formData.content_en || ''}
+                      onChange={(content) => setFormData({ ...formData, content_en: content })}
+                      placeholder="Write your article here..."
+                      onUploadMedia={uploadImage}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="bg-[#1A1A1A] p-6 rounded-sm border border-white/10 space-y-4">
-            <h3 className="text-lg font-secondary uppercase tracking-widest text-[#FAF8F5]">Optimización SEO</h3>
-            <p className="text-sm text-[#A3A3A3]">Si los dejas vacíos, se generarán automáticamente desde el título y el contenido.</p>
+            <h3 className="text-lg font-secondary uppercase tracking-widest text-[#FAF8F5]">Optimización SEO ({activeTab.toUpperCase()})</h3>
+            <p className="text-sm text-[#A3A3A3]">Si los dejas vacíos, se generarán automáticamente.</p>
             
-            <div>
-              <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Meta Título (SEO)</label>
-              <input
-                type="text"
-                value={formData.seo_title}
-                onChange={e => setFormData({ ...formData, seo_title: e.target.value })}
-                className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-2 text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none"
-                placeholder="Título para Google..."
-              />
-            </div>
+            {activeTab === 'es' ? (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Meta Título (SEO)</label>
+                  <input
+                    type="text"
+                    value={formData.seo_title}
+                    onChange={e => setFormData({ ...formData, seo_title: e.target.value })}
+                    className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-2 text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none"
+                    placeholder="Título para Google..."
+                  />
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Meta Descripción (SEO)</label>
-              <textarea
-                value={formData.seo_description}
-                onChange={e => setFormData({ ...formData, seo_description: e.target.value })}
-                rows={3}
-                className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-2 text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none"
-                placeholder="Breve resumen del artículo para los buscadores..."
-              />
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Meta Descripción (SEO)</label>
+                  <textarea
+                    value={formData.seo_description}
+                    onChange={e => setFormData({ ...formData, seo_description: e.target.value })}
+                    rows={3}
+                    className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-2 text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none"
+                    placeholder="Breve resumen del artículo para los buscadores..."
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Meta Title (SEO)</label>
+                  <input
+                    type="text"
+                    value={formData.seo_title_en}
+                    onChange={e => setFormData({ ...formData, seo_title_en: e.target.value })}
+                    className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-2 text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none"
+                    placeholder="Title for Google..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Meta Description (SEO)</label>
+                  <textarea
+                    value={formData.seo_description_en}
+                    onChange={e => setFormData({ ...formData, seo_description_en: e.target.value })}
+                    rows={3}
+                    className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-2 text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none"
+                    placeholder="Brief summary for search engines..."
+                  />
+                </div>
+              </>
+            )}
           </div>
         </div>
 
