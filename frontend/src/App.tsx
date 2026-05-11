@@ -38,11 +38,13 @@ const Privacidad = lazy(() => import('./pages/legal/Privacidad').then(m => ({ de
 const Cookies = lazy(() => import('./pages/legal/Cookies').then(m => ({ default: m.Cookies })));
 const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
 
+import { ServiceCartProvider } from './context/ServiceCartContext';
+
 function App() {
   const location = useLocation();
 
   return (
-    <>
+    <ServiceCartProvider>
       <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#1A1A1A', color: '#FAF8F5', border: '1px solid #1F1F1F', fontSize: '14px', borderRadius: '4px' } }} />
       <ScrollToTop />
       <UpdatePrompt />
@@ -105,7 +107,7 @@ function App() {
         <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
-    </>
+    </ServiceCartProvider>
   );
 }
 

@@ -167,16 +167,22 @@ export const InvestorServices = () => {
                 )}
                 <motion.button
                   whileTap={{ scale: 0.97 }}
-                  onClick={() => cart.toggleService({
-                    id: INVESTOR_SERVICE_ID,
-                    titleKey: 'services.owner_services.inversores.title',
-                    tagKey: 'services.owner_services.inversores.tag',
-                    descKey: 'services.owner_services.inversores.desc',
-                    title: t('services.owner_services.inversores.title'),
-                    tag: t('services.owner_services.inversores.tag'),
-                    icon: '📈',
-                    desc: t('services.owner_services.inversores.desc'),
-                  })}
+                  onClick={() => {
+                    const alreadyInCart = cart.isInCart(INVESTOR_SERVICE_ID);
+                    cart.toggleService({
+                      id: INVESTOR_SERVICE_ID,
+                      titleKey: 'services.owner_services.inversores.title',
+                      tagKey: 'services.owner_services.inversores.tag',
+                      descKey: 'services.owner_services.inversores.desc',
+                      title: t('services.owner_services.inversores.title'),
+                      tag: t('services.owner_services.inversores.tag'),
+                      icon: '📈',
+                      desc: t('services.owner_services.inversores.desc'),
+                    });
+                    if (!alreadyInCart) {
+                      cart.openCart();
+                    }
+                  }}
                   className={`relative flex items-center gap-2 px-8 py-4 font-primary text-xs font-bold uppercase tracking-widest transition-all duration-300 rounded-sm ${
                     cart.isInCart(INVESTOR_SERVICE_ID)
                       ? 'bg-[#C9A962] text-[#0A0A0A] shadow-[0_0_20px_rgba(201,169,98,0.3)]'
@@ -186,11 +192,11 @@ export const InvestorServices = () => {
                   <AnimatePresence mode="wait" initial={false}>
                     {cart.isInCart(INVESTOR_SERVICE_ID) ? (
                       <motion.span key="selected" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} className="flex items-center gap-2">
-                        <Check size={14} /> {isEn ? 'Added to selection' : 'Añadido a mi selección'}
+                        <Check size={14} /> {t('services.cart.added')}
                       </motion.span>
                     ) : (
                       <motion.span key="add" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} className="flex items-center gap-2">
-                        <Plus size={14} /> {isEn ? 'Add to my selection' : 'Añadir a mi selección'}
+                        <Plus size={14} /> {t('services.cart.add')}
                       </motion.span>
                     )}
                   </AnimatePresence>

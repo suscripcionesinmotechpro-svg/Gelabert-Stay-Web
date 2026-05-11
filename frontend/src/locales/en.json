@@ -320,7 +320,7 @@
       "button_selected": "Selected",
       "button_added": "Added",
       "add": "Add to my selection",
-      "added": "Selected",
+      "added": "Added to selection",
       "note": "Add the services you're interested in to your selection. Once finished, complete the form and we will contact you as soon as possible.",
       "floating_view": "View my selection",
       "drawer_title": "Your Selection",
@@ -485,7 +485,7 @@
     "tenant_search": {
       "title": "Home Search",
       "tag": "TENANTS · PERSONALIZED SERVICE",
-      "desc": "Our star service for tenants: you tell us exactly what you're looking for and we finding it. No stress, no wasting time on portals.",
+      "desc": "Our star service for tenants: you tell us exactly what you're looking for and we find it. No stress, no wasting time on portals.",
       "bullets": [
         "Initial consultation to define your exact needs",
         "Active search across our owner network",

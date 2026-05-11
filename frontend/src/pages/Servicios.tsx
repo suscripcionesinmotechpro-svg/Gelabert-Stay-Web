@@ -391,16 +391,22 @@ export const Servicios = () => {
               {...s}
               cardNumber={String(idx + 1).padStart(2, '0')}
               isInCart={cart.isInCart(s.id)}
-              onToggle={() => cart.toggleService({
-                id: s.id,
-                titleKey: s.titleKey,
-                tagKey: s.tagKey,
-                descKey: s.descKey,
-                title: s.title,
-                tag: s.tag,
-                icon: s.cartIcon,
-                desc: s.desc,
-              })}
+              onToggle={() => {
+                const alreadyInCart = cart.isInCart(s.id);
+                cart.toggleService({
+                  id: s.id,
+                  titleKey: s.titleKey,
+                  tagKey: s.tagKey,
+                  descKey: s.descKey,
+                  title: s.title,
+                  tag: s.tag,
+                  icon: s.cartIcon,
+                  desc: s.desc,
+                });
+                if (!alreadyInCart) {
+                  cart.openCart();
+                }
+              }}
             />
           ))}
         </div>
@@ -480,16 +486,22 @@ export const Servicios = () => {
             </ul>
 
             <button
-              onClick={() => cart.toggleService({
-                id: 'tenant_search',
-                titleKey: 'services.tenant_search.title',
-                tagKey: 'services.tenant_search.tag',
-                descKey: 'services.tenant_search.desc',
-                title: t('services.tenant_search.title'),
-                tag: t('services.tenant_search.tag'),
-                icon: "🔑",
-                desc: t('services.tenant_search.desc')
-              })}
+              onClick={() => {
+                const alreadyInCart = cart.isInCart('tenant_search');
+                cart.toggleService({
+                  id: 'tenant_search',
+                  titleKey: 'services.tenant_search.title',
+                  tagKey: 'services.tenant_search.tag',
+                  descKey: 'services.tenant_search.desc',
+                  title: t('services.tenant_search.title'),
+                  tag: t('services.tenant_search.tag'),
+                  icon: "🔑",
+                  desc: t('services.tenant_search.desc')
+                });
+                if (!alreadyInCart) {
+                  cart.openCart();
+                }
+              }}
               className={`w-fit px-8 py-4 font-primary text-[10px] uppercase tracking-[0.2em] font-bold transition-all duration-500 flex items-center gap-3 ${
                 cart.isInCart('tenant_search')
                   ? 'bg-[#C9A962] text-black'

@@ -105,63 +105,49 @@ export const ServiceCartDrawer = ({ isOpen, onClose, cartItems, onRemove, onClea
     }
   };
 
+  const inputClass = "w-full bg-white/[0.05] border border-white/20 rounded-sm px-4 py-4 text-white placeholder:text-white/30 focus:outline-none focus:border-[#C9A962] focus:bg-white/[0.08] transition-all font-primary text-sm shadow-inner";
+
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Overlay */}
           <motion.div
-            key="overlay"
-            variants={OVERLAY_VARIANTS}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100]"
           />
 
-          {/* Drawer */}
           <motion.div
-            key="drawer"
             initial={{ x: '100%' }}
-            animate={{ x: 0, transition: { type: 'spring' as const, damping: 30, stiffness: 300 } }}
-            exit={{ x: '100%', transition: { duration: 0.25, ease: 'easeIn' } }}
-            className="fixed top-0 right-0 h-full w-full max-w-lg z-[80] bg-[#070707] border-l border-white/[0.06] flex flex-col shadow-[−40px_0_80px_rgba(0,0,0,0.8)] overflow-hidden"
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed top-0 right-0 h-full w-full max-w-lg bg-[#0A0A0A] border-l border-white/5 shadow-2xl z-[101] flex flex-col"
           >
-            {/* Ambient glow */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#C9A962]/5 blur-[100px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-20 left-0 w-48 h-48 bg-[#C9A962]/3 blur-[80px] rounded-full pointer-events-none" />
-
-            {/* Header */}
-            <div className="relative z-10 flex items-center justify-between px-8 py-6 border-b border-white/[0.06]">
-              <div className="flex items-center gap-4">
-                <div className="p-2.5 bg-[#C9A962]/10 border border-[#C9A962]/20 rounded-sm">
-                  <ShoppingBag className="w-5 h-5 text-[#C9A962]" />
+            <div className="flex items-center justify-between p-6 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#C9A962]/10 flex items-center justify-center">
+                  <ShoppingBag className="text-[#C9A962]" size={20} />
                 </div>
                 <div>
-                  <h2 className="font-secondary text-xl text-white">{t('services.cart.drawer_title')}</h2>
-                  <p className="font-primary text-[10px] text-white/30 uppercase tracking-[0.2em]">
-                    {isEmpty ? t('services.cart.drawer_count_zero') : t(cartItems.length === 1 ? 'services.cart.drawer_count_one' : 'services.cart.drawer_count_many', { count: cartItems.length })}
+                  <h2 className="text-white font-secondary text-xl tracking-wide">{t('services.cart.drawer_title')}</h2>
+                  <p className="text-white/40 text-[10px] uppercase tracking-widest font-primary">
+                    {cartItems.length === 0 
+                      ? t('services.cart.drawer_count_zero')
+                      : cartItems.length === 1
+                        ? t('services.cart.drawer_count_one', { count: 1 })
+                        : t('services.cart.drawer_count_many', { count: cartItems.length })
+                    }
                   </p>
                 </div>
               </div>
-              <button
-                onClick={onClose}
-                className="p-2 text-white/30 hover:text-white transition-colors hover:bg-white/5 rounded-sm"
-              >
-                <X className="w-5 h-5" />
+              <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors group">
+                <X className="text-white/40 group-hover:text-white" size={24} />
               </button>
             </div>
 
-            {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto">
-              {/* Cart items */}
-              <div className="px-8 pt-6 pb-4">
-                <AnimatePresence mode="popLayout">
-                  {isEmpty ? (
-                    <motion.div
-                      key="empty"
-                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       className="flex flex-col items-center justify-center py-16 gap-4 text-center"
                     >
