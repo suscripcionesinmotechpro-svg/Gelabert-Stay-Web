@@ -47,7 +47,7 @@ type Slide = {
 // Hero slideshow — Todas las imágenes de WEB/images y todos los vídeos de public/videos
 const HERO_SLIDES: Slide[] = [
   // Imágenes optimizadas a WebP para máxima velocidad
-  { type: 'image', src: '/images/carousel/generated-1773179473489.webp' },
+
   { type: 'image', src: '/images/carousel/generated-1773179848841.webp' },
   { type: 'image', src: '/images/carousel/generated-1773179860778.webp' },
   { type: 'image', src: '/images/carousel/generated-1773179911372.webp' },

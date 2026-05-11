@@ -45,7 +45,7 @@ export const BlogList = () => {
       <section className="relative w-full pt-40 pb-20 px-6 md:px-14 flex items-end justify-center overflow-hidden min-h-[40vh]">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=100&w=2500&auto=format&fit=crop"
+            src="/images/carousel/generated-1773179473489.webp"
             className="w-full h-full object-cover opacity-40 brightness-75"
             alt=""
           />
