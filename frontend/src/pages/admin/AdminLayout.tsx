@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth.tsx';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import {
-  LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X, Receipt, Users, CalendarDays, Bot
+  LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X, Receipt, Users, CalendarDays, Bot, FileText
 } from 'lucide-react';
 
 export const AdminLayout = () => {
@@ -43,7 +43,7 @@ export const AdminLayout = () => {
     { to: `/admin/inquilinos`, icon: <Users className="w-4 h-4" />, label: "Inquilinos" },
     { to: `/admin/reservas`, icon: <CalendarDays className="w-4 h-4" />, label: "Reservas" },
     { to: `/admin/leads`, icon: <Bot className="w-4 h-4" />, label: "CRM Leads (Bot)" },
-
+    { to: `/admin/blog`, icon: <FileText className="w-4 h-4" />, label: "Blog & Insights" },
   ];
 
   useEffect(() => {

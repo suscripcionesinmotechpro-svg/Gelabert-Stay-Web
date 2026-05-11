@@ -15,6 +15,8 @@ const Propietarios = lazy(() => import('./pages/Propietarios').then(m => ({ defa
 const Contacto = lazy(() => import('./pages/Contacto').then(m => ({ default: m.Contacto })));
 const Inversores = lazy(() => import('./pages/Inversores'));
 const Reviews = lazy(() => import('./pages/Reviews').then(m => ({ default: m.Reviews })));
+const BlogList = lazy(() => import('./pages/BlogList').then(m => ({ default: m.BlogList })));
+const BlogPost = lazy(() => import('./pages/BlogPost').then(m => ({ default: m.BlogPost })));
 
 // Lazy load admin pages
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
@@ -31,6 +33,8 @@ const AdminTenantDetail = lazy(() => import('./pages/admin/AdminTenantDetail').t
 const AdminContractForm = lazy(() => import('./pages/admin/AdminContractForm').then(m => ({ default: m.AdminContractForm })));
 const AdminReservations = lazy(() => import('./pages/admin/AdminReservations').then(m => ({ default: m.AdminReservations })));
 const AdminLeadsCRM = lazy(() => import('./pages/admin/AdminLeadsCRM').then(m => ({ default: m.AdminLeadsCRM })));
+const AdminBlogList = lazy(() => import('./pages/admin/AdminBlogList').then(m => ({ default: m.AdminBlogList })));
+const AdminBlogPostForm = lazy(() => import('./pages/admin/AdminBlogPostForm').then(m => ({ default: m.AdminBlogPostForm })));
 
 // Legal
 const AvisoLegal = lazy(() => import('./pages/legal/AvisoLegal').then(m => ({ default: m.AvisoLegal })));
@@ -59,7 +63,10 @@ function App() {
           <Route path="propietarios" element={<Propietarios />} />
           <Route path="inversores" element={<Inversores />} />
           <Route path="contacto" element={<Contacto />} />
+          <Route path="resenas" element={<Reviews />} />
           <Route path="reseñas" element={<Reviews />} />
+          <Route path="blog" element={<BlogList />} />
+          <Route path="blog/:slug" element={<BlogPost />} />
           <Route path="aviso-legal" element={<AvisoLegal />} />
           <Route path="privacidad" element={<Privacidad />} />
           <Route path="cookies" element={<Cookies />} />
@@ -75,6 +82,8 @@ function App() {
           <Route path="inversores" element={<Inversores />} />
           <Route path="contacto" element={<Contacto />} />
           <Route path="reviews" element={<Reviews />} />
+          <Route path="blog" element={<BlogList />} />
+          <Route path="blog/:slug" element={<BlogPost />} />
           <Route path="aviso-legal" element={<AvisoLegal />} />
           <Route path="privacidad" element={<Privacidad />} />
           <Route path="cookies" element={<Cookies />} />
@@ -100,6 +109,9 @@ function App() {
           <Route path="contratos/:id/editar" element={<AdminContractForm />} />
           <Route path="reservas" element={<AdminReservations />} />
           <Route path="leads" element={<AdminLeadsCRM />} />
+          <Route path="blog" element={<AdminBlogList />} />
+          <Route path="blog/nuevo" element={<AdminBlogPostForm />} />
+          <Route path="blog/:id/editar" element={<AdminBlogPostForm />} />
 
         </Route>
 
