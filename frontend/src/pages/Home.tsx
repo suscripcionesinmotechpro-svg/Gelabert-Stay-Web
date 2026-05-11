@@ -249,7 +249,7 @@ export const Home = () => {
                 alt=""
                 // @ts-ignore
                 fetchPriority={i === 0 ? 'high' : 'low'}
-                className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.2] brightness-[1.1] transition-opacity duration-[1500ms] ease-in-out ${
+                className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.1] brightness-[0.8] transition-opacity duration-[1500ms] ease-in-out ${
                   heroIndex === i ? 'opacity-100' : 'opacity-0'
                 }`}
               />
@@ -266,7 +266,7 @@ export const Home = () => {
                 onEnded={handleVideoEnded}
                 // @ts-ignore
                 fetchPriority="low"
-                className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.2] brightness-[1.1] transition-opacity duration-[1500ms] ease-in-out ${
+                className={`absolute inset-0 w-full h-full object-cover scale-[1.08] saturate-[1.1] brightness-[0.8] transition-opacity duration-[1500ms] ease-in-out ${
                   heroIndex === i ? 'opacity-100' : 'opacity-0'
                 }`}
               >
@@ -276,12 +276,11 @@ export const Home = () => {
           }
         })}
 
-        {/* Gradient overlay permanente - Slightly darkened for better text contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70" />
+        {/* Gradient overlay permanente - velo sutil en toda la altura para legibilidad garantizada */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/15 to-black/75" />
       </div>
 
       <div className="max-w-[1440px] w-full px-6 md:px-14 flex flex-col items-center text-center relative z-10">
-        <div className="flex flex-col items-center py-10 px-6 md:px-12 rounded-2xl backdrop-blur-[2px] bg-black/5">
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -325,7 +324,6 @@ export const Home = () => {
               {t('hero.contact_us')}
             </Link>
           </motion.div>
-        </div>
 
           {/* Slide indicator dots — intelligent handling for many slides */}
           <motion.div

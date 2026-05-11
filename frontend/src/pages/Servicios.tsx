@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { useRef, useState } from 'react';
 import {
-  Key, Building2, Briefcase, ShieldCheck,
+  Key, Building2, Briefcase, ShieldCheck, TrendingUp,
   CheckCircle, Phone, Star, Sparkles, Plus, Check, ShoppingBag
 } from 'lucide-react';
 import { useServiceCart, type CartService } from '../hooks/useServiceCart';
@@ -29,10 +29,11 @@ interface ServiceCardProps {
   className?: string;
   highlight?: boolean;
   cartIcon: string;
+  cardNumber?: string;
 }
 
 const ServiceCard = ({ 
-  title, tag, icon, desc, image, bullets, className = "",
+  title, tag, icon, desc, image, bullets, className = "", cardNumber,
   isInCart, onToggle 
 }: ServiceCardProps & { isInCart?: boolean; onToggle?: () => void }) => {
   const { t } = useTranslation();
@@ -91,6 +92,12 @@ const ServiceCard = ({
 
         {/* Content */}
         <div className="relative z-10 p-8 h-full flex flex-col">
+          {/* Editorial number — premium agency style */}
+          {cardNumber && (
+            <span className="absolute top-6 right-8 font-secondary text-[4rem] leading-none text-[#C9A962]/10 select-none pointer-events-none font-bold tracking-tight">
+              {cardNumber}
+            </span>
+          )}
           <div className="flex justify-between items-start mb-6">
             <div className={`p-3 backdrop-blur-md rounded-sm border transition-all duration-300 ${
               isInCart ? 'bg-[#C9A962]/20 border-[#C9A962]/40' : 'bg-black/40 border-[#C9A962]/30'
@@ -252,8 +259,21 @@ export const Servicios = () => {
       image: 'https://images.unsplash.com/photo-1769028885299-c5c3503d6778?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.seguro_impago.desc'),
       bullets: t('services.owner_services.seguro_impago.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-2 md:row-span-1 min-h-[400px]",
-      highlight: true
+      className: "md:col-span-1 md:row-span-1 min-h-[480px]"
+    },
+    {
+      id: 'inversores',
+      icon: <TrendingUp className="w-6 h-6 text-[#C9A962]" />,
+      cartIcon: '📈',
+      titleKey: 'services.owner_services.inversores.title',
+      tagKey: 'services.owner_services.inversores.tag',
+      descKey: 'services.owner_services.inversores.desc',
+      title: t('services.owner_services.inversores.title'),
+      tag: t('services.owner_services.inversores.tag'),
+      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop',
+      desc: t('services.owner_services.inversores.desc'),
+      bullets: t('services.owner_services.inversores.bullets', { returnObjects: true }) as string[],
+      className: "md:col-span-1 md:row-span-1 min-h-[480px]"
     },
     {
       id: 'hipoteca',
@@ -310,10 +330,10 @@ export const Servicios = () => {
           className="absolute inset-0 z-0"
         >
           <div 
-            className="w-full h-full bg-cover bg-center brightness-[0.45] saturate-[1.25]"
+            className="w-full h-full bg-cover bg-center brightness-[0.55] saturate-[1.2]"
             style={{ backgroundImage: `url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop')` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/30 to-[#050505]/90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/20 to-[#050505]/85" />
         </motion.div>
 
         <div className="relative z-10 px-6 max-w-7xl mx-auto text-center">
@@ -369,28 +389,20 @@ export const Servicios = () => {
         {/* Info Note about selection */}
         <motion.div 
           {...(fadeUp as any)}
-          className="max-w-4xl mx-auto mb-6 md:mb-16 p-6 md:p-10 bg-white/[0.02] border border-[#C9A962]/20 backdrop-blur-xl rounded-sm flex flex-col md:flex-row items-center gap-6 md:gap-8 text-center md:text-left shadow-2xl relative overflow-hidden group"
+          className="max-w-4xl mx-auto mb-8 md:mb-14 px-5 py-3.5 bg-white/[0.02] border border-[#C9A962]/15 backdrop-blur-xl rounded-sm flex items-center gap-4 relative overflow-hidden"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#C9A962]/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-[#C9A962]/10 transition-colors duration-700" />
-          
-          <div className="w-16 h-16 shrink-0 bg-[#C9A962] flex items-center justify-center rounded-sm shadow-[0_10px_30px_rgba(201,169,98,0.2)]">
-            <ShoppingBag className="w-7 h-7 text-[#0A0A0A]" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <h4 className="font-secondary text-[#C9A962] text-xl uppercase tracking-wider">
-              {t('services.cart.floating_view')}
-            </h4>
-            <p className="font-primary text-[#FAF8F5]/70 text-base leading-relaxed italic">
-              "{t('services.cart.note')}"
-            </p>
-          </div>
+          <ShoppingBag className="w-4 h-4 text-[#C9A962] shrink-0" />
+          <p className="font-primary text-[#FAF8F5]/50 text-sm leading-relaxed">
+            {t('services.cart.note')}
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-fr">
-          {serviciosPropietario.map((s) => (
+          {serviciosPropietario.map((s, idx) => (
             <ServiceCard
               key={s.id}
               {...s}
+              cardNumber={String(idx + 1).padStart(2, '0')}
               isInCart={cart.isInCart(s.id)}
               onToggle={() => cart.toggleService({
                 id: s.id,
@@ -537,7 +549,7 @@ export const Servicios = () => {
                 <h3 className="font-primary text-white font-bold text-sm uppercase tracking-wide group-hover:text-[#C9A962] transition-colors">
                   {item.label}
                 </h3>
-                <p className="font-primary text-white/40 text-sm leading-relaxed">
+                <p className="font-primary text-white/60 text-sm leading-relaxed">
                   {item.desc}
                 </p>
               </div>
