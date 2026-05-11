@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 // removed unused import
 import { Save, ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import { useBlog } from '../../hooks/useBlog';
