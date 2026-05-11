@@ -459,7 +459,7 @@ export const Home = () => {
             className="flex items-center gap-3 px-10 py-4 border border-[#C9A962]/30 text-[#C9A962] font-primary font-bold text-[11px] uppercase tracking-[0.25em] hover:bg-[#C9A962]/10 hover:border-[#C9A962] transition-all duration-300"
           >
             <ArrowRight className="w-4 h-4" />
-            {i18n.language.startsWith('en') ? 'View all services for owners' : 'Ver todos los servicios para propietarios'}
+            {i18n.language.startsWith('en') ? 'View all services' : 'Ver todos los servicios'}
           </Link>
         </motion.div>
       </section>

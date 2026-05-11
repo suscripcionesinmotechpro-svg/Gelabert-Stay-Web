@@ -1,6 +1,7 @@
-import { motion } from 'framer-motion';
-import { TrendingUp, Hammer, Key, BarChart3, ArrowRight, CheckCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { TrendingUp, Hammer, Key, BarChart3, CheckCircle, Plus, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useServiceCart } from '../hooks/useServiceCart';
 
 const InvestmentPillar = ({ icon: Icon, title, description, delay }: { icon: any, title: string, description: string, delay: number }) => (
   <motion.div
@@ -24,6 +25,8 @@ const InvestmentPillar = ({ icon: Icon, title, description, delay }: { icon: any
 export const InvestorServices = () => {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language?.startsWith('en');
+  const cart = useServiceCart();
+  const INVESTOR_SERVICE_ID = 'investor_services';
 
   const pillars = [
     {
@@ -158,13 +161,41 @@ export const InvestorServices = () => {
                 <h4 className="font-secondary text-xl text-white">{t('services.final_cta.title_part1')}{t('services.final_cta.title_highlight')}</h4>
                 <p className="font-primary text-sm text-[#888]">{t('services.final_cta.subtitle')}</p>
               </div>
-              <a
-                href="#contact"
-                className="px-8 py-4 bg-[#C9A962] text-black font-primary text-xs font-bold uppercase tracking-widest hover:bg-[#D4B673] transition-all flex items-center gap-3 shrink-0 rounded-sm"
-              >
-                {t('services.final_cta.contact_btn')}
-                <ArrowRight size={14} />
-              </a>
+              <div className={`relative p-[1px] rounded-sm overflow-hidden shrink-0 ${!cart.isInCart(INVESTOR_SERVICE_ID) ? 'shadow-[0_0_20px_rgba(201,169,98,0.2)]' : ''}`}>
+                {!cart.isInCart(INVESTOR_SERVICE_ID) && (
+                  <div className="absolute w-[400%] h-[400%] -top-[150%] -left-[150%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(201,169,98,0)_0%,rgba(201,169,98,0.8)_50%,rgba(201,169,98,0)_100%)]" />
+                )}
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => cart.toggleService({
+                    id: INVESTOR_SERVICE_ID,
+                    titleKey: 'services.owner_services.inversores.title',
+                    tagKey: 'services.owner_services.inversores.tag',
+                    descKey: 'services.owner_services.inversores.desc',
+                    title: t('services.owner_services.inversores.title'),
+                    tag: t('services.owner_services.inversores.tag'),
+                    icon: '📈',
+                    desc: t('services.owner_services.inversores.desc'),
+                  })}
+                  className={`relative flex items-center gap-2 px-8 py-4 font-primary text-xs font-bold uppercase tracking-widest transition-all duration-300 rounded-sm ${
+                    cart.isInCart(INVESTOR_SERVICE_ID)
+                      ? 'bg-[#C9A962] text-[#0A0A0A] shadow-[0_0_20px_rgba(201,169,98,0.3)]'
+                      : 'bg-[#0A0A0A]/90 backdrop-blur-xl text-[#C9A962] hover:bg-[#C9A962]/10 hover:text-white'
+                  }`}
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    {cart.isInCart(INVESTOR_SERVICE_ID) ? (
+                      <motion.span key="selected" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} className="flex items-center gap-2">
+                        <Check size={14} /> {isEn ? 'Added to selection' : 'Añadido a mi selección'}
+                      </motion.span>
+                    ) : (
+                      <motion.span key="add" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} className="flex items-center gap-2">
+                        <Plus size={14} /> {isEn ? 'Add to my selection' : 'Añadir a mi selección'}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
+              </div>
             </motion.div>
           </div>
         </div>

@@ -274,7 +274,7 @@ export const Servicios = () => {
       image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.mortgage.desc'),
       bullets: t('services.mortgage.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-2 md:row-span-1 min-h-[400px]",
+      className: "md:col-span-1 md:row-span-1 min-h-[480px]",
       highlight: true
     }
   ];
