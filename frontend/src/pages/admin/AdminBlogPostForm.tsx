@@ -201,24 +201,28 @@ export const AdminBlogPostForm = () => {
           </div>
 
           <div className="bg-[#1A1A1A] p-6 rounded-sm border border-white/10 space-y-4">
-            <h3 className="text-lg font-secondary uppercase tracking-widest text-[#FAF8F5]">Imagen de Portada</h3>
+            <h3 className="text-lg font-secondary uppercase tracking-widest text-[#FAF8F5]">Multimedia de Portada</h3>
             
             <div className="relative group">
               {coverPreview ? (
-                <div className="relative w-full aspect-video rounded-sm overflow-hidden border border-white/10">
-                  <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
+                <div className="relative w-full aspect-video rounded-sm overflow-hidden border border-white/10 flex items-center justify-center bg-black">
+                  {(coverPreview.match(/\.(mp4|webm|mov)(\?.*)?$/i) || (coverFile && coverFile.type.startsWith('video/'))) ? (
+                    <video src={coverPreview} autoPlay loop muted playsInline className="w-full h-full object-contain" />
+                  ) : (
+                    <img src={coverPreview} alt="Cover" className="w-full h-full object-contain" />
+                  )}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <label className="cursor-pointer bg-[#C9A962] text-black px-4 py-2 rounded-sm font-bold text-xs uppercase tracking-widest">
-                      Cambiar Imagen
-                      <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                      Cambiar Archivo
+                      <input type="file" className="hidden" accept="image/*,video/*" onChange={handleImageChange} />
                     </label>
                   </div>
                 </div>
               ) : (
                 <label className="w-full aspect-video border-2 border-dashed border-white/10 rounded-sm flex flex-col items-center justify-center cursor-pointer hover:border-[#C9A962] hover:bg-[#C9A962]/5 transition-colors">
                   <ImageIcon className="w-8 h-8 text-white/20 mb-2" />
-                  <span className="text-sm text-[#A3A3A3]">Haz clic para subir imagen</span>
-                  <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                  <span className="text-sm text-[#A3A3A3]">Haz clic para subir imagen o vídeo</span>
+                  <input type="file" className="hidden" accept="image/*,video/*" onChange={handleImageChange} />
                 </label>
               )}
             </div>

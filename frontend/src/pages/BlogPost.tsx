@@ -60,12 +60,23 @@ export const BlogPost = () => {
       <section className="relative w-full pt-32 pb-20 px-6 md:px-14 min-h-[50vh] flex flex-col items-center justify-center border-b border-[#1F1F1F]">
         {post.cover_image && (
           <>
-            <div className="absolute inset-0 z-0">
-              <img
-                src={post.cover_image}
-                className="w-full h-full object-cover opacity-20 blur-sm"
-                alt=""
-              />
+            <div className="absolute inset-0 z-0 bg-[#050505]">
+              {post.cover_image.match(/\.(mp4|webm|mov)(\?.*)?$/i) ? (
+                <video
+                  src={post.cover_image}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover opacity-20 blur-sm"
+                />
+              ) : (
+                <img
+                  src={post.cover_image}
+                  className="w-full h-full object-cover opacity-20 blur-sm"
+                  alt=""
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-black/50" />
             </div>
           </>
@@ -104,19 +115,30 @@ export const BlogPost = () => {
         </div>
       </section>
 
-      {/* Featured Image (Clear) */}
+      {/* Featured Image/Video (Clear) */}
       {post.cover_image && (
         <section className="w-full max-w-5xl mx-auto px-6 md:px-14 -mt-10 relative z-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-[#1F1F1F]"
+            className="w-full bg-[#050505] rounded-xl overflow-hidden shadow-2xl border border-[#1F1F1F]"
           >
-            <img
-              src={post.cover_image}
-              alt={post.title}
-              className="w-full h-full object-cover"
-            />
+            {post.cover_image.match(/\.(mp4|webm|mov)(\?.*)?$/i) ? (
+              <video
+                src={post.cover_image}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full max-h-[70vh] object-contain mx-auto"
+              />
+            ) : (
+              <img
+                src={post.cover_image}
+                alt={post.title}
+                className="w-full max-h-[70vh] object-contain mx-auto"
+              />
+            )}
           </motion.div>
         </section>
       )}
