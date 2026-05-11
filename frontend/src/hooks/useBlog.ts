@@ -169,13 +169,13 @@ export const useBlog = () => {
       const filePath = `blog/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('properties') // Using existing properties bucket, but inside 'blog/' folder
+        .from('property-images') // Using existing properties bucket, but inside 'blog/' folder
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('properties')
+        .from('property-images')
         .getPublicUrl(filePath);
 
       return publicUrl;
