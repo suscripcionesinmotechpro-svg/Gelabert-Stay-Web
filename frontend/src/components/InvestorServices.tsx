@@ -168,7 +168,6 @@ export const InvestorServices = () => {
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={() => {
-                    const alreadyInCart = cart.isInCart(INVESTOR_SERVICE_ID);
                     cart.toggleService({
                       id: INVESTOR_SERVICE_ID,
                       titleKey: 'services.owner_services.inversores.title',
@@ -179,9 +178,6 @@ export const InvestorServices = () => {
                       icon: '📈',
                       desc: t('services.owner_services.inversores.desc'),
                     });
-                    if (!alreadyInCart) {
-                      cart.openCart();
-                    }
                   }}
                   className={`relative flex items-center gap-2 px-8 py-4 font-primary text-xs font-bold uppercase tracking-widest transition-all duration-300 rounded-sm ${
                     cart.isInCart(INVESTOR_SERVICE_ID)

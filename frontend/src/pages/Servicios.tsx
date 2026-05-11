@@ -392,7 +392,6 @@ export const Servicios = () => {
               cardNumber={String(idx + 1).padStart(2, '0')}
               isInCart={cart.isInCart(s.id)}
               onToggle={() => {
-                const alreadyInCart = cart.isInCart(s.id);
                 cart.toggleService({
                   id: s.id,
                   titleKey: s.titleKey,
@@ -403,9 +402,6 @@ export const Servicios = () => {
                   icon: s.cartIcon,
                   desc: s.desc,
                 });
-                if (!alreadyInCart) {
-                  cart.openCart();
-                }
               }}
             />
           ))}
@@ -487,7 +483,6 @@ export const Servicios = () => {
 
             <button
               onClick={() => {
-                const alreadyInCart = cart.isInCart('tenant_search');
                 cart.toggleService({
                   id: 'tenant_search',
                   titleKey: 'services.tenant_search.title',
@@ -498,9 +493,6 @@ export const Servicios = () => {
                   icon: "🔑",
                   desc: t('services.tenant_search.desc')
                 });
-                if (!alreadyInCart) {
-                  cart.openCart();
-                }
               }}
               className={`w-fit px-8 py-4 font-primary text-[10px] uppercase tracking-[0.2em] font-bold transition-all duration-500 flex items-center gap-3 ${
                 cart.isInCart('tenant_search')
