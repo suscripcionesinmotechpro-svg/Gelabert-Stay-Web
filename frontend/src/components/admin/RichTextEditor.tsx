@@ -3,7 +3,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import { Video } from './VideoExtension';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { 
   Bold, 
   Italic, 
@@ -210,6 +210,12 @@ export const RichTextEditor = ({ content, onChange, onUploadMedia }: RichTextEdi
       },
     },
   });
+
+  useEffect(() => {
+    if (editor && content && content !== editor.getHTML() && !editor.isFocused) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   return (
     <div className="w-full border border-[#1F1F1F] rounded-lg focus-within:border-[#C9A962] transition-colors">
