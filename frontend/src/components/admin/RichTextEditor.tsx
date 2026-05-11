@@ -206,7 +206,10 @@ export const RichTextEditor = ({ content, onChange, onUploadMedia }: RichTextEdi
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-invert max-w-none min-h-[400px] p-6 outline-none font-primary text-base bg-[#0F0F0F] rounded-b-lg',
+        class: 'prose prose-invert max-w-none min-h-[400px] p-6 outline-none font-primary text-base bg-[#0F0F0F] rounded-b-lg whitespace-pre-wrap',
+      },
+      parseOptions: {
+        preserveWhitespace: 'full',
       },
     },
   });
