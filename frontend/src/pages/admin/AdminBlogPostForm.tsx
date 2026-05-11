@@ -134,6 +134,7 @@ export const AdminBlogPostForm = () => {
                   content={formData.content}
                   onChange={(content) => setFormData({ ...formData, content })}
                   placeholder="Escribe tu artículo aquí..."
+                  onUploadMedia={uploadImage}
                 />
               </div>
             </div>

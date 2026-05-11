@@ -135,7 +135,8 @@ export const BlogPost = () => {
             prose-ol:list-decimal prose-ol:pl-6 prose-ol:mb-6 prose-ol:text-[#CCCCCC]
             prose-li:mb-2
             prose-blockquote:border-l-4 prose-blockquote:border-[#C9A962] prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-[#888888]
-            prose-img:rounded-lg prose-img:border prose-img:border-[#1F1F1F] prose-img:w-full prose-img:h-auto prose-img:my-10"
+            prose-img:rounded-xl prose-img:border prose-img:border-[#1F1F1F] prose-img:w-full prose-img:h-auto prose-img:my-10 prose-img:shadow-2xl
+            [&_video]:rounded-xl [&_video]:w-full [&_video]:my-10 [&_video]:shadow-2xl [&_video]:border [&_video]:border-[#1F1F1F]"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </section>

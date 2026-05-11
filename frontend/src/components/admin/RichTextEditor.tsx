@@ -1,6 +1,9 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
+import { Video } from './VideoExtension';
+import { useRef } from 'react';
 import { 
   Bold, 
   Italic, 
@@ -11,16 +14,22 @@ import {
   Undo,
   Redo,
   Heading1,
-  Heading2
+  Heading2,
+  Image as ImageIcon,
+  Video as VideoIcon
 } from 'lucide-react';
 
 interface RichTextEditorProps {
   content: string;
   onChange: (content: string) => void;
   placeholder?: string;
+  onUploadMedia?: (file: File) => Promise<string | null>;
 }
 
-const MenuBar = ({ editor }: { editor: any }) => {
+const MenuBar = ({ editor, onUploadMedia }: { editor: any, onUploadMedia?: (file: File) => Promise<string | null> }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const mediaTypeRef = useRef<'image' | 'video'>('image');
+
   if (!editor) {
     return null;
   }
@@ -32,8 +41,42 @@ const MenuBar = ({ editor }: { editor: any }) => {
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0] && onUploadMedia) {
+      const file = e.target.files[0];
+      const url = await onUploadMedia(file);
+      if (url) {
+        if (mediaTypeRef.current === 'image') {
+          editor.chain().focus().setImage({ src: url }).run();
+        } else {
+          editor.chain().focus().setVideo({ src: url }).run();
+        }
+      }
+    }
+    // reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const triggerUpload = (type: 'image' | 'video') => {
+    if (!onUploadMedia) {
+      alert("La subida de medios no está configurada.");
+      return;
+    }
+    mediaTypeRef.current = type;
+    fileInputRef.current?.click();
+  };
+
   return (
     <div className="flex flex-wrap gap-1 p-2 border-b border-[#1F1F1F] bg-[#0A0A0A] rounded-t-lg">
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        className="hidden" 
+        accept={mediaTypeRef.current === 'image' ? 'image/*' : 'video/*'} 
+      />
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleBold().run()}
@@ -102,6 +145,23 @@ const MenuBar = ({ editor }: { editor: any }) => {
       >
         <Unlink size={16} />
       </button>
+      <div className="w-px h-6 bg-[#1F1F1F] mx-1 self-center" />
+      <button
+        type="button"
+        onClick={() => triggerUpload('image')}
+        className="p-2 rounded hover:bg-[#1F1F1F] transition-colors text-[#888888]"
+        title="Añadir Imagen"
+      >
+        <ImageIcon size={16} />
+      </button>
+      <button
+        type="button"
+        onClick={() => triggerUpload('video')}
+        className="p-2 rounded hover:bg-[#1F1F1F] transition-colors text-[#888888]"
+        title="Añadir Vídeo"
+      >
+        <VideoIcon size={16} />
+      </button>
       <div className="flex-1" />
       <button
         type="button"
@@ -123,10 +183,16 @@ const MenuBar = ({ editor }: { editor: any }) => {
   );
 };
 
-export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
+export const RichTextEditor = ({ content, onChange, onUploadMedia }: RichTextEditorProps) => {
   const editor = useEditor({
     extensions: [
       StarterKit,
+      Image.configure({
+        HTMLAttributes: {
+          class: 'rounded-xl w-full my-6 object-cover shadow-2xl',
+        },
+      }),
+      Video,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -140,14 +206,14 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-invert max-w-none min-h-[200px] p-4 outline-none font-primary text-sm bg-[#0F0F0F] rounded-b-lg',
+        class: 'prose prose-invert max-w-none min-h-[400px] p-6 outline-none font-primary text-base bg-[#0F0F0F] rounded-b-lg',
       },
     },
   });
 
   return (
     <div className="w-full border border-[#1F1F1F] rounded-lg focus-within:border-[#C9A962] transition-colors">
-      <MenuBar editor={editor} />
+      <MenuBar editor={editor} onUploadMedia={onUploadMedia} />
       <EditorContent editor={editor} />
     </div>
   );
