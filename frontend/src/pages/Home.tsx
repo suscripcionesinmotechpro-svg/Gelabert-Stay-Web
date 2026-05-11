@@ -1,9 +1,10 @@
 import { motion, useInView } from 'framer-motion';
+import { InvestorServices } from '../components/InvestorServices';
 import { useTranslation } from 'react-i18next';
 import { PropertyCard } from '../components/PropertyCard';
 import { PropertyCardSkeleton } from '../components/ui/Skeleton';
 import { Link } from 'react-router-dom';
-import { Building, Key, Briefcase, ShieldCheck, Home as HomeIcon, CheckCircle, Star } from 'lucide-react';
+import { Building, Key, Briefcase, ShieldCheck, Home as HomeIcon, CheckCircle, Star, ArrowRight } from 'lucide-react';
 import { useProperties } from '../hooks/useProperties';
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { sortPropertiesByAvailability } from '../utils/propertySorting';
@@ -284,7 +285,7 @@ export const Home = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-secondary text-[2.8rem] md:text-[4.2rem] lg:text-[4.9rem] text-[#FAF8F5] leading-[0.9] tracking-tighter relative group"
+            className="font-secondary text-[2.8rem] md:text-[4.2rem] lg:text-[4.9rem] text-[#FAF8F5] leading-[0.9] tracking-tighter relative group drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
           >
             <span className="relative inline-block">
               {t('hero.hero_title')}
@@ -296,7 +297,7 @@ export const Home = () => {
               />
             </span>
             <br/> 
-            <span className="text-[#C9A962] italic font-light block mt-4 text-[2.3rem] md:text-[3.3rem] tracking-normal">
+            <span className="text-[#C9A962] italic font-light block mt-4 text-[2.3rem] md:text-[3.3rem] tracking-normal drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
               Real Estate
             </span>
           </motion.h1>
@@ -305,7 +306,7 @@ export const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="font-primary text-base md:text-lg text-[#DFDFE6] max-w-2xl font-light tracking-wide opacity-90"
+            className="font-primary text-base md:text-lg text-[#DFDFE6] max-w-2xl font-light tracking-wide opacity-90 mt-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]"
           >
             {t('hero.hero_subtitle')}
           </motion.p>
@@ -324,25 +325,63 @@ export const Home = () => {
             </Link>
           </motion.div>
 
-          {/* Slide indicator dots — fluyen con el contenido, sin solapar EXPLORAR */}
+          {/* Slide indicator dots — intelligent handling for many slides */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 1 }}
-            className="flex items-center gap-2.5 mt-8"
+            className="flex items-center justify-center gap-2 mt-10"
           >
-            {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setHeroIndex(i)}
-                aria-label={`Ir al slide ${i + 1}`}
-                className={`rounded-full transition-all duration-500 ease-in-out border ${
-                  heroIndex === i
-                    ? 'w-6 h-2 bg-[#C9A962] border-[#C9A962] shadow-[0_0_8px_rgba(201,169,98,0.6)]'
-                    : 'w-2 h-2 bg-white/30 border-white/20 hover:bg-white/60 hover:border-white/40'
-                }`}
-              />
-            ))}
+            {TOTAL_SLIDES <= 10 ? (
+              // Simple dots for few slides
+              <div className="flex gap-2.5">
+                {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setHeroIndex(i)}
+                    className={`transition-all duration-500 ease-in-out border shrink-0 ${
+                      heroIndex === i
+                        ? 'w-6 h-1.5 bg-[#C9A962] border-[#C9A962] rounded-full'
+                        : 'w-1.5 h-1.5 bg-white/20 border-white/10 rounded-full hover:bg-white/60'
+                    }`}
+                  />
+                ))}
+              </div>
+            ) : (
+              // Compact indicator for many slides
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex items-center gap-4 bg-black/40 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10">
+                  <button 
+                    onClick={() => setHeroIndex(prev => (prev - 1 + TOTAL_SLIDES) % TOTAL_SLIDES)}
+                    className="text-white/40 hover:text-[#C9A962] transition-colors"
+                  >
+                    <ArrowRight className="w-4 h-4 rotate-180" />
+                  </button>
+                  
+                  <div className="flex items-center gap-2 font-primary text-[11px] font-bold tracking-widest text-[#C9A962]">
+                    <span>{(heroIndex + 1).toString().padStart(2, '0')}</span>
+                    <span className="text-white/20">/</span>
+                    <span className="text-white/40">{TOTAL_SLIDES.toString().padStart(2, '0')}</span>
+                  </div>
+
+                  <button 
+                    onClick={() => setHeroIndex(prev => (prev + 1) % TOTAL_SLIDES)}
+                    className="text-white/40 hover:text-[#C9A962] transition-colors"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+                
+                {/* Visual Progress Bar */}
+                <div className="w-32 h-[1px] bg-white/10 relative overflow-hidden">
+                  <motion.div 
+                    initial={false}
+                    animate={{ width: `${((heroIndex + 1) / TOTAL_SLIDES) * 100}%` }}
+                    className="absolute inset-y-0 left-0 bg-[#C9A962]"
+                  />
+                </div>
+              </div>
+            )}
           </motion.div>
         </div>
 
@@ -445,6 +484,9 @@ export const Home = () => {
           />
         </motion.div>
       </section>
+
+      {/* Investor Solutions Section */}
+      <InvestorServices />
 
       {/* Stats Section */}
       <section className="relative w-full px-6 md:px-14 py-28 overflow-hidden">
