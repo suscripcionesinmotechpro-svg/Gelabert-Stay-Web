@@ -206,11 +206,34 @@ export const RichTextEditor = ({ content, onChange, onUploadMedia }: RichTextEdi
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-invert max-w-none min-h-[400px] p-6 outline-none font-primary text-base bg-[#0F0F0F] rounded-b-lg whitespace-pre-wrap',
+        class: 'prose prose-invert max-w-none min-h-[400px] p-6 outline-none font-primary text-base bg-[#0F0F0F] rounded-b-lg !whitespace-pre-wrap',
       },
       // @ts-ignore - parseOptions is valid in Prosemirror but might be missing in Tiptap's simplified types
       parseOptions: {
         preserveWhitespace: 'full',
+      },
+      transformPastedText(text: string) {
+        // Convert double spaces to space + nbsp to prevent collapsing
+        return text.replace(/  /g, ' \u00A0');
+      },
+      handlePaste(view: any, event: ClipboardEvent) {
+        const text = event.clipboardData?.getData('text/plain');
+        if (text && !event.clipboardData?.getData('text/html')) {
+          // If only plain text is pasted, ensure it's handled as is
+          const { state, dispatch } = view;
+          const { tr } = state;
+          // Split by lines and insert with breaks
+          const lines = text.split('\n');
+          lines.forEach((line, i) => {
+            tr.insertText(line.replace(/  /g, ' \u00A0'));
+            if (i < lines.length - 1) {
+              tr.insertText('\n'); // This will be handled by HardBreak or whitespace-pre-wrap
+            }
+          });
+          dispatch(tr);
+          return true; // handled
+        }
+        return false;
       },
     } as any,
   });

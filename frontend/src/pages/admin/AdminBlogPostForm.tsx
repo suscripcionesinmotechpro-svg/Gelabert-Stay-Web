@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 // removed unused import
-import { Save, ArrowLeft, Image as ImageIcon } from 'lucide-react';
+import { Save, ArrowLeft, Image as ImageIcon, Sparkles, Languages } from 'lucide-react';
 import { useBlog } from '../../hooks/useBlog';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import type { BlogPostFormData } from '../../types/blog';
@@ -73,6 +73,42 @@ export const AdminBlogPostForm = () => {
     }
   };
 
+  const translateToEnglish = async () => {
+    if (!formData.title && !formData.content) return;
+    
+    const translate = async (text: string) => {
+      if (!text || text.length < 3) return text;
+      try {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=es&tl=en&dt=t&q=${encodeURIComponent(text)}`;
+        const response = await fetch(url);
+        if (!response.ok) return text;
+        const data = await response.json();
+        return (data && data[0]) ? data[0].map((item: any) => item[0]).join("") : text;
+      } catch (error) {
+        console.error('Translation Error:', error);
+        return text;
+      }
+    };
+
+    // For Rich Text, we need to be more careful, but let's try a simple approach
+    // Strip HTML for translation or just send it? Sending HTML usually works okay with Google Translate if tags are simple.
+    const [titleEn, contentEn, seoTitleEn, seoDescEn] = await Promise.all([
+      translate(formData.title),
+      translate(formData.content),
+      translate(formData.seo_title || formData.title),
+      translate(formData.seo_description || '')
+    ]);
+
+    setFormData(prev => ({
+      ...prev,
+      title_en: titleEn,
+      content_en: contentEn,
+      seo_title_en: seoTitleEn,
+      seo_description_en: seoDescEn
+    }));
+    setActiveTab('en');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.content) {
@@ -139,25 +175,37 @@ export const AdminBlogPostForm = () => {
         </button>
       </div>
 
-      <div className="flex gap-4 border-b border-white/10 mb-6">
-        <button
-          onClick={() => setActiveTab('es')}
-          className={`pb-2 px-1 text-sm font-medium transition-colors relative ${
-            activeTab === 'es' ? 'text-[#C9A962]' : 'text-[#A3A3A3] hover:text-white'
-          }`}
-        >
-          Español
-          {activeTab === 'es' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C9A962]" />}
-        </button>
-        <button
-          onClick={() => setActiveTab('en')}
-          className={`pb-2 px-1 text-sm font-medium transition-colors relative ${
-            activeTab === 'en' ? 'text-[#C9A962]' : 'text-[#A3A3A3] hover:text-white'
-          }`}
-        >
-          English
-          {activeTab === 'en' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C9A962]" />}
-        </button>
+      <div className="flex items-center justify-between border-b border-white/10 mb-6">
+        <div className="flex gap-4">
+          <button
+            onClick={() => setActiveTab('es')}
+            className={`pb-2 px-1 text-sm font-medium transition-colors relative ${
+              activeTab === 'es' ? 'text-[#C9A962]' : 'text-[#A3A3A3] hover:text-white'
+            }`}
+          >
+            Español
+            {activeTab === 'es' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C9A962]" />}
+          </button>
+          <button
+            onClick={() => setActiveTab('en')}
+            className={`pb-2 px-1 text-sm font-medium transition-colors relative ${
+              activeTab === 'en' ? 'text-[#C9A962]' : 'text-[#A3A3A3] hover:text-white'
+            }`}
+          >
+            Inglés
+            {activeTab === 'en' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C9A962]" />}
+          </button>
+        </div>
+        
+        {activeTab === 'en' && (
+          <button
+            onClick={translateToEnglish}
+            className="flex items-center gap-2 text-[10px] text-[#C9A962] uppercase font-bold hover:text-white transition-colors py-1 px-3 bg-[#C9A962]/10 border border-[#C9A962]/20 rounded-full mb-2"
+          >
+            <Sparkles className="w-3 h-3" />
+            Traducir automáticamente
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
