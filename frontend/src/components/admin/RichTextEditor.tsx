@@ -206,11 +206,11 @@ export const RichTextEditor = ({ content, onChange, onUploadMedia }: RichTextEdi
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-invert max-w-none min-h-[400px] p-6 outline-none font-primary text-base bg-[#0F0F0F] rounded-b-lg !whitespace-pre-wrap',
+        class: 'prose prose-invert max-w-none min-h-[400px] p-6 outline-none font-primary text-base bg-[#0F0F0F] rounded-b-lg',
       },
       // @ts-ignore
       parseOptions: {
-        preserveWhitespace: 'full',
+        preserveWhitespace: false,
       },
       transformPastedText(text: string) {
         // Convert multiple spaces to nbsp to ensure they are preserved in HTML
@@ -225,22 +225,20 @@ export const RichTextEditor = ({ content, onChange, onUploadMedia }: RichTextEdi
         const html = event.clipboardData?.getData('text/html');
 
         if (!html && text) {
-          // Plain text paste: force preservation of spaces and breaks
+          // Plain text paste: convert multiple spaces to non-breaking spaces and preserve single newlines
+          const processedText = text.replace(/ {2,}/g, (match) => '\u00A0'.repeat(match.length));
           const { state, dispatch } = view;
           const { tr } = state;
-          const processedText = text.replace(/ {2,}/g, (match) => '\u00A0'.repeat(match.length));
-          const lines = processedText.split('\n');
           
+          // Split by newlines and insert as separate paragraphs or breaks
+          const lines = processedText.split('\n');
           lines.forEach((line, i) => {
-            if (line) tr.insertText(line);
+            if (line.trim()) {
+              tr.insertText(line);
+            }
             if (i < lines.length - 1) {
-              // Insert a hard break for every newline to ensure "order"
               const br = view.state.schema.nodes.hardBreak?.create();
-              if (br) {
-                tr.replaceSelectionWith(br);
-              } else {
-                tr.insertText('\n');
-              }
+              if (br) tr.replaceSelectionWith(br);
             }
           });
           dispatch(tr);

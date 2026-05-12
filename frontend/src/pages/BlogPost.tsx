@@ -155,7 +155,7 @@ export const BlogPost = () => {
       {/* Article Content */}
       <section className="w-full max-w-3xl mx-auto px-6 md:px-14 pt-20">
         <div 
-          className="prose prose-invert prose-lg max-w-none font-primary text-[#DFDFE6] leading-relaxed whitespace-pre-wrap
+          className="prose prose-invert prose-lg max-w-none font-primary text-[#DFDFE6] leading-relaxed
             prose-headings:font-secondary prose-headings:text-[#FAF8F5] prose-headings:font-normal
             prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 prose-h2:border-b prose-h2:border-[#1F1F1F] prose-h2:pb-4
             prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
