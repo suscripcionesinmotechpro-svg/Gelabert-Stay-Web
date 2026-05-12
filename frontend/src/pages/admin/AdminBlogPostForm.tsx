@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 // removed unused import
-import { Save, ArrowLeft, Image as ImageIcon, Sparkles, Languages } from 'lucide-react';
+import { Save, ArrowLeft, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { useBlog } from '../../hooks/useBlog';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import type { BlogPostFormData } from '../../types/blog';
