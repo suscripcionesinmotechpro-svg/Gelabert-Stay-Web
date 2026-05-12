@@ -208,30 +208,43 @@ export const RichTextEditor = ({ content, onChange, onUploadMedia }: RichTextEdi
       attributes: {
         class: 'prose prose-invert max-w-none min-h-[400px] p-6 outline-none font-primary text-base bg-[#0F0F0F] rounded-b-lg !whitespace-pre-wrap',
       },
-      // @ts-ignore - parseOptions is valid in Prosemirror but might be missing in Tiptap's simplified types
+      // @ts-ignore
       parseOptions: {
         preserveWhitespace: 'full',
       },
       transformPastedText(text: string) {
-        // Convert double spaces to space + nbsp to prevent collapsing
-        return text.replace(/  /g, ' \u00A0');
+        // Convert multiple spaces to nbsp to ensure they are preserved in HTML
+        return text.replace(/ {2,}/g, (match) => '\u00A0'.repeat(match.length));
+      },
+      transformPastedHTML(html: string) {
+        // Ensure that common indentation patterns are kept
+        return html.replace(/<p><\/p>/g, '<p><br></p>');
       },
       handlePaste(view: any, event: ClipboardEvent) {
         const text = event.clipboardData?.getData('text/plain');
-        if (text && !event.clipboardData?.getData('text/html')) {
-          // If only plain text is pasted, ensure it's handled as is
+        const html = event.clipboardData?.getData('text/html');
+
+        if (!html && text) {
+          // Plain text paste: force preservation of spaces and breaks
           const { state, dispatch } = view;
           const { tr } = state;
-          // Split by lines and insert with breaks
-          const lines = text.split('\n');
+          const processedText = text.replace(/ {2,}/g, (match) => '\u00A0'.repeat(match.length));
+          const lines = processedText.split('\n');
+          
           lines.forEach((line, i) => {
-            tr.insertText(line.replace(/  /g, ' \u00A0'));
+            if (line) tr.insertText(line);
             if (i < lines.length - 1) {
-              tr.insertText('\n'); // This will be handled by HardBreak or whitespace-pre-wrap
+              // Insert a hard break for every newline to ensure "order"
+              const br = view.state.schema.nodes.hardBreak?.create();
+              if (br) {
+                tr.replaceSelectionWith(br);
+              } else {
+                tr.insertText('\n');
+              }
             }
           });
           dispatch(tr);
-          return true; // handled
+          return true;
         }
         return false;
       },

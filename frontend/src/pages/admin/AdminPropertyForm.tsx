@@ -419,6 +419,51 @@ export const AdminPropertyForm = () => {
     set('highlights', h);
   };
 
+  const translateToEnglish = async () => {
+    if (!form.title && !form.description) return;
+    
+    const translateChunk = async (text: string) => {
+      if (!text || text.length < 3) return text;
+      try {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=es&tl=en&dt=t&q=${encodeURIComponent(text)}`;
+        const response = await fetch(url);
+        if (!response.ok) return text;
+        const data = await response.json();
+        return (data && data[0]) ? data[0].map((item: any) => item[0]).join("") : text;
+      } catch (error) {
+        console.error('Translation Error:', error);
+        return text;
+      }
+    };
+
+    const translateLongText = async (text: string) => {
+      if (!text || text.length <= 1500) return translateChunk(text);
+      // Split by chunks while trying to keep HTML tags somewhat whole
+      const chunks = text.match(/[\s\S]{1,1500}(?=\s|$)/g) || [text];
+      const translatedChunks = await Promise.all(chunks.map(chunk => translateChunk(chunk)));
+      return translatedChunks.join("");
+    };
+
+    const [titleEn, shortDescEn, descEn, highlightsEn] = await Promise.all([
+      translateChunk(form.title || ''),
+      translateLongText(form.short_description || ''),
+      translateLongText(form.description || ''),
+      Promise.all((form.highlights || []).map(h => translateChunk(h)))
+    ]);
+
+    setForm(prev => ({
+      ...prev,
+      title_en: titleEn,
+      short_description_en: shortDescEn,
+      description_en: descEn,
+      highlights_en: highlightsEn
+    }));
+    
+    // Switch view to English if you have tabs? Property form is long, maybe just notify?
+    // Actually, let's switch any tab if exists.
+    alert('Traducción completada. Revisa los campos en inglés al final de cada sección.');
+  };
+
   const handleSave = async (targetStatus?: PropertyStatus) => {
     if (!form.title?.trim()) { setError(t('admin.form.errors.title_required')); return; }
     if (!form.operation) { setError(t('admin.form.errors.operation_required')); return; }
@@ -590,6 +635,15 @@ export const AdminPropertyForm = () => {
           >
             <Eye className="w-4 h-4" />
             {saving ? t('admin.form.saving') : t('admin.form.publish')}
+          </button>
+          <button
+            type="button"
+            onClick={translateToEnglish}
+            className="flex items-center gap-2 px-4 py-2.5 border border-[#C9A962]/20 bg-[#C9A962]/5 text-[#C9A962] font-primary text-sm hover:bg-[#C9A962]/10 transition-all rounded-sm"
+            title="Traducir contenido al inglés automáticamente"
+          >
+            <Sparkles className="w-4 h-4" />
+            Traducir al Inglés
           </button>
         </div>
       </div>

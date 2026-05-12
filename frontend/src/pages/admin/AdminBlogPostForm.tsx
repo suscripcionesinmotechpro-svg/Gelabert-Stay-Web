@@ -76,7 +76,7 @@ export const AdminBlogPostForm = () => {
   const translateToEnglish = async () => {
     if (!formData.title && !formData.content) return;
     
-    const translate = async (text: string) => {
+    const translateChunk = async (text: string) => {
       if (!text || text.length < 3) return text;
       try {
         const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=es&tl=en&dt=t&q=${encodeURIComponent(text)}`;
@@ -90,13 +90,21 @@ export const AdminBlogPostForm = () => {
       }
     };
 
-    // For Rich Text, we need to be more careful, but let's try a simple approach
-    // Strip HTML for translation or just send it? Sending HTML usually works okay with Google Translate if tags are simple.
+    const translateLongText = async (text: string) => {
+      if (!text || text.length <= 1500) return translateChunk(text);
+      
+      // Split by paragraphs to keep HTML structure somewhat sane
+      const chunks = text.match(/[\s\S]{1,1500}(?=\s|$)/g) || [text];
+      const translatedChunks = await Promise.all(chunks.map(chunk => translateChunk(chunk)));
+      return translatedChunks.join("");
+    };
+
+    // Show a loading state or change button text if possible, but for now just run
     const [titleEn, contentEn, seoTitleEn, seoDescEn] = await Promise.all([
-      translate(formData.title),
-      translate(formData.content),
-      translate(formData.seo_title || formData.title),
-      translate(formData.seo_description || '')
+      translateChunk(formData.title),
+      translateLongText(formData.content),
+      translateChunk(formData.seo_title || formData.title),
+      translateChunk(formData.seo_description || '')
     ]);
 
     setFormData(prev => ({
