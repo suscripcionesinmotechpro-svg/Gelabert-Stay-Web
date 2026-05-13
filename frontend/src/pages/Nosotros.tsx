@@ -24,7 +24,6 @@ const TeamMember = ({ name, role, bio, image, delay = 0 }: {
     {...fadeUp}
     transition={{ ...fadeUp.transition, delay }}
     className="group relative"
-    whileHover="hover"
     whileTap="hover"
   >
     <motion.div 
@@ -190,7 +189,7 @@ const Nosotros = () => {
       </section>
 
       {/* Team Section */}
-      <section id="team" className="py-24 md:py-32 px-6 max-w-7xl mx-auto scroll-mt-32">
+      <section id="team" className="py-24 md:py-32 px-6 max-w-7xl mx-auto scroll-mt-40">
         <div className="text-center mb-20">
           <motion.div {...fadeUp} className="flex flex-col items-center gap-4">
             <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold">
@@ -211,7 +210,7 @@ const Nosotros = () => {
             delay={0.1}
           />
           <TeamMember 
-            name="Juan Carlos Sánchez Morente"
+            name="Juan Carlos Morente Sánchez"
             role="Co-founder & Sales Director"
             bio={t('nosotros.team.juan.bio')}
             image="/images/team/juan-carlos.jpg"
