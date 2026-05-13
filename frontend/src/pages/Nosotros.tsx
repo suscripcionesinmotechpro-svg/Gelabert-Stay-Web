@@ -24,6 +24,7 @@ const TeamMember = ({ name, role, bio, image, delay = 0 }: {
     {...fadeUp}
     transition={{ ...fadeUp.transition, delay }}
     className="group relative"
+    whileHover={typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches ? "hover" : undefined}
     whileTap="hover"
   >
     <motion.div 
