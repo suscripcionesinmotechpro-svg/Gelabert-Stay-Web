@@ -60,6 +60,7 @@
     "owners": "Owners",
     "investors": "Investors",
     "blog": "Blog",
+    "about": "About Us",
     "contact": "Contact",
     "reviews": "Reviews",
     "clientArea": "Private Access"
@@ -302,9 +303,51 @@
     "legal": "Legal",
     "legal_notice": "Legal Notice",
     "privacy_policy": "Privacy Policy",
-    "cookies_policy": "Cookies Policy",
+    "cookie_settings": "Cookie Settings",
     "all_rights": "All rights reserved",
     "made_in": "Málaga, Spain 🇪🇸"
+  },
+  "nosotros": {
+    "seo": {
+      "title": "About Us | Gelabert Homes Real Estate Malaga",
+      "description": "Meet the team behind Gelabert Homes. Our mission is to transform the real estate sector in Malaga with transparency, proximity, and professionalism."
+    },
+    "hero": {
+      "badge": "Our Team",
+      "title": "A shared vision to transform the real estate sector in Malaga",
+      "subtitle": "At Gelabert Homes Real Estate, we believe the real estate sector needs a different way of working: closer, more transparent, and more committed to people."
+    },
+    "vision": {
+      "badge": "Our Mission",
+      "title": "Bringing a modern and humane vision to the Malaga market",
+      "p1": "Our mission stems from a very clear reality: Malaga is going through one of the most important real estate moments in its history. The city is growing, attracting investment, welcoming new residents, and positioning itself as one of the most desired destinations in Southern Europe.",
+      "p2": "But at the same time, owners, tenants, buyers, and investors face new challenges every day: lack of available housing, increasingly complex processes, insecurity in management, lack of professional advice, and a real need for effective solutions.",
+      "p3": "That's why Gelabert Homes Real Estate was born: to bring a modern, humane, and professional vision to the Malaga real estate market. Our goal is to accompany owners, investors, and clients throughout the process, offering a service based on trust, strategy, transparency, and real knowledge of the local market.",
+      "context": "Sector evolution"
+    },
+    "history": {
+      "badge": "Our History",
+      "title": "An encounter, a common idea",
+      "p1": "The story of Gelabert Homes Real Estate begins in a simple and natural way: through a third person who introduced us.",
+      "p2": "Each came from their own journey within the real estate sector, with experiences, lessons, and different ways of understanding the market. However, from the first moment, we discovered that we shared the same vision: the need to create a real estate project that is more humane, more professional, and more connected to the current reality of Malaga.",
+      "p3": "From that initial conversation, a common idea was born: to build a company capable of providing real value, not just mediating operations, but helping to solve the current problems of the real estate market in Malaga."
+    },
+    "team": {
+      "badge": "Leadership",
+      "title": "The faces behind the project",
+      "jose": {
+        "bio": "Born in Cuba, José Carlos arrived in Spain with a clear vision: to build a professional future based on effort, perseverance, and proximity to people. Over the last three years in the Malaga real estate sector, he represents the strategic and commercial side of the company, committed to secure and profitable management for owners."
+      },
+      "juan": {
+        "bio": "A Sevillian in love with Malaga, Juan Carlos brings more than six years of international real estate experience (London, Vienna). As Sales Director, he offers a broad and strategic perspective, positioning the company to respond to the challenges of both national and international clients."
+      }
+    },
+    "values": {
+      "title": "The same direction",
+      "p1": "Although our paths started in different places, we share the same way of understanding the real estate sector: working with seriousness, proximity, and real commitment.",
+      "p2": "Our team was born with the will to contribute to the market, professionalize processes, and offer a safer, clearer, and more humane experience.",
+      "closing": "Because behind every home there is a story, an important decision, and a person who needs trust."
+    }
   },
   "services": {
     "tenants": {

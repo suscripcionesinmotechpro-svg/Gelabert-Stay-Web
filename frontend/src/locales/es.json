@@ -70,6 +70,7 @@
     "owners": "Propietarios",
     "investors": "Inversores",
     "blog": "Blog",
+    "about": "Nosotros",
     "contact": "Contacto",
     "reviews": "Reseñas",
     "clientArea": "Acceso Privado"
@@ -315,8 +316,51 @@
     "legal_notice": "Aviso Legal",
     "privacy_policy": "Política de Privacidad",
     "cookies_policy": "Política de Cookies",
+    "cookie_settings": "Configuración de cookies",
     "all_rights": "Todos los derechos reservados",
     "made_in": "Málaga, España 🇪🇸"
+  },
+  "nosotros": {
+    "seo": {
+      "title": "Quiénes Somos | Gelabert Homes Real Estate Málaga",
+      "description": "Conoce al equipo detrás de Gelabert Homes. Nuestra misión es transformar el sector inmobiliario en Málaga con transparencia, cercanía y profesionalidad."
+    },
+    "hero": {
+      "badge": "Nuestro Equipo",
+      "title": "Una visión compartida para transformar el sector inmobiliario en Málaga",
+      "subtitle": "En Gelabert Homes Real Estate creemos que el sector inmobiliario necesita una forma diferente de trabajar: más cercana, más transparente y más comprometida con las personas."
+    },
+    "vision": {
+      "badge": "Nuestra Misión",
+      "title": "Aportar una visión moderna y humana al mercado malagueño",
+      "p1": "Nuestra misión nace de una realidad muy clara: Málaga atraviesa uno de los momentos inmobiliarios más importantes de su historia. La ciudad crece, atrae inversión, recibe nuevos residentes y se posiciona como uno de los destinos más deseados del sur de Europa.",
+      "p2": "Pero, al mismo tiempo, propietarios, inquilinos, compradores e inversores se enfrentan cada día a nuevos retos: falta de vivienda disponible, procesos cada vez más complejos, inseguridad en la gestión, falta de asesoramiento profesional y una necesidad real de soluciones eficaces.",
+      "p3": "Por eso nace Gelabert Homes Real Estate: para aportar una visión moderna, humana y profesional al mercado inmobiliario malagueño. Nuestro objetivo es acompañar a propietarios, inversores y clientes durante todo el proceso, ofreciendo un servicio basado en la confianza, la estrategia, la transparencia y el conocimiento real del mercado local.",
+      "context": "Evolución del sector"
+    },
+    "history": {
+      "badge": "Nuestra Historia",
+      "title": "Un encuentro, una idea común",
+      "p1": "La historia de Gelabert Homes Real Estate comienza de una forma sencilla y natural: a través de una tercera persona que nos presentó.",
+      "p2": "Cada uno venía de su propio recorrido dentro del sector inmobiliario, con experiencias, aprendizajes y formas distintas de entender el mercado. Sin embargo, desde el primer momento descubrimos que compartíamos una misma visión: la necesidad de crear un proyecto inmobiliario más humano, más profesional y más conectado con la realidad actual de Málaga.",
+      "p3": "De esa conversación inicial nació una idea común: construir una empresa capaz de aportar valor real, no solo intermediando operaciones, sino ayudando a resolver los problemas actuales del mercado inmobiliario en Málaga."
+    },
+    "team": {
+      "badge": "Liderazgo",
+      "title": "Los rostros detrás del proyecto",
+      "jose": {
+        "bio": "Nacido en Cuba, José Carlos llegó a España con la visión de construir un futuro profesional basado en el esfuerzo y la constancia. Tras tres años en el sector inmobiliario malagueño, representa la parte estratégica y comercial de la empresa, comprometido con una gestión segura y rentable para los propietarios."
+      },
+      "juan": {
+        "bio": "Sevillano enamorado de Málaga, Juan Carlos aporta más de seis años de experiencia internacional (Londres, Viena). Como Director de Ventas, ofrece una perspectiva amplia y estratégica, posicionando a la empresa para responder a los retos de clientes nacionales e internacionales."
+      }
+    },
+    "values": {
+      "title": "Una misma dirección",
+      "p1": "Aunque nuestros caminos empezaron en lugares distintos, compartimos una misma forma de entender el sector inmobiliario: trabajar con seriedad, cercanía y compromiso real.",
+      "p2": "Nuestro equipo nace con la voluntad de sumar al mercado, profesionalizar los procesos y ofrecer una experiencia más segura, clara y humana.",
+      "closing": "Porque detrás de cada vivienda hay una historia, una decisión importante y una persona que necesita confianza."
+    }
   },
   "services": {
     "tenants": {
