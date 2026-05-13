@@ -97,12 +97,12 @@ export const BlogPost = () => {
             className="self-start md:self-auto flex items-center gap-2 font-primary text-[10px] uppercase tracking-[0.2em] text-[#C9A962] hover:text-white transition-colors mb-4"
           >
             <ArrowLeft className="w-3 h-3" />
-            {isEn ? 'Back to Blog' : 'Volver al Blog'}
+            {t('blog.back_to_blog')}
           </Link>
 
           {post.category && (
             <span className="px-3 py-1 bg-[#C9A962]/10 border border-[#C9A962]/30 font-primary text-[10px] tracking-widest uppercase text-[#C9A962] rounded-sm">
-              {post.category}
+              {t(`blog.categories.${post.category}`) || post.category}
             </span>
           )}
 
@@ -118,7 +118,7 @@ export const BlogPost = () => {
             <div className="w-1 h-1 rounded-full bg-[#333]" />
             <div className="flex items-center gap-2">
               <User className="w-4 h-4 text-[#C9A962]" />
-              {isEn ? 'Gelabert Team' : 'Equipo Gelabert'}
+              {t('blog.team')}
             </div>
           </div>
         </div>

@@ -89,7 +89,7 @@ export const BlogList = () => {
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-32 border border-[#1F1F1F] rounded-2xl bg-[#0F0F0F]">
-            <p className="text-[#888888] font-primary text-lg">Próximamente publicaremos nuevos artículos.</p>
+            <p className="text-[#888888] font-primary text-lg">{t('blog.coming_soon')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
@@ -106,9 +106,9 @@ export const BlogList = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="group flex flex-col gap-5 border border-[#1F1F1F] bg-[#0F0F0F] hover:border-[#C9A962]/40 transition-colors rounded-xl overflow-hidden"
+                  className="group flex flex-col border border-[#1F1F1F] bg-[#0F0F0F] hover:border-[#C9A962]/40 transition-all duration-500 rounded-xl overflow-hidden h-full shadow-2xl"
                 >
-                  <Link to={`${langPrefix}/blog/${post.slug}`} className="relative h-auto overflow-hidden block border-b border-[#1F1F1F]">
+                  <Link to={`${langPrefix}/blog/${post.slug}`} className="relative aspect-[2/3] overflow-hidden block border-b border-[#1F1F1F]">
                     {coverUrl ? (
                       isVideo ? (
                         <video
@@ -117,59 +117,57 @@ export const BlogList = () => {
                           loop
                           muted
                           playsInline
-                          className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                         />
                       ) : (
                         <img
                           src={coverUrl}
                           alt={displayTitle}
-                          className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                         />
                       )
                     ) : (
-                      <div className="w-full h-64 bg-[#1A1A1A] flex items-center justify-center">
-                        <span className="text-[#333333]">{isEn ? 'No media' : 'Sin multimedia'}</span>
+                      <div className="w-full h-full bg-[#1A1A1A] flex items-center justify-center">
+                        <span className="text-[#333333] font-primary text-xs tracking-widest uppercase">{t('blog.no_media')}</span>
                       </div>
                     )}
                     {post.category && (
-                      <div className="absolute top-4 left-4 px-3 py-1 bg-black/60 backdrop-blur-md border border-white/10 font-primary text-[10px] uppercase tracking-wider text-[#C9A962] rounded-sm">
-                        {post.category}
+                      <div className="absolute top-6 left-6 px-4 py-1.5 bg-black/80 backdrop-blur-xl border border-white/10 font-primary text-[9px] uppercase tracking-[0.2em] text-[#C9A962] rounded-sm z-10 shadow-xl">
+                        {t(`blog.categories.${post.category}`) || post.category}
                       </div>
                     )}
+                    {/* Sutil overlay gradiente en la imagen */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </Link>
 
-                  <div className="p-6 pt-2 flex flex-col flex-1 gap-4">
-                    <div className="flex items-center gap-4 font-primary text-[11px] text-[#666666] uppercase tracking-wider">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" />
+                  <div className="p-8 flex flex-col flex-1 gap-6">
+                    <div className="flex items-center gap-4 font-primary text-[10px] text-[#666666] uppercase tracking-[0.2em]">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3.5 h-3.5 text-[#C9A962]/60" />
                         {new Date(post.published_at || post.created_at).toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
                     </div>
 
                     <Link to={`${langPrefix}/blog/${post.slug}`} className="group-hover:text-[#C9A962] transition-colors">
-                      <h3 className="font-secondary text-2xl leading-tight text-[#FAF8F5] line-clamp-2">
+                      <h3 className="font-secondary text-3xl leading-[1.1] text-[#FAF8F5] tracking-tight group-hover:translate-x-1 transition-transform duration-300">
                         {displayTitle}
                       </h3>
                     </Link>
 
-                    <p className="font-primary text-[#888888] text-sm leading-relaxed line-clamp-3">
-                      {displayDescription}
-                    </p>
-
-                    <div className="mt-auto pt-4 flex items-center justify-between border-t border-[#1F1F1F]">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-[#C9A962]/20 border border-[#C9A962]/30 flex items-center justify-center text-[#C9A962]">
-                          <User className="w-3 h-3" />
+                    <div className="mt-auto pt-6 flex items-center justify-between border-t border-white/5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#C9A962]/10 border border-[#C9A962]/20 flex items-center justify-center text-[#C9A962] group-hover:bg-[#C9A962] group-hover:text-black transition-all duration-300">
+                          <User className="w-4 h-4" />
                         </div>
-                        <span className="font-primary text-xs text-[#888888]">{isEn ? 'Gelabert Team' : 'Equipo Gelabert'}</span>
+                        <span className="font-primary text-[11px] uppercase tracking-widest text-[#888888] group-hover:text-white transition-colors">{t('blog.team')}</span>
                       </div>
                       
                       <Link
                         to={`${langPrefix}/blog/${post.slug}`}
-                        className="font-primary text-[11px] uppercase tracking-widest text-[#C9A962] flex items-center gap-2 group-hover:text-white transition-colors"
+                        className="font-primary text-[10px] uppercase tracking-[0.25em] text-[#C9A962] flex items-center gap-2 group-hover:text-white transition-colors"
                       >
-                        {isEn ? 'Read more' : 'Leer más'}
-                        <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                        {t('blog.read_more')}
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform" />
                       </Link>
                     </div>
                   </div>

@@ -27,5 +27,5 @@ def extract_watermark(input_path, output_path):
 
 if __name__ == '__main__':
     input_file = r"C:\Users\lenovo\.gemini\antigravity\brain\6b2e4363-accc-414c-b75d-696f85cd4d12\media__1776943195548.png"
-    output_file = r"C:\Users\lenovo\Desktop\Gelabert Homes\WEB\frontend\public\watermark_exact_hd.png"
+    output_file = r"C:\Users\lenovo\Desktop\Gelabert Homes\04_Desarrollo_y_Sistemas\WEB\frontend\public\watermark_exact_hd.png"
     extract_watermark(input_file, output_file)

@@ -1206,5 +1206,25 @@
     "viewAll": "Ver todas las reseñas",
     "allReviews": "Todas las reseñas",
     "writeReview": "Escribir una reseña en Google"
+  },
+  "blog": {
+    "categories": {
+      "articulos": "Artículos",
+      "propietarios": "Propietarios",
+      "inquilinos": "Inquilinos",
+      "inversores": "Inversores",
+      "noticias": "Noticias",
+      "mercado": "Mercado Inmobiliario",
+      "estilo-de-vida": "Estilo de Vida & Lujo",
+      "consejos": "Consejos & Tips",
+      "guia-local": "Málaga & Costa del Sol",
+      "logros": "Logros de Empresa",
+      "testimonios": "Testimonios"
+    },
+    "read_more": "Leer más",
+    "back_to_blog": "Volver al Blog",
+    "no_media": "Sin multimedia",
+    "team": "Equipo Gelabert",
+    "coming_soon": "Próximamente publicaremos nuevos artículos."
   }
 }

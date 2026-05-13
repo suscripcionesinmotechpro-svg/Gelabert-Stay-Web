@@ -3,12 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 // removed unused import
 import { Save, ArrowLeft, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useBlog } from '../../hooks/useBlog';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import type { BlogPostFormData } from '../../types/blog';
 
 export const AdminBlogPostForm = () => {
-  // t removed
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
   const { getPost, createPost, updatePost, uploadImage, loading } = useBlog();
@@ -352,17 +353,17 @@ export const AdminBlogPostForm = () => {
                 onChange={e => setFormData({ ...formData, category: e.target.value as any })}
                 className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-2 text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none"
               >
-                <option value="articulos">Artículos</option>
-                <option value="propietarios">Propietarios</option>
-                <option value="inquilinos">Inquilinos</option>
-                <option value="inversores">Inversores</option>
-                <option value="noticias">Noticias</option>
-                <option value="mercado">Mercado Inmobiliario</option>
-                <option value="estilo-de-vida">Estilo de Vida & Lujo</option>
-                <option value="consejos">Consejos & Tips</option>
-                <option value="guia-local">Málaga & Costa del Sol</option>
-                <option value="logros">Logros de Empresa</option>
-                <option value="testimonios">Testimonios</option>
+                <option value="articulos">{t('blog.categories.articulos')}</option>
+                <option value="propietarios">{t('blog.categories.propietarios')}</option>
+                <option value="inquilinos">{t('blog.categories.inquilinos')}</option>
+                <option value="inversores">{t('blog.categories.inversores')}</option>
+                <option value="noticias">{t('blog.categories.noticias')}</option>
+                <option value="mercado">{t('blog.categories.mercado')}</option>
+                <option value="estilo-de-vida">{t('blog.categories.estilo-de-vida')}</option>
+                <option value="consejos">{t('blog.categories.consejos')}</option>
+                <option value="guia-local">{t('blog.categories.guia-local')}</option>
+                <option value="logros">{t('blog.categories.logros')}</option>
+                <option value="testimonios">{t('blog.categories.testimonios')}</option>
               </select>
             </div>
           </div>

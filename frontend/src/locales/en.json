@@ -1191,5 +1191,25 @@
     "viewAll": "View all reviews",
     "allReviews": "All reviews",
     "writeReview": "Write a review on Google"
+  },
+  "blog": {
+    "categories": {
+      "articulos": "Articles",
+      "propietarios": "Owners",
+      "inquilinos": "Tenants",
+      "inversores": "Investors",
+      "noticias": "News",
+      "mercado": "Real Estate Market",
+      "estilo-de-vida": "Lifestyle & Luxury",
+      "consejos": "Tips & Advice",
+      "guia-local": "Malaga & Costa del Sol",
+      "logros": "Company Achievements",
+      "testimonios": "Testimonials"
+    },
+    "read_more": "Read more",
+    "back_to_blog": "Back to Blog",
+    "no_media": "No media",
+    "team": "Gelabert Team",
+    "coming_soon": "New articles will be published soon."
   }
 }

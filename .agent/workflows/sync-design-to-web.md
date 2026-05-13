@@ -43,7 +43,7 @@ Si el servidor de desarrollo está corriendo (`npm run dev`), el navegador se re
 ## Cómo arrancar el servidor de desarrollo
 
 ```powershell
-cd "c:\Users\lenovo\Desktop\Gelabert Stay\WEB\frontend"
+cd "c:\Users\lenovo\Desktop\Gelabert Homes\04_Desarrollo_y_Sistemas\WEB\frontend"
 npm run dev
 ```
 

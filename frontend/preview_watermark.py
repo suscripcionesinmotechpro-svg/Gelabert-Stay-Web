@@ -13,7 +13,8 @@ def create_watermark_preview():
     img = Image.open(sample_path).convert("RGBA")
     
     # 2. Load the watermark
-    watermark_path = r"C:\Users\lenovo\Desktop\Gelabert Stay\WEB\frontend\public\watermark.png"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    watermark_path = os.path.join(script_dir, 'public', 'watermark.png')
     watermark = Image.open(watermark_path).convert("RGBA")
     
     # 3. Apply exact logic from watermark.ts
@@ -57,8 +58,8 @@ def create_watermark_preview():
     # Paste watermark
     img.paste(watermark, (x, y), watermark)
     
-    # Save preview to artifacts with a new name to avoid cache
-    output_path = r"C:\Users\lenovo\.gemini\antigravity\brain\12e483c8-47e8-4b54-aa55-02a3fdc69d55\watermark_demo_centered.png"
+    # Save preview to artifacts
+    output_path = os.path.join(script_dir, 'watermark_demo_centered.png')
     img.convert("RGB").save(output_path, "PNG")
     print("Demo created at:", output_path)
 
