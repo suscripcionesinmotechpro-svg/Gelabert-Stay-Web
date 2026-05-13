@@ -32,7 +32,6 @@ export const AdminBlogPostForm = () => {
 
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [showCropper, setShowCropper] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [activeTab, setActiveTab] = useState<'es' | 'en'>('es');
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, Check, RotateCcw } from 'lucide-react';
 import { getCroppedImg } from '../../utils/imageCrop';
 
