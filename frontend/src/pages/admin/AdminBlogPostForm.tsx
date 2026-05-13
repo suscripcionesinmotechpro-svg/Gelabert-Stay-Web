@@ -353,10 +353,16 @@ export const AdminBlogPostForm = () => {
                 className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-2 text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none"
               >
                 <option value="articulos">Artículos</option>
+                <option value="propietarios">Propietarios</option>
+                <option value="inquilinos">Inquilinos</option>
+                <option value="inversores">Inversores</option>
+                <option value="noticias">Noticias</option>
+                <option value="mercado">Mercado Inmobiliario</option>
+                <option value="estilo-de-vida">Estilo de Vida & Lujo</option>
+                <option value="consejos">Consejos & Tips</option>
+                <option value="guia-local">Málaga & Costa del Sol</option>
                 <option value="logros">Logros de Empresa</option>
                 <option value="testimonios">Testimonios</option>
-                <option value="estilo-de-vida">Estilo de Vida</option>
-                <option value="mercado">Mercado Inmobiliario</option>
               </select>
             </div>
           </div>

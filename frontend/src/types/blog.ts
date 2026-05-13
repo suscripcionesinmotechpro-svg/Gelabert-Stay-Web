@@ -1,4 +1,4 @@
-export type BlogPostCategory = 'articulos' | 'logros' | 'testimonios' | 'estilo-de-vida' | 'mercado';
+export type BlogPostCategory = 'articulos' | 'logros' | 'testimonios' | 'estilo-de-vida' | 'mercado' | 'propietarios' | 'inquilinos' | 'inversores' | 'noticias' | 'consejos' | 'guia-local';
 
 export type BlogPostStatus = 'draft' | 'published';
 
