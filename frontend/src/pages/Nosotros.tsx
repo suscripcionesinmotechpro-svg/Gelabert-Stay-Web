@@ -199,22 +199,56 @@ const Nosotros = () => {
         </div>
       </section>
 
+      {/* Values/Philosophy Section */}
+      <section className="relative py-40 bg-[#0A0A0A] overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(201,169,98,0.15),transparent)]" />
+        </div>
+        
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+          <motion.div {...fadeUp}>
+            <Sparkles className="w-10 h-10 text-[#C9A962] mx-auto mb-8" />
             <h2 className="font-secondary text-4xl md:text-6xl text-white mb-8">
               {t('nosotros.values.title')}
             </h2>
-            <p className="font-primary text-white/70 text-xl leading-relaxed mb-12">
-              {t('nosotros.values.p1')}
-            </p>
-            <p className="font-primary text-white/50 leading-relaxed mb-12">
-              {t('nosotros.values.p2')}
-            </p>
-            <div className="w-24 h-px bg-[#C9A962] mx-auto opacity-40 mb-8" />
-            <p className="font-secondary text-2xl text-[#C9A962] italic">
-              {t('nosotros.values.closing')}
-            </p>
+            <div className="space-y-6 text-white/60 font-primary text-xl font-light">
+              <p>{t('nosotros.values.p1')}</p>
+              <p>{t('nosotros.values.p2')}</p>
+            </div>
+            <div className="pt-12">
+              <Rocket className="w-12 h-12 text-[#C9A962] mx-auto mb-6 animate-pulse" />
+              <p className="font-secondary text-2xl text-white italic">
+                "{t('nosotros.values.closing')}"
+              </p>
+            </div>
           </motion.div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-32">
+            {[
+              { icon: Heart, label: 'Compromiso' },
+              { icon: Shield, label: 'Transparencia' },
+              { icon: Award, label: 'Excelencia' },
+              { icon: Sparkles, label: 'Innovación' }
+            ].map((value, i) => (
+              <motion.div
+                key={i}
+                {...fadeUp}
+                transition={{ ...fadeUp.transition, delay: i * 0.1 }}
+                className="flex flex-col items-center gap-4 group"
+              >
+                <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[#C9A962]/40 group-hover:bg-[#C9A962]/5 transition-all duration-500">
+                  <value.icon className="w-6 h-6 text-[#C9A962]" />
+                </div>
+                <span className="font-primary text-[10px] uppercase tracking-widest text-white/40 group-hover:text-white transition-colors">
+                  {value.label}
+                </span>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
     </div>
   );
 };
+
+export default Nosotros;
