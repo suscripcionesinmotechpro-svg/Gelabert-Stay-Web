@@ -36,9 +36,10 @@ const TeamMember = ({ name, role, bio, image, delay = 0 }: {
       <motion.img 
         src={image} 
         alt={name}
-        className="w-full h-full object-cover grayscale transition-all duration-700"
+        className="w-full h-full object-cover transition-all duration-700"
+        initial={{ filter: 'grayscale(1)', scale: 1 }}
         variants={{
-          hover: { grayscale: 0, scale: 1.1 }
+          hover: { filter: 'grayscale(0)', scale: 1.1 }
         }}
       />
       <motion.div 
