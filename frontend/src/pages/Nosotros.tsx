@@ -24,19 +24,39 @@ const TeamMember = ({ name, role, bio, image, delay = 0 }: {
     {...fadeUp}
     transition={{ ...fadeUp.transition, delay }}
     className="group relative"
+    whileHover="hover"
+    whileTap="hover"
   >
-    <div className="relative aspect-[4/5] overflow-hidden rounded-sm mb-6 border border-white/10 group-hover:border-[#C9A962]/40 transition-colors duration-500">
-      <img 
+    <motion.div 
+      className="relative aspect-[4/5] overflow-hidden rounded-sm mb-6 border border-white/10 transition-colors duration-500"
+      variants={{
+        hover: { borderColor: 'rgba(201, 169, 98, 0.4)' }
+      }}
+    >
+      <motion.img 
         src={image} 
         alt={name}
-        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
+        className="w-full h-full object-cover grayscale transition-all duration-700"
+        variants={{
+          hover: { grayscale: 0, scale: 1.1 }
+        }}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-    </div>
+      <motion.div 
+        className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60 transition-opacity" 
+        variants={{
+          hover: { opacity: 0.4 }
+        }}
+      />
+    </motion.div>
     <div className="space-y-2">
-      <h3 className="font-secondary text-2xl text-white group-hover:text-[#C9A962] transition-colors">
+      <motion.h3 
+        className="font-secondary text-2xl text-white transition-colors"
+        variants={{
+          hover: { color: '#C9A962' }
+        }}
+      >
         {name}
-      </h3>
+      </motion.h3>
       <p className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.2em] font-bold">
         {role}
       </p>
@@ -92,7 +112,7 @@ const Nosotros = () => {
       </section>
 
       {/* Vision Section */}
-      <section className="relative z-10 py-32 px-6 max-w-7xl mx-auto">
+      <section id="vision" className="relative z-10 py-24 md:py-32 px-6 max-w-7xl mx-auto scroll-mt-32">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <motion.div {...fadeUp}>
             <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold mb-4 block">
@@ -135,7 +155,7 @@ const Nosotros = () => {
       </section>
 
       {/* History Section */}
-      <section className="bg-white/5 border-y border-white/5 py-32 px-6">
+      <section id="history" className="bg-white/5 border-y border-white/5 py-24 md:py-32 px-6 scroll-mt-32">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-16 items-start">
             <motion.div 
@@ -169,7 +189,7 @@ const Nosotros = () => {
       </section>
 
       {/* Team Section */}
-      <section className="py-32 px-6 max-w-7xl mx-auto">
+      <section id="team" className="py-24 md:py-32 px-6 max-w-7xl mx-auto scroll-mt-32">
         <div className="text-center mb-20">
           <motion.div {...fadeUp} className="flex flex-col items-center gap-4">
             <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold">
@@ -200,7 +220,7 @@ const Nosotros = () => {
       </section>
 
       {/* Innovation Section */}
-      <section className="bg-white/5 border-y border-white/5 py-32 px-6 overflow-hidden">
+      <section id="innovation" className="bg-white/5 border-y border-white/5 py-24 md:py-32 px-6 overflow-hidden scroll-mt-32">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div {...fadeUp} className="relative z-10">
@@ -245,7 +265,7 @@ const Nosotros = () => {
       </section>
 
       {/* Values/Philosophy Section */}
-      <section className="relative py-40 bg-[#0A0A0A] overflow-hidden">
+      <section id="values" className="relative py-32 md:py-40 bg-[#0A0A0A] overflow-hidden scroll-mt-32">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(201,169,98,0.15),transparent)]" />
         </div>
