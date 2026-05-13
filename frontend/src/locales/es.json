@@ -359,13 +359,21 @@
       "title": "Una misma dirección",
       "p1": "Aunque nuestros caminos empezaron en lugares distintos, compartimos una misma forma de entender el sector inmobiliario: trabajar con seriedad, cercanía y compromiso real.",
       "p2": "Nuestro equipo nace con la voluntad de sumar al mercado, profesionalizar los procesos y ofrecer una experiencia más segura, clara y humana.",
-      "closing": "Porque detrás de cada vivienda hay una historia, una decisión importante y una persona que necesita confianza."
+      "closing": "Porque detrás de cada vivienda hay una historia, una decisión importante y una persona que necesita confianza.",
+      "items": {
+        "commitment": "Compromiso",
+        "transparency": "Transparencia",
+        "excellence": "Excelencia",
+        "innovation": "Innovación"
+      }
     },
     "innovation": {
       "badge": "Innovación",
       "title": "Tecnología y Visión de Futuro",
       "p1": "En Gelabert Homes entendemos que el mercado está evolucionando y volviéndose cada día más exigente. Creemos que la figura del agente inmobiliario tradicional que solo abre puertas está desapareciendo.",
-      "p2": "Nuestra visión está totalmente adaptada a las nuevas tecnologías. Utilizamos la Inteligencia Artificial como una herramienta fundamental para optimizar procesos y ofrecer un servicio de vanguardia. Solo aquellos que evolucionan y ven la tecnología como su mejor aliada podrán liderar el mercado del mañana."
+      "p2": "Nuestra visión está totalmente adaptada a las nuevas tecnologías. Utilizamos la Inteligencia Artificial como una herramienta fundamental para optimizar procesos y ofrecer un servicio de vanguardia. Solo aquellos que evolucionan y ven la tecnología como su mejor aliada podrán liderar el mercado del mañana.",
+      "ai_title": "Integración de IA",
+      "ai_subtitle": "Análisis Avanzado y Estrategia"
     }
   },
   "services": {

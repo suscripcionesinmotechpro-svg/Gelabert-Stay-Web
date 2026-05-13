@@ -346,13 +346,21 @@
       "title": "The same direction",
       "p1": "Although our paths started in different places, we share the same way of understanding the real estate sector: working with seriousness, proximity, and real commitment.",
       "p2": "Our team was born with the will to contribute to the market, professionalize processes, and offer a safer, clearer, and more humane experience.",
-      "closing": "Because behind every home there is a story, an important decision, and a person who needs trust."
+      "closing": "Because behind every home there is a story, an important decision, and a person who needs trust.",
+      "items": {
+        "commitment": "Commitment",
+        "transparency": "Transparency",
+        "excellence": "Excellence",
+        "innovation": "Innovation"
+      }
     },
     "innovation": {
       "badge": "Innovation",
       "title": "Technology & Future Vision",
       "p1": "At Gelabert Homes, we understand that the market is evolving and becoming more demanding every day. We believe the traditional real estate agent who just opens doors is disappearing.",
-      "p2": "Our vision is fully adapted to new technologies. We use Artificial Intelligence as a fundamental tool to optimize processes and offer a cutting-edge service. Only those who evolve and see technology as their best ally will lead tomorrow's market."
+      "p2": "Our vision is fully adapted to new technologies. We use Artificial Intelligence as a fundamental tool to optimize processes and offer a cutting-edge service. Only those who evolve and see technology as their best ally will lead tomorrow's market.",
+      "ai_title": "AI Integration",
+      "ai_subtitle": "Advanced Analytics & Strategy"
     }
   },
   "services": {

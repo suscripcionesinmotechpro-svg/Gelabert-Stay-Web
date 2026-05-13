@@ -252,8 +252,8 @@ const Nosotros = () => {
                   <div className="w-20 h-20 rounded-full bg-[#C9A962]/10 flex items-center justify-center mb-6 border border-[#C9A962]/20">
                     <Sparkles className="w-8 h-8 text-[#C9A962] animate-pulse" />
                   </div>
-                  <span className="font-secondary text-2xl text-white mb-2">AI Integration</span>
-                  <p className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.2em]">Advanced Analytics & Strategy</p>
+                  <span className="font-secondary text-2xl text-white mb-2">{t('nosotros.innovation.ai_title')}</span>
+                  <p className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.2em]">{t('nosotros.innovation.ai_subtitle')}</p>
                 </div>
               </div>
               {/* Decorative elements */}
@@ -290,10 +290,10 @@ const Nosotros = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-32">
             {[
-              { icon: Heart, label: 'Compromiso' },
-              { icon: Shield, label: 'Transparencia' },
-              { icon: Award, label: 'Excelencia' },
-              { icon: Sparkles, label: 'Innovación' }
+              { icon: Heart, label: t('nosotros.values.items.commitment') },
+              { icon: Shield, label: t('nosotros.values.items.transparency') },
+              { icon: Award, label: t('nosotros.values.items.excellence') },
+              { icon: Sparkles, label: t('nosotros.values.items.innovation') }
             ].map((value, i) => (
               <motion.div
                 key={i}
