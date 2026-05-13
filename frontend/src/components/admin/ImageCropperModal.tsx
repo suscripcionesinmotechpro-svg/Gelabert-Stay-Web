@@ -31,13 +31,18 @@ export const ImageCropperModal = ({
   }, []);
 
   const handleConfirm = async () => {
+    if (!croppedAreaPixels) {
+      console.warn('Crop area not yet defined');
+      return;
+    }
+    
     try {
       setIsProcessing(true);
       const croppedImage = await getCroppedImg(image, croppedAreaPixels);
       onCropComplete(croppedImage);
       onClose();
     } catch (e) {
-      console.error(e);
+      console.error('Error cropping image:', e);
     } finally {
       setIsProcessing(false);
     }
