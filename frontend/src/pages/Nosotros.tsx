@@ -184,14 +184,14 @@ const Nosotros = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-4xl mx-auto">
           <TeamMember 
             name="José Carlos Delgado Gelabert"
-            role="Founder & Commercial Director"
+            role="CEO & Founder"
             bio={t('nosotros.team.jose.bio')}
             image="/images/team/jose-carlos.jpg"
             delay={0.1}
           />
           <TeamMember 
             name="Juan Carlos Sánchez Morente"
-            role="Founder & Sales Director"
+            role="Co-founder & Sales Director"
             bio={t('nosotros.team.juan.bio')}
             image="/images/team/juan-carlos.jpg"
             delay={0.2}
