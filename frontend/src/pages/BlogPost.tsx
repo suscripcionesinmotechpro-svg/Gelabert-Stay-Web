@@ -11,7 +11,7 @@ import { PageLoading } from '../components/PageLoading';
 export const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [post, setPost] = useState<BlogPostType | null>(null);
   const [loading, setLoading] = useState(true);
   const langPrefix = i18n.language.startsWith('en') ? '/en' : '';

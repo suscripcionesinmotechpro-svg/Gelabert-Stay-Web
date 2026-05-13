@@ -96,7 +96,6 @@ export const BlogList = () => {
             {posts.map((post, index) => {
               const isEn = i18n.language.startsWith('en');
               const displayTitle = isEn ? (post.title_en || post.title) : post.title;
-              const displayDescription = isEn ? (post.seo_description_en || post.seo_description || '') : (post.seo_description || '');
               const coverUrl = post.cover_video || post.cover_image;
               const isVideo = !!post.cover_video || (post.cover_image?.match(/\.(mp4|webm|mov)(\?.*)?$/i));
 
