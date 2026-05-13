@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 // removed unused import
 import { Save, ArrowLeft, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useBlog } from '../../hooks/useBlog';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
+import { ImageCropperModal } from '../../components/admin/ImageCropperModal';
 import type { BlogPostFormData } from '../../types/blog';
 
 export const AdminBlogPostForm = () => {
@@ -29,6 +30,9 @@ export const AdminBlogPostForm = () => {
     cover_video: '',
   });
 
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [activeTab, setActiveTab] = useState<'es' | 'en'>('es');
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
@@ -69,9 +73,21 @@ export const AdminBlogPostForm = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setCoverFile(file);
-      setCoverPreview(URL.createObjectURL(file));
+      if (file.type.startsWith('image/')) {
+        setSelectedFile(URL.createObjectURL(file));
+        setShowCropper(true);
+      } else {
+        setCoverFile(file);
+        setCoverPreview(URL.createObjectURL(file));
+      }
     }
+  };
+
+  const onCropComplete = (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], 'cover_image.webp', { type: 'image/webp' });
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+    setShowCropper(false);
   };
 
   const translateToEnglish = async () => {
@@ -373,11 +389,11 @@ export const AdminBlogPostForm = () => {
             
             <div className="relative group">
               {coverPreview ? (
-                <div className="relative w-full aspect-video rounded-sm overflow-hidden border border-white/10 flex items-center justify-center bg-black">
+                <div className="relative w-full aspect-[2/3] rounded-sm overflow-hidden border border-white/10 flex items-center justify-center bg-black">
                   {(coverPreview.match(/\.(mp4|webm|mov)(\?.*)?$/i) || (coverFile && coverFile.type.startsWith('video/'))) ? (
                     <video src={coverPreview} autoPlay loop muted playsInline className="w-full h-full object-contain" />
                   ) : (
-                    <img src={coverPreview} alt="Cover" className="w-full h-full object-contain" />
+                    <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
                   )}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <label className="cursor-pointer bg-[#C9A962] text-black px-4 py-2 rounded-sm font-bold text-xs uppercase tracking-widest">
@@ -398,5 +414,15 @@ export const AdminBlogPostForm = () => {
         </div>
       </div>
     </div>
+    
+    <AnimatePresence>
+      {showCropper && selectedFile && (
+        <ImageCropperModal
+          image={selectedFile}
+          onClose={() => setShowCropper(false)}
+          onCropComplete={onCropComplete}
+        />
+      )}
+    </AnimatePresence>
   );
 };
