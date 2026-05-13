@@ -199,6 +199,51 @@ const Nosotros = () => {
         </div>
       </section>
 
+      {/* Innovation Section */}
+      <section className="bg-white/5 border-y border-white/5 py-32 px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <motion.div {...fadeUp} className="relative z-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-[#C9A962]/10 flex items-center justify-center">
+                  <Rocket className="w-5 h-5 text-[#C9A962]" />
+                </div>
+                <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold">
+                  {t('nosotros.innovation.badge')}
+                </span>
+              </div>
+              <h2 className="font-secondary text-4xl md:text-5xl text-white mb-8 leading-[1.2]">
+                {t('nosotros.innovation.title')}
+              </h2>
+              <div className="space-y-6 text-white/60 font-primary text-lg leading-relaxed font-light">
+                <p>{t('nosotros.innovation.p1')}</p>
+                <p>{t('nosotros.innovation.p2')}</p>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              {...fadeUp}
+              transition={{ ...fadeUp.transition, delay: 0.3 }}
+              className="relative"
+            >
+              <div className="aspect-video rounded-sm overflow-hidden border border-white/10 bg-[#0A0A0A] flex items-center justify-center group">
+                <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-110 transition-transform duration-1000" />
+                <div className="relative z-10 flex flex-col items-center text-center px-8">
+                  <div className="w-20 h-20 rounded-full bg-[#C9A962]/10 flex items-center justify-center mb-6 border border-[#C9A962]/20">
+                    <Sparkles className="w-8 h-8 text-[#C9A962] animate-pulse" />
+                  </div>
+                  <span className="font-secondary text-2xl text-white mb-2">AI Integration</span>
+                  <p className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.2em]">Advanced Analytics & Strategy</p>
+                </div>
+              </div>
+              {/* Decorative elements */}
+              <div className="absolute -top-6 -right-6 w-32 h-32 border-t border-r border-[#C9A962]/30" />
+              <div className="absolute -bottom-6 -left-6 w-32 h-32 border-b border-l border-[#C9A962]/30" />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Values/Philosophy Section */}
       <section className="relative py-40 bg-[#0A0A0A] overflow-hidden">
         <div className="absolute inset-0 opacity-10">
