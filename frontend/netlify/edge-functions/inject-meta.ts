@@ -90,13 +90,15 @@ export default async (request: Request, context: Context) => {
       ? `reference.eq.${searchId},slug.eq.${searchId},id.eq.${searchId}`
       : `reference.in.(${possibleRefs.join(",")}),slug.eq.${searchId},reference.ilike.${searchId},slug.ilike.${searchId}`;
 
-    const queryUrl = `${SUPABASE_URL}/rest/v1/properties?or=(${orConditions})&select=*`;
+    const t = new Date().getTime();
+    const queryUrl = `${SUPABASE_URL}/rest/v1/properties?or=(${orConditions})&select=*&t=${t}`;
 
     const dbResponse = await fetch(queryUrl, {
       headers: {
         apikey: SUPABASE_KEY,
         Authorization: `Bearer ${SUPABASE_KEY}`,
       },
+      cache: 'no-store'
     });
 
     let xDebug = `origin:${originStatus}`;
@@ -130,29 +132,6 @@ export default async (request: Request, context: Context) => {
         return text;
       };
 
-      let title = "";
-      if (isEn) {
-        title = prop.title_en || prop.meta_title_en || (await translateText(prop.meta_title || prop.title, "en"));
-      } else {
-        title = prop.meta_title || prop.title;
-      }
-      title = (title || "Propiedad").trim();
-
-      // ── Type / Operation labels ──
-      const typeLabels: Record<string, { es: string; en: string }> = {
-        piso:    { es: "Piso",     en: "Apartment" },
-        casa:    { es: "Casa",     en: "House" },
-        atico:   { es: "Ático",    en: "Penthouse" },
-        estudio: { es: "Estudio",  en: "Studio" },
-        loft:    { es: "Loft",     en: "Loft" },
-        local:   { es: "Local",    en: "Commercial Premises" },
-        oficina: { es: "Oficina",  en: "Office" },
-        nave:    { es: "Nave",     en: "Industrial Warehouse" },
-        terreno: { es: "Terreno",  en: "Land" },
-        negocio: { es: "Negocio",  en: "Business" },
-        otro:    { es: "Propiedad",en: "Property" },
-      };
-
       const type = prop.property_type || "otro";
       const typeLabel = isEn
         ? typeLabels[type]?.en || typeLabels.otro.en
@@ -163,8 +142,22 @@ export default async (request: Request, context: Context) => {
       else if (prop.operation === "venta")   opLabel = isEn ? "Sale" : "Venta";
       else if (prop.operation === "traspaso") opLabel = isEn ? "Transfer" : "Traspaso";
 
+      // Construction of a rich title for social sharing
+      // Ej: "Alquiler Piso en Málaga | Gelabert Homes"
+      const cityLabel = prop.city ? (isEn ? ` in ${prop.city}` : ` en ${prop.city}`) : "";
+      const baseSharingTitle = `${opLabel} ${typeLabel}${cityLabel}`;
+      
+      let title = "";
+      if (isEn) {
+        title = prop.title_en || prop.meta_title_en || baseSharingTitle;
+      } else {
+        title = prop.meta_title || prop.title || baseSharingTitle;
+      }
+      title = (title || "Propiedad").trim();
+
       const features: string[] = [];
-      if (opLabel && typeLabel) features.push(`${opLabel} ${typeLabel}`);
+      // We don't add op/type to features if they are already in the title to avoid redundancy
+      // but we add location/price/m2 etc.
       if (prop.city) features.push(prop.city);
 
       if (prop.price) {
@@ -201,14 +194,28 @@ export default async (request: Request, context: Context) => {
         if (orient.trim() !== "") features.push(`${isEn ? "Orientation" : "Orientación"} ${orient}`);
       }
 
-      let description = features.join(" · ");
-      const extraDesc = isEn
-        ? prop.short_description_en || prop.meta_description_en || prop.short_description
+      // ── Final Description Construction ──
+      // Logic: If there's a custom meta_description, use it. 
+      // Otherwise, use short_description or a snippet of long description, 
+      // prefixed by the technical features (type, price, location).
+      const rawShort = isEn
+        ? prop.short_description_en || prop.meta_description_en
         : prop.short_description || prop.meta_description;
       
-      if (extraDesc) {
-        description += ` | ${stripHtml(extraDesc)}`;
+      const rawLong = isEn ? prop.description_en : prop.description;
+      
+      let descriptionBody = "";
+      if (rawShort) {
+        descriptionBody = stripHtml(rawShort);
+      } else if (rawLong) {
+        descriptionBody = stripHtml(rawLong).substring(0, 160);
       }
+
+      let description = features.join(" · ");
+      if (descriptionBody) {
+        description += ` | ${descriptionBody}`;
+      }
+      
       description = description.trim() || title || "Gelabert Homes Real Estate";
 
       // ── Image logic — GUARANTEED for all properties ──

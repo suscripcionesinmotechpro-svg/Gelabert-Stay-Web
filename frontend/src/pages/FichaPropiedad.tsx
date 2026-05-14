@@ -256,8 +256,11 @@ export const FichaPropiedad = () => {
   const translatedTitle = autoTitle;
   const translatedDescription = autoDescription;
 
-  // SEO Fallbacks
-  const seoTitle = property.meta_title || `${translatedTitle} | ${property.city} | Gelabert Homes Real Estate`;
+  // SEO Logic — Matches server-side injection (inject-meta.ts)
+  const isEn = i18n.language.startsWith('en');
+  const seoTitle = isEn 
+    ? (property.title_en || property.meta_title_en || property.meta_title || `${translatedTitle} | ${property.city} | Gelabert Homes Real Estate`)
+    : (property.meta_title || `${translatedTitle} | ${property.city} | Gelabert Homes Real Estate`);
 
   // Título estructurado para compartir (OpenGraph / WhatsApp)
   // Ej: "Alquiler Piso · Málaga · 800 €/mes · 40 m² · Baños 1 · Planta 5º"
@@ -294,9 +297,25 @@ export const FichaPropiedad = () => {
     property.zone || property.city,
   ].filter(Boolean).join(' · ');
 
+  // Description Logic — Matches server-side injection
+  const rawShort = isEn
+    ? property.short_description_en || property.meta_description_en
+    : property.short_description || property.meta_description;
+  
+  const rawLongSnippet = isEn ? property.description_en : property.description;
+  
+  let descriptionBody = "";
+  if (rawShort) {
+    descriptionBody = rawShort.replace(/<[^>]*>/g, '').trim();
+  } else if (rawLongSnippet) {
+    descriptionBody = rawLongSnippet.replace(/<[^>]*>/g, '').substring(0, 160).trim();
+  }
+
   const seoDescription = featureSnippet 
-    ? featureSnippet 
-    : (translatedDescription ? translatedDescription.replace(/<[^>]*>/g, '').slice(0, 160) : '');
+    ? (descriptionBody ? `${featureSnippet} | ${descriptionBody}` : featureSnippet)
+    : (descriptionBody || seoTitle);
+
+  const finalCanonical = `https://gelaberthomes.es${isEn ? '/en' : ''}/propiedades/${property.slug || property.id}`;
 
   // Usamos URL con slash final para mejorar compatibilidad con algunos scrapers
   const propertyUrl = `https://gelaberthomes.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${property.reference || property.slug || property.id}`;

@@ -119,57 +119,56 @@ async function generateStaticPreviews() {
       }
 
       // --- Versión ESPAÑOL ---
-      const titleEs = escapeHtml(prop.title);
+      const titleEs = escapeHtml(prop.meta_title || prop.title);
       const featuresEs = [];
+      if (prop.operation) featuresEs.push(prop.operation === 'alquiler' ? 'Alquiler' : 'Venta');
+      if (prop.property_type) featuresEs.push(prop.property_type.charAt(0).toUpperCase() + prop.property_type.slice(1));
+      if (prop.city) featuresEs.push(prop.city);
+      if (prop.price) featuresEs.push(`${prop.price.toLocaleString('es-ES')} €${prop.operation === 'alquiler' ? '/mes' : ''}`);
       if (prop.area_m2) featuresEs.push(`${prop.area_m2} m²`);
       if (prop.bedrooms) featuresEs.push(`${prop.bedrooms} hab.`);
       if (prop.bathrooms) featuresEs.push(`${prop.bathrooms} baños`);
-      if (prop.floor) featuresEs.push(`Planta ${prop.floor}`);
-      if (prop.availability) featuresEs.push(`Disp: ${prop.availability}`);
       
-      const descEs = escapeHtml(featuresEs.join(' • ') || prop.description?.slice(0, 150) || "Gelabert Homes Real Estate | Málaga & Costa del Sol.");
+      const featuresStrEs = featuresEs.join(' • ');
+      let descEs = prop.meta_description || prop.short_description;
+      if (!descEs && prop.description) {
+        descEs = prop.description.replace(/<[^>]*>/g, '').slice(0, 155);
+      }
       
-      const htmlEs = buildPropHtml(baseHtml, titleEs, descEs, prop, 'es', previewImage);
+      const finalDescEs = escapeHtml(featuresStrEs + (descEs ? ` | ${descEs}` : ""));
+      
+      const htmlEs = buildPropHtml(baseHtml, titleEs, finalDescEs, prop, 'es', previewImage);
       savePropHtml(htmlEs, prop, PROPERTIES_DIR);
 
       // --- Versión INGLÉS ---
-      // Traducir título si no existe título_en
-      let rawTitleEn = prop.title_en;
+      let rawTitleEn = prop.title_en || prop.meta_title_en;
       if (!rawTitleEn || rawTitleEn.trim() === "") {
         console.log(`  [TR] Traduciendo título: ${prop.title.slice(0, 20)}...`);
-        rawTitleEn = await translateText(prop.title);
+        rawTitleEn = await translateText(prop.meta_title || prop.title);
       }
       
       const titleEn = escapeHtml(rawTitleEn);
       const featuresEn = [];
+      if (prop.operation) featuresEn.push(prop.operation === 'alquiler' ? 'Rent' : 'Sale');
+      if (prop.property_type) featuresEn.push(prop.property_type); // Add proper mapping if needed, but this is a start
+      if (prop.city) featuresEn.push(prop.city);
+      if (prop.price) featuresEn.push(`${prop.price.toLocaleString('en-US')} €${prop.operation === 'alquiler' ? '/month' : ''}`);
       if (prop.area_m2) featuresEn.push(`${prop.area_m2} sqm`);
       if (prop.bedrooms) featuresEn.push(`${prop.bedrooms} beds`);
       if (prop.bathrooms) featuresEn.push(`${prop.bathrooms} baths`);
-      if (prop.floor) featuresEn.push(`Floor ${prop.floor}`);
       
-      // Traducir disponibilidad si existe
-      if (prop.availability) {
-        let availEn = prop.availability;
-        if (availEn.toLowerCase() === 'inmediata') availEn = 'Immediate';
-        else if (availEn.toLowerCase() === 'a convenir') availEn = 'To be agreed';
-        else if (availEn.toLowerCase() === 'mayo 2024') availEn = 'May 2024'; // Ejemplo del usuario
-        else {
-          availEn = await translateText(prop.availability);
+      const featuresStrEn = featuresEn.join(' • ');
+      let descEn = prop.short_description_en || prop.meta_description_en;
+      if (!descEn) {
+        const sourceDesc = prop.short_description || prop.meta_description || prop.description;
+        if (sourceDesc) {
+          descEn = await translateText(sourceDesc.replace(/<[^>]*>/g, '').slice(0, 155));
         }
-        featuresEn.push(`Avail: ${availEn}`);
       }
       
-      let rawDescEn = prop.description_en;
-      if (!rawDescEn || rawDescEn.trim() === "") {
-        // Para el meta description, usamos los features o traducimos una parte del texto
-        rawDescEn = featuresEn.join(' • ') || await translateText(prop.description?.slice(0, 150));
-      } else {
-        rawDescEn = escapeHtml(rawDescEn.slice(0, 160));
-      }
+      const finalDescEn = escapeHtml(featuresStrEn + (descEn ? ` | ${descEn}` : ""));
       
-      const descEn = escapeHtml(rawDescEn || "Gelabert Homes Real Estate | Malaga & Costa del Sol.");
-      
-      const htmlEn = buildPropHtml(baseHtml, titleEn, descEn, prop, 'en', previewImage);
+      const htmlEn = buildPropHtml(baseHtml, titleEn, finalDescEn, prop, 'en', previewImage);
       savePropHtml(htmlEn, prop, EN_PROPERTIES_DIR);
     }
 
