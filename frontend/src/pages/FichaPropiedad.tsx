@@ -483,7 +483,7 @@ export const FichaPropiedad = () => {
             <div className="flex flex-col md:flex-row gap-3">
               {/* Main image */}
             <div
-              className="flex-1 md:w-2/3 h-64 md:h-[450px] overflow-hidden border border-[#1F1F1F] relative cursor-zoom-in group"
+              className="flex-1 md:w-2/3 h-64 md:h-[600px] overflow-hidden border border-[#1F1F1F] relative cursor-zoom-in group bg-[#0A0A0A]"
               onClick={() => generalImages.length > 0 && openLightbox(generalImages, activeImg)}
             >
             {generalImages.length > 0 ? (
@@ -523,7 +523,7 @@ export const FichaPropiedad = () => {
           </div>
           {/* Thumbnails */}
           {generalImages.length > 1 && (
-            <div className="flex md:flex-col gap-2 md:w-1/3 overflow-x-auto md:overflow-y-auto md:max-h-[450px]">
+            <div className="flex md:flex-col gap-2 md:w-1/3 overflow-x-auto md:overflow-y-auto md:max-h-[600px]">
               {generalImages.map((img, i) => (
                 <button 
                   key={i} 
@@ -1094,15 +1094,19 @@ export const FichaPropiedad = () => {
 
           {/* Description */}
           {translatedDescription && (
-            <div className="flex flex-col gap-4 pt-4 border-t border-[#1F1F1F]">
-              <h2 className="font-secondary text-2xl text-[#FAF8F5]">{t('property.labels.features.description')}</h2>
+            <div className="flex flex-col gap-6 p-8 bg-[#0A0A0A] border border-[#1F1F1F] rounded-xl relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-1 h-full bg-[#C9A962] opacity-50 group-hover:opacity-100 transition-opacity" />
+              <h2 className="font-secondary text-3xl text-[#FAF8F5] flex items-center gap-3">
+                <div className="w-8 h-px bg-[#C9A962]" />
+                {t('property.labels.features.description')}
+              </h2>
               {/<[a-z][\s\S]*>/i.test(translatedDescription) ? (
                 <div 
-                  className="font-primary text-[#888888] text-base leading-relaxed rich-text !whitespace-pre-wrap"
+                  className="prose prose-invert max-w-none text-[#FAF8F5] text-lg leading-relaxed selection:bg-[#C9A962]/30"
                   dangerouslySetInnerHTML={{ __html: translatedDescription }}
                 />
               ) : (
-                <div className="font-primary text-[#888888] text-base leading-relaxed whitespace-pre-wrap">
+                <div className="font-primary text-[#FAF8F5] text-lg leading-relaxed whitespace-pre-wrap selection:bg-[#C9A962]/30">
                   {translatedDescription}
                 </div>
               )}
@@ -1152,6 +1156,7 @@ export const FichaPropiedad = () => {
                   <span className="font-primary text-sm text-green-400 font-medium">{feat.label}</span>
                 </div>
               ))}
+
             </div>
             {(property.property_condition || property.conservation_state || property.availability) && (
               <div className="flex flex-col gap-2 p-4 bg-[#0A0A0A]/50 border-l-2 border-[#C9A962]">
