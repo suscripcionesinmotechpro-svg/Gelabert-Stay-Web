@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, MessageSquare, User, Trash2, ExternalLink } from 'lucide-react';
+import { Search, MessageSquare, User, Trash2, ExternalLink, Copy, Check } from 'lucide-react';
 import type { LeadCRM, ScoredProperty } from '../../hooks/useLeadsCRM';
 import { useLeadsCRM, updateLeadStatus, updateLeadNotes, searchPropertiesForBot, deleteLead } from '../../hooks/useLeadsCRM';
 import { format } from 'date-fns';
@@ -10,6 +10,7 @@ export const AdminLeadsCRM = () => {
   const [filterStatus, setFilterStatus] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLead, setSelectedLead] = useState<LeadCRM | null>(null);
+  const [copiedLink, setCopiedLink] = useState<string | null>(null);
   
   const { leads, loading, refetch } = useLeadsCRM({
     intent: filterIntent,
@@ -70,12 +71,45 @@ export const AdminLeadsCRM = () => {
     }
   };
 
+  const copyToClipboard = (text: string, id: string) => {
+    const fullUrl = `${window.location.origin}${text}`;
+    navigator.clipboard.writeText(fullUrl);
+    setCopiedLink(id);
+    setTimeout(() => setCopiedLink(null), 2000);
+  };
+
+  const captureLinks = [
+    { id: 'tenants', label: 'Inquilinos', path: '/inquilinos', color: 'text-blue-400' },
+    { id: 'sale', label: 'Propietarios (Venta)', path: '/propietarios-venta', color: 'text-[#C9A962]' },
+    { id: 'rent', label: 'Propietarios (Alquiler)', path: '/propietarios-alquiler', color: 'text-green-400' },
+  ];
+
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4 bg-[#111111] p-6 border border-[#1F1F1F] rounded-lg">
         <div>
-          <h1 className="text-2xl font-secondary text-[#C9A962]">CRM Leads</h1>
-          <p className="text-[#888888] font-primary text-sm mt-1">Gestión de prospectos captados</p>
+          <h1 className="text-2xl font-secondary text-[#C9A962] uppercase tracking-widest">CRM Leads</h1>
+          <p className="text-[#888888] font-primary text-xs mt-1 uppercase tracking-wider">Gestión de prospectos captados</p>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          {captureLinks.map((link) => (
+            <button
+              key={link.id}
+              onClick={() => copyToClipboard(link.path, link.id)}
+              className="group flex items-center gap-3 bg-[#0A0A0A] border border-[#1F1F1F] px-4 py-2.5 rounded-sm hover:border-[#C9A962] transition-all"
+            >
+              <div className="flex flex-col items-start">
+                <span className="text-[10px] text-[#555555] uppercase font-bold tracking-tighter">Copiar Link</span>
+                <span className={`text-xs font-bold uppercase tracking-wide ${link.color}`}>{link.label}</span>
+              </div>
+              {copiedLink === link.id ? (
+                <Check className="w-4 h-4 text-green-500" />
+              ) : (
+                <Copy className="w-4 h-4 text-[#444444] group-hover:text-[#C9A962] transition-colors" />
+              )}
+            </button>
+          ))}
         </div>
       </div>
 
