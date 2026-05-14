@@ -1203,6 +1203,11 @@
       "person_seniority": "Seniority (years/months)",
       "person_origin": "Place of origin",
       "occupation_placeholder": "E.g.: Architect, Student, Retired...",
+      "search_preferences_title": "Search Preferences",
+      "max_price": "Maximum price (€/month)",
+      "min_bedrooms": "Minimum bedrooms",
+      "min_area": "Minimum area (sqm)",
+      "additional_features": "Additional features / Notes",
       "success_title": "Request received",
       "success_desc": "Thank you for providing your information. We will analyze your profile and contact you soon."
     },

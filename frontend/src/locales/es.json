@@ -1218,6 +1218,11 @@
       "person_seniority": "Antigüedad (años/meses)",
       "person_origin": "Lugar de procedencia",
       "occupation_placeholder": "Ej: Arquitecto, Estudiante, Jubilado...",
+      "search_preferences_title": "Preferencias de Búsqueda",
+      "max_price": "Precio máximo (€/mes)",
+      "min_bedrooms": "Habitaciones mínimas",
+      "min_area": "Metros cuadrados mínimos (m²)",
+      "additional_features": "Características adicionales / Notas",
       "success_title": "Solicitud recibida",
       "success_desc": "Gracias por facilitarnos tu información. Analizaremos tu perfil y te contactaremos pronto."
     },

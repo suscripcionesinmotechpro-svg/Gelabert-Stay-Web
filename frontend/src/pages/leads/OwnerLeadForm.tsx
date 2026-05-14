@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { User, Mail, Phone, MapPin, Euro, FileText, Link as LinkIcon, Send, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
@@ -32,6 +32,8 @@ const OwnerLeadForm: React.FC<OwnerLeadFormProps> = ({ type }) => {
     try {
       const intent = type === 'venta' ? 'vender' : 'alquilar_propietario';
       
+      const cleanPrice = parseFloat(formData.price.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+      
       // 1. Save to Supabase
       const { error: supabaseError } = await supabase
         .from('leads_crm')
@@ -43,8 +45,10 @@ const OwnerLeadForm: React.FC<OwnerLeadFormProps> = ({ type }) => {
             intent: intent,
             property_ad_url: formData.ad_url,
             property_features: formData.features,
-            rental_price: formData.price,
-            status: 'Nuevo'
+            [type === 'venta' ? 'sell_estimated_price' : 'rental_price']: cleanPrice,
+            status: 'Nuevo',
+            privacy_accepted: true,
+            privacy_accepted_at: new Date().toISOString()
           }
         ]);
 
@@ -235,10 +239,23 @@ const OwnerLeadForm: React.FC<OwnerLeadFormProps> = ({ type }) => {
         </div>
 
         <div className="flex flex-col items-center gap-6 pt-6">
-          <label className="flex items-center gap-3 cursor-pointer group">
-            <input required type="checkbox" className="w-5 h-5 accent-accent" />
+          <label className="flex items-center gap-3 cursor-pointer group max-w-lg">
+            <div className="relative w-5 h-5 flex-shrink-0">
+              <input 
+                required
+                type="checkbox" 
+                className="peer absolute inset-0 opacity-0 cursor-pointer"
+              />
+              <div className="absolute inset-0 bg-white/5 border border-white/20 rounded peer-checked:bg-accent peer-checked:border-accent transition-all" />
+              <CheckCircle2 className="absolute inset-0 w-5 h-5 text-white scale-0 peer-checked:scale-100 transition-all" />
+            </div>
             <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
-              {t('property.labels.features.accept_privacy_short')}
+              <Trans
+                i18nKey="property.labels.features.accept_privacy_short"
+                components={[
+                  <a href="/privacidad" className="underline hover:text-[#C9A962] transition-colors" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>
+                ]}
+              />
             </span>
           </label>
 

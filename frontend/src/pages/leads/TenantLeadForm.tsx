@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Mail, Phone, Users, Briefcase, TrendingUp, Calendar, MapPin, Send, CheckCircle2 } from 'lucide-react';
+import { User, Mail, Phone, Users, Briefcase, TrendingUp, Calendar, MapPin, Send, CheckCircle2, Home, Bed, Square, MessageSquare } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import LeadFormLayout from '../../components/leads/LeadFormLayout';
 import { toast } from 'react-hot-toast';
+import { saveLeadFromBot } from '../../hooks/useLeadsCRM';
 
 interface Occupant {
   name: string;
@@ -24,7 +25,11 @@ const TenantLeadForm: React.FC = () => {
     full_name: '',
     email: '',
     phone: '',
-    num_people: '1'
+    num_people: '1',
+    max_price: '',
+    min_bedrooms: '',
+    min_area: '',
+    property_features: ''
   });
 
   const [occupants, setOccupants] = useState<Occupant[]>([
@@ -57,21 +62,32 @@ const TenantLeadForm: React.FC = () => {
     setLoading(true);
 
     try {
-      // 1. Save to Supabase leads_crm
-      const { error: supabaseError } = await supabase
-        .from('leads_crm')
-        .insert([
-          {
-            name: formData.full_name,
-            email: formData.email,
-            phone: formData.phone,
-            intent: 'alquilar',
-            occupants: occupants, // This matches the JSONB column
-            status: 'Nuevo'
-          }
-        ]);
+      // 1. Save to Supabase using the CRM helper
+      // This handles both the lead and the search profile
+      const result = await saveLeadFromBot(
+        {
+          name: formData.full_name,
+          email: formData.email,
+          phone: formData.phone,
+          intent: 'alquilar',
+          num_people: parseInt(formData.num_people),
+          occupants: occupants,
+          status: 'nuevo',
+          max_rent: formData.max_price ? parseFloat(formData.max_price) : undefined,
+          property_features: formData.property_features,
+          privacy_accepted: true,
+          privacy_accepted_at: new Date().toISOString()
+        },
+        {
+          max_price: formData.max_price ? parseFloat(formData.max_price) : undefined,
+          min_bedrooms: formData.min_bedrooms ? parseInt(formData.min_bedrooms) : undefined,
+          min_area_m2: formData.min_area ? parseFloat(formData.min_area) : undefined,
+          search_keywords: formData.property_features,
+          is_active: true
+        }
+      );
 
-      if (supabaseError) throw supabaseError;
+      if (!result) throw new Error('Error al guardar el lead');
 
       // 2. Submit to Netlify Forms (for email notification)
       const netlifyData = new FormData();
@@ -80,6 +96,10 @@ const TenantLeadForm: React.FC = () => {
       netlifyData.append('email', formData.email);
       netlifyData.append('phone', formData.phone);
       netlifyData.append('num_people', formData.num_people);
+      netlifyData.append('max_price', formData.max_price);
+      netlifyData.append('min_bedrooms', formData.min_bedrooms);
+      netlifyData.append('min_area', formData.min_area);
+      netlifyData.append('additional_notes', formData.property_features);
       
       // Detailed occupants info for the email
       const occupantsSummary = occupants.map((o, i) => 
@@ -144,6 +164,10 @@ const TenantLeadForm: React.FC = () => {
         {/* Hidden inputs for Netlify */}
         <input type="hidden" name="form-name" value="tenant-lead-form" />
         <input type="hidden" name="occupants_details" />
+        <input type="hidden" name="max_price" />
+        <input type="hidden" name="min_bedrooms" />
+        <input type="hidden" name="min_area" />
+        <input type="hidden" name="additional_notes" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
@@ -209,6 +233,77 @@ const TenantLeadForm: React.FC = () => {
                 <option key={num} value={num} className="bg-slate-900">{num}</option>
               ))}
             </select>
+          </div>
+        </div>
+
+        {/* Búsqueda Preferences Section */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-6">
+          <div className="flex items-center gap-3 mb-2">
+            <Home className="w-6 h-6 text-accent" />
+            <h3 className="text-xl font-secondary text-white uppercase tracking-wider">
+              {t('lead_forms.tenants.search_preferences_title')}
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                <TrendingUp className="w-3 h-3 text-accent" />
+                {t('lead_forms.tenants.max_price')}
+              </label>
+              <input
+                type="number"
+                name="max_price"
+                value={formData.max_price}
+                onChange={(e) => setFormData({ ...formData, max_price: e.target.value })}
+                className="w-full bg-transparent border-b border-white/10 py-2 text-white focus:border-accent transition-all outline-none"
+                placeholder="Ej: 1200"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                <Bed className="w-3 h-3 text-accent" />
+                {t('lead_forms.tenants.min_bedrooms')}
+              </label>
+              <input
+                type="number"
+                name="min_bedrooms"
+                value={formData.min_bedrooms}
+                onChange={(e) => setFormData({ ...formData, min_bedrooms: e.target.value })}
+                className="w-full bg-transparent border-b border-white/10 py-2 text-white focus:border-accent transition-all outline-none"
+                placeholder="Ej: 2"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                <Square className="w-3 h-3 text-accent" />
+                {t('lead_forms.tenants.min_area')}
+              </label>
+              <input
+                type="number"
+                name="min_area"
+                value={formData.min_area}
+                onChange={(e) => setFormData({ ...formData, min_area: e.target.value })}
+                className="w-full bg-transparent border-b border-white/10 py-2 text-white focus:border-accent transition-all outline-none"
+                placeholder="Ej: 70"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-gray-400 uppercase tracking-wider flex items-center gap-2">
+              <MessageSquare className="w-3 h-3 text-accent" />
+              {t('lead_forms.tenants.additional_features')}
+            </label>
+            <textarea
+              name="property_features"
+              value={formData.property_features}
+              onChange={(e) => setFormData({ ...formData, property_features: e.target.value })}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/50 transition-all min-h-[100px] resize-none"
+              placeholder="Ej: Con terraza, cerca del metro, acepta mascotas..."
+            />
           </div>
         </div>
 
@@ -332,7 +427,12 @@ const TenantLeadForm: React.FC = () => {
               <CheckCircle2 className="absolute inset-0 w-5 h-5 text-white scale-0 peer-checked:scale-100 transition-all" />
             </div>
             <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
-              {t('property.labels.features.accept_privacy_short')}
+              <Trans
+                i18nKey="property.labels.features.accept_privacy_short"
+                components={[
+                  <a href="/privacidad" className="underline hover:text-[#C9A962] transition-colors" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>
+                ]}
+              />
             </span>
           </label>
 

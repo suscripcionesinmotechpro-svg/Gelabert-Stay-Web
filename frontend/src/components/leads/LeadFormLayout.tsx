@@ -19,7 +19,7 @@ const LeadFormLayout: React.FC<LeadFormLayoutProps> = ({
   backgroundImage = "https://images.unsplash.com/photo-1600585154340-be6199f3e209?auto=format&fit=crop&q=80"
 }) => {
   return (
-    <div className="min-h-screen relative pt-24 pb-12 overflow-hidden flex flex-col items-center justify-center">
+    <div className="min-h-screen relative pt-24 pb-12 overflow-x-hidden flex flex-col items-center">
       <Helmet>
         <title>{title} | Gelabert Homes</title>
         <meta name="description" content={description} />
@@ -54,10 +54,9 @@ const LeadFormLayout: React.FC<LeadFormLayoutProps> = ({
         >
           <Link to="/">
             <img 
-              src="/logo-og.png" 
+              src="/logo-hd-perfect.png" 
               alt="Gelabert Homes" 
-              className="h-16 md:h-20 w-auto object-contain mb-8 hover:opacity-80 transition-opacity"
-              style={{ mixBlendMode: 'screen' }}
+              className="h-20 md:h-24 w-auto object-contain mb-8 hover:opacity-80 transition-opacity"
             />
           </Link>
           <span className="inline-block px-4 py-1.5 rounded-full bg-accent/20 text-accent text-sm font-semibold tracking-wider uppercase mb-4 backdrop-blur-md border border-accent/30">
@@ -75,7 +74,7 @@ const LeadFormLayout: React.FC<LeadFormLayoutProps> = ({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 md:p-12 border border-white/20 shadow-2xl"
+          className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 md:p-12 border border-white/20 shadow-2xl"
         >
           {children}
         </motion.div>

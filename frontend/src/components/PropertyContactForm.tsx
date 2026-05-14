@@ -255,7 +255,7 @@ export const PropertyContactForm = () => {
           </div>
           <label htmlFor="privacy_accepted_owner" className="text-[#888888] text-[11px] font-primary leading-tight cursor-pointer">
             <Trans 
-              i18nKey="forms.privacy_accept"
+              i18nKey="property.labels.features.accept_privacy_short"
               components={[
                 <Link 
                   key="privacy-link"
