@@ -77,9 +77,9 @@ function App() {
           <Route path="cookies" element={<Cookies />} />
           
           {/* Formularios de captación */}
-          <Route path="formularios/inquilinos" element={<TenantLeadForm />} />
-          <Route path="formularios/propietarios-venta" element={<OwnerSaleLeadForm />} />
-          <Route path="formularios/propietarios-alquiler" element={<OwnerRentLeadForm />} />
+          <Route path="inquilinos" element={<TenantLeadForm />} />
+          <Route path="propietarios-venta" element={<OwnerSaleLeadForm />} />
+          <Route path="propietarios-alquiler" element={<OwnerRentLeadForm />} />
         </Route>
 
         {/* English routes (mirrored) */}

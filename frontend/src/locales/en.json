@@ -1,4 +1,11 @@
 {
+  "not_found": {
+    "label": "404 Error",
+    "title": "Page Not Found",
+    "description": "Sorry, we couldn't find the page you're looking for. The link might have expired or there might be a typo.",
+    "go_home": "Go Home",
+    "view_properties": "View Properties"
+  },
   "common": {
     "no_image": "No image available",
     "details": "View Details",

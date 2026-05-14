@@ -1,4 +1,11 @@
 {
+  "not_found": {
+    "label": "Error 404",
+    "title": "Página No Encontrada",
+    "description": "Lo sentimos, no hemos podido encontrar la página que estás buscando. Es posible que el enlace haya expirado o haya un error de tipeo.",
+    "go_home": "Volver al Inicio",
+    "view_properties": "Ver Propiedades"
+  },
   "common": {
     "no_image": "Sin imagen disponible",
     "details": "Ver Detalles",
