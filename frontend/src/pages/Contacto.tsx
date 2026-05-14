@@ -98,7 +98,7 @@ export const Contacto = () => {
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#C9A962]/3 blur-[100px] rounded-full mix-blend-screen z-[1]" />
 
       {/* Left Content */}
-      <div className="flex-1 relative z-10 p-8 md:p-16 lg:p-24 flex flex-col justify-center">
+      <div className="flex-1 relative z-10 pt-20 pb-12 px-6 md:p-16 lg:p-24 flex flex-col justify-center">
         <motion.div {...(fadeUp as any)} className="max-w-xl">
           <div className="flex items-center gap-3 mb-6">
             <Sparkles className="w-4 h-4 text-[#C9A962]" />
@@ -161,7 +161,7 @@ export const Contacto = () => {
       </div>
 
       {/* Right Form Area */}
-      <div className="flex-1 relative z-10 p-8 lg:p-14 flex items-center">
+      <div className="flex-1 relative z-10 pb-20 px-6 lg:p-14 flex items-center">
         <motion.div 
           initial={{ opacity: 0, x: 50 }}
           whileInView={{ opacity: 1, x: 0 }}

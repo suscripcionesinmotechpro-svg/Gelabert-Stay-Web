@@ -235,7 +235,7 @@ export const Home = () => {
         </script>
       </Helmet>
       {/* Hero Section */}
-      <div className="relative w-full h-[90vh] md:h-[95vh] min-h-[600px] flex items-center justify-center overflow-hidden bg-black">
+      <div className="relative w-full min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden bg-black py-24 md:py-32">
       {/* Hero Cinematic Slideshow — 3 imágenes únicas + vídeo, rotación cada 6s */}
       <div className="absolute inset-0 z-0 bg-[#080808]">
         {/* Mixed media slides */}

@@ -38,7 +38,7 @@ export const Layout = () => {
   return (
     <div className="min-h-screen flex flex-col w-full bg-[#0F0F0F] text-[#FAF8F5] overflow-x-hidden">
       {/* Navbar */}
-      <header className="fixed top-0 left-0 right-0 h-24 glass-deep z-50 flex items-center justify-between px-6 md:px-14">
+      <header className="fixed top-0 left-0 right-0 h-20 md:h-24 glass-deep z-50 flex items-center justify-between px-6 md:px-14">
         {/* Scroll progress bar */}
         <div 
           className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#C9A962]/80 via-[#C9A962] to-[#D4B673] transition-all duration-75 ease-linear"
@@ -93,7 +93,7 @@ export const Layout = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-24 left-0 w-full bg-[#0F0F0F] border-b border-[#1F1F1F] z-40 flex flex-col md:hidden py-6 px-6 gap-6 font-primary text-[14px] uppercase tracking-wider"
+            className="fixed top-20 left-0 w-full bg-[#0F0F0F] border-b border-[#1F1F1F] z-40 flex flex-col md:hidden py-6 px-6 gap-6 font-primary text-[14px] uppercase tracking-wider"
           >
             {navLinks.map((link) => (
               <Link
@@ -117,7 +117,7 @@ export const Layout = () => {
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="flex-1 mt-24 w-full">
+      <main className="flex-1 mt-20 md:mt-24 w-full">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}

@@ -80,7 +80,7 @@ const Nosotros = () => {
       </Helmet>
 
       {/* Hero Section */}
-      <section className="relative h-[70vh] flex items-center justify-center border-b border-white/5 overflow-hidden">
+      <section className="relative min-h-[60vh] md:min-h-[70vh] flex items-center justify-center border-b border-white/5 py-24 md:py-32 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <div 
             className="w-full h-full bg-cover bg-center brightness-[0.4] saturate-[1.2]"

@@ -224,7 +224,7 @@ export const Propiedades = () => {
       </div>
 
       {/* Header / Hero Section */}
-      <section className="relative h-[40vh] min-h-[400px] flex items-center overflow-hidden border-b border-white/5">
+      <section className="relative min-h-[30vh] md:min-h-[40vh] flex items-center overflow-hidden border-b border-white/5 py-24 md:py-32">
         <div className="absolute inset-0 z-0">
           <div 
             className="w-full h-full bg-cover bg-center brightness-[0.7] saturate-[1.25] transform scale-105 transition-transform duration-1000 ease-in-out"
