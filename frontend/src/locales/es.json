@@ -83,6 +83,9 @@
     "clientArea": "Acceso Privado"
   },
   "property": {
+    "whatsapp_community_title": "¿Buscas alquiler y no quieres perderte nada?",
+    "whatsapp_community_desc": "Únete a nuestra exclusiva <0>comunidad de WhatsApp</0> y sé el primero en enterarte de nuestras nuevas propiedades de alquiler con un solo clic.",
+    "whatsapp_community_btn": "Unirme con un click",
     "labels": {
       "operation": {
         "all": "Todas las operaciones",

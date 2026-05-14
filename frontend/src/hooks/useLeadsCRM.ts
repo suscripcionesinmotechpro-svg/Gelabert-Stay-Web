@@ -52,6 +52,7 @@ export interface LeadCRM {
   chat_transcript?: any[];
   source_page?: string;
   privacy_accepted?: boolean;
+  privacy_accepted_at?: string;
   agent_notes?: string;
   assigned_agent_id?: string;
   // Leads Form Specific

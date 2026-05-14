@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Phone, Users, Briefcase, TrendingUp, Calendar, MapPin, Send, CheckCircle2, Home, Bed, Square, MessageSquare } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
 import LeadFormLayout from '../../components/leads/LeadFormLayout';
 import { toast } from 'react-hot-toast';
 import { saveLeadFromBot } from '../../hooks/useLeadsCRM';

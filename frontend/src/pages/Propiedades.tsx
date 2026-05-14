@@ -12,7 +12,7 @@ import { useComparator } from '../hooks/useComparator';
 import { PropertyComparator } from '../components/PropertyComparator';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { useDebounce } from '../hooks/useDebounce';
 import { sortPropertiesByAvailability } from '../utils/propertySorting';
 
@@ -407,10 +407,12 @@ export const Propiedades = () => {
               </div>
               <div>
                 <h3 className="font-secondary text-2xl md:text-3xl text-white mb-3 font-bold tracking-wide">
-                  ¿Buscas alquiler y no quieres perderte nada?
+                  {t('property.whatsapp_community_title')}
                 </h3>
                 <p className="font-primary text-base md:text-lg text-white/70 max-w-2xl leading-relaxed">
-                  Únete a nuestra exclusiva <b className="text-[#25D366] font-normal">comunidad de WhatsApp</b> y sé el primero en enterarte de nuestras nuevas propiedades de alquiler con un solo clic.
+                  <Trans i18nKey="property.whatsapp_community_desc">
+                    Únete a nuestra exclusiva <b className="text-[#25D366] font-normal">comunidad de WhatsApp</b> y sé el primero en enterarte de nuestras nuevas propiedades de alquiler con un solo clic.
+                  </Trans>
                 </p>
               </div>
             </div>
@@ -423,7 +425,7 @@ export const Propiedades = () => {
               {/* Shimmer effect inside button */}
               <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover/btn:animate-[shimmer_1.5s_infinite]" />
               
-              <span className="relative z-10">Unirme con un click</span>
+              <span className="relative z-10">{t('property.whatsapp_community_btn')}</span>
               <svg className="w-5 h-5 relative z-10 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
             </a>
           </div>

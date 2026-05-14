@@ -495,7 +495,7 @@ export const FichaPropiedad = () => {
             {(property.is_room_rental || property.property_type === 'habitacion') && (
               <h3 className="font-secondary text-xl text-[#C9A962] flex items-center gap-2">
                 <Compass className="w-5 h-5" />
-                {property.property_type === 'habitacion' ? 'LA HABITACIÓN' : 'ZONAS COMUNES'}
+                {property.property_type === 'habitacion' ? t('property.labels.features.the_room') : t('property.labels.features.common_areas')}
               </h3>
             )}
             
@@ -925,7 +925,7 @@ export const FichaPropiedad = () => {
             <div className="flex flex-col gap-6 pt-6 border-t border-[#1F1F1F]">
               <h2 className="font-secondary text-2xl text-[#FAF8F5]">{t('property.labels.features.room_distribution', { defaultValue: 'Distribución por Habitaciones' })}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {property.rooms.map((room: PropertyRoom) => {
+                {property.rooms.map((room: PropertyRoom, idx: number) => {
                   const roomStatus = roomStatuses[room.id] || room._calculated_status || 'disponible';
                   const validImages = room.images?.filter((img: string) => typeof img === 'string' && img.trim() !== '') || [];
                   return (
@@ -950,7 +950,7 @@ export const FichaPropiedad = () => {
                             )}>
                               <div className="border-[4px] border-current px-4 py-1.5 rounded-sm flex items-center justify-center bg-black/20 backdrop-blur-sm">
                                 <span className="font-secondary text-2xl font-black uppercase tracking-tighter text-center leading-none">
-                                  {roomStatus === 'reservado' ? 'RESERVADA' : 'ALQUILADA'}
+                                  {roomStatus === 'reservado' ? t('property.labels.features.reserved') : t('property.labels.features.rented')}
                                 </span>
                               </div>
                             </div>
@@ -977,7 +977,7 @@ export const FichaPropiedad = () => {
                             )}>
                               <div className="border-[4px] border-current px-4 py-1.5 rounded-sm flex items-center justify-center bg-black/20 backdrop-blur-sm">
                                 <span className="font-secondary text-2xl font-black uppercase tracking-tighter text-center leading-none">
-                                  {roomStatus === 'reservado' ? 'RESERVADA' : 'ALQUILADA'}
+                                  {roomStatus === 'reservado' ? t('property.labels.features.reserved') : t('property.labels.features.rented')}
                                 </span>
                               </div>
                             </div>
@@ -988,7 +988,9 @@ export const FichaPropiedad = () => {
                     <div className="p-4 flex flex-col gap-2 flex-grow">
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex flex-col gap-1">
-                          <h4 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-tight leading-tight">{room.name}</h4>
+                          <h4 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-tight leading-tight">
+                            {room.name?.replace(/Habitación/g, t('property.labels.features.room_prefix')) || `${t('property.labels.features.room_prefix')} ${idx + 1}`}
+                          </h4>
                           <span className={cn(
                             "font-primary text-[10px] uppercase font-bold self-start px-1.5 py-0.5 rounded-sm border",
                             roomStatus === 'disponible' ? "bg-green-500/10 text-green-400 border-green-500/20" :
@@ -999,7 +1001,7 @@ export const FichaPropiedad = () => {
                               "inline-block w-1 h-1 rounded-full mr-1.5 align-middle",
                               roomStatus === 'disponible' ? "bg-green-400" : "bg-current animate-pulse"
                             )} />
-                            {roomStatus === 'disponible' ? 'Disponible' : roomStatus === 'reservado' ? 'Reservada' : 'Alquilada'}
+                            {roomStatus === 'disponible' ? t('property.labels.features.available') : roomStatus === 'reservado' ? t('property.labels.features.reserved') : t('property.labels.features.rented')}
                           </span>
                         </div>
                         {room.price !== undefined && room.price !== null && (
@@ -1029,7 +1031,7 @@ export const FichaPropiedad = () => {
                           className="flex items-center gap-2 text-[10px] text-[#C9A962] font-bold uppercase tracking-widest hover:text-[#FAF8F5] transition-colors mt-auto pt-2 border-t border-[#1F1F1F]"
                         >
                           <Play className="w-3 h-3" />
-                          VER TOUR VÍDEO
+                          {t('property.labels.features.view_tour')}
                         </button>
                       )}
                     </div>
@@ -1042,7 +1044,7 @@ export const FichaPropiedad = () => {
           {/* Zonas Comunes (Nuevo bloque detallado) */}
           {property.common_areas && property.common_areas.length > 0 && (
             <div className="flex flex-col gap-6 pt-6 border-t border-[#1F1F1F]">
-              <h2 className="font-secondary text-2xl text-[#FAF8F5]">Zonas Comunes</h2>
+              <h2 className="font-secondary text-2xl text-[#FAF8F5]">{t('property.labels.features.common_areas')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {property.common_areas.map((area: any) => (
                   <div key={area.id} className="flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] rounded-sm overflow-hidden group hover:border-[#C9A962] transition-colors relative">
@@ -1070,11 +1072,11 @@ export const FichaPropiedad = () => {
                           {area.name || t(`common_area_types.${area.type}`, { defaultValue: area.type })}
                         </h4>
                         {area.is_private && (
-                          <span className="text-[9px] text-[#C9A962] font-bold uppercase tracking-widest">Privado</span>
+                          <span className="text-[9px] text-[#C9A962] font-bold uppercase tracking-widest">{t('property.labels.features.private')}</span>
                         )}
                       </div>
                       <div className="px-2 py-1 bg-white/5 border border-white/10 text-[#888888] font-primary text-[9px] uppercase tracking-wider rounded-sm">
-                        {area.type}
+                        {t(`common_area_types.${area.type}`, { defaultValue: area.type })}
                       </div>
                     </div>
                     

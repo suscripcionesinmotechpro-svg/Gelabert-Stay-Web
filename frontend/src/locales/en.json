@@ -25,6 +25,16 @@
     "copied": "Copied!",
     "share_email": "Share via email"
   },
+  "common_area_types": {
+    "baño": "Bathroom",
+    "salon": "Living Room",
+    "terraza": "Terrace",
+    "cocina": "Kitchen",
+    "patio": "Patio",
+    "trastero": "Storage Room",
+    "general": "General / All areas",
+    "otro": "Other"
+  },
   "tags": {
     "premium": "Selected Property",
     "destacada": "Featured Property",
@@ -73,6 +83,9 @@
     "clientArea": "Private Access"
   },
   "property": {
+    "whatsapp_community_title": "Looking for a rental and don't want to miss anything?",
+    "whatsapp_community_desc": "Join our exclusive <0>WhatsApp community</0> and be the first to know about our new rental properties with just one click.",
+    "whatsapp_community_btn": "Join with one click",
     "labels": {
       "operation": {
         "all": "All operations",
@@ -163,6 +176,15 @@
         "has_floor_plan": "Has floor plan",
         "floor_plan_short": "Plan",
         "location": "Location",
+        "the_room": "The Room",
+        "common_areas": "Common Areas",
+        "room_distribution": "Room Distribution",
+        "view_tour": "View Tour Video",
+        "private": "Private",
+        "room_prefix": "Room",
+        "available": "Available",
+        "reserved": "Reserved",
+        "rented": "Rented",
         "not_found": "Property not found",
         "has_elevator": "Elevator",
         "is_furnished": "Furnished",
