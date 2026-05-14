@@ -1197,6 +1197,46 @@
       }
     }
   },
+  "lead_forms": {
+    "tenants": {
+      "title": "Solicitud de Alquiler",
+      "badge": "Inquilinos",
+      "description": "Completa este formulario para que podamos conocer mejor tu perfil y ayudarte a encontrar el hogar ideal.",
+      "num_people": "Número de personas que vivirán en la casa",
+      "person": "Persona",
+      "person_name": "Nombre completo",
+      "person_age": "Edad",
+      "person_occupation": "¿A qué se dedica?",
+      "person_income": "Ingresos mensuales aproximados (€)",
+      "person_seniority": "Antigüedad (años/meses)",
+      "person_origin": "Lugar de procedencia",
+      "occupation_placeholder": "Ej: Arquitecto, Estudiante, Jubilado...",
+      "success_title": "Solicitud recibida",
+      "success_desc": "Gracias por facilitarnos tu información. Analizaremos tu perfil y te contactaremos pronto."
+    },
+    "owners_sale": {
+      "title": "Vende tu Propiedad",
+      "badge": "Venta",
+      "description": "Déjanos los detalles de tu vivienda y nos pondremos en contacto para realizar una valoración profesional.",
+      "address": "Dirección completa del inmueble",
+      "price": "Precio de venta deseado (€)",
+      "features": "Características principales (m², hab, extras...)",
+      "ad_url": "Enlace al anuncio (si ya está publicado)",
+      "success_title": "Información recibida",
+      "success_desc": "Nuestro equipo de ventas revisará tu propiedad y te llamará para darte una valoración gratuita."
+    },
+    "owners_rent": {
+      "title": "Alquila tu Propiedad",
+      "badge": "Alquiler",
+      "description": "Gestionamos el alquiler de tu vivienda con las mejores garantías. Cuéntanos qué propiedad deseas alquilar.",
+      "address": "Dirección completa del inmueble",
+      "price": "Precio de alquiler deseado (€/mes)",
+      "features": "Características principales (m², hab, extras...)",
+      "ad_url": "Enlace al anuncio (si ya está publicado)",
+      "success_title": "Propuesta recibida",
+      "success_desc": "Gracias por confiar en nosotros. Nos pondremos en contacto para gestionar el alquiler de tu propiedad."
+    }
+  },
   "contact": {
     "call": "Llamar ahora"
   },

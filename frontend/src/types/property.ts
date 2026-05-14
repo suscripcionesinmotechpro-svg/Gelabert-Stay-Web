@@ -139,7 +139,9 @@ export interface Property {
   // SEO
   slug: string | null;
   meta_title: string | null;
+  meta_title_en: string | null;
   meta_description: string | null;
+  meta_description_en: string | null;
 
   // Estado
   status: PropertyStatus;

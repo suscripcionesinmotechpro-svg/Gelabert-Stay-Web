@@ -54,6 +54,11 @@ export interface LeadCRM {
   privacy_accepted?: boolean;
   agent_notes?: string;
   assigned_agent_id?: string;
+  // Leads Form Specific
+  occupants?: any[];
+  property_ad_url?: string;
+  property_features?: string;
+  rental_price?: string;
   // Joined
   search_profile?: LeadSearchProfile;
 }

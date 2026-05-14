@@ -8,6 +8,7 @@ import { useBlog } from '../../hooks/useBlog';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { ImageCropperModal } from '../../components/admin/ImageCropperModal';
 import type { BlogPostFormData } from '../../types/blog';
+import { triggerNetlifyBuild } from '../../utils/triggerBuild';
 
 export const AdminBlogPostForm = () => {
   const { t } = useTranslation();
@@ -164,10 +165,12 @@ export const AdminBlogPostForm = () => {
 
     if (id) {
       await updatePost(id, finalData);
+      await triggerNetlifyBuild();
       navigate('/admin/blog');
     } else {
       const newId = await createPost(finalData);
       if (newId) {
+        await triggerNetlifyBuild();
         navigate('/admin/blog');
       }
     }

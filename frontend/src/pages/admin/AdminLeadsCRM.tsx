@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, MessageSquare, User, Trash2 } from 'lucide-react';
+import { Search, MessageSquare, User, Trash2, ExternalLink } from 'lucide-react';
 import type { LeadCRM, ScoredProperty } from '../../hooks/useLeadsCRM';
 import { useLeadsCRM, updateLeadStatus, updateLeadNotes, searchPropertiesForBot, deleteLead } from '../../hooks/useLeadsCRM';
 import { format } from 'date-fns';
@@ -258,6 +258,82 @@ export const AdminLeadsCRM = () => {
                     )}
                   </div>
                 </section>
+
+                {/* Form Specific Details */}
+                {(selectedLead.occupants || selectedLead.property_ad_url || selectedLead.property_features || selectedLead.rental_price) && (
+                  <section>
+                    <h3 className="text-[#C9A962] font-primary text-sm uppercase tracking-wider mb-4 border-b border-[#1F1F1F] pb-2">
+                      Información Adicional del Formulario
+                    </h3>
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {selectedLead.property_ad_url && (
+                          <div className="col-span-full">
+                            <span className="block text-[#666666] text-xs mb-1">URL del Anuncio</span>
+                            <a 
+                              href={selectedLead.property_ad_url} 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              className="text-[#C9A962] hover:underline flex items-center gap-1 text-sm break-all"
+                            >
+                              {selectedLead.property_ad_url} <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                            </a>
+                          </div>
+                        )}
+                        
+                        {selectedLead.rental_price && (
+                          <div>
+                            <span className="block text-[#666666] text-xs mb-1">Precio Solicitado</span>
+                            <span className="text-[#FAF8F5] text-sm font-medium">{selectedLead.rental_price}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {selectedLead.property_features && (
+                        <div>
+                          <span className="block text-[#666666] text-xs mb-1">Características de la Vivienda</span>
+                          <div className="text-[#FAF8F5] text-sm bg-[#151515] p-3 rounded border border-[#333333] whitespace-pre-wrap">
+                            {selectedLead.property_features}
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedLead.occupants && selectedLead.occupants.length > 0 && (
+                        <div>
+                          <span className="block text-[#666666] text-xs mb-3">Perfil de Ocupantes</span>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {selectedLead.occupants.map((occ: any, i: number) => (
+                              <div key={i} className="bg-[#151515] p-4 rounded border border-[#333333] shadow-sm">
+                                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#333333]/50">
+                                  <User className="w-4 h-4 text-[#C9A962]" />
+                                  <span className="font-primary font-bold text-[#FAF8F5] text-sm">Ocupante {i + 1}</span>
+                                </div>
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-xs font-primary">
+                                  <div>
+                                    <span className="block text-[#666666] mb-0.5">Nombre</span>
+                                    <span className="text-[#FAF8F5] font-medium">{occ.name || '-'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="block text-[#666666] mb-0.5">Edad</span>
+                                    <span className="text-[#FAF8F5] font-medium">{occ.age || '-'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="block text-[#666666] mb-0.5">Ocupación</span>
+                                    <span className="text-[#FAF8F5] font-medium">{occ.occupation || '-'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="block text-[#666666] mb-0.5">Ingresos</span>
+                                    <span className="text-[#C9A962] font-bold">{occ.income ? `${occ.income}€` : '-'}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                )}
 
                 {/* Reverse Matching (Mejora C) */}
                 {(selectedLead.intent === 'alquilar' || selectedLead.intent === 'comprar') && selectedLead.search_profile && (

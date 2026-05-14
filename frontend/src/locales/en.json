@@ -1182,6 +1182,46 @@
       }
     }
   },
+  "lead_forms": {
+    "tenants": {
+      "title": "Rental Application",
+      "badge": "Tenants",
+      "description": "Complete this form so we can better understand your profile and help you find the ideal home.",
+      "num_people": "Number of people who will live in the house",
+      "person": "Person",
+      "person_name": "Full Name",
+      "person_age": "Age",
+      "person_occupation": "What do you do?",
+      "person_income": "Approximate monthly income (€)",
+      "person_seniority": "Seniority (years/months)",
+      "person_origin": "Place of origin",
+      "occupation_placeholder": "E.g.: Architect, Student, Retired...",
+      "success_title": "Request received",
+      "success_desc": "Thank you for providing your information. We will analyze your profile and contact you soon."
+    },
+    "owners_sale": {
+      "title": "Sell Your Property",
+      "badge": "Sale",
+      "description": "Leave us the details of your home and we will contact you for a professional valuation.",
+      "address": "Full property address",
+      "price": "Desired selling price (€)",
+      "features": "Main features (sqm, beds, extras...)",
+      "ad_url": "Link to the ad (if already published)",
+      "success_title": "Information received",
+      "success_desc": "Our sales team will review your property and call you to provide a free valuation."
+    },
+    "owners_rent": {
+      "title": "Rent Your Property",
+      "badge": "Rent",
+      "description": "We manage the rental of your home with the best guarantees. Tell us which property you want to rent.",
+      "address": "Full property address",
+      "price": "Desired rental price (€/month)",
+      "features": "Main features (sqm, beds, extras...)",
+      "ad_url": "Link to the ad (if already published)",
+      "success_title": "Proposal received",
+      "success_desc": "Thank you for trusting us. We will contact you to manage the rental of your property."
+    }
+  },
   "contact": {
     "call": "Call now"
   },

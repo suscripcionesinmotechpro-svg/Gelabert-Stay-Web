@@ -315,7 +315,7 @@ export const FichaPropiedad = () => {
     ? (descriptionBody ? `${featureSnippet} | ${descriptionBody}` : featureSnippet)
     : (descriptionBody || seoTitle);
 
-  const finalCanonical = `https://gelaberthomes.es${isEn ? '/en' : ''}/propiedades/${property.slug || property.id}`;
+
 
   // Usamos URL con slash final para mejorar compatibilidad con algunos scrapers
   const propertyUrl = `https://gelaberthomes.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${property.reference || property.slug || property.id}`;

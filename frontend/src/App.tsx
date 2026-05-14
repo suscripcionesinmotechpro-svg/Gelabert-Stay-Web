@@ -19,6 +19,11 @@ const Nosotros = lazy(() => import('./pages/Nosotros'));
 const BlogList = lazy(() => import('./pages/BlogList').then(m => ({ default: m.BlogList })));
 const BlogPost = lazy(() => import('./pages/BlogPost').then(m => ({ default: m.BlogPost })));
 
+// Lead forms
+const TenantLeadForm = lazy(() => import('./pages/leads/TenantLeadForm'));
+const OwnerSaleLeadForm = lazy(() => import('./pages/leads/OwnerSaleLeadForm'));
+const OwnerRentLeadForm = lazy(() => import('./pages/leads/OwnerRentLeadForm'));
+
 // Lazy load admin pages
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin').then(m => ({ default: m.AdminLogin })));
@@ -70,6 +75,11 @@ function App() {
           <Route path="aviso-legal" element={<AvisoLegal />} />
           <Route path="privacidad" element={<Privacidad />} />
           <Route path="cookies" element={<Cookies />} />
+          
+          {/* Formularios de captación */}
+          <Route path="formularios/inquilinos" element={<TenantLeadForm />} />
+          <Route path="formularios/propietarios-venta" element={<OwnerSaleLeadForm />} />
+          <Route path="formularios/propietarios-alquiler" element={<OwnerRentLeadForm />} />
         </Route>
 
         {/* English routes (mirrored) */}
@@ -87,6 +97,11 @@ function App() {
           <Route path="aviso-legal" element={<AvisoLegal />} />
           <Route path="privacidad" element={<Privacidad />} />
           <Route path="cookies" element={<Cookies />} />
+
+          {/* Lead forms (EN) */}
+          <Route path="formularios/inquilinos" element={<TenantLeadForm />} />
+          <Route path="formularios/propietarios-venta" element={<OwnerSaleLeadForm />} />
+          <Route path="formularios/propietarios-alquiler" element={<OwnerRentLeadForm />} />
         </Route>
 
         {/* Admin login (standalone, no admin layout) */}
