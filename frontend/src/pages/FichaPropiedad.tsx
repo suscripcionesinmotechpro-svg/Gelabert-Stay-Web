@@ -4,7 +4,7 @@ import { useAutoTranslate, useAutoTranslateArray } from '../hooks/useAutoTransla
 import { PropertyCard } from '../components/PropertyCard';
 import { PremiumImage } from '../components/PremiumImage';
 import { getOptimizedImage } from '../utils/images';
-import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass, Copy, CheckCheck, Send, AlertCircle } from 'lucide-react';
+import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass, Copy, CheckCheck, Send, AlertCircle, Camera, Video } from 'lucide-react';
 import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import type { PropertyVideo, PropertyRoom } from '../types/property';
 import { cn } from '../lib/utils';
@@ -539,6 +539,32 @@ export const FichaPropiedad = () => {
                 )}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                   <Maximize className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
+                </div>
+                
+                {/* Media Indicators Overlay */}
+                <div className="absolute bottom-4 left-4 z-30 flex items-center gap-1.5 transition-opacity duration-300 pointer-events-none">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-black/50 backdrop-blur-md text-white text-xs font-primary font-medium tracking-wider border border-white/10 shadow-lg">
+                    <Camera className="w-4 h-4" />
+                    <span>{activeImg + 1} / {generalImages.length}</span>
+                  </div>
+                  {allVideos.length > 0 && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setActiveTab('video'); }}
+                      className="pointer-events-auto flex items-center justify-center w-8 h-8 rounded-sm bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-[#C9A962] hover:text-black transition-colors shadow-lg" 
+                      title={t('property.labels.features.video', 'Vídeo')}
+                    >
+                      <Video className="w-4 h-4" />
+                    </button>
+                  )}
+                  {property.floor_plan && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setActiveTab('plano'); }}
+                      className="pointer-events-auto flex items-center justify-center w-8 h-8 rounded-sm bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-[#C9A962] hover:text-black transition-colors shadow-lg" 
+                      title={t('property.labels.features.floorplan', 'Plano')}
+                    >
+                      <MapIcon className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </>
             ) : (

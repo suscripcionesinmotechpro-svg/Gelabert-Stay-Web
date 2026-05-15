@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAutoTranslate } from '../hooks/useAutoTranslate';
 import { type CommercialStatus, COMMERCIAL_STATUS_LABELS, type PropertyType } from '../types/property';
-import { ChevronLeft, ChevronRight, Heart, GitCompare, Maximize2, BedDouble, Bath } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, GitCompare, Maximize2, BedDouble, Bath, Camera, Video, Map } from 'lucide-react';
 import { useState, useMemo, memo } from 'react';
 import { PremiumImage } from './PremiumImage';
 import { getOptimizedImage } from '../utils/images';
@@ -205,6 +205,24 @@ export const PropertyCard = memo(({
               </button>
             </div>
           )}
+
+          {/* Media Indicators */}
+          <div className="absolute bottom-4 left-4 z-30 flex items-center gap-1.5 transition-opacity duration-300">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-sm bg-black/50 backdrop-blur-md text-white text-[10px] font-primary font-medium tracking-wider border border-white/10">
+              <Camera className="w-3 h-3" />
+              <span>{currentImageIndex + 1} / {images.length}</span>
+            </div>
+            {(videoUrl || (videos && videos.length > 0)) && (
+              <div className="flex items-center justify-center w-6 h-6 rounded-sm bg-black/50 backdrop-blur-md text-white border border-white/10" title={t('property.labels.features.video', 'Vídeo')}>
+                <Video className="w-3 h-3" />
+              </div>
+            )}
+            {floorPlanUrl && (
+              <div className="flex items-center justify-center w-6 h-6 rounded-sm bg-black/50 backdrop-blur-md text-white border border-white/10" title={t('property.labels.features.floorplan', 'Plano')}>
+                <Map className="w-3 h-3" />
+              </div>
+            )}
+          </div>
 
           {/* Favorite & Compare - Inside Image area but fixed */}
           <div className="absolute bottom-4 right-4 z-30 flex items-center gap-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
