@@ -160,7 +160,7 @@ export const PropertyCard = memo(({
             <div className="bg-[#C9A962] text-[#0A0A0A] px-3 py-1 text-[9px] font-bold uppercase tracking-[0.2em] rounded-sm shadow-xl">
               {operation.toLowerCase() === 'alquiler' && is_room_rental
                 ? t('property.labels.features.room_rental') 
-                : `${t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation] || operation)} ${property_type ? t(`property.labels.type.${property_type}`) : ''}`}
+                : `${t(`property.labels.operation.${operation.toLowerCase()}`)} ${property_type ? t(`property.labels.type.${property_type}`) : ''}`}
             </div>
             {isFeatured && (
               <div className="bg-white/10 backdrop-blur-md text-[#C9A962] px-3 py-1 text-[9px] font-bold uppercase tracking-[0.2em] border border-[#C9A962]/20 rounded-sm">
@@ -264,13 +264,13 @@ export const PropertyCard = memo(({
             {bedrooms > 0 && (
               <div className="flex items-center gap-2">
                 <BedDouble className="w-3.5 h-3.5 text-[#C9A962]/60" />
-                <span className="font-primary text-xs text-white/80">{bedrooms} {t('property.details.bedrooms_short')}</span>
+                <span className="font-primary text-xs text-white/80">{bedrooms} {t('property.labels.bedrooms_short')}</span>
               </div>
             )}
             {bathrooms > 0 && (
               <div className="flex items-center gap-2">
                 <Bath className="w-3.5 h-3.5 text-[#C9A962]/60" />
-                <span className="font-primary text-xs text-white/80">{bathrooms} {t('property.details.bathrooms_short')}</span>
+                <span className="font-primary text-xs text-white/80">{bathrooms} {t('property.labels.bathrooms_short')}</span>
               </div>
             )}
           </div>
