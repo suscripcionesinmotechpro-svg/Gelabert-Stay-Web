@@ -3,12 +3,10 @@ import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAutoTranslate } from '../hooks/useAutoTranslate';
-import { OPERATION_LABELS, type PropertyOperation, type CommercialStatus, COMMERCIAL_STATUS_LABELS, PROPERTY_TYPE_LABELS, type PropertyType } from '../types/property';
-import { ChevronLeft, ChevronRight, MessageSquare, Heart, GitCompare, Images, Video, FileText } from 'lucide-react';
-import { getWhatsAppLink } from '../utils/whatsapp';
+import { OPERATION_LABELS, type PropertyOperation, type CommercialStatus, COMMERCIAL_STATUS_LABELS, type PropertyType } from '../types/property';
+import { ChevronLeft, ChevronRight, Heart, GitCompare } from 'lucide-react';
 import { useState, useMemo, memo } from 'react';
 import { PremiumImage } from './PremiumImage';
-import { PropertyReference } from './PropertyReference';
 import { getOptimizedImage } from '../utils/images';
 
 export interface PropertyCardProps extends HTMLMotionProps<"div"> {
@@ -88,17 +86,14 @@ export const PropertyCard = memo(({
   const { t } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
-  // Logic for "New" badge (memoized)
-  const isNew = useMemo(() => 
-    createdAt ? (new Date().getTime() - new Date(createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000 : false,
-    [createdAt]
-  );
-
   const { translatedText: autoTitle } = useAutoTranslate(title, title_en);
   const displayTitle = autoTitle;
 
   // Combine main image with gallery
-  const images = [imageUrl, ...(gallery || [])].filter((img): img is string => !!img);
+  const images = useMemo(() => 
+    [imageUrl, ...(gallery || [])].filter((img): img is string => !!img),
+    [imageUrl, gallery]
+  );
 
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -110,15 +105,6 @@ export const PropertyCard = memo(({
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  const getBadgeColor = () => {
-    switch (operation) {
-      case 'ALQUILER': return 'bg-[#C9A962] text-[#0A0A0A]';
-      case 'VENTA': return 'bg-[#C9A962] text-[#0A0A0A]';
-      case 'TRASPASO': return 'bg-[#60A5FA] text-[#0A0A0A]';
-      default: return 'bg-[#C9A962] text-[#0A0A0A]';
-    }
-  };
-
   const formattedPrice = useMemo(() => 
     new Intl.NumberFormat('de-DE', {
       style: 'currency',
@@ -127,16 +113,6 @@ export const PropertyCard = memo(({
     }).format(price),
     [price]
   );
-
-  const { i18n } = useTranslation();
-  const propertyUrl = `https://gelaberthomes.es${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${reference || id}`;
-
-  const whatsappLink = getWhatsAppLink({
-    context: 'property',
-    propertyName: title,
-    propertyRef: reference || (id ? (id.length > 8 ? id.slice(0, 8) : id) : undefined),
-    url: propertyUrl
-  });
 
   const card = (
     <motion.div 
