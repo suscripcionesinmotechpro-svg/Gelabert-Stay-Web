@@ -1128,11 +1128,11 @@ export const FichaPropiedad = () => {
               </h2>
               {/<[a-z][\s\S]*>/i.test(translatedDescription) ? (
                 <div 
-                  className="prose prose-invert max-w-none text-[#FAF8F5] text-lg leading-relaxed selection:bg-[#C9A962]/30"
+                  className="prose prose-invert description-body max-w-none selection:bg-[#C9A962]/30"
                   dangerouslySetInnerHTML={{ __html: translatedDescription }}
                 />
               ) : (
-                <div className="font-primary text-[#FAF8F5] text-lg leading-relaxed whitespace-pre-wrap selection:bg-[#C9A962]/30">
+                <div className="description-body leading-relaxed whitespace-pre-wrap selection:bg-[#C9A962]/30">
                   {translatedDescription}
                 </div>
               )}
