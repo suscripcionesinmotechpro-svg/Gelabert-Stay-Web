@@ -143,336 +143,164 @@ export const PropertyCard = memo(({
       initial={{ opacity: 0, y: 50, scale: 0.95 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: "-50px" }}
-      whileHover={{ y: -8, scale: 1.01 }}
       transition={{ 
         duration: 0.8, 
         ease: [0.16, 1, 0.3, 1], 
         delay: index !== undefined ? Math.min(index % 8, 8) * 0.1 : 0.05 
       }}
-      style={{ willChange: 'transform, opacity' }}
       className={cn(
-        "group h-full flex flex-col bg-[#0D0D0D] border border-[#1F1F1F] hover:border-[#C9A962]/60 hover:shadow-2xl hover:shadow-[#C9A962]/10 transition-all duration-500 overflow-hidden relative rounded-2xl",
-        commercialStatus && commercialStatus !== 'disponible' && "opacity-80",
+        "group relative overflow-hidden bg-[#0A0A0A] border border-white/5 transition-all duration-700 rounded-2xl h-full",
         className
       )}
       {...props}
     >
-      {/* Image Area with Slider */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-[#1A1A1A]">
+      <Link to={linkTo || `/propiedades/${reference || id}`} className="block relative aspect-[16/10] md:aspect-[16/10] overflow-hidden h-full">
+        {/* Main Image Slider Container */}
         <AnimatePresence initial={false}>
           <motion.div
             key={currentImageIndex}
             initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className={cn(
-              "absolute inset-0",
-              commercialStatus && commercialStatus !== 'disponible' && "grayscale-[0.4] group-hover:grayscale-0 transition-all duration-700"
-            )}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0"
           >
             <PremiumImage
               src={getOptimizedImage(images[currentImageIndex], { width: 1200, height: 800, quality: 100, format: 'webp' })} 
               alt={title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
               wrapperClassName="w-full h-full"
             />
           </motion.div>
         </AnimatePresence>
 
-        {/* Slider Controls */}
+        {/* Dynamic Vignette Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/20 to-transparent opacity-80 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        {/* Floating Price - Top Right */}
+        <div className="absolute top-6 right-6 z-20">
+          <motion.div className="flex flex-col items-end">
+            <span className="font-secondary text-2xl text-[#C9A962] drop-shadow-2xl">
+              {formattedPrice}
+            </span>
+            {operation === 'ALQUILER' && (
+              <span className="font-primary text-[10px] uppercase tracking-[0.3em] text-[#FAF8F5]/60 mt-1">
+                / {t('property.labels.month')}
+              </span>
+            )}
+          </motion.div>
+        </div>
+
+        {/* Top Left Badges */}
+        <div className="absolute top-6 left-6 z-20 flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
+            <div className="bg-[#C9A962] text-[#0A0A0A] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] rounded-sm shadow-2xl w-fit">
+              {operation.toLowerCase() === 'alquiler' && is_room_rental
+                ? t('property.labels.features.room_rental') 
+                : t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation] || operation)}
+            </div>
+            {isFeatured && (
+              <div className="bg-white/10 backdrop-blur-md text-[#C9A962] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] border border-[#C9A962]/20 rounded-sm w-fit">
+                ★ {t('property.labels.featured')}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Slider Controls - Hidden by default, visible on hover */}
         {images.length > 1 && (
-          <div className="absolute inset-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-between px-4 pointer-events-none">
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-between px-4 z-30 pointer-events-none">
             <button 
               onClick={prevImage}
-              className="p-2 rounded-full glass-deep text-white hover:bg-[#C9A962] transition-colors pointer-events-auto shadow-xl border border-white/10"
+              className="p-2 rounded-full glass-deep text-white hover:bg-[#C9A962] transition-colors pointer-events-auto border border-white/10"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button 
               onClick={nextImage}
-              className="p-2 rounded-full glass-deep text-white hover:bg-[#C9A962] transition-colors pointer-events-auto shadow-xl border border-white/10"
+              className="p-2 rounded-full glass-deep text-white hover:bg-[#C9A962] transition-colors pointer-events-auto border border-white/10"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         )}
 
-        {/* Slider dots */}
-        {images.length > 1 && (
-          <div className="absolute bottom-18 left-0 right-0 flex justify-center gap-1 z-20 pointer-events-none">
-            {images.slice(0, 5).map((_, i) => (
-              <div 
-                key={i} 
-                className={cn(
-                  "h-0.5 rounded-full transition-all duration-300",
-                  i === currentImageIndex ? "w-6 bg-[#C9A962]" : "w-2 bg-white/20"
-                )} 
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Favorite Button */}
-        <button
-          onClick={onToggleFavorite}
-          className={cn(
-            "absolute top-4 right-4 z-30 p-2 rounded-full glass-deep transition-all duration-300 border shadow-lg pointer-events-auto",
-            isFavorite 
-              ? "bg-[#C9A962] border-[#C9A962] text-[#0A0A0A]" 
-              : "border-white/10 text-white hover:bg-white/20 hover:scale-110"
-          )}
-        >
-          <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
-        </button>
-
-        {/* Top Left Badges: Operation Type & New */}
-        <div className="absolute top-4 left-4 z-30 flex flex-col gap-1.5 pointer-events-none">
-          <div className="flex flex-col gap-1">
-            <div className="px-2.5 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[9px] font-black uppercase tracking-[0.15em] shadow-xl rounded-sm">
-              {operation.toLowerCase() === 'alquiler' && is_room_rental
-                ? t('property.labels.features.room_rental') 
-                : `${t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation] || operation)} ${t(PROPERTY_TYPE_LABELS[property_type?.toLowerCase() as PropertyType] || '').toLowerCase()}`}
-            </div>
-            {isFeatured && (
-              <div className="px-2 py-0.5 glass-deep text-[#C9A962] border border-[#C9A962]/30 font-primary text-[8px] font-black uppercase tracking-[0.2em] rounded-sm w-fit flex items-center gap-1.5">
-                <span className="text-[10px]">★</span> {t('property.labels.featured')}
-              </div>
-            )}
-          </div>
-          {isNew && (
-            <div className="px-2.5 py-1 glass-light text-white font-primary text-[9px] font-black uppercase tracking-[0.15em] shadow-xl rounded-sm w-fit">
-              {t('common.new') || 'NUEVO'}
-            </div>
-          )}
-        </div>
-
-        {/* Badges Container removed from image to avoid covering it */}
-
-        {/* Watermark Overlay (Premium Glass Seal) */}
-        {commercialStatus && commercialStatus !== 'disponible' && (
-          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden select-none">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.8, rotate: -15 }}
-              animate={{ opacity: 1, scale: 1.1, rotate: -12 }}
-              className={cn(
-                "px-10 py-4 border-2 backdrop-blur-sm shadow-2xl relative overflow-hidden",
-                commercialStatus === 'reservado' && "bg-orange-500/10 border-orange-500/20 text-orange-400/80",
-                commercialStatus === 'alquilado' && "bg-purple-500/10 border-purple-500/20 text-purple-400/80",
-                commercialStatus === 'vendido' && "bg-red-500/10 border-red-500/20 text-red-400/80",
-                commercialStatus === 'traspasado' && "bg-blue-500/10 border-blue-500/20 text-blue-400/80",
-              )}
-            >
-              {/* Shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 transform -translate-x-full animate-[shimmer_3s_infinite]" />
-              
-              <div className="flex flex-col items-center">
-                <span className="font-secondary text-5xl font-black uppercase tracking-tighter text-center leading-none">
-                  {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
-                </span>
-                <div className="h-[1px] w-full bg-current mt-1 opacity-30" />
-                <span className="font-primary text-[8px] tracking-[0.4em] uppercase mt-1.5 opacity-60">Gelabert Homes</span>
-              </div>
-            </motion.div>
-          </div>
-        )}
-
-        {/* Multimedia badges (bottom left) */}
-        <div className="absolute bottom-16 left-3 z-20 flex items-center gap-1.5 pointer-events-none">
-          {images.length > 1 && (
-            <div className="px-1.5 py-0.5 glass-deep rounded-sm flex items-center gap-1 border border-white/5">
-              <Images className="w-2.5 h-2.5 text-white/60" />
-              <span className="font-primary text-[9px] text-white/80 font-bold">{images.length}</span>
-            </div>
-          )}
-          {(videoUrl || (videos && videos.length > 0)) && (
-            <div className="px-1.5 py-0.5 glass-deep rounded-sm flex items-center gap-1 border border-white/5" title={t('property.labels.features.has_video')}>
-              <Video className="w-2.5 h-2.5 text-[#C9A962]" />
-              <span className="font-primary text-[9px] text-white/80 font-bold uppercase tracking-wider">
-                {videos && videos.length > 1 ? videos.length : ''}
+        {/* Main Info - Bottom Overlay */}
+        <div className="absolute bottom-6 left-6 right-6 z-20 flex flex-col gap-3">
+          {/* Commercial Status Badge */}
+          {commercialStatus && commercialStatus !== 'disponible' && (
+            <div className="w-fit">
+              <span className={cn(
+                "px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] border shadow-2xl backdrop-blur-md",
+                commercialStatus === 'reservado' && "bg-orange-500/20 text-orange-400 border-orange-500/30",
+                commercialStatus === 'alquilado' && "bg-purple-500/20 text-purple-400 border-purple-400/30",
+                commercialStatus === 'vendido' && "bg-red-500/20 text-red-400 border-red-500/30",
+                commercialStatus === 'traspasado' && "bg-blue-500/20 text-blue-400 border-blue-500/30",
+              )}>
+                {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
               </span>
             </div>
           )}
-          {floorPlanUrl && (
-            <div className="px-1.5 py-0.5 glass-deep rounded-sm flex items-center gap-1 border border-white/5" title={t('property.labels.features.has_floor_plan')}>
-              <FileText className="w-2.5 h-2.5 text-[#C9A962]" />
+
+          <div>
+            <div className="flex items-center gap-2 mb-1 opacity-80 group-hover:opacity-100 transition-opacity">
+              <span className="font-primary text-[10px] uppercase tracking-[0.3em] text-[#FAF8F5]">
+                {location}
+              </span>
             </div>
-          )}
-        </div>
-
-        {/* Price Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 px-4 py-3 glass-deep border-t border-white/5 flex items-center justify-between z-10">
-          <span className="font-secondary text-2xl text-[#FAF8F5] leading-none">{formattedPrice}</span>
-          <a 
-            href={whatsappLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="p-2 bg-[#25D366] rounded-full text-black hover:scale-110 transition-transform shadow-lg"
-          >
-            <MessageSquare className="w-4 h-4 fill-current" />
-          </a>
-        </div>
-      </div>
-
-      {/* Content Area */}
-      <div className="flex-1 p-5 pt-4 flex flex-col gap-4">
-        {/* New Status Bar outside image */}
-        <div className="flex flex-wrap items-center gap-2 pb-1">
-          <div className={cn(
-            "px-2.5 py-0.5 font-primary text-[9px] font-bold tracking-[0.05em] uppercase border border-white/5",
-            getBadgeColor()
-          )}>
-            {operation.toLowerCase() === 'alquiler' && is_room_rental
-              ? t('property.labels.features.room_rental')
-              : t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation])}
+            <h3 className="font-secondary text-xl md:text-2xl text-[#FAF8F5] leading-tight group-hover:text-[#C9A962] transition-colors duration-500 line-clamp-1">
+              {displayTitle}
+            </h3>
           </div>
 
-          {commercialStatus && (
-            <div className={cn(
-              "px-3 py-1 glass-deep border font-primary text-[9px] font-bold uppercase flex items-center gap-2 tracking-wider",
-              commercialStatus === 'disponible' && "text-green-400 border-green-400/20 bg-green-400/5",
-              commercialStatus === 'reservado' && "text-orange-400 border-orange-400/20 bg-orange-400/5",
-              commercialStatus === 'alquilado' && "text-purple-400 border-purple-400/20 bg-purple-400/5",
-              commercialStatus === 'vendido' && "text-red-400 border-red-400/20 bg-red-400/5",
-              commercialStatus === 'traspasado' && "text-blue-400 border-blue-400/20 bg-blue-400/5",
-            )}>
-              <div className="relative flex items-center justify-center">
-                <span className={cn(
-                  "w-1.5 h-1.5 rounded-full",
-                  commercialStatus === 'disponible' ? "bg-green-400" : "bg-current"
-                )} />
-                {commercialStatus !== 'disponible' && (
-                  <span className="absolute inset-0 w-1.5 h-1.5 rounded-full bg-current animate-ping opacity-40" />
-                )}
+          {/* Technical Specs - Reveal on Hover */}
+          <div className="flex items-center gap-6 h-0 opacity-0 translate-y-2 group-hover:h-6 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-out overflow-hidden">
+            <div className="flex items-center gap-2">
+              <span className="font-primary text-xs font-bold text-[#FAF8F5]">{area}</span>
+              <span className="font-primary text-[10px] uppercase tracking-wider text-[#FAF8F5]/60">m²</span>
+            </div>
+            {bedrooms > 0 && (
+              <div className="flex items-center gap-2 border-l border-white/10 pl-6">
+                <span className="font-primary text-xs font-bold text-[#FAF8F5]">{bedrooms}</span>
+                <span className="font-primary text-[10px] uppercase tracking-wider text-[#FAF8F5]/60">{t('property.details.bedrooms_short')}</span>
               </div>
-              {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
-            </div>
-          )}
-
-          {isFeatured && (
-            <div className="px-2.5 py-0.5 bg-[#C9A962] text-[#0A0A0A] font-primary text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5 rounded-sm shadow-sm">
-              <span className="text-[10px]">★</span> {t('property.labels.featured')}
-            </div>
-          )}
-
-          {isNew && (
-            <div className="px-2.5 py-0.5 bg-[#C9A962] text-[#0A0A0A] font-primary text-[9px] font-black uppercase tracking-wider rounded-sm shadow-sm">
-              {t('common.new')}
-            </div>
-          )}
-
-          {reference && (
-            <PropertyReference 
-              reference={reference} 
-              variant="outline"
-              className="text-[9px] h-5 px-2 bg-white/5"
-            />
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <h3 className="font-secondary text-xl text-[#FAF8F5] leading-tight group-hover:text-[#C9A962] transition-colors line-clamp-1">
-            {displayTitle}
-          </h3>
-          <p className="font-primary text-[#818181] text-xs uppercase tracking-widest">{location}</p>
-        </div>
-        {/* Features Row */}
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[#888888] pt-1 opacity-80 group-hover:opacity-100 transition-opacity">
-          <div className="flex items-center gap-1">
-            <span className="font-primary text-xs font-bold text-[#FAF8F5]">{area}</span>
-            <span className="font-primary text-[10px] uppercase tracking-wider">m²</span>
-          </div>
-          
-          <span className="text-[#444444] font-bold">·</span>
-
-          {(floor !== undefined && floor !== null && floor !== '') && (
-            <>
-              <div className="flex items-center gap-1">
-                <span className="font-primary text-[10px] uppercase tracking-wider">{t('property.labels.features.floor')}</span>
-                <span className="font-primary text-xs font-bold text-[#FAF8F5]">
-                  {floor}{(!String(floor).includes('º') && !String(floor).includes('ª') && /^\d+$/.test(String(floor))) ? 'º' : ''}
-                </span>
+            )}
+            {bathrooms > 0 && (
+              <div className="flex items-center gap-2 border-l border-white/10 pl-6">
+                <span className="font-primary text-xs font-bold text-[#FAF8F5]">{bathrooms}</span>
+                <span className="font-primary text-[10px] uppercase tracking-wider text-[#FAF8F5]/60">{t('property.details.bathrooms_short')}</span>
               </div>
-              <span className="text-[#444444] font-bold">·</span>
-            </>
-          )}
-
-          <div className="flex items-center gap-1">
-            <span className="font-primary text-[10px] uppercase tracking-wider">{t('property.labels.features.bedrooms')}</span>
-            <span className="font-primary text-xs font-bold text-[#FAF8F5]">{bedrooms}</span>
-          </div>
-
-          <span className="text-[#444444] font-bold">·</span>
-
-          <div className="flex items-center gap-1">
-            <span className="font-primary text-[10px] uppercase tracking-wider">{t('property.labels.features.bathrooms')}</span>
-            <span className="font-primary text-xs font-bold text-[#FAF8F5]">{bathrooms}</span>
-          </div>
-
-          {(orientation && orientation.length > 0) && (
-            <>
-              <span className="text-[#444444] font-bold">·</span>
-              <div className="flex items-center gap-1">
-                <span className="font-primary text-[10px] uppercase tracking-wider">{t('property.form.fields.orientation')}</span>
-                <span className="font-primary text-xs font-bold text-[#FAF8F5]">
-                  {orientation.join(' · ')}
-                </span>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Tags Row */}
-        {tags && tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-1">
-            {tags.slice(0, 3).map(tag => (
-              <button
-                key={tag}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onTagClick?.(tag);
-                }}
-                className="px-2 py-0.5 border border-[#1F1F1F] hover:border-[#C9A962]/50 font-primary text-[9px] uppercase tracking-wider text-[#C9A962] bg-[#C9A962]/5 transition-colors rounded-sm"
-              >
-                {t(`tags.${tag}`, tag)}
-              </button>
-            ))}
-            {tags.length > 3 && (
-              <span className="text-[9px] text-[#444444] self-center">+{tags.length - 3}</span>
             )}
           </div>
-        )}
+        </div>
 
-        {/* Action Row */}
-        <div className="flex items-center justify-between mt-auto pt-4 border-t border-[#1F1F1F]">
-          <div className="font-primary text-[10px] uppercase tracking-[0.2em] text-[#666666] group-hover:text-[#FAF8F5] transition-colors flex items-center gap-2">
-            {t('property.labels.features.view_more')}
-            <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
-          </div>
+        {/* Favorite & Compare Quick Actions */}
+        <div className="absolute bottom-6 right-6 z-30 flex items-center gap-2 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
           {onToggleCompare && (
             <button
-              onClick={onToggleCompare}
-              title={isInCompare ? t('property.labels.features.remove_compare') : t('property.labels.features.compare')}
+              onClick={(e) => { e.preventDefault(); onToggleCompare(e); }}
               className={cn(
-                "p-2 rounded-sm border font-primary text-[9px] uppercase tracking-widest transition-all flex items-center gap-1",
-                isInCompare
-                  ? "bg-[#C9A962] border-[#C9A962] text-[#0A0A0A]"
-                  : "border-white/10 text-white/30 hover:border-[#C9A962] hover:text-[#C9A962]"
+                "p-2 rounded-full glass-deep border transition-all duration-300",
+                isInCompare ? "bg-[#C9A962] border-[#C9A962] text-[#0A0A0A]" : "border-white/10 text-white hover:bg-[#C9A962]/20"
               )}
             >
-              <GitCompare className="w-3 h-3" />
-              <span className="hidden lg:inline">{isInCompare ? t('property.labels.features.remove_short') : t('property.labels.features.compare')}</span>
+              <GitCompare className="w-4 h-4" />
             </button>
           )}
+          <button
+            onClick={(e) => { e.preventDefault(); onToggleFavorite?.(e); }}
+            className={cn(
+              "p-2 rounded-full glass-deep border transition-all duration-300",
+              isFavorite ? "bg-[#C9A962] border-[#C9A962] text-[#0A0A0A]" : "border-white/10 text-white hover:bg-[#C9A962]/20"
+            )}
+          >
+            <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
+          </button>
         </div>
-      </div>
+      </Link>
     </motion.div>
   );
-
-  if (linkTo) {
-    return <Link to={linkTo} className="block w-full">{card}</Link>;
-  }
 
   return card;
 });
