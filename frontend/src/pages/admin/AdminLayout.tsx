@@ -37,6 +37,7 @@ export const AdminLayout = () => {
   const navItems = [
     { to: `/admin/dashboard`, icon: <LayoutDashboard className="w-4 h-4" />, label: "Dashboard" },
     { to: `/admin/propiedades`, icon: <Building2 className="w-4 h-4" />, label: "Propiedades" },
+    { to: `/admin/propiedades/organizar`, icon: <LayoutGrid className="w-4 h-4" />, label: "Organizar Listado" },
     { to: `/admin/propiedades/nueva`, icon: <PlusCircle className="w-4 h-4" />, label: "Nueva Propiedad" },
     { to: `/admin/facturas`, icon: <Receipt className="w-4 h-4" />, label: "Contabilidad" },
     { to: `/admin/inquilinos`, icon: <Users className="w-4 h-4" />, label: "Inquilinos" },

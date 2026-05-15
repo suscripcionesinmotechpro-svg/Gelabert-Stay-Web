@@ -150,13 +150,22 @@ export const AdminPropertiesList = () => {
             )}
           </p>
         </div>
-        <Link
-          to="/admin/propiedades/nueva"
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#D4B673] transition-colors self-start"
-        >
-          <PlusCircle className="w-4 h-4" />
-          Nueva Propiedad
-        </Link>
+        <div className="flex items-center gap-3 self-start">
+          <Link
+            to="/admin/propiedades/organizar"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#161616] text-[#FAF8F5] border border-[#1F1F1F] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#1F1F1F] transition-colors"
+          >
+            <LayoutGrid className="w-4 h-4" />
+            Organizar Listado
+          </Link>
+          <Link
+            to="/admin/propiedades/nueva"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#D4B673] transition-colors"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Nueva Propiedad
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

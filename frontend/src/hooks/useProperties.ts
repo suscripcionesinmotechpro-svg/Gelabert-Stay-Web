@@ -53,6 +53,7 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
       let query = supabase
         .from('properties')
         .select('*')
+        .order('order_index', { ascending: true })
         .order('created_at', { ascending: false });
 
       if (!adminMode) {
@@ -297,7 +298,17 @@ export const usePropertyMutations = () => {
     if (error) throw error;
   };
 
-  return { createProperty, updateProperty, deleteProperty, changeStatus, changeCommercialStatus, toggleFeatured };
+  const updatePropertyOrder = async (orderMap: { id: string; order_index: number }[]): Promise<void> => {
+    // Bulk update approach for order_index
+    const promises = orderMap.map(item => 
+      supabase.from('properties').update({ order_index: item.order_index }).eq('id', item.id)
+    );
+    const results = await Promise.all(promises);
+    const firstError = results.find(r => r.error);
+    if (firstError?.error) throw firstError.error;
+  };
+
+  return { createProperty, updateProperty, deleteProperty, changeStatus, changeCommercialStatus, toggleFeatured, updatePropertyOrder };
 };
 
 // ============================================================

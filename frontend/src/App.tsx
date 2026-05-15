@@ -41,6 +41,7 @@ const AdminReservations = lazy(() => import('./pages/admin/AdminReservations').t
 const AdminLeadsCRM = lazy(() => import('./pages/admin/AdminLeadsCRM').then(m => ({ default: m.AdminLeadsCRM })));
 const AdminBlogList = lazy(() => import('./pages/admin/AdminBlogList').then(m => ({ default: m.AdminBlogList })));
 const AdminBlogPostForm = lazy(() => import('./pages/admin/AdminBlogPostForm').then(m => ({ default: m.AdminBlogPostForm })));
+const AdminPropertyReorder = lazy(() => import('./pages/admin/AdminPropertyReorder').then(m => ({ default: m.AdminPropertyReorder })));
 
 // Legal
 const AvisoLegal = lazy(() => import('./pages/legal/AvisoLegal').then(m => ({ default: m.AvisoLegal })));
@@ -111,6 +112,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="propiedades" element={<AdminPropertiesList />} />
+          <Route path="propiedades/organizar" element={<AdminPropertyReorder />} />
           <Route path="propiedades/nueva" element={<AdminPropertyForm />} />
           <Route path="propiedades/:id/editar" element={<AdminPropertyForm />} />
           <Route path="facturas" element={<AdminInvoices />} />

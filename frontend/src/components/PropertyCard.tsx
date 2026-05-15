@@ -158,7 +158,7 @@ export const PropertyCard = memo(({
       {...props}
     >
       {/* Image Area with Slider */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-[#1A1A1A]">
+      <div className="relative aspect-[4/5] overflow-hidden bg-[#1A1A1A]">
         <AnimatePresence initial={false}>
           <motion.div
             key={currentImageIndex}
@@ -200,13 +200,13 @@ export const PropertyCard = memo(({
 
         {/* Slider dots */}
         {images.length > 1 && (
-          <div className="absolute bottom-16 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none">
+          <div className="absolute bottom-18 left-0 right-0 flex justify-center gap-1 z-20 pointer-events-none">
             {images.slice(0, 5).map((_, i) => (
               <div 
                 key={i} 
                 className={cn(
-                  "h-1 rounded-full transition-all duration-300",
-                  i === currentImageIndex ? "w-4 bg-[#C9A962]" : "w-1.5 bg-white/40"
+                  "h-0.5 rounded-full transition-all duration-300",
+                  i === currentImageIndex ? "w-6 bg-[#C9A962]" : "w-2 bg-white/20"
                 )} 
               />
             ))}
@@ -227,21 +227,21 @@ export const PropertyCard = memo(({
         </button>
 
         {/* Top Left Badges: Operation Type & New */}
-        <div className="absolute top-4 left-4 z-30 flex flex-col gap-2 pointer-events-none">
+        <div className="absolute top-4 left-4 z-30 flex flex-col gap-1.5 pointer-events-none">
           <div className="flex flex-col gap-1">
-            <div className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-lg rounded-sm">
+            <div className="px-2.5 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[9px] font-black uppercase tracking-[0.15em] shadow-xl rounded-sm">
               {operation.toLowerCase() === 'alquiler' && is_room_rental
                 ? t('property.labels.features.room_rental') 
                 : `${t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation] || operation)} ${t(PROPERTY_TYPE_LABELS[property_type?.toLowerCase() as PropertyType] || '').toLowerCase()}`}
             </div>
-            {operation.toLowerCase() === 'alquiler' && is_room_rental && commercialStatus !== 'alquilado' && (
-              <div className="px-2 py-0.5 bg-[#0D0D0D]/80 backdrop-blur-md text-[#C9A962] border border-[#C9A962]/30 font-primary text-[9px] font-bold uppercase tracking-tighter rounded-sm w-fit">
-                Consulte disponibilidad
+            {isFeatured && (
+              <div className="px-2 py-0.5 glass-deep text-[#C9A962] border border-[#C9A962]/30 font-primary text-[8px] font-black uppercase tracking-[0.2em] rounded-sm w-fit flex items-center gap-1.5">
+                <span className="text-[10px]">★</span> {t('property.labels.featured')}
               </div>
             )}
           </div>
           {isNew && (
-            <div className="px-3 py-1 bg-[#C9A962] text-[#0A0A0A] font-primary text-[10px] font-black uppercase tracking-wider shadow-xl rounded-sm">
+            <div className="px-2.5 py-1 glass-light text-white font-primary text-[9px] font-black uppercase tracking-[0.15em] shadow-xl rounded-sm w-fit">
               {t('common.new') || 'NUEVO'}
             </div>
           )}
@@ -278,25 +278,24 @@ export const PropertyCard = memo(({
         )}
 
         {/* Multimedia badges (bottom left) */}
-        <div className="absolute bottom-14 left-3 z-20 flex items-center gap-2 pointer-events-none">
+        <div className="absolute bottom-16 left-3 z-20 flex items-center gap-1.5 pointer-events-none">
           {images.length > 1 && (
-            <div className="px-2 py-0.5 glass-deep rounded-sm flex items-center gap-1">
-              <Images className="w-3 h-3 text-white/60" />
-              <span className="font-primary text-[10px] text-white/80 font-bold">{images.length}</span>
+            <div className="px-1.5 py-0.5 glass-deep rounded-sm flex items-center gap-1 border border-white/5">
+              <Images className="w-2.5 h-2.5 text-white/60" />
+              <span className="font-primary text-[9px] text-white/80 font-bold">{images.length}</span>
             </div>
           )}
           {(videoUrl || (videos && videos.length > 0)) && (
-            <div className="px-2 py-0.5 glass-deep rounded-sm flex items-center gap-1" title={t('property.labels.features.has_video')}>
-              <Video className="w-3 h-3 text-[#C9A962]" />
-              <span className="font-primary text-[10px] text-white/80 font-bold uppercase tracking-wider">
-                {videos && videos.length > 1 ? `${videos.length} Videos` : 'Video'}
+            <div className="px-1.5 py-0.5 glass-deep rounded-sm flex items-center gap-1 border border-white/5" title={t('property.labels.features.has_video')}>
+              <Video className="w-2.5 h-2.5 text-[#C9A962]" />
+              <span className="font-primary text-[9px] text-white/80 font-bold uppercase tracking-wider">
+                {videos && videos.length > 1 ? videos.length : ''}
               </span>
             </div>
           )}
           {floorPlanUrl && (
-            <div className="px-2 py-0.5 glass-deep rounded-sm flex items-center gap-1" title={t('property.labels.features.has_floor_plan')}>
-              <FileText className="w-3 h-3 text-[#C9A962]" />
-              <span className="font-primary text-[10px] text-white/80 font-bold uppercase tracking-wider">{t('property.labels.features.floor_plan_short') || 'Plano'}</span>
+            <div className="px-1.5 py-0.5 glass-deep rounded-sm flex items-center gap-1 border border-white/5" title={t('property.labels.features.has_floor_plan')}>
+              <FileText className="w-2.5 h-2.5 text-[#C9A962]" />
             </div>
           )}
         </div>
