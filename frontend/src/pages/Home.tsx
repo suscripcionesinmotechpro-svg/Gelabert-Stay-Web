@@ -45,34 +45,16 @@ type Slide = {
 };
 
 // Hero slideshow — Todas las imágenes de WEB/images y todos los vídeos de public/videos
+// Hero slideshow — Curated selection for maximum impact and performance
 const HERO_SLIDES: Slide[] = [
-  // Imágenes optimizadas a WebP para máxima velocidad
-
-  { type: 'image', src: '/images/carousel/generated-1773179860778.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773179911372.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773179922956.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773179953611.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773179966632.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773179998210.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773180014794.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773180775213.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773181079127.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773181089592.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773181413432.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773181414755.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773181488277.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773181525401.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773181526162.webp' },
-  { type: 'image', src: '/images/carousel/generated-1773182001681.webp' },
   { type: 'image', src: '/images/carousel/hero-gen-1.webp' },
   { type: 'image', src: '/images/carousel/hero-gen-2.webp' },
   { type: 'image', src: '/images/carousel/hero-gen-3.webp' },
-  { type: 'image', src: '/images/carousel/hero-gen-4.webp' },
   { type: 'image', src: '/images/carousel/hero-luxury-villa-1.webp' },
   { type: 'image', src: '/images/carousel/hero-new-image-1.webp' },
   { type: 'image', src: '/images/carousel/hero-new-image-2.webp' },
-  { type: 'image', src: '/images/carousel/hero-poster.webp' },
-  // Vídeos de frontend/public/videos
+  { type: 'image', src: '/images/carousel/generated-1773180775213.webp' },
+  { type: 'image', src: '/images/carousel/generated-1773181079127.webp' },
   { type: 'video', src: '/videos/hero-luxury.mp4' },
   { type: 'video', src: '/videos/hero-new-drone-1.mp4' },
 ];

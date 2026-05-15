@@ -160,7 +160,7 @@ export const PropertyCard = memo(({
             <div className="bg-[#C9A962] text-[#0A0A0A] px-3 py-1 text-[9px] font-bold uppercase tracking-[0.2em] rounded-sm shadow-xl">
               {operation.toLowerCase() === 'alquiler' && is_room_rental
                 ? t('property.labels.features.room_rental') 
-                : t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation] || operation)}
+                : `${t(OPERATION_LABELS[operation.toLowerCase() as PropertyOperation] || operation)} ${property_type ? t(`property.labels.type.${property_type}`) : ''}`}
             </div>
             {isFeatured && (
               <div className="bg-white/10 backdrop-blur-md text-[#C9A962] px-3 py-1 text-[9px] font-bold uppercase tracking-[0.2em] border border-[#C9A962]/20 rounded-sm">
@@ -169,19 +169,23 @@ export const PropertyCard = memo(({
             )}
           </div>
 
-          {/* Top Right: Status Badge (Always Visible if not available) */}
           {commercialStatus && commercialStatus !== 'disponible' && (
-            <div className="absolute top-4 right-4 z-20">
+            <motion.div 
+              initial={{ x: 40, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.6, ease: "easeOut" }}
+              className="absolute top-8 -right-3 z-50 pointer-events-none"
+            >
               <span className={cn(
-                "px-3 py-1 text-[9px] font-bold uppercase tracking-[0.2em] border shadow-2xl backdrop-blur-md rounded-sm",
-                commercialStatus === 'reservado' && "bg-orange-500/80 text-white border-orange-500/30",
-                commercialStatus === 'alquilado' && "bg-purple-500/80 text-white border-purple-400/30",
-                commercialStatus === 'vendido' && "bg-red-500/80 text-white border-red-500/30",
-                commercialStatus === 'traspasado' && "bg-blue-500/80 text-white border-blue-500/30",
+                "px-5 py-2 text-[11px] font-black uppercase tracking-[0.25em] shadow-[10px_10px_30px_rgba(0,0,0,0.5)] rounded-l-lg border-y border-l-4 backdrop-blur-xl inline-block",
+                commercialStatus === 'reservado' && "bg-orange-500 text-white border-orange-300",
+                commercialStatus === 'alquilado' && "bg-purple-600 text-white border-purple-300",
+                commercialStatus === 'vendido' && "bg-red-600 text-white border-red-300",
+                commercialStatus === 'traspasado' && "bg-blue-600 text-white border-blue-300",
               )}>
                 {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
               </span>
-            </div>
+            </motion.div>
           )}
 
           {/* Slider Controls - Visible on hover */}
