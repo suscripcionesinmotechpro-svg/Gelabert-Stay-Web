@@ -197,46 +197,46 @@ export interface PropertyFilters {
 }
 
 export const OPERATION_LABELS: Record<PropertyOperation, string> = {
-  venta: 'property.labels.operation.venta',
-  alquiler: 'property.labels.operation.alquiler',
-  traspaso: 'property.labels.operation.traspaso',
+  venta: 'Venta',
+  alquiler: 'Alquiler',
+  traspaso: 'Traspaso',
 };
 
 export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
-  piso: 'property.labels.type.piso',
-  casa: 'property.labels.type.casa',
-  atico: 'property.labels.type.atico',
-  estudio: 'property.labels.type.estudio',
-  loft: 'property.labels.type.loft',
-  local: 'property.labels.type.local',
-  oficina: 'property.labels.type.oficina',
-  nave: 'property.labels.type.nave',
-  terreno: 'property.labels.type.terreno',
-  negocio: 'property.labels.type.negocio',
-  habitacion: 'property.labels.type.habitacion',
-  otro: 'property.labels.type.otro',
+  piso: 'Piso',
+  casa: 'Casa/Chalet',
+  atico: 'Ático',
+  estudio: 'Estudio',
+  loft: 'Loft',
+  local: 'Local Comercial',
+  oficina: 'Oficina',
+  nave: 'Nave Industrial',
+  terreno: 'Terreno/Parcela',
+  negocio: 'Negocio',
+  habitacion: 'Habitación',
+  otro: 'Otro',
 };
 
 export const RENT_TYPE_LABELS: Record<RentType, string> = {
-  temporal: 'search.rent_type.temporal',
-  habitual: 'search.rent_type.habitual',
-  vacacional: 'search.rent_type.vacacional',
-  habitaciones: 'search.rent_type.habitaciones',
-  otros: 'search.rent_type.otros',
+  temporal: 'Alquiler Temporal',
+  habitual: 'Larga Temporada',
+  vacacional: 'Vacacional',
+  habitaciones: 'Por Habitaciones',
+  otros: 'Otros',
 };
 
 export const STATUS_LABELS: Record<PropertyStatus, string> = {
-  borrador: 'property.labels.status.borrador',
-  publicada: 'property.labels.status.publicada',
-  oculta: 'property.labels.status.oculta',
+  borrador: 'Borrador',
+  publicada: 'Publicada',
+  oculta: 'Oculta',
 };
 
 export const COMMERCIAL_STATUS_LABELS: Record<CommercialStatus, string> = {
-  disponible: 'property.labels.commercial_status.disponible',
-  reservado: 'property.labels.commercial_status.reservado',
-  alquilado: 'property.labels.commercial_status.alquilado',
-  vendido: 'property.labels.commercial_status.vendido',
-  traspasado: 'property.labels.commercial_status.traspasado',
+  disponible: 'Disponible',
+  reservado: 'Reservado',
+  alquilado: 'Alquilado',
+  vendido: 'Vendido',
+  traspasado: 'Traspasado',
 };
 
 export const STATUS_COLORS: Record<PropertyStatus, string> = {
