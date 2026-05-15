@@ -3,7 +3,7 @@ import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAutoTranslate } from '../hooks/useAutoTranslate';
-import { OPERATION_LABELS, type PropertyOperation, type CommercialStatus, COMMERCIAL_STATUS_LABELS, type PropertyType } from '../types/property';
+import { type CommercialStatus, COMMERCIAL_STATUS_LABELS, type PropertyType } from '../types/property';
 import { ChevronLeft, ChevronRight, Heart, GitCompare, Maximize2, BedDouble, Bath } from 'lucide-react';
 import { useState, useMemo, memo } from 'react';
 import { PremiumImage } from './PremiumImage';
