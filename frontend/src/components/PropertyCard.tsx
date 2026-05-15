@@ -282,13 +282,13 @@ export const PropertyCard = memo(({
             {bedrooms > 0 && (
               <div className="flex items-center gap-2">
                 <BedDouble className="w-3.5 h-3.5 text-[#C9A962]/60" />
-                <span className="font-primary text-xs text-white/80">{bedrooms} {t('property.labels.bedrooms_short')}</span>
+                <span className="font-primary text-xs text-white/80">{bedrooms} {t('property.labels.features.bedrooms_short')}</span>
               </div>
             )}
             {bathrooms > 0 && (
               <div className="flex items-center gap-2">
                 <Bath className="w-3.5 h-3.5 text-[#C9A962]/60" />
-                <span className="font-primary text-xs text-white/80">{bathrooms} {t('property.labels.bathrooms_short')}</span>
+                <span className="font-primary text-xs text-white/80">{bathrooms} {t('property.labels.features.bathrooms_short')}</span>
               </div>
             )}
           </div>

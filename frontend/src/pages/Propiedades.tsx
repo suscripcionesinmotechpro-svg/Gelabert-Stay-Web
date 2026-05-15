@@ -410,9 +410,10 @@ export const Propiedades = () => {
                   {t('property.whatsapp_community_title')}
                 </h3>
                 <p className="font-primary text-base md:text-lg text-white/70 max-w-2xl leading-relaxed">
-                  <Trans i18nKey="property.whatsapp_community_desc">
-                    Únete a nuestra exclusiva <b className="text-[#25D366] font-normal">comunidad de WhatsApp</b> y sé el primero en enterarte de nuestras nuevas propiedades de alquiler con un solo clic.
-                  </Trans>
+                  <Trans 
+                    i18nKey="property.whatsapp_community_desc"
+                    components={[<b key="0" className="text-[#25D366] font-normal" />]} 
+                  />
                 </p>
               </div>
             </div>
