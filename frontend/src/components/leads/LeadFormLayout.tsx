@@ -23,14 +23,19 @@ const LeadFormLayout: React.FC<LeadFormLayoutProps> = ({
       <Helmet>
         <title>{title} | Gelabert Homes</title>
         <meta name="description" content={description} />
-        <meta property="og:title" content={`${title} | Gelabert Homes`} />
-        <meta property="og:description" content={description} />
-        <meta property="og:image" content="https://gelaberthomes.com/logo-og.png" />
+        
+        {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content="https://gelaberthomes.es/logo-og.png?v=2" />
+        <meta property="og:image:alt" content="Gelabert Homes Real Estate" />
+
+        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${title} | Gelabert Homes`} />
+        <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content="https://gelaberthomes.com/logo-og.png" />
+        <meta name="twitter:image" content="https://gelaberthomes.es/logo-og.png?v=2" />
       </Helmet>
 
       {/* Background with overlay */}

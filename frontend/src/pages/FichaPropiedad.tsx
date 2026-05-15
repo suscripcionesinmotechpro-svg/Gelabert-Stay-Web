@@ -22,6 +22,7 @@ import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
+import { cleanContent } from '../utils/textUtils';
 
 const WhatsAppIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -238,11 +239,15 @@ export const FichaPropiedad = () => {
       netlifyData.append('property_reference', property?.reference || '');
       netlifyData.append('property_url', propertyUrl);
 
-      await fetch('/', {
+      const response = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: netlifyData.toString(),
       });
+
+      if (!response.ok) {
+        throw new Error(`Netlify form submission failed with status: ${response.status}`);
+      }
 
       setFormSent(true);
     } catch (err) {
@@ -254,7 +259,7 @@ export const FichaPropiedad = () => {
   };
 
   const translatedTitle = autoTitle;
-  const translatedDescription = autoDescription;
+  const translatedDescription = cleanContent(autoDescription);
 
   // SEO Logic — Matches server-side injection (inject-meta.ts)
   const isEn = i18n.language.startsWith('en');
@@ -1140,7 +1145,7 @@ export const FichaPropiedad = () => {
             <div className="flex flex-col gap-4 pt-4 border-t border-[#1F1F1F]">
               <h2 className="font-secondary text-2xl text-[#FAF8F5]">{t('property.labels.features.highlights')}</h2>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {autoHighlights.map((h, i) => (
+                {autoHighlights.filter(h => h && cleanContent(h) !== '').map((h, i) => (
                   <li key={i} className="flex items-start gap-2 font-primary text-sm text-[#888888]">
                     <span className="text-[#C9A962] mt-0.5">•</span>
                     {h}

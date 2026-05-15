@@ -141,6 +141,13 @@
         "reference_placeholder": "Busca por referencia (GEL-XXX)",
         "favorites": "Favoritos",
         "room_rental": "Alquiler por habitaciones",
+        "room_prefix": "Habitación",
+        "available": "Disponible",
+        "reserved": "Reservada",
+        "rented": "Alquilada",
+        "view_tour": "Ver Tour",
+        "room_distribution": "Distribución por Habitaciones",
+        "common_areas": "Zonas Comunes",
         "additional_features": "Características Adicionales",
         "amenities": "Comodidades",
         "floor": "Planta",
@@ -1209,7 +1216,7 @@
   },
   "lead_forms": {
     "tenants": {
-      "title": "Solicitud de Alquiler",
+      "title": "Formulario de Cualificación de Inquilinos",
       "badge": "Inquilinos",
       "description": "Completa este formulario para que podamos conocer mejor tu perfil y ayudarte a encontrar el hogar ideal.",
       "num_people": "Número de personas que vivirán en la casa",
@@ -1230,7 +1237,7 @@
       "success_desc": "Gracias por facilitarnos tu información. Analizaremos tu perfil y te contactaremos pronto."
     },
     "owners_sale": {
-      "title": "Vende tu Propiedad",
+      "title": "Formulario Propietarios - Venta",
       "badge": "Venta",
       "description": "Déjanos los detalles de tu vivienda y nos pondremos en contacto para realizar una valoración profesional.",
       "address": "Dirección completa del inmueble",
@@ -1241,7 +1248,7 @@
       "success_desc": "Nuestro equipo de ventas revisará tu propiedad y te llamará para darte una valoración gratuita."
     },
     "owners_rent": {
-      "title": "Alquila tu Propiedad",
+      "title": "Formulario Propietarios - Alquiler",
       "badge": "Alquiler",
       "description": "Gestionamos el alquiler de tu vivienda con las mejores garantías. Cuéntanos qué propiedad deseas alquilar.",
       "address": "Dirección completa del inmueble",

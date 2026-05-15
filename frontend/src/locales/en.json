@@ -139,6 +139,14 @@
         "min_bathrooms": "Bathrooms (min)",
         "reference_placeholder": "Search by reference (GEL-XXX)",
         "favorites": "Favorites",
+        "room_rental": "Room rental",
+        "room_prefix": "Room",
+        "available": "Available",
+        "reserved": "Reserved",
+        "rented": "Rented",
+        "view_tour": "View Tour",
+        "room_distribution": "Room Distribution",
+        "common_areas": "Common Areas",
         "additional_features": "Additional Features",
         "amenities": "Amenities",
         "floor": "Floor",
@@ -1213,7 +1221,7 @@
   },
   "lead_forms": {
     "tenants": {
-      "title": "Rental Application",
+      "title": "Tenant Qualification Form",
       "badge": "Tenants",
       "description": "Complete this form so we can better understand your profile and help you find the ideal home.",
       "num_people": "Number of people who will live in the house",
@@ -1234,7 +1242,7 @@
       "success_desc": "Thank you for providing your information. We will analyze your profile and contact you soon."
     },
     "owners_sale": {
-      "title": "Sell Your Property",
+      "title": "Property Owner Form - Sale",
       "badge": "Sale",
       "description": "Leave us the details of your home and we will contact you for a professional valuation.",
       "address": "Full property address",
@@ -1245,7 +1253,7 @@
       "success_desc": "Our sales team will review your property and call you to provide a free valuation."
     },
     "owners_rent": {
-      "title": "Rent Your Property",
+      "title": "Property Owner Form - Rental",
       "badge": "Rent",
       "description": "We manage the rental of your home with the best guarantees. Tell us which property you want to rent.",
       "address": "Full property address",

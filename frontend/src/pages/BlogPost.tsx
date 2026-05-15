@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 import type { BlogPost as BlogPostType } from '../types/blog';
 import { Calendar, User, ArrowLeft } from 'lucide-react';
 import { PageLoading } from '../components/PageLoading';
+import { cleanContent } from '../utils/textUtils';
 
 export const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -48,7 +49,7 @@ export const BlogPost = () => {
 
   const isEn = i18n.language.startsWith('en');
   const displayTitle = isEn ? (post.title_en || post.title) : post.title;
-  const displayContent = isEn ? (post.content_en || post.content) : post.content;
+  const displayContent = cleanContent(isEn ? (post.content_en || post.content) : post.content);
   const displaySeoTitle = isEn ? (post.seo_title_en || post.seo_title || displayTitle) : (post.seo_title || post.title);
   const displaySeoDescription = isEn ? (post.seo_description_en || post.seo_description || '') : (post.seo_description || '');
   

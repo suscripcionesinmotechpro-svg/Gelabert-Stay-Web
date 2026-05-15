@@ -15,7 +15,7 @@ export const ImageCropperModal = ({
   image, 
   onClose, 
   onCropComplete, 
-  aspectRatio = 2 / 3 
+  aspectRatio = 4 / 5 
 }: ImageCropperModalProps) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
