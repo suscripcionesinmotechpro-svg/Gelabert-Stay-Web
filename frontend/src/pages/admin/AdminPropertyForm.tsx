@@ -527,20 +527,15 @@ export const AdminPropertyForm = () => {
       // 2. Establecer el estado de publicación si se ha pasado
       if (targetStatus) data.status = targetStatus;
       
-      // 3. Limpiar strings vacíos para evitar conflictos en UNIQUE (slug)
+      // 3. Limpiar strings vacíos para evitar conflictos en UNIQUE (reference, slug)
       // y para que se guarden como NULL en Postgres
-      const nullableFields = ['slug', 'meta_title', 'meta_description', 'street_number', 'door_number', 'parking_price', 'short_description', 'description', 'video_url', 'floor_plan', 'availability', 'property_condition', 'energy_rating', 'emissions_rating', 'conservation_state', 'block_staircase', 'urbanization'];
+      const nullableFields = ['reference', 'slug', 'meta_title', 'meta_description', 'street_number', 'door_number', 'parking_price', 'short_description', 'description', 'video_url', 'floor_plan', 'availability', 'property_condition', 'energy_rating', 'emissions_rating', 'conservation_state', 'block_staircase', 'urbanization'];
       
       nullableFields.forEach(field => {
         if (data[field] === undefined || (typeof data[field] === 'string' && data[field].trim() === '')) {
           data[field] = null;
         }
       });
-
-      // 3.5 Auto-generar referencia si no se proporciona para evitar el error UNIQUE constraint
-      if (!data.reference || (typeof data.reference === 'string' && data.reference.trim() === '')) {
-        data.reference = `GEL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-      }
 
       // 4. Asegurar que los campos numéricos son números o null
       const numericFields = ['price', 'energy_consumption', 'emissions_value', 'community_fees', 'ibi'];
@@ -624,9 +619,15 @@ export const AdminPropertyForm = () => {
       if (err.code === '42703') {
         console.error('[CRITICAL] Columna inexistente en la base de datos. Por favor, ejecuta el script de migración SQL proporcionado.');
       }
-      const errorMessage = err.message || err.details || 'Error al guardar';
-      const errorCode = err.code ? ` (${err.code})` : '';
-      setError(`${errorMessage}${errorCode}`);
+      
+      // Control de errores de duplicados (23505)
+      if (err.code === '23505' && (err.message?.includes('properties_reference_key') || err.details?.includes('properties_reference_key'))) {
+        setError('El número de referencia introducido ya está en uso por otra propiedad. Por favor, especifica una referencia única o añade una variación (ej. GEL-102-01).');
+      } else {
+        const errorMessage = err.message || err.details || 'Error al guardar';
+        const errorCode = err.code ? ` (${err.code})` : '';
+        setError(`${errorMessage}${errorCode}`);
+      }
     } finally {
       setSaving(false);
     }
