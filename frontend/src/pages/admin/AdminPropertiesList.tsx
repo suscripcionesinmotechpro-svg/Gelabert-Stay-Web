@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useProperties, usePropertyMutations } from '../../hooks/useProperties';
 import type { Property, PropertyStatus, CommercialStatus } from '../../types/property';
 import { STATUS_LABELS, STATUS_COLORS, OPERATION_LABELS, COMMERCIAL_STATUS_LABELS, COMMERCIAL_STATUS_COLORS } from '../../types/property';
-import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid } from 'lucide-react';
 import { PropertyReference } from '../../components/PropertyReference';
 import { getOptimizedImage } from '../../utils/images';
 import { getCommunityShareMessage } from '../../utils/whatsapp';

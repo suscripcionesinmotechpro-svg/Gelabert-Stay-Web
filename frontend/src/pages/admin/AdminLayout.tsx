@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { supabase } from '../../lib/supabase';
 import {
-  LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X, Receipt, Users, CalendarDays, Bot, FileText
+  LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X, Receipt, Users, CalendarDays, Bot, FileText, LayoutGrid
 } from 'lucide-react';
 
 export const AdminLayout = () => {
