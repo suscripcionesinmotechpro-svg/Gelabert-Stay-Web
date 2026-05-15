@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-// removed unused import
+import { useBlog } from '../../hooks/useBlog';
 import { Plus, Search, FileText, Globe, Pencil, Trash2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 export const AdminBlogList = () => {
@@ -75,7 +75,7 @@ export const AdminBlogList = () => {
                   </td>
                 </tr>
               ) : (
-                posts.map((post) => (
+                posts.map((post: any) => (
                   <tr key={post.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-4">

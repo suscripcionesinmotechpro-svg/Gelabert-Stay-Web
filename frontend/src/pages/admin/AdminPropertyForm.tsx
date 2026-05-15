@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useProperty, usePropertyMutations, uploadPropertyMedia, deletePropertyMedia } from '../../hooks/useProperties';
 import { usePropertyContracts } from '../../hooks/useContracts';
 import type { PropertyInsert, PropertyOperation, PropertyType, PropertyStatus, CommercialStatus } from '../../types/property';
-import { AVAILABLE_TAGS, OPERATION_LABELS, PROPERTY_TYPE_LABELS, COMMERCIAL_STATUS_LABELS, STATUS_LABELS } from '../../types/property';
+import { AVAILABLE_TAGS } from '../../types/property';
 import { ChevronLeft, Save, Eye, Plus, X, Upload, ExternalLink, Sparkles } from 'lucide-react';
 import { SortableImageGallery } from '../../components/admin/SortableImageGallery';
 import { SortableVideoGallery } from '../../components/admin/SortableVideoGallery';
@@ -655,7 +655,7 @@ export const AdminPropertyForm = () => {
             className="flex items-center gap-2 px-4 py-2.5 border border-[#1F1F1F] text-[#888888] font-primary text-sm hover:border-[#FAF8F5] hover:text-[#FAF8F5] transition-all disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
-            {t('admin.form.save_draft')}
+            Guardar Borrador
           </button>
           {isEditing && property?.status === 'publicada' && (
             <a
@@ -787,7 +787,7 @@ export const AdminPropertyForm = () => {
             <input type="number" className={inputClass} placeholder="Ej: 350000" value={form.price ?? ''} onChange={e => set('price', e.target.value ? Number(e.target.value) : undefined)} />
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.currency')}</label>
+            <label className={labelClass}>Moneda</label>
             <select className={selectClass} value={form.currency} onChange={e => set('currency', e.target.value)}>
               <option value="EUR">EUR (€)</option>
               <option value="USD">USD ($)</option>
@@ -805,11 +805,11 @@ export const AdminPropertyForm = () => {
         {form.operation === 'venta' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-[#1F1F1F]">
             <div className="flex flex-col gap-2">
-              <label className={labelClass}>{t('admin.form.fields.community_fees')}</label>
+              <label className={labelClass}>Gastos de Comunidad</label>
               <input type="number" className={inputClass} value={form.community_fees ?? ''} onChange={e => set('community_fees', e.target.value ? Number(e.target.value) : undefined)} />
             </div>
             <div className="flex flex-col gap-2">
-              <label className={labelClass}>{t('admin.form.fields.ibi')}</label>
+              <label className={labelClass}>IBI</label>
               <input type="number" className={inputClass} value={form.ibi ?? ''} onChange={e => set('ibi', e.target.value ? Number(e.target.value) : undefined)} />
             </div>
           </div>
@@ -818,18 +818,18 @@ export const AdminPropertyForm = () => {
 
       {/* UBICACIÓN */}
       <div className={sectionClass}>
-        <h2 className={sectionHeaderClass}>{t('admin.form.sections.location')}</h2>
+        <h2 className={sectionHeaderClass}>Ubicación</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.city')}</label>
-            <input className={inputClass} placeholder={t('admin.form.fields.city_placeholder')} value={form.city ?? ''} onChange={e => set('city', e.target.value)} />
+            <label className={labelClass}>Ciudad</label>
+            <input className={inputClass} placeholder="Málaga, Marbella..." value={form.city ?? ''} onChange={e => set('city', e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.zone')}</label>
-            <input className={inputClass} placeholder={t('admin.form.fields.zone_placeholder')} value={form.zone ?? ''} onChange={e => set('zone', e.target.value)} />
+            <label className={labelClass}>Zona / Barrio</label>
+            <input className={inputClass} placeholder="Ej: Centro Histórico, El Limonar..." value={form.zone ?? ''} onChange={e => set('zone', e.target.value)} />
           </div>
           <div className="flex flex-col gap-2 sm:col-span-2">
-            <label className={labelClass}>{t('admin.form.fields.address')}</label>
+            <label className={labelClass}>Dirección</label>
             {isLoaded ? (
               <Autocomplete
                 onLoad={onAutocompleteLoad}
@@ -841,7 +841,7 @@ export const AdminPropertyForm = () => {
               >
                 <input 
                   className={inputClass} 
-                  placeholder={t('admin.form.fields.address_placeholder')} 
+                  placeholder="Escribe la dirección..." 
                   value={form.address ?? ''} 
                   onChange={e => set('address', e.target.value)}
                 />
@@ -849,40 +849,40 @@ export const AdminPropertyForm = () => {
             ) : (
               <input 
                 className={inputClass} 
-                placeholder={t('admin.form.fields.address_placeholder')} 
+                placeholder="Escribe la dirección..." 
                 value={form.address ?? ''} 
                 onChange={e => set('address', e.target.value)}
               />
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.postal_code')}</label>
-            <input className={inputClass} placeholder={t('admin.form.fields.postal_code_placeholder')} value={form.postal_code ?? ''} onChange={e => set('postal_code', e.target.value)} />
+            <label className={labelClass}>Código Postal</label>
+            <input className={inputClass} placeholder="29000" value={form.postal_code ?? ''} onChange={e => set('postal_code', e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.street_number')}</label>
+            <label className={labelClass}>Número</label>
             <input className={inputClass} value={form.street_number ?? ''} onChange={e => set('street_number', e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.door_number')}</label>
+            <label className={labelClass}>Puerta / Piso</label>
             <input className={inputClass} value={form.door_number ?? ''} onChange={e => set('door_number', e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.block')}</label>
+            <label className={labelClass}>Bloque / Escalera</label>
             <input className={inputClass} value={form.block_staircase ?? ''} onChange={e => set('block_staircase', e.target.value)} />
           </div>
           <div className="flex flex-col gap-2 sm:col-span-2">
-            <label className={labelClass}>{t('admin.form.fields.urbanization')}</label>
+            <label className={labelClass}>Urbanización</label>
             <input className={inputClass} value={form.urbanization ?? ''} onChange={e => set('urbanization', e.target.value)} />
           </div>
           <div className="flex flex-col gap-2 sm:col-span-2 pt-2 border-t border-[#1F1F1F]">
-            <label className={labelClass}>{t('admin.form.fields.coordinates')}</label>
+            <label className={labelClass}>Coordenadas (Opcional)</label>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-[#666666] font-bold">LAT</span>
                 <input 
                   className={`${inputClass} !pl-10`} 
-                  placeholder={t('admin.form.fields.lat_placeholder')} 
+                  placeholder="36.721..." 
                   value={latStr} 
                   onChange={e => {
                     const val = e.target.value;
@@ -900,7 +900,7 @@ export const AdminPropertyForm = () => {
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-[#666666] font-bold">LON</span>
                 <input 
                   className={`${inputClass} !pl-10`} 
-                  placeholder={t('admin.form.fields.lon_placeholder')} 
+                  placeholder="-4.421..." 
                   value={lonStr} 
                   onChange={e => {
                     const val = e.target.value;
@@ -916,13 +916,13 @@ export const AdminPropertyForm = () => {
               </div>
             </div>
             <p className="text-[10px] text-[#666666] mt-1 italic">
-              {t('admin.form.fields.map_hint')}
+              Si dejas las coordenadas vacías, intentaremos geolocalizar la dirección automáticamente.
             </p>
           </div>
           
           {/* Vista previa del mapa */}
           <div className="sm:col-span-2 mt-4 space-y-2">
-            <label className={labelClass}>{t('admin.form.fields.map_preview')}</label>
+            <label className={labelClass}>Vista previa del Mapa</label>
             <div className="h-[350px] w-full border border-[#1F1F1F] overflow-hidden grayscale-[0.2] hover:grayscale-0 transition-all">
               <PropertyMap 
                 lat={Number(form.latitude || 0)} 
@@ -937,10 +937,10 @@ export const AdminPropertyForm = () => {
             </div>
             <p className="text-[11px] text-[#C9A962] font-semibold flex items-center gap-1.5">
               <Sparkles className="w-3 h-3" />
-              {t('admin.form.fields.map_interactive_hint')}
+              Arrastra el marcador para ajustar la ubicación exacta.
             </p>
             <p className="text-[10px] text-[#666666] italic">
-              {t('admin.form.fields.map_exact_hint')}
+              La dirección textual no se cambiará automáticamente al mover el marcador.
             </p>
           </div>
         </div>
@@ -968,45 +968,45 @@ export const AdminPropertyForm = () => {
 
       {/* CARACTERÍSTICAS */}
       <div className={sectionClass}>
-        <h2 className={sectionHeaderClass}>{t('admin.form.sections.features')}</h2>
+        <h2 className={sectionHeaderClass}>Características</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.m2')}</label>
-            <input type="number" className={inputClass} placeholder={t('admin.form.fields.m2_placeholder')} value={form.area_m2 ?? ''} onChange={e => set('area_m2', e.target.value ? Number(e.target.value) : undefined)} />
+            <label className={labelClass}>Superficie (m²)</label>
+            <input type="number" className={inputClass} placeholder="Ej: 85" value={form.area_m2 ?? ''} onChange={e => set('area_m2', e.target.value ? Number(e.target.value) : undefined)} />
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.bedrooms')}</label>
-            <input type="number" className={inputClass} placeholder={t('admin.form.fields.bedrooms_placeholder')} value={form.bedrooms} onChange={e => set('bedrooms', Number(e.target.value))} />
+            <label className={labelClass}>Habitaciones</label>
+            <input type="number" className={inputClass} placeholder="Ej: 3" value={form.bedrooms} onChange={e => set('bedrooms', Number(e.target.value))} />
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.bathrooms')}</label>
-            <input type="number" className={inputClass} placeholder={t('admin.form.fields.bathrooms_placeholder')} value={form.bathrooms} onChange={e => set('bathrooms', Number(e.target.value))} />
+            <label className={labelClass}>Baños</label>
+            <input type="number" className={inputClass} placeholder="Ej: 2" value={form.bathrooms} onChange={e => set('bathrooms', Number(e.target.value))} />
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.floor')}</label>
-            <input className={inputClass} placeholder={t('admin.form.fields.floor_placeholder')} value={form.floor ?? ''} onChange={e => set('floor', e.target.value)} />
+            <label className={labelClass}>Planta / Altura</label>
+            <input className={inputClass} placeholder="Ej: 3º B, Bajo, Ático..." value={form.floor ?? ''} onChange={e => set('floor', e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.conservation_state')}</label>
+            <label className={labelClass}>Estado de Conservación</label>
             <select 
               className={selectClass} 
               value={form.conservation_state ?? ''} 
               onChange={e => set('conservation_state', e.target.value)}
             >
-              <option value="">{t('admin.form.fields.condition_placeholder')}</option>
-              <option value="Reformado">{t('property_conditions.Reformado')}</option>
-              <option value="A reformar">{t('property_conditions.A reformar')}</option>
-              <option value="Buen estado">{t('property_conditions.Buen estado')}</option>
-              <option value="Obra nueva">{t('property_conditions.Obra nueva')}</option>
-              <option value="A estrenar">{t('property_conditions.A estrenar')}</option>
-              <option value="En construcción">{t('property_conditions.En construcción')}</option>
+              <option value="">Selecciona estado...</option>
+              <option value="Reformado">Reformado</option>
+              <option value="A reformar">A reformar</option>
+              <option value="Buen estado">Buen estado</option>
+              <option value="Obra nueva">Obra nueva</option>
+              <option value="A estrenar">A estrenar</option>
+              <option value="En construcción">En construcción</option>
             </select>
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.availability')}</label>
+            <label className={labelClass}>Disponibilidad</label>
             <input 
               className={inputClass} 
-              placeholder={t('admin.form.fields.availability_placeholder')}
+              placeholder="Ej: Inmediata, Mayo 2024..."
               value={form.availability ?? ''} 
               onChange={e => set('availability', e.target.value)}
             />
@@ -1015,7 +1015,7 @@ export const AdminPropertyForm = () => {
 
         {/* Orientación (Multiple selection) */}
         <div className="flex flex-col gap-3 pt-4 border-t border-[#1F1F1F]">
-          <label className={labelClass}>{t('admin.form.fields.orientation')}</label>
+          <label className={labelClass}>Orientación</label>
           <div className="flex flex-wrap gap-4">
             {['Norte', 'Sur', 'Este', 'Oeste'].map(o => (
               <label key={o} className="flex items-center gap-2 cursor-pointer group">
@@ -1032,7 +1032,7 @@ export const AdminPropertyForm = () => {
                   {(form.orientation ?? []).includes(o) && <X className="w-3 h-3 text-[#0A0A0A]" />}
                 </div>
                 <span className="font-primary text-xs text-[#888888] uppercase tracking-wide group-hover:text-[#FAF8F5] transition-colors">
-                  {t(`admin.form.fields.orientation_${o.charAt(0).toLowerCase()}`)}
+                  {o}
                 </span>
               </label>
             ))}
@@ -1042,53 +1042,53 @@ export const AdminPropertyForm = () => {
         {/* Eficiencia Energética */}
         <div className="flex flex-col gap-5 pt-4 border-t border-[#1F1F1F]">
           <h3 className="font-primary text-[#FAF8F5] font-bold text-xs uppercase tracking-wider">
-            {t('admin.form.fields.energy_efficiency')}
+            Eficiencia Energética
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <label className={labelClass}>{t('admin.form.fields.energy_rating')}</label>
+                <label className={labelClass}>Calificación Energética</label>
                 <select className={selectClass} value={form.energy_rating ?? ''} onChange={e => set('energy_rating', e.target.value)}>
                   <option value="">-</option>
                   {['A', 'B', 'C', 'D', 'E', 'F', 'G', 'Exento', 'En trámite'].map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
               <div className="flex flex-col gap-2">
-                <label className={labelClass}>{t('admin.form.fields.energy_consumption')} (kWh/m² año)</label>
+                <label className={labelClass}>Consumo de Energía (kWh/m² año)</label>
                 <input type="number" className={inputClass} value={form.energy_consumption ?? ''} onChange={e => set('energy_consumption', e.target.value ? Number(e.target.value) : undefined)} />
               </div>
             </div>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <label className={labelClass}>{t('admin.form.fields.emissions_rating')}</label>
+                <label className={labelClass}>Calificación de Emisiones</label>
                 <select className={selectClass} value={form.emissions_rating ?? ''} onChange={e => set('emissions_rating', e.target.value)}>
                   <option value="">-</option>
                   {['A', 'B', 'C', 'D', 'E', 'F', 'G', 'Exento', 'En trámite'].map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
               <div className="flex flex-col gap-2">
-                <label className={labelClass}>{t('admin.form.fields.emissions')} (kg CO₂/m² año)</label>
+                <label className={labelClass}>Emisiones (kg CO₂/m² año)</label>
                 <input type="number" className={inputClass} value={form.emissions_value ?? ''} onChange={e => set('emissions_value', e.target.value ? Number(e.target.value) : undefined)} />
               </div>
             </div>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-8 pt-2">
-          <ToggleField label={t('property.labels.features.has_elevator')} checked={form.has_elevator ?? false} onChange={v => set('has_elevator', v)} />
-          <ToggleField label={t('property.labels.features.is_furnished')} checked={form.is_furnished ?? false} onChange={v => set('is_furnished', v)} />
-          <ToggleField label={t('property.labels.features.has_terrace')} checked={form.has_terrace ?? false} onChange={v => set('has_terrace', v)} />
-          <ToggleField label={t('property.labels.features.has_balcony')} checked={form.has_balcony ?? false} onChange={v => set('has_balcony', v)} />
-          <ToggleField label={t('property.labels.features.has_parking')} checked={form.has_parking ?? false} onChange={v => set('has_parking', v)} />
+          <ToggleField label="Ascensor" checked={form.has_elevator ?? false} onChange={v => set('has_elevator', v)} />
+          <ToggleField label="Amueblado" checked={form.is_furnished ?? false} onChange={v => set('is_furnished', v)} />
+          <ToggleField label="Terraza" checked={form.has_terrace ?? false} onChange={v => set('has_terrace', v)} />
+          <ToggleField label="Balcón" checked={form.has_balcony ?? false} onChange={v => set('has_balcony', v)} />
+          <ToggleField label="Garaje" checked={form.has_parking ?? false} onChange={v => set('has_parking', v)} />
           {form.has_parking && (
             <div className="flex flex-col gap-3 p-3 bg-[#111111] border border-[#1F1F1F] rounded-sm sm:col-span-2 lg:col-span-3">
               <ToggleField 
-                label={t('admin.form.fields.parking_included')} 
+                label="Plaza de garaje incluida" 
                 checked={form.parking_included ?? true} 
                 onChange={v => set('parking_included', v)} 
               />
               {form.parking_included === false && (
                 <div className="flex flex-col gap-2 pt-2 border-t border-[#1F1F1F]">
-                  <label className={labelClass}>{t('admin.form.fields.parking_price')}</label>
+                  <label className={labelClass}>Precio de la plaza (Si no incluida)</label>
                   <input 
                     type="number" 
                     className={`${inputClass} max-w-[200px]`} 
@@ -1099,39 +1099,39 @@ export const AdminPropertyForm = () => {
               )}
             </div>
           )}
-          <ToggleField label={t('property.labels.features.has_storage')} checked={form.has_storage ?? false} onChange={v => set('has_storage', v)} />
-          <ToggleField label={t('property.labels.features.has_pool')} checked={form.has_pool ?? false} onChange={v => set('has_pool', v)} />
-          <ToggleField label={t('property.labels.features.heating')} checked={form.heating ?? false} onChange={v => set('heating', v)} />
-          <ToggleField label={t('property.labels.features.air_conditioning')} checked={form.air_conditioning ?? false} onChange={v => set('air_conditioning', v)} />
-          <ToggleField label={t('property.labels.features.is_exterior')} checked={form.is_exterior ?? false} onChange={v => set('is_exterior', v)} />
-          <ToggleField label={t('property.labels.features.garden')} checked={form.garden ?? false} onChange={v => set('garden', v)} />
-          <ToggleField label={t('property.labels.features.has_patio')} checked={form.has_patio ?? false} onChange={v => set('has_patio', v)} />
-          <ToggleField label={t('property.labels.features.pets_allowed')} checked={form.pets_allowed ?? false} onChange={v => set('pets_allowed', v)} />
-          <ToggleField label={t('property.labels.features.sea_views')} checked={form.sea_views ?? false} onChange={v => set('sea_views', v)} />
-          <ToggleField label={t('property.labels.features.has_wardrobes')} checked={form.has_wardrobes ?? false} onChange={v => set('has_wardrobes', v)} />
-          <ToggleField label={t('property.labels.features.has_fireplace')} checked={form.has_fireplace ?? false} onChange={v => set('has_fireplace', v)} />
+          <ToggleField label="Trastero" checked={form.has_storage ?? false} onChange={v => set('has_storage', v)} />
+          <ToggleField label="Piscina" checked={form.has_pool ?? false} onChange={v => set('has_pool', v)} />
+          <ToggleField label="Calefacción" checked={form.heating ?? false} onChange={v => set('heating', v)} />
+          <ToggleField label="Aire Acondicionado" checked={form.air_conditioning ?? false} onChange={v => set('air_conditioning', v)} />
+          <ToggleField label="Exterior" checked={form.is_exterior ?? false} onChange={v => set('is_exterior', v)} />
+          <ToggleField label="Jardín" checked={form.garden ?? false} onChange={v => set('garden', v)} />
+          <ToggleField label="Patio" checked={form.has_patio ?? false} onChange={v => set('has_patio', v)} />
+          <ToggleField label="Mascotas permitidas" checked={form.pets_allowed ?? false} onChange={v => set('pets_allowed', v)} />
+          <ToggleField label="Vistas al mar" checked={form.sea_views ?? false} onChange={v => set('sea_views', v)} />
+          <ToggleField label="Armarios Empotrados" checked={form.has_wardrobes ?? false} onChange={v => set('has_wardrobes', v)} />
+          <ToggleField label="Chimenea" checked={form.has_fireplace ?? false} onChange={v => set('has_fireplace', v)} />
         </div>
 
       </div>
 
       {/* CONTENIDO COMERCIAL */}
       <div className={sectionClass}>
-        <h2 className={sectionHeaderClass}>{t('admin.form.sections.commercial')}</h2>
+        <h2 className={sectionHeaderClass}>Contenido Comercial</h2>
         <div className="flex flex-col gap-2">
-          <label className={labelClass}>{t('admin.form.fields.long_desc')}</label>
+          <label className={labelClass}>Descripción Larga (HTML)</label>
           <RichTextEditor
             key={formReady ? 'ready' : 'loading'}
             content={form.description ?? ''}
             onChange={v => set('description', v)}
-            placeholder={t('admin.form.fields.long_desc_placeholder')}
+            placeholder="Describe la propiedad en detalle..."
           />
         </div>
         {/* Highlights */}
         <div className="grid grid-cols-1 gap-6 pb-4 border-b border-[#1F1F1F]">
           <div className="flex flex-col gap-3">
-            <label className={labelClass}>{t('admin.form.fields.highlights')}</label>
+            <label className={labelClass}>Puntos Destacados (Highlights)</label>
             <div className="flex gap-2">
-              <input className={`${inputClass} flex-1`} placeholder={t('admin.form.fields.highlights_placeholder')} value={newHighlight} onChange={e => setNewHighlight(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addHighlight())} />
+              <input className={`${inputClass} flex-1`} placeholder="Ej: Vistas frontales al mar, Reforma integral 2023..." value={newHighlight} onChange={e => setNewHighlight(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addHighlight())} />
               <button type="button" onClick={addHighlight} className="flex items-center gap-1 px-3 h-10 bg-[#C9A962]/10 border border-[#C9A962]/30 text-[#C9A962] text-sm hover:bg-[#C9A962]/20 transition-colors"><Plus className="w-4 h-4" /></button>
             </div>
             {(form.highlights ?? []).map((h, i) => (
@@ -1144,7 +1144,7 @@ export const AdminPropertyForm = () => {
         </div>
         {/* Tags */}
         <div className="flex flex-col gap-3">
-          <label className={labelClass}>{t('admin.form.fields.tags_label')}</label>
+          <label className={labelClass}>Etiquetas de Filtro</label>
           <div className="flex flex-wrap gap-2">
             {AVAILABLE_TAGS.map(tag => (
               <button
@@ -1153,7 +1153,7 @@ export const AdminPropertyForm = () => {
                 onClick={() => toggleTag(tag)}
                 className={`px-3 py-1 text-xs font-primary border transition-colors ${(form.tags ?? []).includes(tag) ? 'bg-[#C9A962]/20 border-[#C9A962] text-[#C9A962]' : 'bg-transparent border-[#1F1F1F] text-[#666666] hover:border-[#888888] hover:text-[#888888]'}`}
               >
-                {t(`tags.${tag}`, { defaultValue: tag })}
+                {tag}
               </button>
             ))}
           </div>
@@ -1167,7 +1167,7 @@ export const AdminPropertyForm = () => {
             ? 'La Habitación (Fotos)'
             : form.is_room_rental
               ? 'Zonas Comunes (Fotos)'
-              : t('admin.form.sections.multimedia')}
+              : "Multimedia"}
         </h2>
 
         <SortableImageGallery 
@@ -1196,9 +1196,9 @@ export const AdminPropertyForm = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.floor_plan')}</label>
+            <label className={labelClass}>Plano de la Propiedad</label>
             <div className="flex gap-2">
-              <input className={`${inputClass} flex-1`} placeholder={t('admin.form.fields.floor_plan_placeholder')} value={form.floor_plan ?? ''} onChange={e => set('floor_plan', e.target.value)} />
+              <input className={`${inputClass} flex-1`} placeholder="URL del plano o sube un archivo..." value={form.floor_plan ?? ''} onChange={e => set('floor_plan', e.target.value)} />
               <div className="relative flex-shrink-0">
                 <input 
                   type="file" 
@@ -1206,7 +1206,7 @@ export const AdminPropertyForm = () => {
                   onChange={handleFloorPlanUpload} 
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   disabled={uploadingFloorPlan}
-                  title={t('admin.form.fields.upload')}
+                  title="Subir archivo"
                 />
                 <button 
                   type="button" 
@@ -1214,7 +1214,7 @@ export const AdminPropertyForm = () => {
                   disabled={uploadingFloorPlan}
                 >
                   <Upload className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">{uploadingFloorPlan ? t('admin.form.fields.uploading') : t('admin.form.fields.upload')}</span>
+                  <span className="hidden sm:inline">{uploadingFloorPlan ? "Subiendo..." : "Subir"}</span>
                 </button>
               </div>
             </div>
@@ -1233,34 +1233,34 @@ export const AdminPropertyForm = () => {
       {/* SEO */}
       <div className={sectionClass}>
         <div className="flex items-center justify-between border-b border-[#1F1F1F] pb-3">
-          <h2 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-wider">{t('admin.form.sections.seo')}</h2>
+          <h2 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-wider">SEO & Posicionamiento</h2>
           <button 
             type="button"
             onClick={() => generateSEOMetadata()}
             className="flex items-center gap-2 text-[10px] text-[#C9A962] uppercase font-bold hover:text-[#FAF8F5] transition-colors bg-[#C9A962]/5 px-3 py-1.5 border border-[#C9A962]/20 rounded-full"
           >
             <Sparkles className="w-3 h-3" />
-            {t('admin.form.auto_generate_seo', { defaultValue: 'Auto-generar SEO' })}
+            Auto-generar SEO
           </button>
         </div>
         <div className="flex flex-col gap-2">
-          <label className={labelClass}>{t('admin.form.fields.slug')} ({t('admin.form.fields.slug_hint')})</label>
-          <input className={inputClass} placeholder={t('admin.form.fields.slug_placeholder')} value={form.slug ?? ''} onChange={e => set('slug', e.target.value)} />
+          <label className={labelClass}>Slug (URL amigable) (Único, sin espacios)</label>
+          <input className={inputClass} placeholder="ej-villa-marbella" value={form.slug ?? ''} onChange={e => set('slug', e.target.value)} />
         </div>
         <div className="flex flex-col gap-2">
-          <label className={labelClass}>{t('admin.form.fields.meta_title')}</label>
-          <input className={inputClass} placeholder={t('admin.form.fields.meta_title_placeholder')} value={form.meta_title ?? ''} onChange={e => set('meta_title', e.target.value)} />
+          <label className={labelClass}>Meta Título (SEO)</label>
+          <input className={inputClass} placeholder="Título para buscadores..." value={form.meta_title ?? ''} onChange={e => set('meta_title', e.target.value)} />
         </div>
         <div className="flex flex-col gap-2">
-          <label className={labelClass}>{t('admin.form.fields.meta_desc')}</label>
-          <textarea className={`${inputClass} h-20 py-2.5 resize-none`} placeholder={t('admin.form.fields.meta_desc_placeholder')} value={form.meta_description ?? ''} onChange={e => set('meta_description', e.target.value)} />
+          <label className={labelClass}>Meta Descripción (SEO)</label>
+          <textarea className={`${inputClass} h-20 py-2.5 resize-none`} placeholder="Breve descripción para Google..." value={form.meta_description ?? ''} onChange={e => set('meta_description', e.target.value)} />
         </div>
       </div>
 
       {/* Footer action buttons */}
       <div className="sticky bottom-0 bg-[#0A0A0A] p-4 border-t border-[#1F1F1F] z-50 flex items-center justify-between gap-4 -mx-6 md:-mx-10 px-6 md:px-10 mt-8">
         <button onClick={() => navigate(`/admin/propiedades`)} className="font-primary text-sm text-[#888888] hover:text-[#FAF8F5] transition-colors">
-          ← {t('admin.form.cancel')}
+          ← Cancelar
         </button>
         <div className="flex gap-3">
           <button
@@ -1269,7 +1269,7 @@ export const AdminPropertyForm = () => {
             className="flex items-center gap-2 px-5 py-2.5 border border-[#1F1F1F] text-[#888888] font-primary text-sm hover:border-[#FAF8F5] hover:text-[#FAF8F5] transition-all disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
-            {t('admin.form.save_draft')}
+            Guardar Borrador
           </button>
           <button
             onClick={() => handleSave('publicada')}
@@ -1277,7 +1277,7 @@ export const AdminPropertyForm = () => {
             className="flex items-center gap-2 px-5 py-2.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm hover:bg-[#D4B673] transition-colors disabled:opacity-50 shadow-[0_0_15px_rgba(201,169,98,0.2)]"
           >
             <Eye className="w-4 h-4" />
-            {saving ? t('admin.form.saving') : (isEditing ? t('admin.form.update_publish') : t('admin.form.publish_property'))}
+            {saving ? "Guardando..." : (isEditing ? "Actualizar Propiedad" : "Publicar Propiedad")}
           </button>
         </div>
       </div>

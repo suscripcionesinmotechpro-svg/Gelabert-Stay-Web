@@ -78,7 +78,7 @@ export const LanguageSwitcher = () => {
             className="absolute right-0 mt-3 py-1 w-40 bg-[#0A0A0A]/95 backdrop-blur-xl border border-[#C9A962]/20 rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.6)] z-[100] overflow-hidden"
           >
             <div className="px-3 py-2 border-b border-[#1F1F1F]">
-              <span className="text-[9px] font-bold text-[#666666] uppercase tracking-[0.15em]">{t('nav.select_language') || 'Seleccionar Idioma'}</span>
+              <span className="text-[9px] font-bold text-[#666666] uppercase tracking-[0.15em]">Seleccionar Idioma</span>
             </div>
             {languages.map((lang) => (
               <button

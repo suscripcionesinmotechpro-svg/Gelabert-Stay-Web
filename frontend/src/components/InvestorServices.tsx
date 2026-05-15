@@ -23,8 +23,7 @@ const InvestmentPillar = ({ icon: Icon, title, description, delay }: { icon: any
 );
 
 export const InvestorServices = () => {
-  const { t, i18n } = useTranslation();
-  const isEn = i18n.language?.startsWith('en');
+  const { t } = useTranslation();
   const cart = useServiceCart();
   const INVESTOR_SERVICE_ID = 'investor_services';
 
