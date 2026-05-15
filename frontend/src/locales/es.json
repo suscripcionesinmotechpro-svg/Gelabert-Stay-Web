@@ -80,7 +80,8 @@
     "about": "Nosotros",
     "contact": "Contacto",
     "reviews": "Reseñas",
-    "clientArea": "Acceso Privado"
+    "clientArea": "Acceso Privado",
+    "select_language": "Seleccionar Idioma"
   },
   "property": {
     "whatsapp_community_title": "¿Buscas alquiler y no quieres perderte nada?",
@@ -335,7 +336,10 @@
     "cookies_policy": "Política de Cookies",
     "cookie_settings": "Configuración de cookies",
     "all_rights": "Todos los derechos reservados",
-    "made_in": "Málaga, España 🇪🇸"
+    "made_in": "Málaga, España 🇪🇸",
+    "social_networks": "Redes Sociales",
+    "email": "Email",
+    "whatsapp_call": "WhatsApp / Llama"
   },
   "nosotros": {
     "seo": {
@@ -650,7 +654,19 @@
       "phone": "Teléfono",
       "whatsapp_label": "Contactar por WhatsApp",
       "whatsapp_message": "Hola, me gustaría recibir más información."
-    }
+    },
+    "legal": {
+      "title": "Información básica sobre protección de datos",
+      "responsible": "Responsable",
+      "purpose": "Finalidad",
+      "purpose_text": "Gestión de servicios para propietarios e inquilinos, de intermediación inmobiliaria.",
+      "legitimation": "Legitimación",
+      "legitimation_text": "Medidas precontractuales y consentimiento.",
+      "recipients": "Destinatarios",
+      "recipients_text": "Interesados legítimos y portales inmobiliarios para promoción.",
+      "rights": "Derechos"
+    },
+    "seo_keywords": "contacto inmobiliaria málaga, gelabert homes contacto, agencia inmobiliaria málaga teléfono, inmobiliaria costa del sol contacto"
   },
   "legal": {
     "notice": {
@@ -1044,11 +1060,21 @@
         "drafts": "Borradores",
         "rent": "En Alquiler",
         "sale": "En Venta",
-        "transfer": "Traspasos"
+        "transfer": "Traspasos",
+        "tenants": "Inquilinos",
+        "active_contracts": "Contratos Activos"
+      },
+      "alerts": {
+        "expiring_contracts_one": "1 contrato próximo a vencer",
+        "expiring_contracts_other": "{{count}} contratos próximos a vencer",
+        "expired": "Expirado",
+        "days_remaining": "{{count}} días",
+        "landlord_label": "Propietario:"
       },
       "quick_actions": {
         "title": "Acciones rápidas",
         "add_property": "Añadir propiedad",
+        "add_tenant": "Nuevo Inquilino",
         "view_all": "Ver todas las propiedades",
         "view_public": "Ver web pública"
       },
@@ -1094,7 +1120,54 @@
         "status": "Publicación",
         "commercial": "Comercial",
         "featured": "Destacada",
-        "actions": "Acciones"
+        "actions": "Acciones",
+        "share_whatsapp": "Copiar y abrir Canal de WhatsApp",
+        "copied": "Copiado"
+      },
+      "tenants": {
+        "title": "Inquilinos",
+        "subtitle": "Gestión de arrendatarios y documentación",
+        "new_tenant": "Nuevo Inquilino",
+        "edit_tenant": "Editar Inquilino",
+        "tenant_details": "Detalles del Inquilino",
+        "personal_data": "Datos Personales",
+        "contact_info": "Datos de Contacto",
+        "address": "Dirección",
+        "notes": "Notas",
+        "internal_notes": "Notas internas",
+        "contracts": "Contratos",
+        "new_contract": "Nuevo contrato",
+        "no_contracts": "No hay contratos todavía",
+        "create_first_contract": "Crear primer contrato",
+        "delete_confirm": "¿Eliminar a {{name}}? Esta acción no se puede deshacer.",
+        "delete_contract_confirm": "¿Eliminar este contrato y todos sus documentos asociados?",
+        "delete_doc_confirm": "¿Eliminar este documento?",
+        "not_found": "Inquilino no encontrado.",
+        "back": "Volver",
+        "save_changes": "Guardar Cambios",
+        "create_tenant": "Crear Inquilino",
+        "fields": {
+          "first_name": "Nombre *",
+          "last_name": "Apellidos *",
+          "dni": "DNI / NIE",
+          "phone": "Teléfono",
+          "email": "Email",
+          "address": "Calle y número",
+          "zip_code": "Código Postal",
+          "city": "Ciudad",
+          "country": "País",
+          "notes_placeholder": "Observaciones sobre el inquilino…"
+        },
+        "docs": {
+          "tenant_section": "Documentación Inquilino",
+          "owner_section": "Documentación Propietario",
+          "upload_pdf": "Subir PDF",
+          "add_another": "Añadir otro"
+        },
+        "contract_alerts": {
+          "expired": "Contrato expirado hace {{count}} días",
+          "expires_in": "El contrato vence en {{count}} días — actúa con tiempo"
+        }
       }
     },
     "form": {
@@ -1211,6 +1284,53 @@
         "floor_plan_upload_error": "Error subiendo plano",
         "save_error": "Error al guardar",
         "address_city_required": "Introduce dirección y ciudad para buscar"
+      },
+      "blog": {
+        "title": "Blog & Insights",
+        "subtitle": "Gestiona los artículos, logros y testimonios",
+        "new_post": "Nuevo Artículo",
+        "edit_post": "Editar Artículo",
+        "search_placeholder": "Buscar por título...",
+        "loading": "Cargando artículos...",
+        "empty_state": "No hay artículos todavía. Crea el primero.",
+        "delete_confirm": "¿Estás seguro de que quieres eliminar este artículo?",
+        "table": {
+          "post": "Artículo",
+          "category": "Categoría",
+          "status": "Estado",
+          "date": "Fecha",
+          "actions": "Acciones",
+          "share_whatsapp": "Copiar y abrir Canal de WhatsApp",
+          "copied": "Copiado"
+        },
+        "form": {
+          "title_es": "Título del Artículo (ES) *",
+          "title_en": "Título del Artículo (EN)",
+          "content_es": "Contenido (ES) *",
+          "content_en": "Contenido (EN)",
+          "title_placeholder_es": "Ej: Tendencias del mercado inmobiliario...",
+          "title_placeholder_en": "Ex: Real estate market trends...",
+          "content_placeholder_es": "Escribe tu artículo aquí...",
+          "content_placeholder_en": "Write your article here...",
+          "seo_section": "Optimización SEO ({{lang}})",
+          "seo_subtitle": "Si los dejas vacíos, se generarán automáticamente.",
+          "meta_title": "Meta Título (SEO)",
+          "meta_desc": "Meta Descripción (SEO)",
+          "meta_title_placeholder": "Título para Google...",
+          "meta_desc_placeholder": "Breve resumen del artículo para los buscadores...",
+          "settings": "Configuración",
+          "status": "Estado",
+          "category": "Categoría",
+          "status_draft": "Borrador",
+          "status_published": "Publicado",
+          "multimedia": "Multimedia de Portada",
+          "change_file": "Cambiar Archivo",
+          "upload_prompt": "Haz clic para subir imagen o vídeo",
+          "save": "Guardar",
+          "saving": "Guardando...",
+          "translate_auto": "Traducir automáticamente",
+          "error_required": "El título y el contenido son obligatorios"
+        }
       }
     }
   },
@@ -1267,9 +1387,16 @@
     "subtitle": "La satisfacción de nuestros clientes es nuestra mayor recompensa. Descubre por qué confían en Gelabert Homes.",
     "viewAll": "Ver todas las reseñas",
     "allReviews": "Todas las reseñas",
-    "writeReview": "Escribir una reseña en Google"
+    "writeReview": "Escribir una reseña en Google",
+    "reviewsCount": "{{count}} reseñas",
+    "noComment": "Sin comentario escrito",
+    "satisfiedClients": "{{count}}+ clientes satisfechos en Google"
   },
   "blog": {
+    "title": "El Blog",
+    "badge": "Insights & Noticias",
+    "subtitle": "Descubra las últimas tendencias, análisis del mercado y guías exclusivas sobre inversión y estilo de vida en la Costa del Sol.",
+    "seo_description": "Noticias, tendencias y artículos sobre el mercado inmobiliario de lujo en la Costa del Sol por Gelabert Homes.",
     "categories": {
       "articulos": "Artículos",
       "propietarios": "Propietarios",
@@ -1288,5 +1415,34 @@
     "no_media": "Sin multimedia",
     "team": "Equipo Gelabert",
     "coming_soon": "Próximamente publicaremos nuevos artículos."
+  },
+  "investors_page": {
+    "seo": {
+      "description": "Soluciones de inversión inmobiliaria en la Costa del Sol. Gestión integral, reformas y alta rentabilidad."
+    },
+    "hero": {
+      "title_1": "Exclusividad y ",
+      "title_highlight": "Rendimiento"
+    }
+  },
+  "investor_services": {
+    "pillars": {
+      "acquisition": {
+        "title": "Adquisición Estratégica",
+        "desc": "Localizamos activos con alto potencial de revalorización, incluyendo oportunidades exclusivas Off-Market."
+      },
+      "renovations": {
+        "title": "Reformas y Valor Añadido",
+        "desc": "Transformamos propiedades para maximizar su valor a través de nuestro equipo interno de arquitectura y diseño."
+      },
+      "management": {
+        "title": "Gestión 360º de Alquiler",
+        "desc": "Nos encargamos de todo: búsqueda de inquilinos, contratos, mantenimiento y optimización de rentas."
+      },
+      "exit": {
+        "title": "Estrategia de Salida (Exit)",
+        "desc": "Especialistas en Buy-to-Sell. Asesoramos en el momento óptimo de desinversión para maximizar el ROI."
+      }
+    }
   }
 }

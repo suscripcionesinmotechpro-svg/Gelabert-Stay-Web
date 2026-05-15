@@ -80,7 +80,8 @@
     "about": "About Us",
     "contact": "Contact",
     "reviews": "Reviews",
-    "clientArea": "Private Access"
+    "clientArea": "Private Access",
+    "select_language": "Select Language"
   },
   "property": {
     "whatsapp_community_title": "Looking for a rental and don't want to miss anything?",
@@ -342,7 +343,10 @@
     "privacy_policy": "Privacy Policy",
     "cookie_settings": "Cookie Settings",
     "all_rights": "All rights reserved",
-    "made_in": "Málaga, Spain 🇪🇸"
+    "made_in": "Málaga, Spain 🇪🇸",
+    "social_networks": "Social Networks",
+    "email": "Email",
+    "whatsapp_call": "WhatsApp / Call"
   },
   "nosotros": {
     "seo": {
@@ -652,7 +656,19 @@
       "phone": "Phone",
       "whatsapp_label": "Contact via WhatsApp",
       "whatsapp_message": "Hello, I would like to receive more information."
-    }
+    },
+    "legal": {
+      "title": "Basic information on data protection",
+      "responsible": "Responsible",
+      "purpose": "Purpose",
+      "purpose_text": "Management of services for owners and tenants, real estate brokerage.",
+      "legitimation": "Legitimation",
+      "legitimation_text": "Pre-contractual measures and consent.",
+      "recipients": "Recipients",
+      "recipients_text": "Legitimate interested parties and real estate portals for promotion.",
+      "rights": "Rights"
+    },
+    "seo_keywords": "contact real estate malaga, gelabert homes contact, real estate agency malaga phone, costa del sol real estate contact"
   },
   "legal": {
     "notice": {
@@ -1046,11 +1062,21 @@
         "drafts": "Drafts",
         "rent": "For Rent",
         "sale": "For Sale",
-        "transfer": "Transfers"
+        "transfer": "Transfers",
+        "tenants": "Tenants",
+        "active_contracts": "Active Contracts"
+      },
+      "alerts": {
+        "expiring_contracts_one": "1 contract about to expire",
+        "expiring_contracts_other": "{{count}} contracts about to expire",
+        "expired": "Expired",
+        "days_remaining": "{{count}} days",
+        "landlord_label": "Landlord:"
       },
       "quick_actions": {
         "title": "Quick actions",
         "add_property": "Add property",
+        "add_tenant": "New Tenant",
         "view_all": "View all properties",
         "view_public": "View public web"
       },
@@ -1096,7 +1122,54 @@
         "status": "Publishing",
         "commercial": "Commercial",
         "featured": "Featured",
-        "actions": "Actions"
+        "actions": "Actions",
+        "share_whatsapp": "Copy and open WhatsApp Channel",
+        "copied": "Copied"
+      },
+      "tenants": {
+        "title": "Tenants",
+        "subtitle": "Tenant and documentation management",
+        "new_tenant": "New Tenant",
+        "edit_tenant": "Edit Tenant",
+        "tenant_details": "Tenant Details",
+        "personal_data": "Personal Data",
+        "contact_info": "Contact Information",
+        "address": "Address",
+        "notes": "Notes",
+        "internal_notes": "Internal Notes",
+        "contracts": "Contracts",
+        "new_contract": "New contract",
+        "no_contracts": "No contracts yet",
+        "create_first_contract": "Create first contract",
+        "delete_confirm": "Delete {{name}}? This action cannot be undone.",
+        "delete_contract_confirm": "Delete this contract and all its associated documents?",
+        "delete_doc_confirm": "Delete this document?",
+        "not_found": "Tenant not found.",
+        "back": "Back",
+        "save_changes": "Save Changes",
+        "create_tenant": "Create Tenant",
+        "fields": {
+          "first_name": "First Name *",
+          "last_name": "Last Name *",
+          "dni": "DNI / NIE",
+          "phone": "Phone",
+          "email": "Email",
+          "address": "Street and number",
+          "zip_code": "Zip Code",
+          "city": "City",
+          "country": "Country",
+          "notes_placeholder": "Observations about the tenant..."
+        },
+        "docs": {
+          "tenant_section": "Tenant Documentation",
+          "owner_section": "Owner Documentation",
+          "upload_pdf": "Upload PDF",
+          "add_another": "Add another"
+        },
+        "contract_alerts": {
+          "expired": "Contract expired {{count}} days ago",
+          "expires_in": "The contract expires in {{count}} days — act early"
+        }
       }
     },
     "form": {
@@ -1216,6 +1289,51 @@
         "floor_plan_upload_error": "Error uploading floor plan",
         "save_error": "Error saving",
         "address_city_required": "Enter address and city to search"
+      },
+      "blog": {
+        "title": "Blog & Insights",
+        "subtitle": "Manage articles, achievements, and testimonials",
+        "new_post": "New Article",
+        "edit_post": "Edit Article",
+        "search_placeholder": "Search by title...",
+        "loading": "Loading articles...",
+        "empty_state": "No articles yet. Create the first one.",
+        "delete_confirm": "Are you sure you want to delete this article?",
+        "table": {
+          "post": "Article",
+          "category": "Category",
+          "status": "Status",
+          "date": "Date",
+          "actions": "Actions"
+        },
+        "form": {
+          "title_es": "Article Title (ES) *",
+          "title_en": "Article Title (EN)",
+          "content_es": "Content (ES) *",
+          "content_en": "Content (EN)",
+          "title_placeholder_es": "Ej: Tendencias del mercado inmobiliario...",
+          "title_placeholder_en": "Ex: Real estate market trends...",
+          "content_placeholder_es": "Escribe tu artículo aquí...",
+          "content_placeholder_en": "Write your article here...",
+          "seo_section": "SEO Optimization ({{lang}})",
+          "seo_subtitle": "If left empty, they will be generated automatically.",
+          "meta_title": "Meta Title (SEO)",
+          "meta_desc": "Meta Description (SEO)",
+          "meta_title_placeholder": "Title for Google...",
+          "meta_desc_placeholder": "Brief summary for search engines...",
+          "settings": "Settings",
+          "status": "Status",
+          "category": "Category",
+          "status_draft": "Draft",
+          "status_published": "Published",
+          "multimedia": "Cover Multimedia",
+          "change_file": "Change File",
+          "upload_prompt": "Click to upload image or video",
+          "save": "Save",
+          "saving": "Saving...",
+          "translate_auto": "Translate automatically",
+          "error_required": "Title and content are required"
+        }
       }
     }
   },
@@ -1272,9 +1390,16 @@
     "subtitle": "Our clients' satisfaction is our greatest reward. Discover why they trust Gelabert Homes.",
     "viewAll": "View all reviews",
     "allReviews": "All reviews",
-    "writeReview": "Write a review on Google"
+    "writeReview": "Write a review on Google",
+    "reviewsCount": "{{count}} reviews",
+    "noComment": "No written comment",
+    "satisfiedClients": "{{count}}+ satisfied clients on Google"
   },
   "blog": {
+    "title": "The Blog",
+    "badge": "Insights & News",
+    "subtitle": "Discover the latest trends, market analysis, and exclusive guides on investment and lifestyle on the Costa del Sol.",
+    "seo_description": "News, trends, and articles about the luxury real estate market on the Costa del Sol by Gelabert Homes.",
     "categories": {
       "articulos": "Articles",
       "propietarios": "Owners",
@@ -1293,5 +1418,34 @@
     "no_media": "No media",
     "team": "Gelabert Team",
     "coming_soon": "New articles will be published soon."
+  },
+  "investors_page": {
+    "seo": {
+      "description": "Real estate investment solutions on the Costa del Sol. Comprehensive management, renovations, and high profitability."
+    },
+    "hero": {
+      "title_1": "Exclusivity and ",
+      "title_highlight": "Performance"
+    }
+  },
+  "investor_services": {
+    "pillars": {
+      "acquisition": {
+        "title": "Strategic Acquisition",
+        "desc": "We locate assets with high appreciation potential, including exclusive Off-Market opportunities."
+      },
+      "renovations": {
+        "title": "Renovations & Value-Add",
+        "desc": "We transform properties to maximize market value through our in-house architecture and design team."
+      },
+      "management": {
+        "title": "360º Rental Management",
+        "desc": "We handle everything: from tenant sourcing and contracts to maintenance and yield optimization."
+      },
+      "exit": {
+        "title": "Exit Strategy",
+        "desc": "Specialists in Buy-to-Sell. We advise on the optimal moment to divest and maximize ROI."
+      }
+    }
   }
 }

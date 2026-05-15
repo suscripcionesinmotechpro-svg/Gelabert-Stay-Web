@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+
 import { useProperties } from '../../hooks/useProperties';
 import { usePropertyContracts } from '../../hooks/useContracts';
 import type { Property } from '../../types/property';
@@ -13,7 +13,6 @@ import { ChevronDown, ChevronUp, PlusCircle, Users, RefreshCw, Calendar } from '
 const today = new Date().toISOString().split('T')[0];
 
 const PropertyRow = ({ property }: { property: Property }) => {
-  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const { contracts, loading: loadingContracts } = usePropertyContracts(property.id);
 
@@ -62,7 +61,7 @@ const PropertyRow = ({ property }: { property: Property }) => {
         {/* Commercial status */}
         <div className="flex flex-col gap-1">
           <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-sm w-fit ${COMMERCIAL_STATUS_COLORS[derivedStatus]}`}>
-            {t(COMMERCIAL_STATUS_LABELS[derivedStatus])}
+            {COMMERCIAL_STATUS_LABELS[derivedStatus]}
           </span>
           {property.is_room_rental && (
             <span className="text-[9px] text-[#C9A962] uppercase tracking-tighter font-bold">Por habitaciones</span>

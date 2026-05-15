@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useProperty, usePropertyMutations, uploadPropertyMedia, deletePropertyMedia } from '../../hooks/useProperties';
 import { usePropertyContracts } from '../../hooks/useContracts';
 import type { PropertyInsert, PropertyOperation, PropertyType, PropertyStatus, CommercialStatus } from '../../types/property';
@@ -115,7 +114,6 @@ export const AdminPropertyForm = () => {
   const { id } = useParams<{ id?: string }>();
   const isEditing = !!id && id !== 'nueva';
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const { property, loading: loadingProp } = useProperty(isEditing ? id : undefined, true);
   const { createProperty, updateProperty } = usePropertyMutations();
 
@@ -320,7 +318,7 @@ export const AdminPropertyForm = () => {
       }
       handleImagesChange([...allImages, ...urls]);
     } catch (err) { 
-      setError(err instanceof Error ? err.message : t('admin.form.errors.image_upload_error')); 
+      setError(err instanceof Error ? err.message : 'Error subiendo imágenes'); 
     } finally { 
       setUploadingImages(false); 
     }
@@ -337,7 +335,7 @@ export const AdminPropertyForm = () => {
       for (const file of files) {
         // Validate video size (50MB limit)
         if (file.size > 50 * 1024 * 1024) {
-          throw new Error(t('admin.form.errors.video_too_large'));
+          throw new Error('El vídeo supera los 50MB (límite del plan gratuito de Supabase). Por favor, intenta comprimirlo.');
         }
         const url = await uploadPropertyMedia(file, 'videos');
         urls.push(url);
@@ -347,7 +345,7 @@ export const AdminPropertyForm = () => {
       const newVids: PropertyVideo[] = urls.map(url => ({ url, title: 'Vídeo' }));
       handleVideosChange([...currentVideos, ...newVids]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('admin.form.errors.video_upload_error'));
+      setError(err instanceof Error ? err.message : 'Error subiendo vídeo');
     } finally {
       setUploadingVideo(false);
     }
@@ -419,7 +417,7 @@ export const AdminPropertyForm = () => {
 
     // Validate size (20MB)
     if (file.size > 20 * 1024 * 1024) {
-      setError(t('admin.form.errors.floor_plan_too_large'));
+      setError('El plano es demasiado grande (máximo 20MB)');
       return;
     }
 
@@ -429,7 +427,7 @@ export const AdminPropertyForm = () => {
       const url = await uploadPropertyMedia(file, 'floor-plans');
       set('floor_plan', url);
     } catch (err) {
-      setError(err instanceof Error ? `${t('admin.form.errors.floor_plan_upload_error')}: ${err.message}` : t('admin.form.errors.floor_plan_upload_error'));
+      setError(err instanceof Error ? `Error subiendo plano: ${err.message}` : 'Error subiendo plano');
     } finally {
       setUploadingFloorPlan(false);
     }
@@ -498,8 +496,8 @@ export const AdminPropertyForm = () => {
   };
 
   const handleSave = async (targetStatus?: PropertyStatus) => {
-    if (!form.title?.trim()) { setError(t('admin.form.errors.title_required')); return; }
-    if (!form.operation) { setError(t('admin.form.errors.operation_required')); return; }
+    if (!form.title?.trim()) { setError('El título es obligatorio'); return; }
+    if (!form.operation) { setError('El tipo de operación es obligatorio'); return; }
     
     setSaving(true);
     setError(null);
@@ -621,7 +619,7 @@ export const AdminPropertyForm = () => {
       if (err.code === '42703') {
         console.error('[CRITICAL] Columna inexistente en la base de datos. Por favor, ejecuta el script de migración SQL proporcionado.');
       }
-      const errorMessage = err.message || err.details || t('admin.form.errors.save_error');
+      const errorMessage = err.message || err.details || 'Error al guardar';
       const errorCode = err.code ? ` (${err.code})` : '';
       setError(`${errorMessage}${errorCode}`);
     } finally {
@@ -643,10 +641,10 @@ export const AdminPropertyForm = () => {
           </button>
           <div>
             <h1 className="font-secondary text-3xl text-[#FAF8F5]">
-              {isEditing ? t('admin.form.edit_title') : t('admin.form.new_title')}
+              {isEditing ? 'Editar Propiedad' : 'Nueva Propiedad'}
             </h1>
             <p className="font-primary text-[#666666] text-sm mt-1">
-              {isEditing ? t('admin.form.editing', { title: property?.title }) : t('admin.form.complete_data')}
+              {isEditing ? `Editando: ${property?.title}` : 'Completa los datos del inmueble'}
             </p>
           </div>
         </div>
@@ -667,7 +665,7 @@ export const AdminPropertyForm = () => {
               className="flex items-center gap-2 px-4 py-2.5 border border-[#1F1F1F] text-[#888888] font-primary text-sm hover:border-[#FAF8F5] hover:text-[#FAF8F5] transition-all"
             >
               <ExternalLink className="w-4 h-4" />
-              {t('admin.properties.view_on_web')}
+              Ver en web
             </a>
           )}
           <button
@@ -676,7 +674,7 @@ export const AdminPropertyForm = () => {
             className="flex items-center gap-2 px-4 py-2.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm hover:bg-[#D4B673] transition-colors disabled:opacity-50"
           >
             <Eye className="w-4 h-4" />
-            {saving ? t('admin.form.saving') : t('admin.form.publish')}
+            {saving ? 'Guardando...' : 'Publicar'}
           </button>
           <button
             type="button"
@@ -694,30 +692,30 @@ export const AdminPropertyForm = () => {
 
       {/* INFORMACIÓN PRINCIPAL */}
       <div className={sectionClass}>
-        <h2 className={sectionHeaderClass}>{t('admin.form.sections.primary')}</h2>
+        <h2 className={sectionHeaderClass}>Información Principal</h2>
         <div className="flex flex-col gap-2">
-          <label className={labelClass}>{t('admin.form.fields.title')}</label>
-          <input className={inputClass} value={form.title} onChange={e => set('title', e.target.value)} placeholder={t('admin.form.fields.title_placeholder')} />
+          <label className={labelClass}>Título *</label>
+          <input className={inputClass} value={form.title} onChange={e => set('title', e.target.value)} placeholder="Ej: Villa Panorámica en Marbella" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.operation')}</label>
+            <label className={labelClass}>Tipo de Operación *</label>
             <select className={selectClass} value={form.operation} onChange={e => set('operation', e.target.value as PropertyOperation)}>
-              {(Object.entries(OPERATION_LABELS) as [PropertyOperation, string][]).map(([val, label]) => (
-                <option key={val} value={val}>{t(label)}</option>
-              ))}
+              <option value="venta">Venta</option>
+              <option value="alquiler">Alquiler</option>
+              <option value="traspaso">Traspaso</option>
             </select>
           </div>
           {form.operation === 'alquiler' && (
             <div className="flex flex-col gap-2">
-              <label className={labelClass}>{t('admin.form.fields.rent_type')}</label>
+              <label className={labelClass}>Tipo de Alquiler</label>
               <select className={selectClass} value={form.rent_type || ''} onChange={e => set('rent_type', e.target.value || null)}>
-                <option value="">{t('admin.form.fields.rent_type_not_specified')}</option>
-                <option value="habitual">{t('search.rent_type.habitual')}</option>
-                <option value="temporal">{t('search.rent_type.temporal')}</option>
-                <option value="vacacional">{t('search.rent_type.vacacional')}</option>
-                <option value="habitaciones">{t('search.rent_type.habitaciones')}</option>
-                <option value="otros">{t('search.rent_type.otros')}</option>
+                <option value="">No especificado</option>
+                <option value="habitual">Habitual (Larga temporada)</option>
+                <option value="temporal">Temporal (Meses)</option>
+                <option value="vacacional">Vacacional (Días/Semanas)</option>
+                <option value="habitaciones">Por habitaciones</option>
+                <option value="otros">Otros</option>
               </select>
             </div>
           )}
@@ -734,28 +732,36 @@ export const AdminPropertyForm = () => {
             </div>
           )}
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.reference')}</label>
-            <input className={inputClass} placeholder={t('admin.form.fields.reference_placeholder')} value={form.reference} onChange={e => set('reference', e.target.value)} />
+            <label className={labelClass}>Referencia</label>
+            <input className={inputClass} placeholder="Ej: REF123" value={form.reference} onChange={e => set('reference', e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.type')}</label>
+            <label className={labelClass}>Tipo de Inmueble *</label>
             <select className={selectClass} value={form.property_type} onChange={e => set('property_type', e.target.value as PropertyType)}>
-              {(Object.entries(PROPERTY_TYPE_LABELS) as [PropertyType, string][]).map(([val, label]) => (
-                <option key={val} value={val}>{t(label)}</option>
-              ))}
+              <option value="piso">Piso / Apartamento</option>
+              <option value="casa">Casa / Chalet</option>
+              <option value="habitacion">Habitación</option>
+              <option value="local">Local comercial</option>
+              <option value="oficina">Oficina</option>
+              <option value="terreno">Terreno / Parcela</option>
+              <option value="garaje">Garaje</option>
+              <option value="trastero">Trastero</option>
+              <option value="edificio">Edificio</option>
             </select>
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.commercial_status')}</label>
+            <label className={labelClass}>Estado Comercial</label>
             <div className="flex flex-col gap-2">
               <select className={selectClass} value={form.commercial_status} onChange={e => {
                 const val = e.target.value as CommercialStatus;
                 set('commercial_status', val);
                 set('is_manual_commercial_status', true);
               }}>
-                {(Object.entries(COMMERCIAL_STATUS_LABELS) as [CommercialStatus, string][]).map(([val, label]) => (
-                  <option key={val} value={val}>{t(label)}</option>
-                ))}
+                <option value="disponible">Disponible</option>
+                <option value="reservado">Reservado</option>
+                <option value="alquilado">Alquilado</option>
+                <option value="vendido">Vendido</option>
+                <option value="no_disponible">No Disponible</option>
               </select>
               <div className="flex items-center gap-2">
                 <ToggleField 
@@ -767,18 +773,18 @@ export const AdminPropertyForm = () => {
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.public_status')}</label>
+            <label className={labelClass}>Estado Publicación</label>
             <select className={selectClass} value={form.status} onChange={e => set('status', e.target.value as PropertyStatus)}>
-              {(Object.entries(STATUS_LABELS) as [PropertyStatus, string][]).map(([val, label]) => (
-                <option key={val} value={val}>{t(label)}</option>
-              ))}
+              <option value="publicada">Publicada</option>
+              <option value="borrador">Borrador</option>
+              <option value="archivada">Archivada</option>
             </select>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.price')}</label>
-            <input type="number" className={inputClass} placeholder={t('admin.form.fields.price_placeholder')} value={form.price ?? ''} onChange={e => set('price', e.target.value ? Number(e.target.value) : undefined)} />
+            <label className={labelClass}>Precio</label>
+            <input type="number" className={inputClass} placeholder="Ej: 350000" value={form.price ?? ''} onChange={e => set('price', e.target.value ? Number(e.target.value) : undefined)} />
           </div>
           <div className="flex flex-col gap-2">
             <label className={labelClass}>{t('admin.form.fields.currency')}</label>
@@ -788,9 +794,9 @@ export const AdminPropertyForm = () => {
             </select>
           </div>
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>{t('admin.form.fields.featured')}</label>
+            <label className={labelClass}>Destacada</label>
             <div className="flex items-center h-10">
-              <ToggleField label={t('admin.form.fields.featured_label')} checked={form.is_featured ?? false} onChange={v => set('is_featured', v)} />
+              <ToggleField label="Marcar como destacada" checked={form.is_featured ?? false} onChange={v => set('is_featured', v)} />
             </div>
           </div>
         </div>

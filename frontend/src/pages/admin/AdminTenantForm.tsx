@@ -94,7 +94,7 @@ export const AdminTenantForm = () => {
           <h1 className="font-secondary text-3xl text-[#FAF8F5]">
             {isEdit ? 'Editar Inquilino' : 'Nuevo Inquilino'}
           </h1>
-          <p className="font-primary text-[#666] text-sm mt-0.5">Datos personales del arrendatario</p>
+          <p className="font-primary text-[#666] text-sm mt-0.5">Datos personales y de contacto</p>
         </div>
       </div>
 
@@ -134,12 +134,12 @@ export const AdminTenantForm = () => {
 
       {/* Data Fields */}
       <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-6 flex flex-col gap-5">
-        <h2 className="font-primary font-bold text-xs uppercase tracking-wider text-[#666]">Datos Personales</h2>
+        <h2 className="font-primary font-bold text-xs uppercase tracking-wider text-[#666]">Información Personal</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Nombre *">
             <input className={inputClass} value={form.first_name} onChange={e => set('first_name', e.target.value)} placeholder="Juan" />
           </Field>
-          <Field label="Apellidos *">
+          <Field label="Apellido *">
             <input className={inputClass} value={form.last_name} onChange={e => set('last_name', e.target.value)} placeholder="García López" />
           </Field>
           <Field label="DNI / NIE">
@@ -158,7 +158,7 @@ export const AdminTenantForm = () => {
       <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-6 flex flex-col gap-5">
         <h2 className="font-primary font-bold text-xs uppercase tracking-wider text-[#666]">Dirección</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Calle y número">
+          <Field label="Dirección">
             <input className={inputClass} value={form.address || ''} onChange={e => set('address', e.target.value)} placeholder="Calle Mayor, 12, 3º A" />
           </Field>
           <Field label="Código Postal">
@@ -175,13 +175,13 @@ export const AdminTenantForm = () => {
 
       {/* Notes */}
       <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-6 flex flex-col gap-3">
-        <h2 className="font-primary font-bold text-xs uppercase tracking-wider text-[#666]">Notas internas</h2>
+        <h2 className="font-primary font-bold text-xs uppercase tracking-wider text-[#666]">Notas Internas</h2>
         <textarea
           className={`${inputClass} resize-none`}
           rows={4}
           value={form.notes || ''}
           onChange={e => set('notes', e.target.value)}
-          placeholder="Observaciones sobre el inquilino…"
+          placeholder="Añade aquí cualquier información relevante sobre el inquilino..."
         />
       </div>
 

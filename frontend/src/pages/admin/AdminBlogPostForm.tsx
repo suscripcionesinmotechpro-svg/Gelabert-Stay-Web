@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 // removed unused import
 import { Save, ArrowLeft, Image as ImageIcon, Sparkles } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 import { useBlog } from '../../hooks/useBlog';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { ImageCropperModal } from '../../components/admin/ImageCropperModal';
@@ -11,7 +10,6 @@ import type { BlogPostFormData } from '../../types/blog';
 import { triggerNetlifyBuild } from '../../utils/triggerBuild';
 
 export const AdminBlogPostForm = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
   const { getPost, createPost, updatePost, uploadImage, loading } = useBlog();
@@ -268,7 +266,7 @@ export const AdminBlogPostForm = () => {
             ) : (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Article Title (EN)</label>
+                  <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Título del Artículo (EN)</label>
                   <input
                     type="text"
                     value={formData.title_en}
@@ -279,7 +277,7 @@ export const AdminBlogPostForm = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-[#A3A3A3] mb-2">Content (EN)</label>
+                  <label className="block text-sm font-medium text-[#A3A3A3] mb-2">Contenido (EN)</label>
                   <div className="border border-white/10 rounded-sm overflow-hidden bg-[#0A0A0A]">
                     <RichTextEditor
                       content={formData.content_en || ''}
@@ -324,24 +322,24 @@ export const AdminBlogPostForm = () => {
             ) : (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Meta Title (SEO)</label>
+                  <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Meta Título (SEO)</label>
                   <input
                     type="text"
                     value={formData.seo_title_en}
                     onChange={e => setFormData({ ...formData, seo_title_en: e.target.value })}
                     className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-2 text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none"
-                    placeholder="Title for Google..."
+                    placeholder="Título para Google..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Meta Description (SEO)</label>
+                  <label className="block text-sm font-medium text-[#A3A3A3] mb-1">Meta Descripción (SEO)</label>
                   <textarea
                     value={formData.seo_description_en}
                     onChange={e => setFormData({ ...formData, seo_description_en: e.target.value })}
                     rows={3}
                     className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-2 text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none"
-                    placeholder="Brief summary for search engines..."
+                    placeholder="Breve resumen del artículo para los buscadores..."
                   />
                 </div>
               </>
@@ -372,17 +370,17 @@ export const AdminBlogPostForm = () => {
                 onChange={e => setFormData({ ...formData, category: e.target.value as any })}
                 className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm p-2 text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none"
               >
-                <option value="articulos">{t('blog.categories.articulos')}</option>
-                <option value="propietarios">{t('blog.categories.propietarios')}</option>
-                <option value="inquilinos">{t('blog.categories.inquilinos')}</option>
-                <option value="inversores">{t('blog.categories.inversores')}</option>
-                <option value="noticias">{t('blog.categories.noticias')}</option>
-                <option value="mercado">{t('blog.categories.mercado')}</option>
-                <option value="estilo-de-vida">{t('blog.categories.estilo-de-vida')}</option>
-                <option value="consejos">{t('blog.categories.consejos')}</option>
-                <option value="guia-local">{t('blog.categories.guia-local')}</option>
-                <option value="logros">{t('blog.categories.logros')}</option>
-                <option value="testimonios">{t('blog.categories.testimonios')}</option>
+                <option value="articulos">Artículos</option>
+                <option value="propietarios">Propietarios</option>
+                <option value="inquilinos">Inquilinos</option>
+                <option value="inversores">Inversores</option>
+                <option value="noticias">Noticias</option>
+                <option value="mercado">Mercado</option>
+                <option value="estilo-de-vida">Estilo de Vida</option>
+                <option value="consejos">Consejos</option>
+                <option value="guia-local">Guía Local</option>
+                <option value="logros">Logros</option>
+                <option value="testimonios">Testimonios</option>
               </select>
             </div>
           </div>

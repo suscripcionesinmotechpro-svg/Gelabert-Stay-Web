@@ -247,7 +247,7 @@ export const AdminTenantDetail = () => {
                           </p>
                           {displayContract.room_id && (
                             <p className="font-primary text-xs text-[#C9A962] ml-5 mt-0.5">
-                              — Alquiler de habitación
+                              — Alquiler por Habitaciones
                             </p>
                           )}
                         </div>
@@ -279,11 +279,11 @@ export const AdminTenantDetail = () => {
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {[
-                      { label: 'Inicio', value: new Date(displayContract.start_date).toLocaleDateString('es-ES') },
-                      { label: 'Fin', value: new Date(displayContract.end_date).toLocaleDateString('es-ES') },
-                      { label: 'Renta / mes', value: displayContract.monthly_rent ? `${displayContract.monthly_rent.toLocaleString('es-ES')} €` : '—' },
+                      { label: 'Fecha Inicio', value: new Date(displayContract.start_date).toLocaleDateString('es-ES') },
+                      { label: 'Fecha Fin', value: new Date(displayContract.end_date).toLocaleDateString('es-ES') },
+                      { label: 'Renta Mensual', value: displayContract.monthly_rent ? `${displayContract.monthly_rent.toLocaleString('es-ES')} €` : '—' },
                       { label: 'Fianza', value: displayContract.deposit ? `${displayContract.deposit.toLocaleString('es-ES')} €` : '—' },
-                      { label: 'Dirección EXACTA', value: displayContract.address || '—' },
+                      { label: 'Dirección', value: displayContract.address || '—' },
                     ].map(item => (
                       <div key={item.label}>
                         <p className="font-primary text-[10px] text-[#555] uppercase tracking-wider">{item.label}</p>
@@ -291,7 +291,7 @@ export const AdminTenantDetail = () => {
                       </div>
                     ))}
                     <div>
-                      <p className="font-primary text-[#666] text-[11px] uppercase tracking-wider mb-1">Propiedad vinculada</p>
+                      <p className="font-primary text-[#666] text-[11px] uppercase tracking-wider mb-1">ID Propiedad</p>
                       {displayContract.property_id ? (
                         <Link to={`/admin/propiedades/${displayContract.property_id}/editar`} className="font-primary text-sm text-[#C9A962] hover:underline font-semibold">
                           {displayContract.property_label || 'Propiedad'}
@@ -310,7 +310,7 @@ export const AdminTenantDetail = () => {
                       </div>
                       {displayContract.landlord_name && (
                         <div>
-                          <p className="font-primary text-[10px] text-[#555] uppercase tracking-wider">Nombre / DNI</p>
+                          <p className="font-primary text-[10px] text-[#555] uppercase tracking-wider">Nombre Completo</p>
                           <p className="font-primary text-sm text-[#FAF8F5] font-semibold mt-0.5">
                             {displayContract.landlord_name}
                             {displayContract.landlord_dni && <span className="text-[#888] font-normal text-xs ml-1">({displayContract.landlord_dni})</span>}
@@ -333,7 +333,7 @@ export const AdminTenantDetail = () => {
                       )}
                       {displayContract.landlord_address && (
                         <div className="col-span-2 sm:col-span-4 mt-1">
-                          <p className="font-primary text-[10px] text-[#555] uppercase tracking-wider">Dirección postal</p>
+                          <p className="font-primary text-[10px] text-[#555] uppercase tracking-wider">Dirección Postal</p>
                           <p className="font-primary text-sm text-[#FAF8F5] font-semibold mt-0.5">{displayContract.landlord_address}</p>
                         </div>
                       )}

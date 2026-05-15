@@ -92,20 +92,20 @@ export const Footer = () => {
                 <p className="font-primary text-sm text-[#C9A962] mt-1">{t('footer.online_estate')}</p>
               </div>
               <div>
-                <p className="font-primary text-[10px] text-[#666666] uppercase tracking-widest">Email</p>
+                <p className="font-primary text-[10px] text-[#666666] uppercase tracking-widest">{t('footer.email') || 'Email'}</p>
                 <a href="mailto:info@gelaberthomes.es" className="font-primary text-sm text-[#888888] hover:text-white mt-1 block transition-colors">
                   info@gelaberthomes.es
                 </a>
               </div>
               <div>
-                <p className="font-primary text-[10px] text-[#666666] uppercase tracking-widest">WhatsApp / Llama</p>
+                <p className="font-primary text-[10px] text-[#666666] uppercase tracking-widest">{t('footer.whatsapp_call') || 'WhatsApp / Llama'}</p>
                 <a href="tel:+34611898827" className="font-primary text-sm text-white hover:text-[#C9A962] mt-1 block transition-colors tracking-wide">
                   +34 611 89 88 27
                 </a>
               </div>
             </div>
           </div>
-
+ 
           {/* Legal & Socials */}
           <div className="flex flex-col gap-5">
             <h4 className="font-primary text-[11px] font-bold text-white/90 uppercase tracking-[0.2em]">{t('footer.legal')}</h4>
@@ -115,7 +115,7 @@ export const Footer = () => {
               <Link to={`${langPrefix}/cookies`} className="font-primary text-sm text-[#888888] hover:text-[#C9A962] hover:translate-x-1 transition-all">{t('footer.cookies_policy')}</Link>
             </div>
             
-            <h4 className="font-primary text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] mt-6">Redes Sociales</h4>
+            <h4 className="font-primary text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] mt-6">{t('footer.social_networks') || 'Redes Sociales'}</h4>
             <div className="flex items-center gap-3">
               <a href="https://instagram.com/gelaberthomes" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-[#888888] hover:text-[#C9A962] hover:border-[#C9A962]/40 hover:bg-[#C9A962]/5 transition-all group">
                 <span className="group-hover:scale-110 transition-transform"><InstagramIcon /></span>

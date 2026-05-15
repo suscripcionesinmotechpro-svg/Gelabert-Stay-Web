@@ -26,7 +26,7 @@ export const Contacto = () => {
       <Helmet>
         <title>{t('contact_page.seo.title')}</title>
         <meta name="description" content={t('contact_page.seo.description')} />
-        <meta name="keywords" content="contacto inmobiliaria málaga, gelabert homes contacto, agencia inmobiliaria málaga teléfono, inmobiliaria costa del sol contacto" />
+        <meta name="keywords" content={t('contact_page.seo_keywords')} />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={i18n.language.startsWith('en') ? 'https://gelaberthomes.es/en/contacto' : 'https://gelaberthomes.es/contacto'} />
         <link rel="alternate" hrefLang="es" href="https://gelaberthomes.es/contacto" />
@@ -175,12 +175,12 @@ export const Contacto = () => {
             {/* RGPD / Protección de datos */}
             <div className="mt-6 pt-5 border-t border-white/5">
               <p className="font-primary text-[10px] text-white/25 leading-relaxed">
-                <span className="text-[#C9A962]/50 font-bold uppercase tracking-wider">Información básica sobre protección de datos · </span>
-                <strong className="text-white/30">Responsable:</strong> Gelabert Homes Real Estate.{' '}
-                <strong className="text-white/30">Finalidad:</strong> Gestión de servicios para propietarios e inquilinos, de intermediación inmobiliaria.{' '}
-                <strong className="text-white/30">Legitimación:</strong> Medidas precontractuales y consentimiento.{' '}
-                <strong className="text-white/30">Destinatarios:</strong> Interesados legítimos y portales inmobiliarios para promoción.{' '}
-                <strong className="text-white/30">Derechos:</strong>{' '}
+                <span className="text-[#C9A962]/50 font-bold uppercase tracking-wider">{t('contact_page.legal.title')} · </span>
++                <strong className="text-white/30">{t('contact_page.legal.responsible')}:</strong> Gelabert Homes Real Estate.{' '}
++                <strong className="text-white/30">{t('contact_page.legal.purpose')}:</strong> {t('contact_page.legal.purpose_text')}{' '}
++                <strong className="text-white/30">{t('contact_page.legal.legitimation')}:</strong> {t('contact_page.legal.legitimation_text')}{' '}
++                <strong className="text-white/30">{t('contact_page.legal.recipients')}:</strong> {t('contact_page.legal.recipients_text')}{' '}
++                <strong className="text-white/30">{t('contact_page.legal.rights')}:</strong>{' '}
                 <a href="mailto:info@gelaberthomes.es" className="text-[#C9A962]/40 hover:text-[#C9A962]/70 transition-colors underline underline-offset-2">
                   info@gelaberthomes.es
                 </a>

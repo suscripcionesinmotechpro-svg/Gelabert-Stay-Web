@@ -92,7 +92,7 @@ export const Reviews = () => {
                       ))}
                     </div>
                     <span className="text-[10px] text-[#FAF8F5]/40 uppercase tracking-widest">
-                      {loading ? '...' : `${rating.toFixed(1)} · ${total > 0 ? `${total} reseñas` : 'Google'}`}
+                      {loading ? '...' : `${rating.toFixed(1)} · ${total > 0 ? t('reviews.reviewsCount', { count: total }) : 'Google'}`}
                     </span>
                   </div>
                 </div>
@@ -151,7 +151,7 @@ export const Reviews = () => {
                               {review.text}
                             </p>
                           ) : (
-                            <p className="text-xs text-[#FAF8F5]/30 italic">Sin comentario escrito</p>
+                            <p className="text-xs text-[#FAF8F5]/30 italic">{t('reviews.noComment')}</p>
                           )}
                         </div>
                       </div>
@@ -188,7 +188,7 @@ export const Reviews = () => {
           <div className="flex items-center gap-2">
             <GoogleLogo size={14} />
             <span className="text-xs text-[#FAF8F5]/40 uppercase tracking-widest font-medium">
-              {total}+ clientes satisfechos en Google
+                {t('reviews.satisfiedClients', { count: total })}
             </span>
           </div>
         </motion.div>

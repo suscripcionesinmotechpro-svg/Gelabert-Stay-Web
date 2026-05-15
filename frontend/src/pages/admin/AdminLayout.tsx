@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.tsx';
-import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import {
   LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X, Receipt, Users, CalendarDays, Bot, FileText
@@ -9,7 +8,7 @@ import {
 
 export const AdminLayout = () => {
   const { user, loading, signOut } = useAuth();
-  const {} = useTranslation();
+
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newLeadsCount, setNewLeadsCount] = useState(0);

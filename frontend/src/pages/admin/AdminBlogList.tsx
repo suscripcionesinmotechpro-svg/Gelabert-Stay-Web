@@ -2,11 +2,7 @@ import { useEffect } from 'react';
 // removed unused import
 import { Plus, Search, FileText, Globe, Pencil, Trash2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useBlog } from '../../hooks/useBlog';
-
 export const AdminBlogList = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { posts, loading, fetchPosts, deletePost } = useBlog();
 
@@ -100,7 +96,7 @@ export const AdminBlogList = () => {
                     </td>
                     <td className="p-4">
                       <span className="px-2.5 py-1 bg-white/5 text-[#FAF8F5] text-xs font-bold uppercase tracking-wider rounded-sm">
-                        {t(`blog.categories.${post.category}`) || post.category}
+                        {post.category}
                       </span>
                     </td>
                     <td className="p-4">

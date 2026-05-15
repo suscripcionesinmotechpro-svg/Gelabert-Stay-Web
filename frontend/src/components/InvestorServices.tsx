@@ -31,31 +31,23 @@ export const InvestorServices = () => {
   const pillars = [
     {
       icon: TrendingUp,
-      title: isEn ? 'Strategic Acquisition' : 'Adquisición Estratégica',
-      description: isEn
-        ? 'We locate assets with high appreciation potential, including exclusive Off-Market opportunities.'
-        : 'Localizamos activos con alto potencial de revalorización, incluyendo oportunidades exclusivas Off-Market.'
+      title: t('investor_services.pillars.acquisition.title'),
+      description: t('investor_services.pillars.acquisition.desc')
     },
     {
       icon: Hammer,
-      title: isEn ? 'Renovations & Value-Add' : 'Reformas y Valor Añadido',
-      description: isEn
-        ? 'We transform properties to maximize market value through our in-house architecture and design team.'
-        : 'Transformamos propiedades para maximizar su valor a través de nuestro equipo interno de arquitectura y diseño.'
+      title: t('investor_services.pillars.renovations.title'),
+      description: t('investor_services.pillars.renovations.desc')
     },
     {
       icon: Key,
-      title: isEn ? '360º Rental Management' : 'Gestión 360º de Alquiler',
-      description: isEn
-        ? 'We handle everything: from tenant sourcing and contracts to maintenance and yield optimization.'
-        : 'Nos encargamos de todo: búsqueda de inquilinos, contratos, mantenimiento y optimización de rentas.'
+      title: t('investor_services.pillars.management.title'),
+      description: t('investor_services.pillars.management.desc')
     },
     {
       icon: BarChart3,
-      title: isEn ? 'Exit Strategy' : 'Estrategia de Salida (Exit)',
-      description: isEn
-        ? 'Specialists in Buy-to-Sell. We advise on the optimal moment to divest and maximize ROI.'
-        : 'Especialistas en Buy-to-Sell. Asesoramos en el momento óptimo de desinversión para maximizar el ROI.'
+      title: t('investor_services.pillars.exit.title'),
+      description: t('investor_services.pillars.exit.desc')
     }
   ];
 

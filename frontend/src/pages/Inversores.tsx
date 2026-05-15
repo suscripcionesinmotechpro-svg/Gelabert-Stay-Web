@@ -10,7 +10,7 @@ const Inversores = () => {
     <div className="flex flex-col w-full min-h-screen bg-[#0F0F0F]">
       <Helmet>
         <title>Gelabert Homes | {t('nav.investors')}</title>
-        <meta name="description" content="Soluciones de inversión inmobiliaria en la Costa del Sol. Gestión integral, reformas y alta rentabilidad." />
+        <meta name="description" content={t('investors_page.seo.description')} />
       </Helmet>
 
       {/* Page Hero - Simple and elegant */}
@@ -24,7 +24,7 @@ const Inversores = () => {
             {t('nav.investors')}
           </span>
           <h1 className="font-secondary text-5xl md:text-7xl text-[#FAF8F5] leading-[0.9]">
-            Exclusividad y <span className="text-[#C9A962] italic">Rendimiento</span>
+            {t('investors_page.hero.title_1')}<span className="text-[#C9A962] italic">{t('investors_page.hero.title_highlight')}</span>
           </h1>
         </motion.div>
       </section>

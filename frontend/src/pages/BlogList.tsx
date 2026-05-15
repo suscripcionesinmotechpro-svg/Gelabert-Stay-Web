@@ -38,7 +38,7 @@ export const BlogList = () => {
     <div className="w-full min-h-screen bg-[#0A0A0A] text-[#FAF8F5]">
       <Helmet>
         <title>{t('nav.blog') || 'Blog'} | Gelabert Homes</title>
-        <meta name="description" content="Noticias, tendencias y artículos sobre el mercado inmobiliario de lujo en la Costa del Sol por Gelabert Homes." />
+        <meta name="description" content={t('blog.seo_description')} />
       </Helmet>
 
       {/* Header Section */}
@@ -58,7 +58,7 @@ export const BlogList = () => {
             animate={{ opacity: 1, y: 0 }}
             className="px-4 py-1.5 border border-[#C9A962]/30 bg-[#C9A962]/5 font-primary text-[10px] tracking-[0.25em] uppercase text-[#C9A962]"
           >
-            Insights & Noticias
+            {t('blog.badge')}
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -66,7 +66,7 @@ export const BlogList = () => {
             transition={{ delay: 0.1 }}
             className="font-secondary text-5xl md:text-7xl lg:text-8xl text-white tracking-tight"
           >
-            {t('nav.blog') || 'El Blog'}
+            {t('blog.title')}
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -74,7 +74,7 @@ export const BlogList = () => {
             transition={{ delay: 0.2 }}
             className="font-primary text-[#888888] max-w-2xl text-lg"
           >
-            Descubra las últimas tendencias, análisis del mercado y guías exclusivas sobre inversión y estilo de vida en la Costa del Sol.
+            {t('blog.subtitle')}
           </motion.p>
         </div>
       </section>
