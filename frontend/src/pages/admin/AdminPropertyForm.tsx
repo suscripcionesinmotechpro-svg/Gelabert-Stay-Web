@@ -527,15 +527,20 @@ export const AdminPropertyForm = () => {
       // 2. Establecer el estado de publicación si se ha pasado
       if (targetStatus) data.status = targetStatus;
       
-      // 3. Limpiar strings vacíos para evitar conflictos en UNIQUE (reference, slug)
+      // 3. Limpiar strings vacíos para evitar conflictos en UNIQUE (slug)
       // y para que se guarden como NULL en Postgres
-      const nullableFields = ['reference', 'slug', 'meta_title', 'meta_description', 'street_number', 'door_number', 'parking_price', 'short_description', 'description', 'video_url', 'floor_plan', 'availability', 'property_condition', 'energy_rating', 'emissions_rating', 'conservation_state', 'block_staircase', 'urbanization'];
+      const nullableFields = ['slug', 'meta_title', 'meta_description', 'street_number', 'door_number', 'parking_price', 'short_description', 'description', 'video_url', 'floor_plan', 'availability', 'property_condition', 'energy_rating', 'emissions_rating', 'conservation_state', 'block_staircase', 'urbanization'];
       
       nullableFields.forEach(field => {
-        if (typeof data[field] === 'string' && data[field].trim() === '') {
+        if (data[field] === undefined || (typeof data[field] === 'string' && data[field].trim() === '')) {
           data[field] = null;
         }
       });
+
+      // 3.5 Auto-generar referencia si no se proporciona para evitar el error UNIQUE constraint
+      if (!data.reference || (typeof data.reference === 'string' && data.reference.trim() === '')) {
+        data.reference = `GEL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      }
 
       // 4. Asegurar que los campos numéricos son números o null
       const numericFields = ['price', 'energy_consumption', 'emissions_value', 'community_fees', 'ibi'];
