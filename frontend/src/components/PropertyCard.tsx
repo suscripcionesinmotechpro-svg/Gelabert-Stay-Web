@@ -169,7 +169,7 @@ export const PropertyCard = memo(({
             )}
           </div>
 
-          {commercialStatus && commercialStatus !== 'disponible' && (
+          {commercialStatus && (
             <motion.div 
               initial={{ x: 40, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -178,6 +178,7 @@ export const PropertyCard = memo(({
             >
               <span className={cn(
                 "px-5 py-2 text-[11px] font-black uppercase tracking-[0.25em] shadow-[10px_10px_30px_rgba(0,0,0,0.5)] rounded-l-lg border-y border-l-4 backdrop-blur-xl inline-block",
+                commercialStatus === 'disponible' && "bg-[#25D366] text-black border-[#2CEB73]",
                 commercialStatus === 'reservado' && "bg-orange-500 text-white border-orange-300",
                 commercialStatus === 'alquilado' && "bg-purple-600 text-white border-purple-300",
                 commercialStatus === 'vendido' && "bg-red-600 text-white border-red-300",
