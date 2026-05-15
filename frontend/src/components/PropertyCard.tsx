@@ -174,10 +174,10 @@ export const PropertyCard = memo(({
               initial={{ x: 40, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.6, ease: "easeOut" }}
-              className="absolute top-8 -right-3 z-50 pointer-events-none"
+              className="absolute top-4 right-0 z-50 pointer-events-none"
             >
               <span className={cn(
-                "px-5 py-2 text-[11px] font-black uppercase tracking-[0.25em] shadow-[10px_10px_30px_rgba(0,0,0,0.5)] rounded-l-lg border-y border-l-4 backdrop-blur-xl inline-block",
+                "px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_4px_20px_rgba(0,0,0,0.4)] rounded-l-md border-y border-l-2 backdrop-blur-xl inline-block",
                 commercialStatus === 'disponible' && "bg-[#25D366] text-black border-[#2CEB73]",
                 commercialStatus === 'reservado' && "bg-orange-500 text-white border-orange-300",
                 commercialStatus === 'alquilado' && "bg-purple-600 text-white border-purple-300",
@@ -189,18 +189,18 @@ export const PropertyCard = memo(({
             </motion.div>
           )}
 
-          {/* Slider Controls - Visible on hover */}
+          {/* Slider Controls - Always visible on mobile, hover on desktop */}
           {images.length > 1 && (
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-between px-4 z-30 pointer-events-none">
+            <div className="absolute inset-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-between px-3 z-30 pointer-events-none">
               <button 
                 onClick={prevImage}
-                className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-[#C9A962] transition-colors pointer-events-auto border border-white/10"
+                className="p-1.5 sm:p-2 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-[#C9A962] transition-colors pointer-events-auto border border-white/10"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button 
                 onClick={nextImage}
-                className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-[#C9A962] transition-colors pointer-events-auto border border-white/10"
+                className="p-1.5 sm:p-2 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-[#C9A962] transition-colors pointer-events-auto border border-white/10"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -225,8 +225,8 @@ export const PropertyCard = memo(({
             )}
           </div>
 
-          {/* Favorite & Compare - Inside Image area but fixed */}
-          <div className="absolute bottom-4 right-4 z-30 flex items-center gap-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+          {/* Favorite & Compare - Always visible on mobile, hover on desktop */}
+          <div className="absolute bottom-4 right-4 z-30 flex items-center gap-2 opacity-100 sm:opacity-0 sm:translate-y-2 sm:group-hover:opacity-100 sm:group-hover:translate-y-0 transition-all duration-500">
             {onToggleCompare && (
               <button
                 onClick={(e) => { e.preventDefault(); onToggleCompare(e); }}
@@ -268,7 +268,7 @@ export const PropertyCard = memo(({
               </span>
               {operation === 'ALQUILER' && (
                 <span className="font-primary text-[8px] uppercase tracking-widest text-white/40 mt-1">
-                  / {t('property.labels.month')}
+                  / {t('property.labels.features.month')}
                 </span>
               )}
             </div>

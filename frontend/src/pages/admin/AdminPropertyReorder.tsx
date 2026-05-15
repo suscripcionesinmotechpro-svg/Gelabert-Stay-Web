@@ -49,6 +49,11 @@ const SortableProperty = ({ property, index }: SortableItemProps) => {
       <PropertyCard
         {...property}
         imageUrl={property.main_image}
+        commercialStatus={property.commercial_status}
+        videoUrl={property.video_url}
+        floorPlanUrl={property.floor_plan}
+        property_type={property.property_type}
+        is_room_rental={property.is_room_rental}
         index={index}
         className="pointer-events-none" // Disable clicks during reordering
       />
