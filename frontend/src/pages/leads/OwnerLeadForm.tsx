@@ -46,7 +46,7 @@ const OwnerLeadForm: React.FC<OwnerLeadFormProps> = ({ type }) => {
             property_ad_url: formData.ad_url,
             property_features: formData.features,
             [type === 'venta' ? 'sell_estimated_price' : 'rental_price']: cleanPrice,
-            status: 'Nuevo',
+            status: 'nuevo',
             privacy_accepted: true,
             privacy_accepted_at: new Date().toISOString()
           }

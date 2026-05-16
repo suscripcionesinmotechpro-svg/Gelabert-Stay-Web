@@ -110,14 +110,11 @@ export const saveLeadFromBot = async (
         .eq('id', leadId);
       if (error) throw error;
     } else {
-      const { data, error } = await supabase
+      leadId = crypto.randomUUID();
+      const { error } = await supabase
         .from('leads_crm')
-        .insert([leadData])
-        .select('id')
-        .single();
+        .insert([{ ...leadData, id: leadId }]);
       if (error) throw error;
-      if (!data) return null;
-      leadId = data.id;
     }
 
     if (searchProfile && leadId) {
