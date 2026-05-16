@@ -289,14 +289,31 @@ export const AdminInvoices = () => {
         </div>
         {/* IVA */}
         <div className={cardClass}>
-          <div className="flex items-center gap-2 text-blue-400">
-            <Receipt className="w-4 h-4" />
-            <span className="font-primary text-[10px] uppercase tracking-wider text-[#666]">IVA (Balance)</span>
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2 text-blue-400">
+              <Receipt className="w-4 h-4" />
+              <span className="font-primary text-[10px] uppercase tracking-wider text-[#666]">IVA (Liquidación)</span>
+            </div>
           </div>
-          <p className="font-secondary text-2xl leading-tight text-blue-400">
+          <p className={cn("font-secondary text-2xl leading-tight", summary.taxPeriod >= 0 ? 'text-blue-400' : 'text-blue-400')}>
             {loadingSummary ? '—' : formatCurrency(summary.taxPeriod)}
           </p>
-          <span className="text-[9px] text-[#444] font-primary uppercase tracking-tighter">Cobrado - Pagado</span>
+          <div className="flex flex-col gap-0.5 mt-1">
+            <div className="flex justify-between text-[8px] font-primary uppercase tracking-tighter">
+              <span className="text-[#444]">Repercutido (Ingresos):</span>
+              <span className="text-green-500/80">{formatCurrency(summary.vatIncome)}</span>
+            </div>
+            <div className="flex justify-between text-[8px] font-primary uppercase tracking-tighter">
+              <span className="text-[#444]">Soportado (Gastos):</span>
+              <span className="text-red-500/80">{formatCurrency(summary.vatExpenses)}</span>
+            </div>
+            {summary.vatEstimated > 0 && (
+              <div className="flex justify-between text-[8px] font-primary uppercase tracking-tighter">
+                <span className="text-[#444]">Estimado (Gastos Fijos):</span>
+                <span className="text-orange-500/80">{formatCurrency(summary.vatEstimated)}</span>
+              </div>
+            )}
+          </div>
         </div>
         {/* IRPF */}
         <div className={cardClass}>
@@ -416,6 +433,7 @@ export const AdminInvoices = () => {
                     <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Cliente / Concepto</th>
                     <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Fecha</th>
                     <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Base</th>
+                    <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">IVA</th>
                     <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Total</th>
                     <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-center">Estado</th>
                     <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Acciones</th>
@@ -443,6 +461,9 @@ export const AdminInvoices = () => {
                         </td>
                         <td className="px-6 py-4 font-secondary text-[#FAF8F5] text-xs text-right">
                           {formatCurrency(inv.amount)}
+                        </td>
+                        <td className="px-6 py-4 font-secondary text-[#888] text-[11px] text-right">
+                          {formatCurrency((Number(inv.total_amount) || 0) + (Number(inv.irpf_amount) || 0) - ((Number(inv.amount) || 0) - (Number(inv.discount_amount) || 0)))}
                         </td>
                         <td className="px-6 py-4 font-secondary text-[#C9A962] text-xs font-bold text-right">
                           {formatCurrency(inv.total_amount)}

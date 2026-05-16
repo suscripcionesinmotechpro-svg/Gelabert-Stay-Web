@@ -79,20 +79,17 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
   const fetchSummary = async () => {
     setLoading(true);
 
-    // 1. Fetch all invoices in period
     const { data: invoiceData } = await supabase
       .from('invoices')
       .select('*')
       .gte('invoice_date', filters.startDate)
       .lte('invoice_date', filters.endDate);
 
-    // 2. Fetch all active fixed expenses
     const { data: fixedData } = await supabase
       .from('accounting_fixed_expenses')
       .select('*')
       .eq('is_active', true);
 
-    // 3. Fetch variable monthly entries for the entire period
     const startYear = parseInt(filters.startDate.substring(0, 4));
     const endYear = parseInt(filters.endDate.substring(0, 4));
     const { data: monthlyData } = await supabase
@@ -107,12 +104,10 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     const allFixed = fixedData || [];
     const allMonthly = monthlyData || [];
 
-    // Build month range
     const byMonthMap: Record<string, any> = {};
     let estVat = 0;
     let estIrpf = 0;
     
-    // Generate list of months in range
     const months: Date[] = [];
     let d = new Date(filters.startDate);
     const end = new Date(filters.endDate);
@@ -126,7 +121,6 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
       byMonthMap[key] = { month: m.getMonth() + 1, year: m.getFullYear(), total: 0, expenses: 0, income: 0, fixedExp: 0, variableExp: 0, invoiceExp: 0 };
     });
 
-    // Process each month
     months.forEach((monthDate) => {
       const year = monthDate.getFullYear();
       const monthNum = monthDate.getMonth() + 1;
@@ -144,11 +138,9 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
 
       byMonthMap[monthKey].income = incomeInvs.reduce((s, i) => s + (i.total_amount || 0), 0);
 
-      // Standalone expense invoices (no linked fixed expense AND no linked variable category)
       const standaloneExpInvs = expenseInvs.filter(i => !i.fixed_expense_id && !i.variable_category_id);
       byMonthMap[monthKey].invoiceExp = standaloneExpInvs.reduce((s, i) => s + (i.total_amount || 0), 0);
 
-      // Process each fixed expense
       allFixed.forEach(fe => {
         const freq = fe.frequency || 'monthly';
         const appliesThisMonth =
@@ -170,7 +162,6 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
             byMonthMap[monthKey].fixedExp += invAmount;
           }
         } else {
-          // NO INVOICE → Use estimated amount and calculate ESTIMATED VAT/IRPF
           const feAmount = Number(fe.amount) || 0;
           const feTaxRate = Number(fe.tax_rate) || 0;
           const feIrpfRate = Number(fe.irpf_rate) || 0;
@@ -200,19 +191,27 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
       byMonthMap[monthKey].variableExp += categoryInvs.reduce((s, i) => s + (i.total_amount || 0), 0);
     });
 
-    // Aggregate totals
     const totalIncome = Object.values(byMonthMap).reduce((s, m) => s + m.income, 0);
     const totalFixed = Object.values(byMonthMap).reduce((s, m) => s + m.fixedExp, 0);
     const totalVariable = Object.values(byMonthMap).reduce((s, m) => s + m.variableExp, 0);
     const totalInvoiceExp = Object.values(byMonthMap).reduce((s, m) => s + m.invoiceExp, 0);
     const totalExpenses = totalFixed + totalVariable + totalInvoiceExp;
 
-    const realVatBalance = allInvoices.reduce((s, i) => {
-      const vat = (i.total_amount || 0) + (i.irpf_amount || 0) - (i.amount || 0);
-      return s + (i.type === 'expense' ? -vat : vat);
-    }, 0);
+    let vatIncome = 0;
+    let vatExpenses = 0;
 
-    const taxPeriod = realVatBalance - estVat;
+    allInvoices.forEach(i => {
+      const netBase = (Number(i.amount) || 0) - (Number(i.discount_amount) || 0);
+      const vat = (Number(i.total_amount) || 0) + (Number(i.irpf_amount) || 0) - netBase;
+      
+      if (i.type === 'expense') {
+        vatExpenses += vat;
+      } else {
+        vatIncome += vat;
+      }
+    });
+
+    const taxPeriod = vatIncome - vatExpenses - estVat;
 
     const realIrpfBalance = allInvoices.reduce((s, i) => {
       const irpf = i.irpf_amount || 0;
@@ -241,6 +240,9 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
       pendingCount: pending.length,
       pendingAmount,
       taxPeriod,
+      vatIncome,
+      vatExpenses,
+      vatEstimated: estVat,
       irpfPeriod,
       income: totalIncome,
       fixedExpenses: totalFixed,

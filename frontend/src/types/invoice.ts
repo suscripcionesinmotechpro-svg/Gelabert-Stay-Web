@@ -92,6 +92,9 @@ export interface InvoiceSettings {
 export interface InvoiceSummary {
   totalPeriod: number;
   taxPeriod: number;
+  vatIncome: number;
+  vatExpenses: number;
+  vatEstimated: number;
   irpfPeriod: number;
   pendingCount: number;
   pendingAmount: number;
