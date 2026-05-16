@@ -298,11 +298,15 @@ export const usePropertyMutations = () => {
     if (error) throw error;
   };
 
-  const updatePropertyOrder = async (orderMap: { id: string; order_index: number }[]): Promise<void> => {
-    // Bulk update approach for order_index
-    const promises = orderMap.map(item => 
-      supabase.from('properties').update({ order_index: item.order_index }).eq('id', item.id)
-    );
+  const updatePropertyOrder = async (items: { id: string; order_index: number; commercial_status?: string }[]): Promise<void> => {
+    // Bulk update approach
+    const promises = items.map(item => {
+      const updateData: any = { order_index: item.order_index };
+      if (item.commercial_status) {
+        updateData.commercial_status = item.commercial_status;
+      }
+      return supabase.from('properties').update(updateData).eq('id', item.id);
+    });
     const results = await Promise.all(promises);
     const firstError = results.find(r => r.error);
     if (firstError?.error) throw firstError.error;

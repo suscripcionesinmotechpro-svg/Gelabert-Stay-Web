@@ -60,7 +60,7 @@ export const AdminInvoiceForm = () => {
   
   const { createInvoice, updateInvoice } = useInvoiceMutations();
   const { issuers, loading: loadingIssuers, createIssuer } = useIssuers();
-  const [fixedExpenses, setFixedExpenses] = useState<{id: string, name: string}[]>([]);
+  const [fixedExpenses, setFixedExpenses] = useState<{id: string, name: string, is_variable: boolean}[]>([]);
   const [variableCategories, setVariableCategories] = useState<VariableCategory[]>([]);
 
   // Load Expenses and Categories
@@ -68,9 +68,9 @@ export const AdminInvoiceForm = () => {
     const fetchData = async () => {
       const { data: fixed } = await supabase
         .from('accounting_fixed_expenses')
-        .select('id, name')
+        .select('id, name, is_variable')
         .eq('is_active', true);
-      if (fixed) setFixedExpenses(fixed);
+      if (fixed) setFixedExpenses(fixed as any);
 
       const { data: variable } = await supabase
         .from('accounting_variable_categories')
@@ -112,7 +112,7 @@ export const AdminInvoiceForm = () => {
             concept: `Gasto: ${data.name}`,
             fixed_expense_id: data.id,
           }));
-          setExpenseMode('fixed');
+          setExpenseMode(data.is_variable ? 'variable' : 'fixed');
         }
       } else if (variableId) {
         const { data } = await supabase
@@ -198,9 +198,14 @@ export const AdminInvoiceForm = () => {
         room_id: inv.room_id || null,
         tenant_id: inv.tenant_id || null,
       });
-      if (inv.fixed_expense_id) setExpenseMode('fixed');
-      else if (inv.variable_category_id) setExpenseMode('variable');
-      else setExpenseMode('none');
+      if (inv.fixed_expense_id) {
+        const fe = fixedExpenses.find(f => f.id === inv.fixed_expense_id);
+        setExpenseMode(fe?.is_variable ? 'variable' : 'fixed');
+      } else if (inv.variable_category_id) {
+        setExpenseMode('category');
+      } else {
+        setExpenseMode('none');
+      }
       setLoadingForm(false);
     };
     load();
@@ -451,28 +456,29 @@ export const AdminInvoiceForm = () => {
                         className={inputClass}
                         value={expenseMode} 
                         onChange={(e) => {
-                          const val = e.target.value as 'none' | 'fixed' | 'variable';
+                          const val = e.target.value as 'none' | 'fixed' | 'variable' | 'category';
                           setExpenseMode(val);
                           if (val === 'none') {
                             setForm(prev => ({ ...prev, fixed_expense_id: null, variable_category_id: null }));
-                          } else if (val === 'fixed') {
+                          } else if (val === 'fixed' || val === 'variable') {
                             setForm(prev => ({ ...prev, variable_category_id: null }));
                           } else {
                             setForm(prev => ({ ...prev, fixed_expense_id: null }));
                           }
                         }}
                       >
-                        <option value="none">Gasto General</option>
-                        <option value="fixed">Gasto Fijo / Recurrente</option>
-                        <option value="variable">Gasto Variable / Categoría</option>
+                        <option value="none">Gasto General / Otros</option>
+                        <option value="fixed">Gasto Periódico Fijo</option>
+                        <option value="variable">Gasto Periódico Variable (Suministros)</option>
+                        <option value="category">Compra por Categoría</option>
                       </select>
                     </div>
 
                     {expenseMode !== 'none' && (
                       <div className="flex flex-col gap-2 lg:col-span-2">
-                        {expenseMode === 'variable' ? (
+                        {expenseMode === 'category' ? (
                           <>
-                            <label className={labelClass}>Categoría Variable</label>
+                            <label className={labelClass}>Categoría de Compra</label>
                             <select 
                               className={inputClass}
                               value={form.variable_category_id ?? ''} 
@@ -486,21 +492,24 @@ export const AdminInvoiceForm = () => {
                           </>
                         ) : (
                           <>
-                            <label className={labelClass}>Gasto Fijo Vinculado</label>
+                            <label className={labelClass}>{expenseMode === 'fixed' ? 'Gasto Fijo' : 'Gasto Variable'} Vinculado</label>
                             <select 
                               className={inputClass}
                               value={form.fixed_expense_id ?? ''} 
                               onChange={(e) => set('fixed_expense_id', e.target.value || null)}
                             >
-                              <option value="">Seleccionar gasto fijo...</option>
-                              {fixedExpenses.map(fe => (
-                                <option key={fe.id} value={fe.id}>{fe.name}</option>
-                              ))}
+                              <option value="">Seleccionar gasto...</option>
+                              {fixedExpenses
+                                .filter(fe => (expenseMode === 'fixed' ? !fe.is_variable : fe.is_variable))
+                                .map(fe => (
+                                  <option key={fe.id} value={fe.id}>{fe.name}</option>
+                                ))
+                              }
                             </select>
                           </>
                         )}
                         <p className="text-[10px] text-[#666666] mt-1 italic">
-                          Vincular el gasto ayuda a organizar mejor los reportes y evitar duplicados en el balance.
+                          Vincular el gasto evita duplicados en el balance mensual de gastos estimados vs reales.
                         </p>
                       </div>
                     )}

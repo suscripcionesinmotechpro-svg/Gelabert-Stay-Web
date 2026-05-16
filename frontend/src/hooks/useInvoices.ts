@@ -136,8 +136,8 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
         expenseInvs.map(i => i.fixed_expense_id).filter(Boolean)
       );
 
-      // Standalone expense invoices (no linked fixed expense)
-      const standaloneExpInvs = expenseInvs.filter(i => !i.fixed_expense_id);
+      // Standalone expense invoices (no linked fixed expense AND no linked variable category)
+      const standaloneExpInvs = expenseInvs.filter(i => !i.fixed_expense_id && !i.variable_category_id);
       byMonthMap[monthKey].invoiceExp = standaloneExpInvs.reduce((s, i) => s + (i.total_amount || 0), 0);
 
       // Process each fixed expense
@@ -152,10 +152,11 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
 
         if (!appliesThisMonth) return;
 
-        if (linkedFixedIds.has(fe.id)) {
-          // This expense has a real invoice → use invoice amount, not the fixed amount
-          const linkedInv = expenseInvs.find(i => i.fixed_expense_id === fe.id);
-          const invAmount = linkedInv ? (linkedInv.total_amount || 0) : 0;
+        const linkedInvsForThisFE = expenseInvs.filter(i => i.fixed_expense_id === fe.id);
+        
+        if (linkedInvsForThisFE.length > 0) {
+          // This expense has real invoices → sum them, and ignore the fixed estimate
+          const invAmount = linkedInvsForThisFE.reduce((s, i) => s + (i.total_amount || 0), 0);
           if (fe.is_variable) {
             byMonthMap[monthKey].variableExp += invAmount;
           } else {
@@ -174,6 +175,10 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
           byMonthMap[monthKey].fixedExp += Number(fe.amount) || 0;
         }
       });
+      
+      // Add invoices linked to variable categories (these are not in allFixed)
+      const categoryInvs = expenseInvs.filter(i => i.variable_category_id);
+      byMonthMap[monthKey].variableExp += categoryInvs.reduce((s, i) => s + (i.total_amount || 0), 0);
     });
 
     // Aggregate totals
@@ -184,14 +189,17 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     const totalExpenses = totalFixed + totalVariable + totalInvoiceExp;
 
     const taxPeriod = allInvoices.reduce((s, i) => {
+      // VAT = Total - Base + IRPF
       const vat = (i.total_amount || 0) + (i.irpf_amount || 0) - (i.amount || 0);
+      // Balance = Collected VAT (Income) - Paid VAT (Expense)
       return s + (i.type === 'expense' ? -vat : vat);
     }, 0);
 
     const irpfPeriod = allInvoices.reduce((s, i) => {
       const irpf = i.irpf_amount || 0;
-      // For a landlord, IRPF on income is a deduction (we receive less)
-      // IRPF on expense is a retention (we hold it to pay later)
+      // For a company/landlord:
+      // IRPF on income is a deduction we suffer (negative)
+      // IRPF on expense is a retention we hold to pay later (positive)
       return s + (i.type === 'expense' ? irpf : -irpf);
     }, 0);
     

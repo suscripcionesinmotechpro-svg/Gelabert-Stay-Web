@@ -28,12 +28,19 @@ export const sortPropertiesByAvailability = (properties: Property[]): Property[]
       return priorityA - priorityB;
     }
 
-    // 2. If status is the same, sort by featured status
+    // 2. Sort by manual order_index (if available)
+    const orderA = a.order_index ?? 999999;
+    const orderB = b.order_index ?? 999999;
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+
+    // 3. Sort by featured status
     if (a.is_featured !== b.is_featured) {
       return a.is_featured ? -1 : 1;
     }
 
-    // 3. Finally, sort by creation date (newest first)
+    // 4. Finally, sort by creation date (newest first)
     const dateA = new Date(a.created_at).getTime();
     const dateB = new Date(b.created_at).getTime();
     return dateB - dateA;

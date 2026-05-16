@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { sortPropertiesByAvailability } from '../../utils/propertySorting';
 import {
   PointerSensor,
   useSensor,
@@ -81,7 +82,7 @@ const SortableProperty = ({ property, index }: SortableItemProps) => {
 };
 
 export const AdminPropertyReorder = () => {
-  const { properties, loading, refetch } = useProperties({ limit: 100 }, true);
+  const { properties, loading, refetch } = useProperties(undefined, true);
   const { updatePropertyOrder } = usePropertyMutations();
   const [items, setItems] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
@@ -89,7 +90,7 @@ export const AdminPropertyReorder = () => {
 
   useEffect(() => {
     if (properties.length > 0) {
-      setItems(properties);
+      setItems(sortPropertiesByAvailability(properties));
     }
   }, [properties]);
 
@@ -111,7 +112,20 @@ export const AdminPropertyReorder = () => {
       setItems((prevItems) => {
         const oldIndex = prevItems.findIndex((item) => item.id === active.id);
         const newIndex = prevItems.findIndex((item) => item.id === over.id);
-        return arrayMove(prevItems, oldIndex, newIndex);
+        
+        const newItems = arrayMove(prevItems, oldIndex, newIndex);
+        
+        // Sincronizar el estado comercial si se mueve entre secciones
+        const movedItem = { ...newItems[newIndex] };
+        const targetSectionItem = prevItems[newIndex];
+        
+        if (movedItem.commercial_status !== targetSectionItem.commercial_status) {
+          movedItem.commercial_status = targetSectionItem.commercial_status;
+          newItems[newIndex] = movedItem;
+          toast.success(`Estado de "${movedItem.title}" cambiado a ${movedItem.commercial_status}`);
+        }
+        
+        return newItems;
       });
       setHasChanges(true);
     }
@@ -123,6 +137,7 @@ export const AdminPropertyReorder = () => {
       const orderMap = items.map((item, index) => ({
         id: item.id,
         order_index: index,
+        commercial_status: item.commercial_status,
       }));
       await updatePropertyOrder(orderMap);
       toast.success('Orden de propiedades actualizado correctamente');
@@ -145,71 +160,119 @@ export const AdminPropertyReorder = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-40 bg-[#0F0F0F]/80 backdrop-blur-md py-4 border-b border-white/5">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Link to="/admin/propiedades" className="text-[#666666] hover:text-[#C9A962] transition-colors">
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
-            <h1 className="font-secondary text-2xl text-[#FAF8F5]">Organizar Listado</h1>
-          </div>
-          <p className="font-primary text-[#666666] text-xs uppercase tracking-widest">
-            Simulador en tiempo real: Arrastra para reordenar las propiedades
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => refetch()}
-            className="p-2.5 text-[#888888] hover:text-[#FAF8F5] border border-white/5 hover:bg-white/5 transition-all rounded-sm"
-            title="Refrescar datos"
-          >
-            <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
-          </button>
-          
-          <button
-            onClick={handleSave}
-            disabled={saving || !hasChanges}
-            className={cn(
-              "flex items-center gap-2 px-6 py-2.5 font-primary font-bold text-sm uppercase tracking-[0.2em] transition-all rounded-sm shadow-xl",
-              hasChanges 
-                ? "bg-[#C9A962] text-[#0A0A0A] hover:bg-[#D4B673] animate-glow-pulse" 
-                : "bg-white/5 text-[#444444] cursor-not-allowed border border-white/5"
-            )}
-          >
-            {saving ? (
-              <RefreshCw className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
-            {saving ? 'Guardando...' : 'Publicar Orden'}
-          </button>
-        </div>
+    <div className="w-full bg-[#050505] min-h-screen -mt-8 -mx-8 px-8 pb-20 relative overflow-hidden">
+      {/* Premium Mesh Background */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#C9A962]/5 blur-[120px] rounded-full mix-blend-screen animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#C9A962]/5 blur-[150px] rounded-full mix-blend-screen animation-delay-2000" />
       </div>
 
-      {/* Info Alert */}
-      {hasChanges && (
-        <div className="bg-[#C9A962]/10 border border-[#C9A962]/20 p-4 flex items-center gap-3 animate-fade-in">
-          <LayoutGrid className="w-5 h-5 text-[#C9A962]" />
-          <p className="font-primary text-xs text-[#C9A962] font-bold uppercase tracking-wider">
-            Tienes cambios sin publicar. Haz clic en "Publicar Orden" para que se vean en la web.
-          </p>
+      {/* Header section matching Propiedades.tsx */}
+      <section className="relative min-h-[25vh] flex items-center overflow-hidden border-b border-white/5 py-16 mb-12 -mx-8 px-8">
+        <div className="absolute inset-0 z-0">
+          <div 
+            className="w-full h-full bg-cover bg-center brightness-[0.3] saturate-[1.25]"
+            style={{ backgroundImage: `url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop')` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/20 via-[#050505]/50 to-[#050505]/95" />
         </div>
-      )}
 
-      {/* Sortable Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
+        <div className="relative z-10 w-full flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-3 mb-2">
+              <Link to="/admin/propiedades" className="p-2 bg-white/5 border border-white/10 rounded-full text-white/40 hover:text-[#C9A962] hover:border-[#C9A962] transition-all">
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+              <h1 className="font-secondary text-4xl md:text-5xl text-[#FAF8F5]">
+                Organizar Listado
+              </h1>
+            </div>
+            <p className="font-primary text-[#DFDFE6]/40 text-sm uppercase tracking-[0.2em] font-bold">
+              Simulador de orden real • Arrastra para reordenar
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4 bg-[#0A0A0A]/80 backdrop-blur-xl p-4 border border-white/10 rounded-sm shadow-2xl">
+            <button
+              onClick={() => refetch()}
+              className="p-3 text-[#888888] hover:text-[#FAF8F5] border border-white/5 hover:bg-white/5 transition-all rounded-sm"
+              title="Refrescar datos"
+            >
+              <RefreshCw className={cn("w-5 h-5", loading && "animate-spin")} />
+            </button>
+            
+            <button
+              onClick={handleSave}
+              disabled={saving || !hasChanges}
+              className={cn(
+                "flex items-center gap-3 px-8 py-3 font-primary font-bold text-xs uppercase tracking-[0.2em] transition-all rounded-sm shadow-2xl",
+                hasChanges 
+                  ? "bg-[#C9A962] text-[#0A0A0A] hover:bg-[#D4B673] shadow-[#C9A962]/20" 
+                  : "bg-white/5 text-[#444444] cursor-not-allowed border border-white/5"
+              )}
+            >
+              {saving ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {saving ? 'Guardando...' : 'Publicar Nuevo Orden'}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <div className="relative z-10 max-w-[1600px] mx-auto">
+        {hasChanges && (
+          <div className="mb-12 bg-[#C9A962]/5 border border-[#C9A962]/20 p-6 flex items-center justify-between animate-fade-in rounded-sm">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-[#C9A962]/10 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(201,169,98,0.2)]">
+                <LayoutGrid className="w-5 h-5 text-[#C9A962]" />
+              </div>
+              <div>
+                <p className="font-primary text-sm text-[#C9A962] font-bold uppercase tracking-wider mb-0.5">
+                  Cambios Pendientes
+                </p>
+                <p className="font-primary text-[#C9A962]/60 text-xs uppercase tracking-widest">
+                  Haz clic en "Publicar Nuevo Orden" para aplicar los cambios en la web pública.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
           <SortableContext items={items.map(i => i.id)} strategy={rectSortingStrategy}>
-            {items.map((property, idx) => (
-              <SortableProperty key={property.id} property={property} index={idx} />
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {items.map((property, idx) => {
+                const prevProperty = idx > 0 ? items[idx - 1] : null;
+                const showHeader = !prevProperty || prevProperty.commercial_status !== property.commercial_status;
+                
+                return (
+                  <div key={property.id} className={cn(showHeader ? "col-span-full mt-16 first:mt-0" : "")}>
+                    {showHeader && (
+                      <div className="flex items-center gap-4 mb-10">
+                        <div className="h-[1px] flex-1 bg-white/5" />
+                        <h2 className="font-primary text-[10px] text-white/30 uppercase tracking-[0.4em] font-bold whitespace-nowrap bg-white/5 px-8 py-3 rounded-full border border-white/10 backdrop-blur-sm">
+                          {property.commercial_status === 'disponible' && 'Propiedades Disponibles'}
+                          {property.commercial_status === 'reservado' && 'Propiedades Reservadas'}
+                          {property.commercial_status === 'alquilado' && 'Propiedades Alquiladas'}
+                          {property.commercial_status === 'vendido' && 'Propiedades Vendidas'}
+                          {property.commercial_status === 'traspasado' && 'Propiedades Traspasadas'}
+                        </h2>
+                        <div className="h-[1px] flex-1 bg-white/5" />
+                      </div>
+                    )}
+                    <SortableProperty property={property} index={idx} />
+                  </div>
+                );
+              })}
+            </div>
           </SortableContext>
         </DndContext>
       </div>
