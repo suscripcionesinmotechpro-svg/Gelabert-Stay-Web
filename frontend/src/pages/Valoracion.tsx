@@ -54,6 +54,21 @@ export const Valoracion = () => {
               loading="lazy"
             />
           </div>
+          
+          {/* Fallback Action */}
+          <div className="mt-8 text-center flex flex-col items-center justify-center">
+            <p className="text-gray-400 font-secondary mb-4">
+              Si no puedes visualizar el formulario correctamente por restricciones de tu navegador, puedes acceder directamente haciendo clic aquí:
+            </p>
+            <a 
+              href="https://statefox.com/mites/v/6093dc70f21ebc61f637b472" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary uppercase tracking-wider font-semibold hover:bg-white transition-all duration-300 rounded-sm"
+            >
+              Abrir Valorador de Statefox
+            </a>
+          </div>
         </motion.div>
       </section>
 
