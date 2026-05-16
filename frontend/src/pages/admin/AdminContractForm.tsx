@@ -11,7 +11,7 @@ import {
   ArrowLeft, Save, Loader2, Upload, Trash2, FileText,
   ExternalLink, AlertCircle
 } from 'lucide-react';
-import type { ContractInsert, DocumentType } from '../../types/tenant';
+import type { ContractInsert, DocumentType, LandlordInsert } from '../../types/tenant';
 import { DOCUMENT_TYPE_LABELS } from '../../types/tenant';
 
 const TENANT_DOC_TYPES: DocumentType[] = [
@@ -229,12 +229,12 @@ export const AdminContractForm = () => {
 
       // 2. Sync Landlord Data
       let finalLandlordId = form.landlord_id;
-      const landlordPayload = {
+      const landlordPayload: LandlordInsert = {
         name: form.landlord_name || '',
-        dni: form.landlord_dni ?? undefined,
-        phone: form.landlord_phone ?? undefined,
-        email: form.landlord_email ?? undefined,
-        address: form.landlord_address ?? undefined,
+        dni: form.landlord_dni ?? null,
+        phone: form.landlord_phone ?? null,
+        email: form.landlord_email ?? null,
+        address: form.landlord_address ?? null,
         notes: form.notes || ''
       };
 
