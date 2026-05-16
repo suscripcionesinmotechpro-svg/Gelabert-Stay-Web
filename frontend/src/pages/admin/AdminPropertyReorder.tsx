@@ -47,14 +47,33 @@ const SortableProperty = ({ property, index }: SortableItemProps) => {
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
       <PropertyCard
-        {...property}
-        imageUrl={property.main_image}
+        index={index}
+        title={property.title}
+        title_en={property.title_en ?? undefined}
+        price={property.price ?? 0}
+        location={[property.zone, property.city].filter(Boolean).join(', ')}
+        area={property.area_m2 ?? 0}
+        bedrooms={property.bedrooms}
+        bathrooms={property.bathrooms}
+        operation={(property.operation || '').toUpperCase() as 'ALQUILER' | 'VENTA' | 'TRASPASO'}
         commercialStatus={property.commercial_status}
+        isFeatured={property.is_featured}
+        imageUrl={property.main_image || ''}
+        linkTo={`/propiedades/${property.reference || property.slug || property.id}`}
+        floor={property.floor}
+        orientation={property.orientation}
+        description={property.short_description || undefined}
+        description_en={property.short_description_en || undefined}
+        gallery={property.gallery}
         videoUrl={property.video_url}
+        videos={property.videos}
         floorPlanUrl={property.floor_plan}
+        id={property.id}
+        reference={property.reference ?? undefined}
         property_type={property.property_type}
         is_room_rental={property.is_room_rental}
-        index={index}
+        createdAt={property.created_at}
+        tags={property.tags}
         className="pointer-events-none" // Disable clicks during reordering
       />
     </div>

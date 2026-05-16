@@ -83,7 +83,7 @@ export const AdminLayout = () => {
           <NavLink
             key={item.to}
             to={item.to}
-            end={item.to === '/admin/dashboard'}
+            end={['/admin/dashboard', '/admin/propiedades'].includes(item.to)}
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
               `flex items-center justify-between px-3 py-2.5 font-primary text-sm transition-all ${
