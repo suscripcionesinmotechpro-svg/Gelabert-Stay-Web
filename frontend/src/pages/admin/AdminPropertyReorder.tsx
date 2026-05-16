@@ -249,29 +249,9 @@ export const AdminPropertyReorder = () => {
         >
           <SortableContext items={items.map(i => i.id)} strategy={rectSortingStrategy}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {items.map((property, idx) => {
-                const prevProperty = idx > 0 ? items[idx - 1] : null;
-                const showHeader = !prevProperty || prevProperty.commercial_status !== property.commercial_status;
-                
-                return (
-                  <div key={property.id} className={cn(showHeader ? "col-span-full mt-16 first:mt-0" : "")}>
-                    {showHeader && (
-                      <div className="flex items-center gap-4 mb-10">
-                        <div className="h-[1px] flex-1 bg-white/5" />
-                        <h2 className="font-primary text-[10px] text-white/30 uppercase tracking-[0.4em] font-bold whitespace-nowrap bg-white/5 px-8 py-3 rounded-full border border-white/10 backdrop-blur-sm">
-                          {property.commercial_status === 'disponible' && 'Propiedades Disponibles'}
-                          {property.commercial_status === 'reservado' && 'Propiedades Reservadas'}
-                          {property.commercial_status === 'alquilado' && 'Propiedades Alquiladas'}
-                          {property.commercial_status === 'vendido' && 'Propiedades Vendidas'}
-                          {property.commercial_status === 'traspasado' && 'Propiedades Traspasadas'}
-                        </h2>
-                        <div className="h-[1px] flex-1 bg-white/5" />
-                      </div>
-                    )}
-                    <SortableProperty property={property} index={idx} />
-                  </div>
-                );
-              })}
+              {items.map((property, idx) => (
+                <SortableProperty key={property.id} property={property} index={idx} />
+              ))}
             </div>
           </SortableContext>
         </DndContext>
