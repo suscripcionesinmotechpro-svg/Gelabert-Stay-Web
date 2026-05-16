@@ -23,41 +23,26 @@ const TeamMember = ({ name, role, bio, image, delay = 0 }: {
   <motion.div
     {...fadeUp}
     transition={{ ...fadeUp.transition, delay }}
-    className="group relative"
-    whileHover={typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches ? "hover" : undefined}
-    whileTap="hover"
+    className="group relative cursor-pointer"
   >
-    <motion.div 
-      className="relative aspect-[4/5] overflow-hidden rounded-sm mb-6 border border-white/10 transition-colors duration-500"
-      variants={{
-        hover: { borderColor: 'rgba(201, 169, 98, 0.4)' }
-      }}
+    <div 
+      className="relative aspect-[4/5] overflow-hidden rounded-sm mb-6 border border-white/10 transition-colors duration-500 lg:group-hover:border-[#C9A962]/40 group-active:border-[#C9A962]/40"
     >
-      <motion.img 
+      <img 
         src={image} 
         alt={name}
-        className="w-full h-full object-cover transition-all duration-700"
-        initial={{ filter: 'grayscale(1)', scale: 1 }}
-        variants={{
-          hover: { filter: 'grayscale(0)', scale: 1.1 }
-        }}
+        className="w-full h-full object-cover transition-all duration-700 grayscale scale-100 lg:group-hover:grayscale-0 lg:group-hover:scale-110 group-active:grayscale-0 group-active:scale-110"
       />
-      <motion.div 
-        className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60 transition-opacity" 
-        variants={{
-          hover: { opacity: 0.4 }
-        }}
+      <div 
+        className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60 transition-opacity lg:group-hover:opacity-40 group-active:opacity-40" 
       />
-    </motion.div>
+    </div>
     <div className="space-y-2">
-      <motion.h3 
-        className="font-secondary text-2xl text-white transition-colors"
-        variants={{
-          hover: { color: '#C9A962' }
-        }}
+      <h3 
+        className="font-secondary text-2xl text-white transition-colors lg:group-hover:text-[#C9A962] group-active:text-[#C9A962]"
       >
         {name}
-      </motion.h3>
+      </h3>
       <p className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.2em] font-bold">
         {role}
       </p>
