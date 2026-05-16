@@ -15,6 +15,7 @@ const Propietarios = lazy(() => import('./pages/Propietarios').then(m => ({ defa
 const Contacto = lazy(() => import('./pages/Contacto').then(m => ({ default: m.Contacto })));
 const Inversores = lazy(() => import('./pages/Inversores'));
 const Nosotros = lazy(() => import('./pages/Nosotros'));
+const Valoracion = lazy(() => import('./pages/Valoracion').then(m => ({ default: m.Valoracion })));
 
 const BlogList = lazy(() => import('./pages/BlogList').then(m => ({ default: m.BlogList })));
 const BlogPost = lazy(() => import('./pages/BlogPost').then(m => ({ default: m.BlogPost })));
@@ -71,6 +72,7 @@ function App() {
           <Route path="inversores" element={<Inversores />} />
           <Route path="contacto" element={<Contacto />} />
           <Route path="nosotros" element={<Nosotros />} />
+          <Route path="valoracion" element={<Valoracion />} />
           <Route path="blog" element={<BlogList />} />
           <Route path="blog/:slug" element={<BlogPost />} />
           <Route path="aviso-legal" element={<AvisoLegal />} />
@@ -93,6 +95,7 @@ function App() {
           <Route path="inversores" element={<Inversores />} />
           <Route path="contacto" element={<Contacto />} />
           <Route path="nosotros" element={<Nosotros />} />
+          <Route path="valoracion" element={<Valoracion />} />
           <Route path="blog" element={<BlogList />} />
           <Route path="blog/:slug" element={<BlogPost />} />
           <Route path="aviso-legal" element={<AvisoLegal />} />
