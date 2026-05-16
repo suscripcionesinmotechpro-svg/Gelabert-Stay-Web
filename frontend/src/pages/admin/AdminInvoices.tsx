@@ -169,6 +169,7 @@ export const AdminInvoices = () => {
 
   const handleSaveIssuer = async () => {
     if (!newIssuer.name) return;
+    try {
       await createIssuer(newIssuer);
       setIsAddingIssuer(false);
       setNewIssuer({ name: '', nif: '', street_type: '', street_name: '', street_number: '', floor_door: '', address: '', zip: '', city: '', province: '', email: '', phone: '', is_default: false, type: 'provider' as any, iban: '', notes: '' });

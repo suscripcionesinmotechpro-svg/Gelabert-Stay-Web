@@ -3,9 +3,9 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useInvoiceMutations, uploadInvoicePDF } from '../../hooks/useInvoices';
 import { useIssuers } from '../../hooks/useIssuers';
-import type { Invoice, InvoiceInsert, InvoiceStatus, InvoiceItem, VariableCategory } from '../../types/invoice';
+import type { Invoice, InvoiceInsert, InvoiceStatus, InvoiceItem, VariableCategory, InvoiceIssuer } from '../../types/invoice';
 import { STATUS_LABELS } from '../../types/invoice';
-import { ChevronLeft, Save, Upload, X, FileText, Plus, Trash2, Search, Users, Building2, Mail, Phone, MapPin, Receipt, Calculator, Check } from 'lucide-react';
+import { ChevronLeft, Save, Upload, X, FileText, Plus, Trash2, Search } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const inputClass = "w-full h-10 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
@@ -42,6 +42,7 @@ const DEFAULT_FORM: InvoiceInsert = {
   notes: null,
   type: 'income',
   issuer_id: null,
+  client_id: null,
   fixed_expense_id: null,
   variable_category_id: null,
   property_id: null,
@@ -82,19 +83,16 @@ export const AdminInvoiceForm = () => {
   }, []);
 
   const [form, setForm] = useState<InvoiceInsert>(DEFAULT_FORM);
-  const [expenseMode, setExpenseMode] = useState<'none' | 'fixed' | 'variable'>('none');
+  const [expenseMode, setExpenseMode] = useState<'none' | 'fixed' | 'variable' | 'category'>('none');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadingForm, setLoadingForm] = useState(isEditing);
   
-  // Issuer Management State
   const [showIssuerModal, setShowIssuerModal] = useState(false);
-  const [isAddingIssuer, setIsAddingIssuer] = useState(false);
-  const [editingIssuerData, setEditingIssuerData] = useState<any>(null);
   const [newIssuer, setNewIssuer] = useState({ 
     name: '', nif: '', street_type: '', street_name: '', street_number: '', 
     floor_door: '', address: '', city: '', province: '', zip: '', 
-    phone: '', email: '', is_default: false, type: 'provider' as any, iban: '' 
+    phone: '', email: '', is_default: false, type: 'provider' as any, iban: '', notes: '' 
   });
   const [directorySearchQuery, setDirectorySearchQuery] = useState('');
   const [showDirectoryList, setShowDirectoryList] = useState(false);
@@ -200,6 +198,7 @@ export const AdminInvoiceForm = () => {
         notes: inv.notes,
         type: inv.type || 'income',
         issuer_id: inv.issuer_id || null,
+        client_id: inv.client_id || null,
         fixed_expense_id: inv.fixed_expense_id || null,
         variable_category_id: inv.variable_category_id || null,
         property_id: inv.property_id || null,
@@ -299,7 +298,7 @@ export const AdminInvoiceForm = () => {
         setNewIssuer({ 
           name: '', nif: '', street_type: '', street_name: '', street_number: '', 
           floor_door: '', address: '', city: '', province: '', zip: '', 
-          phone: '', email: '', is_default: false, type: 'provider' as any, iban: '' 
+          phone: '', email: '', is_default: false, type: 'provider' as any, iban: '', notes: '' 
         });
       }
     } catch (err: any) {
