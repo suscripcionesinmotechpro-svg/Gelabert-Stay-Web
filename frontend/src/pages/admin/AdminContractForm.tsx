@@ -6,6 +6,7 @@ import { useTenants } from '../../hooks/useTenants';
 import { useProperties } from '../../hooks/useProperties';
 import { useTenantDocuments, uploadTenantDocument, deleteTenantDocument } from '../../hooks/useTenantDocuments';
 import { useLandlords, useLandlordMutations } from '../../hooks/useLandlords';
+import { toast } from 'react-hot-toast';
 import {
   ArrowLeft, Save, Loader2, Upload, Trash2, FileText,
   ExternalLink, AlertCircle
@@ -240,10 +241,12 @@ export const AdminContractForm = () => {
       if (finalLandlordId) {
         // Update existing landlord
         await updateLandlord(finalLandlordId, landlordPayload);
+        toast.success('Datos del propietario actualizados');
       } else if (form.landlord_name) {
         // Create new landlord
         const newLandlord = await createLandlord(landlordPayload);
         finalLandlordId = newLandlord.id;
+        toast.success('Nuevo propietario guardado');
       }
 
       const payload: ContractInsert = { 
@@ -254,10 +257,12 @@ export const AdminContractForm = () => {
       
       if (isEdit && id) {
         await updateContract(id, payload);
+        toast.success('Contrato actualizado');
         navigate(`/admin/inquilinos/${tenantId}`);
       } else {
         const newId = await createContract(payload);
         setContractId(newId);
+        toast.success('Contrato creado');
         // Stay on this page so user can upload documents
       }
     } catch (e: any) {
