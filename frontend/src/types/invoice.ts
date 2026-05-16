@@ -55,6 +55,7 @@ export interface Invoice {
   property_id: string | null;
   room_id: string | null;
   tenant_id: string | null;
+  client_id: string | null;
 }
 
 export type InvoiceInsert = Omit<Invoice, 'id' | 'created_at' | 'user_id' | 'total_amount' | 'irpf_amount'>;
@@ -113,6 +114,8 @@ export interface FixedExpense {
   frequency: 'monthly' | 'quarterly' | 'semiannual' | 'annual';
   is_variable: boolean;
   is_active: boolean;
+  tax_rate: number;
+  irpf_rate: number;
   created_at: string;
 }
 
@@ -134,6 +137,9 @@ export interface InvoiceIssuer {
   email: string | null;
   phone: string | null;
   is_default: boolean;
+  type: 'client' | 'provider' | 'both';
+  iban: string | null;
+  notes: string | null;
   created_at: string;
 }
 

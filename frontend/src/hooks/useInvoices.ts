@@ -108,33 +108,41 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     const allMonthly = monthlyData || [];
 
     // Build month range
-    const byMonthMap: Record<string, { income: number; fixedExp: number; variableExp: number; invoiceExp: number }> = {};
-    let curr = new Date(filters.startDate);
-    const endDate = new Date(filters.endDate);
-    while (curr <= endDate) {
-      const key = `${curr.getFullYear()}-${String(curr.getMonth() + 1).padStart(2, '0')}`;
-      byMonthMap[key] = { income: 0, fixedExp: 0, variableExp: 0, invoiceExp: 0 };
-      curr.setMonth(curr.getMonth() + 1);
+    const byMonthMap: Record<string, any> = {};
+    let estVat = 0;
+    let estIrpf = 0;
+    
+    // Generate list of months in range
+    const months: Date[] = [];
+    let d = new Date(filters.startDate);
+    const end = new Date(filters.endDate);
+    while (d <= end) {
+      months.push(new Date(d));
+      d.setMonth(d.getMonth() + 1);
     }
 
+    months.forEach(m => {
+      const key = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`;
+      byMonthMap[key] = { month: m.getMonth() + 1, year: m.getFullYear(), total: 0, expenses: 0, income: 0, fixedExp: 0, variableExp: 0, invoiceExp: 0 };
+    });
+
     // Process each month
-    Object.keys(byMonthMap).forEach(monthKey => {
-      const [yStr, mStr] = monthKey.split('-');
-      const year = parseInt(yStr);
-      const monthNum = parseInt(mStr);
+    months.forEach((monthDate) => {
+      const year = monthDate.getFullYear();
+      const monthNum = monthDate.getMonth() + 1;
+      const monthKey = `${year}-${String(monthNum).padStart(2, '0')}`;
 
-      // Invoices this month
-      const invThisMonth = allInvoices.filter(i => i.invoice_date?.startsWith(monthKey));
-      const incomeInvs = invThisMonth.filter(i => i.type === 'income' || !i.type);
-      const expenseInvs = invThisMonth.filter(i => i.type === 'expense');
+      const expenseInvs = allInvoices.filter(i => {
+        const d = new Date(i.invoice_date);
+        return d.getFullYear() === year && (d.getMonth() + 1) === monthNum && i.type === 'expense';
+      });
 
-      // Income
+      const incomeInvs = allInvoices.filter(i => {
+        const d = new Date(i.invoice_date);
+        return d.getFullYear() === year && (d.getMonth() + 1) === monthNum && i.type === 'income';
+      });
+
       byMonthMap[monthKey].income = incomeInvs.reduce((s, i) => s + (i.total_amount || 0), 0);
-
-      // IDs of fixed expenses that have a linked invoice this month
-      const linkedFixedIds = new Set(
-        expenseInvs.map(i => i.fixed_expense_id).filter(Boolean)
-      );
 
       // Standalone expense invoices (no linked fixed expense AND no linked variable category)
       const standaloneExpInvs = expenseInvs.filter(i => !i.fixed_expense_id && !i.variable_category_id);
@@ -145,7 +153,7 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
         const freq = fe.frequency || 'monthly';
         const appliesThisMonth =
           freq === 'monthly' ? true :
-          freq === 'quarterly' ? monthNum % 3 === 1 : // Jan, Apr, Jul, Oct
+          freq === 'quarterly' ? monthNum % 3 === 1 :
           freq === 'semiannual' ? (monthNum === 1 || monthNum === 7) :
           freq === 'annual' ? monthNum === 1 :
           true;
@@ -155,28 +163,39 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
         const linkedInvsForThisFE = expenseInvs.filter(i => i.fixed_expense_id === fe.id);
         
         if (linkedInvsForThisFE.length > 0) {
-          // This expense has real invoices → sum them, and ignore the fixed estimate
           const invAmount = linkedInvsForThisFE.reduce((s, i) => s + (i.total_amount || 0), 0);
           if (fe.is_variable) {
             byMonthMap[monthKey].variableExp += invAmount;
           } else {
             byMonthMap[monthKey].fixedExp += invAmount;
           }
-        } else if (fe.is_variable) {
-          // Variable expense without invoice → check monthly entry
-          const monthlyEntry = allMonthly.find(
-            m => m.fixed_expense_id === fe.id && m.year === year && m.month === monthNum
-          );
-          byMonthMap[monthKey].variableExp += monthlyEntry
-            ? (monthlyEntry.actual_amount || 0)
-            : (Number(fe.amount) || 0); // fallback to estimate
         } else {
-          // Fixed expense without invoice → use fixed amount
-          byMonthMap[monthKey].fixedExp += Number(fe.amount) || 0;
+          // NO INVOICE → Use estimated amount and calculate ESTIMATED VAT/IRPF
+          const feAmount = Number(fe.amount) || 0;
+          const feTaxRate = Number(fe.tax_rate) || 0;
+          const feIrpfRate = Number(fe.irpf_rate) || 0;
+
+          const multiplier = (1 + (feTaxRate / 100) - (feIrpfRate / 100));
+          const estBase = multiplier > 0 ? feAmount / multiplier : feAmount;
+          const estVatAmt = estBase * (feTaxRate / 100);
+          const estIrpfAmt = estBase * (feIrpfRate / 100);
+
+          estVat += estVatAmt;
+          estIrpf += estIrpfAmt;
+
+          if (fe.is_variable) {
+            const monthlyEntry = allMonthly.find(
+              m => m.fixed_expense_id === fe.id && m.year === year && m.month === monthNum
+            );
+            byMonthMap[monthKey].variableExp += monthlyEntry
+              ? (monthlyEntry.actual_amount || 0)
+              : feAmount;
+          } else {
+            byMonthMap[monthKey].fixedExp += feAmount;
+          }
         }
       });
       
-      // Add invoices linked to variable categories (these are not in allFixed)
       const categoryInvs = expenseInvs.filter(i => i.variable_category_id);
       byMonthMap[monthKey].variableExp += categoryInvs.reduce((s, i) => s + (i.total_amount || 0), 0);
     });
@@ -188,20 +207,19 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
     const totalInvoiceExp = Object.values(byMonthMap).reduce((s, m) => s + m.invoiceExp, 0);
     const totalExpenses = totalFixed + totalVariable + totalInvoiceExp;
 
-    const taxPeriod = allInvoices.reduce((s, i) => {
-      // VAT = Total - Base + IRPF
+    const realVatBalance = allInvoices.reduce((s, i) => {
       const vat = (i.total_amount || 0) + (i.irpf_amount || 0) - (i.amount || 0);
-      // Balance = Collected VAT (Income) - Paid VAT (Expense)
       return s + (i.type === 'expense' ? -vat : vat);
     }, 0);
 
-    const irpfPeriod = allInvoices.reduce((s, i) => {
+    const taxPeriod = realVatBalance - estVat;
+
+    const realIrpfBalance = allInvoices.reduce((s, i) => {
       const irpf = i.irpf_amount || 0;
-      // For a company/landlord:
-      // IRPF on income is a deduction we suffer (negative)
-      // IRPF on expense is a retention we hold to pay later (positive)
       return s + (i.type === 'expense' ? irpf : -irpf);
     }, 0);
+
+    const irpfPeriod = realIrpfBalance + estIrpf;
     
     const pending = allInvoices.filter(i => (i.type === 'income' || !i.type) && i.status === 'pendiente');
     const pendingAmount = pending.reduce((s, i) => s + (i.total_amount || 0), 0);

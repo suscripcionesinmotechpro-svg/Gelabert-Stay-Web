@@ -5,7 +5,7 @@ import { useInvoiceMutations, uploadInvoicePDF } from '../../hooks/useInvoices';
 import { useIssuers } from '../../hooks/useIssuers';
 import type { Invoice, InvoiceInsert, InvoiceStatus, InvoiceItem, VariableCategory } from '../../types/invoice';
 import { STATUS_LABELS } from '../../types/invoice';
-import { ChevronLeft, Save, Upload, X, FileText, Plus, Trash2 } from 'lucide-react';
+import { ChevronLeft, Save, Upload, X, FileText, Plus, Trash2, Search, Users, Building2, Mail, Phone, MapPin, Receipt, Calculator, Check } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const inputClass = "w-full h-10 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
@@ -89,7 +89,15 @@ export const AdminInvoiceForm = () => {
   
   // Issuer Management State
   const [showIssuerModal, setShowIssuerModal] = useState(false);
-  const [newIssuer, setNewIssuer] = useState({ name: '', nif: '', street_type: '', street_name: '', street_number: '', floor_door: '', address: '', city: '', province: '', zip: '', phone: '', email: '', is_default: false });
+  const [isAddingIssuer, setIsAddingIssuer] = useState(false);
+  const [editingIssuerData, setEditingIssuerData] = useState<any>(null);
+  const [newIssuer, setNewIssuer] = useState({ 
+    name: '', nif: '', street_type: '', street_name: '', street_number: '', 
+    floor_door: '', address: '', city: '', province: '', zip: '', 
+    phone: '', email: '', is_default: false, type: 'provider' as any, iban: '' 
+  });
+  const [directorySearchQuery, setDirectorySearchQuery] = useState('');
+  const [showDirectoryList, setShowDirectoryList] = useState(false);
 
   // Handle template or variable category pre-filling
   useEffect(() => {
@@ -284,14 +292,66 @@ export const AdminInvoiceForm = () => {
   const handleAddIssuer = async () => {
     if (!newIssuer.name) return;
     try {
-      const added = await createIssuer(newIssuer as any);
+      const added = await createIssuer(newIssuer);
       if (added) {
         set('issuer_id', added.id);
         setShowIssuerModal(false);
-        setNewIssuer({ name: '', nif: '', street_type: '', street_name: '', street_number: '', floor_door: '', address: '', city: '', province: '', zip: '', phone: '', email: '', is_default: false });
+        setNewIssuer({ 
+          name: '', nif: '', street_type: '', street_name: '', street_number: '', 
+          floor_door: '', address: '', city: '', province: '', zip: '', 
+          phone: '', email: '', is_default: false, type: 'provider' as any, iban: '' 
+        });
       }
     } catch (err: any) {
       setError(`Error al añadir emisor: ${err.message}`);
+    }
+  };
+
+  const fillFromDirectory = (entity: InvoiceIssuer) => {
+    set('client_name', entity.name);
+    set('client_nif', entity.nif || '');
+    set('client_street_type', entity.street_type || '');
+    set('client_street_name', entity.street_name || '');
+    set('client_street_number', entity.street_number || '');
+    set('client_floor_door', entity.floor_door || '');
+    set('client_zip', entity.zip || '');
+    set('client_city', entity.city || '');
+    set('client_province', entity.province || '');
+    set('client_email', entity.email || '');
+    set('client_phone', entity.phone || '');
+    set('client_id', entity.id);
+    if (entity.iban) {
+      set('payment_details', entity.iban);
+    }
+    setShowDirectoryList(false);
+    setDirectorySearchQuery('');
+  };
+
+  const handleSaveToDirectory = async () => {
+    if (!form.client_name) return;
+    try {
+      const added = await createIssuer({
+        name: form.client_name,
+        nif: form.client_nif,
+        street_type: form.client_street_type,
+        street_name: form.client_street_name,
+        street_number: form.client_street_number,
+        floor_door: form.client_floor_door,
+        zip: form.client_zip,
+        city: form.client_city,
+        province: form.client_province,
+        email: form.client_email,
+        phone: form.client_phone,
+        type: form.type === 'income' ? 'client' : 'provider',
+        iban: form.payment_details,
+        is_default: false
+      } as any);
+      if (added) {
+        set('client_id', added.id);
+        alert('Guardado en el directorio correctamente');
+      }
+    } catch (err: any) {
+      setError(`Error al guardar en el directorio: ${err.message}`);
     }
   };
 
@@ -519,11 +579,72 @@ export const AdminInvoiceForm = () => {
           </div>
 
           <div className={sectionClass}>
-            <h2 className="font-primary text-[#FAF8F5] font-bold text-[10px] uppercase tracking-[0.2em] pb-3 border-b border-[#1F1F1F]">Datos del Receptor (Cliente / Proveedor)</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#1F1F1F]">
+              <h2 className="font-primary text-[#FAF8F5] font-bold text-[10px] uppercase tracking-[0.2em]">Datos del Receptor (Cliente / Proveedor)</h2>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setShowDirectoryList(!showDirectoryList)}
+                  className="flex items-center gap-1 text-[#C9A962] hover:text-[#D4B673] font-primary text-[10px] uppercase font-bold transition-colors"
+                >
+                  <Search className="w-3.5 h-3.5" /> Buscar en Directorio
+                </button>
+              </div>
+            </div>
+
+            {showDirectoryList && (
+              <div className="mb-4 p-3 bg-[#0E0E0E] border border-[#C9A962]/20">
+                <div className="relative mb-3">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#444]" />
+                  <input 
+                    className={cn(inputClass, "pl-10")} 
+                    placeholder="Buscar por nombre o NIF..." 
+                    value={directorySearchQuery}
+                    onChange={e => setDirectorySearchQuery(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+                <div className="max-h-48 overflow-y-auto no-scrollbar flex flex-col gap-1">
+                  {issuers
+                    .filter(i => 
+                      i.name.toLowerCase().includes(directorySearchQuery.toLowerCase()) || 
+                      (i.nif && i.nif.toLowerCase().includes(directorySearchQuery.toLowerCase()))
+                    )
+                    .map(i => (
+                      <button 
+                        key={i.id}
+                        onClick={() => fillFromDirectory(i)}
+                        className="w-full text-left p-2 hover:bg-[#1A1A1A] transition-colors border border-transparent hover:border-[#C9A962]/30 flex flex-col"
+                      >
+                        <span className="font-primary text-[#FAF8F5] text-xs font-bold">{i.name}</span>
+                        <div className="flex items-center gap-2 text-[10px] text-[#666]">
+                          <span>{i.nif}</span>
+                          <span className="w-1 h-1 rounded-full bg-[#333]" />
+                          <span className="uppercase">{i.type === 'provider' ? 'Proveedor' : i.type === 'client' ? 'Cliente' : 'Ambos'}</span>
+                        </div>
+                      </button>
+                    ))
+                  }
+                  {issuers.length === 0 && (
+                    <p className="text-center py-4 text-[10px] text-[#444] uppercase italic">El directorio está vacío</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
               <div className="flex flex-col gap-1 md:col-span-2 lg:col-span-3">
-                <label className={labelClass}>Nombre / Razón Social *</label>
-                <input className={inputClass} value={form.client_name} onChange={e => set('client_name', e.target.value)} />
+                <div className="flex items-center justify-between">
+                  <label className={labelClass}>Nombre / Razón Social *</label>
+                  {!form.client_id && form.client_name && (
+                    <button 
+                      onClick={handleSaveToDirectory}
+                      className="text-[9px] text-[#C9A962] uppercase font-bold hover:underline"
+                    >
+                      + Guardar en Directorio
+                    </button>
+                  )}
+                </div>
+                <input className={inputClass} value={form.client_name} onChange={e => { set('client_name', e.target.value); set('client_id', null); }} />
               </div>
               <div className="flex flex-col gap-1">
                 <label className={labelClass}>NIF / CIF</label>
@@ -684,9 +805,23 @@ export const AdminInvoiceForm = () => {
                 <label className={labelClass}>Nombre / Empresa</label>
                 <input className={inputClass} value={newIssuer.name} onChange={e => setNewIssuer({...newIssuer, name: e.target.value})} placeholder="Ej: Gelabert Homes SL" />
               </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className={labelClass}>Tipo de Entidad</label>
+                  <select className={inputClass} value={newIssuer.type} onChange={e => setNewIssuer({...newIssuer, type: e.target.value as any})}>
+                    <option value="provider">Proveedor</option>
+                    <option value="client">Cliente</option>
+                    <option value="both">Ambos</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className={labelClass}>NIF / CIF</label>
+                  <input className={inputClass} value={newIssuer.nif} onChange={e => setNewIssuer({...newIssuer, nif: e.target.value})} placeholder="Ej: B12345678" />
+                </div>
+              </div>
               <div className="flex flex-col gap-1">
-                <label className={labelClass}>NIF / CIF</label>
-                <input className={inputClass} value={newIssuer.nif} onChange={e => setNewIssuer({...newIssuer, nif: e.target.value})} placeholder="Ej: B12345678" />
+                <label className={labelClass}>IBAN (Opcional)</label>
+                <input className={inputClass} value={newIssuer.iban} onChange={e => setNewIssuer({...newIssuer, iban: e.target.value})} placeholder="ES00 0000..." />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">

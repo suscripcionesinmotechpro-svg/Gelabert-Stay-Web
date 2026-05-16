@@ -41,7 +41,9 @@ export const AdminInvoices = () => {
     day_of_month_end: null as number | null,
     frequency: 'monthly' as const,
     is_variable: false,
-    is_active: true
+    is_active: true,
+    tax_rate: 0,
+    irpf_rate: 0
   });
 
   const { 
@@ -129,7 +131,10 @@ export const AdminInvoices = () => {
     province: '',
     email: '',
     phone: '',
-    is_default: false
+    is_default: false,
+    type: 'provider' as 'client' | 'provider' | 'both',
+    iban: '',
+    notes: ''
   });
 
   const [editingFixedId, setEditingFixedId] = useState<string | null>(null);
@@ -149,7 +154,9 @@ export const AdminInvoices = () => {
       day_of_month_end: null,
       frequency: 'monthly',
       is_variable: false,
-      is_active: true 
+      is_active: true,
+      tax_rate: 0,
+      irpf_rate: 0
     });
   };
 
@@ -162,10 +169,9 @@ export const AdminInvoices = () => {
 
   const handleSaveIssuer = async () => {
     if (!newIssuer.name) return;
-    try {
       await createIssuer(newIssuer);
       setIsAddingIssuer(false);
-      setNewIssuer({ name: '', nif: '', street_type: '', street_name: '', street_number: '', floor_door: '', address: '', zip: '', city: '', province: '', email: '', phone: '', is_default: false });
+      setNewIssuer({ name: '', nif: '', street_type: '', street_name: '', street_number: '', floor_door: '', address: '', zip: '', city: '', province: '', email: '', phone: '', is_default: false, type: 'provider' as any, iban: '', notes: '' });
     } catch (err) {
       console.error('Error saving issuer:', err);
     }
@@ -727,7 +733,19 @@ export const AdminInvoices = () => {
                       />
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <input type="number" step="0.01" className={cn(inputClass, "w-24 ml-auto text-right")} value={newFixedExpense.amount} onChange={e => setNewFixedExpense({...newFixedExpense, amount: parseFloat(e.target.value) || 0})} />
+                      <div className="flex flex-col gap-1 items-end">
+                        <input type="number" step="0.01" className={cn(inputClass, "w-24 text-right")} value={newFixedExpense.amount} onChange={e => setNewFixedExpense({...newFixedExpense, amount: parseFloat(e.target.value) || 0})} />
+                        <div className="flex gap-1">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-[8px] text-[#444] uppercase text-right">IVA %</span>
+                            <input type="number" className={cn(inputClass, "w-10 h-6 text-[9px] px-1 text-right")} value={newFixedExpense.tax_rate} onChange={e => setNewFixedExpense({...newFixedExpense, tax_rate: parseFloat(e.target.value) || 0})} />
+                          </div>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-[8px] text-[#444] uppercase text-right">IRPF %</span>
+                            <input type="number" className={cn(inputClass, "w-10 h-6 text-[9px] px-1 text-right")} value={newFixedExpense.irpf_rate} onChange={e => setNewFixedExpense({...newFixedExpense, irpf_rate: parseFloat(e.target.value) || 0})} />
+                          </div>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-center"><span className="text-[10px] font-bold text-[#C9A962] uppercase tracking-wider">Nuevo</span></td>
                     <td className="px-6 py-4 text-right">
@@ -797,13 +815,25 @@ export const AdminInvoices = () => {
                             />
                           </td>
                           <td className="px-6 py-4 text-right">
-                            <input 
-                              type="number" 
-                              step="0.01" 
-                              className={cn(inputClass, "w-24 ml-auto text-right")} 
-                              value={editingFixedData?.amount || 0} 
-                              onChange={e => setEditingFixedData({ ...editingFixedData, amount: parseFloat(e.target.value) || 0 })} 
-                            />
+                            <div className="flex flex-col gap-1 items-end">
+                              <input 
+                                type="number" 
+                                step="0.01" 
+                                className={cn(inputClass, "w-24 text-right")} 
+                                value={editingFixedData?.amount || 0} 
+                                onChange={e => setEditingFixedData({ ...editingFixedData, amount: parseFloat(e.target.value) || 0 })} 
+                              />
+                              <div className="flex gap-1">
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="text-[8px] text-[#444] uppercase text-right">IVA %</span>
+                                  <input type="number" className={cn(inputClass, "w-10 h-6 text-[9px] px-1 text-right")} value={editingFixedData?.tax_rate || 0} onChange={e => setEditingFixedData({ ...editingFixedData, tax_rate: parseFloat(e.target.value) || 0 })} />
+                                </div>
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="text-[8px] text-[#444] uppercase text-right">IRPF %</span>
+                                  <input type="number" className={cn(inputClass, "w-10 h-6 text-[9px] px-1 text-right")} value={editingFixedData?.irpf_rate || 0} onChange={e => setEditingFixedData({ ...editingFixedData, irpf_rate: parseFloat(e.target.value) || 0 })} />
+                                </div>
+                              </div>
+                            </div>
                           </td>
                           <td className="px-6 py-4 text-center">
                             <Check className="w-5 h-5 text-[#C9A962] mx-auto cursor-pointer" onClick={() => handleUpdateFixedExpense(expense.id)} />
@@ -831,7 +861,15 @@ export const AdminInvoices = () => {
                               <span className="text-[10px] text-[#444] font-bold uppercase tracking-wider">No</span>
                             )}
                           </td>
-                          <td className="px-6 py-4 font-secondary text-sm text-[#FAF8F5] text-right">{formatCurrency(expense.amount)}</td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex flex-col items-end">
+                              <span className="font-secondary text-sm text-[#FAF8F5]">{formatCurrency(expense.amount)}</span>
+                              <div className="flex gap-2 text-[8px] text-[#444] uppercase font-bold">
+                                {expense.tax_rate > 0 && <span>IVA: {expense.tax_rate}%</span>}
+                                {expense.irpf_rate > 0 && <span>IRPF: {expense.irpf_rate}%</span>}
+                              </div>
+                            </div>
+                          </td>
                           <td className="px-6 py-4 text-center">
                             <button 
                               onClick={() => updateFixedExpense(expense.id, { is_active: !expense.is_active })}
@@ -885,9 +923,10 @@ export const AdminInvoices = () => {
               <thead>
                 <tr className="border-b border-[#1F1F1F] bg-[#0E0E0E]">
                   <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Nombre / Empresa</th>
+                  <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Tipo</th>
                   <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">NIF/CIF</th>
                   <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Ubicación</th>
-                  <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Contacto</th>
+                  <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em]">Contacto / IBAN</th>
                   <th className="px-6 py-4 font-primary text-[9px] text-[#666666] uppercase tracking-[0.2em] text-right">Acciones</th>
                 </tr>
               </thead>
@@ -896,6 +935,13 @@ export const AdminInvoices = () => {
                   <tr className="border-b border-[#C9A962]/30 bg-[#C9A962]/5">
                     <td className="px-6 py-4">
                       <input className={inputClass} placeholder="Nombre Fiscal" value={newIssuer.name} onChange={e => setNewIssuer({...newIssuer, name: e.target.value})} />
+                    </td>
+                    <td className="px-6 py-4">
+                      <select className={cn(inputClass, "text-[10px]")} value={newIssuer.type} onChange={e => setNewIssuer({...newIssuer, type: e.target.value as any})}>
+                        <option value="provider">Proveedor</option>
+                        <option value="client">Cliente</option>
+                        <option value="both">Ambos</option>
+                      </select>
                     </td>
                     <td className="px-6 py-4">
                       <input className={inputClass} placeholder="B12345678" value={newIssuer.nif} onChange={e => setNewIssuer({...newIssuer, nif: e.target.value})} />
@@ -931,6 +977,7 @@ export const AdminInvoices = () => {
                       <div className="flex flex-col gap-2">
                         <input className={inputClass} placeholder="Email" value={newIssuer.email} onChange={e => setNewIssuer({...newIssuer, email: e.target.value})} />
                         <input className={inputClass} placeholder="Teléfono" value={newIssuer.phone} onChange={e => setNewIssuer({...newIssuer, phone: e.target.value})} />
+                        <input className={cn(inputClass, "text-[10px]")} placeholder="IBAN" value={newIssuer.iban} onChange={e => setNewIssuer({...newIssuer, iban: e.target.value})} />
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right align-top pt-8">
@@ -954,6 +1001,13 @@ export const AdminInvoices = () => {
                               value={editingIssuerData?.name || ''} 
                               onChange={e => setEditingIssuerData({ ...editingIssuerData, name: e.target.value })} 
                             />
+                          </td>
+                          <td className="px-6 py-4">
+                            <select className={cn(inputClass, "text-[10px]")} value={editingIssuerData?.type || 'provider'} onChange={e => setEditingIssuerData({ ...editingIssuerData, type: e.target.value as any })}>
+                              <option value="provider">Proveedor</option>
+                              <option value="client">Cliente</option>
+                              <option value="both">Ambos</option>
+                            </select>
                           </td>
                           <td className="px-6 py-4">
                             <input 
@@ -1003,6 +1057,12 @@ export const AdminInvoices = () => {
                                 value={editingIssuerData?.phone || ''} 
                                 onChange={e => setEditingIssuerData({ ...editingIssuerData, phone: e.target.value })} 
                               />
+                              <input 
+                                className={cn(inputClass, "h-8 text-[9px]")} 
+                                placeholder="IBAN" 
+                                value={editingIssuerData?.iban || ''} 
+                                onChange={e => setEditingIssuerData({ ...editingIssuerData, iban: e.target.value })} 
+                              />
                             </div>
                           </td>
                           <td className="px-6 py-4 text-right">
@@ -1019,6 +1079,15 @@ export const AdminInvoices = () => {
                               {issuer.is_default && <span className="w-2 h-2 rounded-full bg-[#C9A962]" title="Predeterminado" />}
                               <span className="font-primary text-xs text-[#FAF8F5]">{issuer.name}</span>
                             </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={cn(
+                              "px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider",
+                              issuer.type === 'provider' ? 'bg-orange-500/10 text-orange-500' :
+                              issuer.type === 'client' ? 'bg-blue-500/10 text-blue-500' : 'bg-purple-500/10 text-purple-500'
+                            )}>
+                              {issuer.type === 'provider' ? 'Proveedor' : issuer.type === 'client' ? 'Cliente' : 'Ambos'}
+                            </span>
                           </td>
                           <td className="px-6 py-4 font-primary text-xs text-[#888]">{issuer.nif || '-'}</td>
                           <td className="px-6 py-4">
@@ -1055,6 +1124,12 @@ export const AdminInvoices = () => {
                                 <div className="flex items-center gap-1 text-[10px] text-[#888]">
                                   <Phone className="w-3 h-3" />
                                   <span>{issuer.phone}</span>
+                                </div>
+                              )}
+                              {issuer.iban && (
+                                <div className="flex items-center gap-1 text-[9px] text-[#C9A962] font-mono mt-1">
+                                  <Receipt className="w-3 h-3" />
+                                  <span>{issuer.iban}</span>
                                 </div>
                               )}
                             </div>

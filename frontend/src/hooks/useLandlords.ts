@@ -34,9 +34,12 @@ export const useLandlords = () => {
 
 export const useLandlordMutations = () => {
   const createLandlord = async (data: LandlordInsert): Promise<Landlord> => {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) throw new Error('No authenticated user');
+
     const { data: createdData, error } = await supabase
       .from('landlords')
-      .insert([data])
+      .insert([{ ...data, user_id: userData.user.id }])
       .select()
       .single();
 
