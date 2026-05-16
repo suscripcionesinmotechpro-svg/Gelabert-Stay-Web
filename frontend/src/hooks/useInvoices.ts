@@ -64,6 +64,9 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
   const [summary, setSummary] = useState<InvoiceSummary>({
     totalPeriod: 0, 
     taxPeriod: 0, 
+    vatIncome: 0,
+    vatExpenses: 0,
+    vatEstimated: 0,
     irpfPeriod: 0, 
     pendingCount: 0, 
     pendingAmount: 0, 
