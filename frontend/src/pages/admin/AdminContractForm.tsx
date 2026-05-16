@@ -230,12 +230,12 @@ export const AdminContractForm = () => {
       // 2. Sync Landlord Data
       let finalLandlordId = form.landlord_id;
       const landlordPayload = {
-        name: form.landlord_name,
-        dni: form.landlord_dni,
-        phone: form.landlord_phone,
-        email: form.landlord_email,
-        address: form.landlord_address,
-        notes: form.notes || '' // Mantener notas si existen, o usar las del contrato
+        name: form.landlord_name || '',
+        dni: form.landlord_dni ?? undefined,
+        phone: form.landlord_phone ?? undefined,
+        email: form.landlord_email ?? undefined,
+        address: form.landlord_address ?? undefined,
+        notes: form.notes || ''
       };
 
       if (finalLandlordId) {
