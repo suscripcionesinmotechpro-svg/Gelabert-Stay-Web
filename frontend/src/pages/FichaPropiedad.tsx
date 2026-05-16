@@ -148,15 +148,37 @@ export const FichaPropiedad = () => {
   const generalImages = useMemo(() => {
     const main = property?.main_image;
     const gallery = property?.gallery || [];
+    const rooms = property?.rooms || [];
+    const commonAreas = property?.common_areas || [];
+    const propertyType = property?.property_type;
+    const isRoomRental = property?.is_room_rental;
     
     // Normalización para comparar URLs sin parámetros de consulta
     const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
     const mainNorm = main ? normalize(main) : '';
     
-    const combined = [
+    let combined = [
       ...(main ? [main] : []),
       ...gallery.filter((img: string) => normalize(img) !== mainNorm)
     ];
+
+    // For room rental properties (is_room_rental: true)
+    if (isRoomRental && rooms.length > 0) {
+      rooms.forEach((room: any) => {
+        if (room.images && room.images.length > 0) {
+          combined.push(...room.images);
+        }
+      });
+    }
+
+    // For individual room properties (property_type: 'habitacion')
+    if (propertyType === 'habitacion' && commonAreas.length > 0) {
+      const caImages = commonAreas.flatMap((area: any) => area.images || []);
+      if (caImages.length > 0) {
+        // First room photos (already in combined), then common areas
+        combined = [...combined, ...caImages];
+      }
+    }
     
     const seen = new Set();
     return combined.filter((img: string) => {
@@ -1540,8 +1562,17 @@ export const FichaPropiedad = () => {
                 isFeatured={p.is_featured}
                 imageUrl={p.main_image ?? ''}
                 linkTo={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${p.reference || p.slug || p.id}`}
+                gallery={p.gallery}
                 videoUrl={p.video_url}
+                videos={p.videos}
                 floorPlanUrl={p.floor_plan}
+                id={p.id}
+                reference={p.reference ?? undefined}
+                property_type={p.property_type}
+                is_room_rental={p.is_room_rental}
+                rooms={p.rooms}
+                common_areas={p.common_areas}
+                createdAt={p.created_at}
                 description={p.short_description ?? undefined}
                 description_en={p.short_description_en ?? undefined}
               />

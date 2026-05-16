@@ -635,6 +635,8 @@ export const Home = () => {
                 reference={p.reference ?? undefined}
                 property_type={p.property_type}
                 is_room_rental={p.is_room_rental}
+                rooms={p.rooms}
+                common_areas={p.common_areas}
                 createdAt={p.created_at}
               />
             ))

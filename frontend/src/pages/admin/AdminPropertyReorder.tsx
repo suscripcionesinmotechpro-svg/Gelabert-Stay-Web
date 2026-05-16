@@ -73,6 +73,8 @@ const SortableProperty = ({ property, index }: SortableItemProps) => {
         reference={property.reference ?? undefined}
         property_type={property.property_type}
         is_room_rental={property.is_room_rental}
+        rooms={property.rooms}
+        common_areas={property.common_areas}
         createdAt={property.created_at}
         tags={property.tags}
         className="pointer-events-none" // Disable clicks during reordering

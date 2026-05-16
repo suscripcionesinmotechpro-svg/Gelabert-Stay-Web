@@ -44,6 +44,8 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   floorPlanUrl?: string | null;
   property_type?: PropertyType | null;
   is_room_rental?: boolean;
+  rooms?: any[] | null;
+  common_areas?: any[] | null;
 }
 
 export const PropertyCard = memo(({
@@ -81,6 +83,8 @@ export const PropertyCard = memo(({
   floorPlanUrl,
   property_type,
   is_room_rental,
+  rooms,
+  common_areas,
   ...props
 }: PropertyCardProps) => {
   const { t } = useTranslation();
@@ -90,10 +94,34 @@ export const PropertyCard = memo(({
   const displayTitle = autoTitle;
 
   // Combine main image with gallery
-  const images = useMemo(() => 
-    [imageUrl, ...(gallery || [])].filter((img): img is string => !!img),
-    [imageUrl, gallery]
-  );
+  const images = useMemo(() => {
+    let list = [imageUrl];
+    
+    // Add gallery images (these are usually common areas in room rentals)
+    if (gallery && gallery.length > 0) {
+      list.push(...gallery);
+    }
+
+    // For room rental properties (is_room_rental: true)
+    if (is_room_rental && rooms && rooms.length > 0) {
+      rooms.forEach(room => {
+        if (room.images && room.images.length > 0) {
+          list.push(...room.images);
+        }
+      });
+    }
+
+    // For individual room properties (property_type: 'habitacion')
+    if (property_type === 'habitacion' && common_areas && common_areas.length > 0) {
+      const caImages = common_areas.flatMap(area => area.images || []);
+      if (caImages.length > 0) {
+        // First room photos (already in list), then common areas
+        list = [...list, ...caImages];
+      }
+    }
+
+    return Array.from(new Set(list.filter((img): img is string => !!img)));
+  }, [imageUrl, gallery, is_room_rental, rooms, property_type, common_areas]);
 
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault();
