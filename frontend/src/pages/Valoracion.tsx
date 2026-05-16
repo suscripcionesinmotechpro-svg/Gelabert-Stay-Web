@@ -44,30 +44,46 @@ export const Valoracion = () => {
           transition={{ duration: 0.7, delay: 0.2 }}
           className="max-w-5xl mx-auto w-full"
         >
-          {/* Iframe Container */}
-          <div className="w-full bg-white rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 relative" style={{ height: '800px' }}>
-            <iframe 
-              src="https://statefox.com/mites/v/6093dc70f21ebc61f637b472" 
-              className="w-full h-full border-none bg-white"
-              title="Valorador de Inmuebles Statefox"
-              allow="geolocation"
-              loading="lazy"
-            />
-          </div>
-          
-          {/* Fallback Action */}
-          <div className="mt-8 text-center flex flex-col items-center justify-center">
-            <p className="text-gray-400 font-secondary mb-4">
-              Si no puedes visualizar el formulario correctamente por restricciones de tu navegador, puedes acceder directamente haciendo clic aquí:
-            </p>
-            <a 
-              href="https://statefox.com/mites/v/6093dc70f21ebc61f637b472" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary uppercase tracking-wider font-semibold hover:bg-white transition-all duration-300 rounded-sm"
-            >
-              Abrir Valorador de Statefox
-            </a>
+          {/* Statefox Access Section */}
+          <div className="w-full bg-white/5 backdrop-blur-sm rounded-2xl md:rounded-[2rem] p-8 md:p-16 border border-white/10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#C9A962] opacity-[0.05] blur-[80px] rounded-full"></div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+              
+              {/* Text & Button Column */}
+              <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+                <h2 className="text-3xl md:text-4xl font-primary uppercase tracking-tight mb-6">
+                  Inicia tu <span className="text-[#C9A962]">valoración</span>
+                </h2>
+                <p className="text-gray-400 font-secondary text-lg mb-8 max-w-md">
+                  Por medidas de seguridad de la plataforma, nuestro valorador avanzado se abrirá en una nueva ventana segura. Haz clic en el botón inferior para comenzar de inmediato.
+                </p>
+                <a 
+                  href="https://statefox.com/mites/v/6093dc70f21ebc61f637b472" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary uppercase tracking-wider font-semibold hover:bg-white transition-all duration-300 rounded-sm w-full sm:w-auto justify-center"
+                >
+                  Abrir Valorador Gratuito
+                  <TrendingUp size={20} />
+                </a>
+              </div>
+
+              {/* QR Code Column */}
+              <div className="flex flex-col items-center justify-center p-8 bg-[#0A0A0A]/50 rounded-2xl border border-white/5">
+                <p className="text-gray-400 font-primary uppercase tracking-wider text-sm mb-6 text-center">
+                  ¿Prefieres usar tu móvil? Escanea el código QR
+                </p>
+                <div className="bg-white p-4 rounded-xl shadow-2xl">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('https://statefox.com/mites/v/6093dc70f21ebc61f637b472')}`} 
+                    alt="Código QR Valorador Statefox"
+                    className="w-48 h-48 object-contain"
+                  />
+                </div>
+              </div>
+
+            </div>
           </div>
         </motion.div>
       </section>
