@@ -116,7 +116,7 @@ export const AdminContractForm = () => {
   const [uploadingType, setUploadingType] = useState<DocumentType | null>(null);
 
   const { landlords } = useLandlords();
-  const { createLandlord } = useLandlordMutations();
+  const { createLandlord, updateLandlord } = useLandlordMutations();
 
   // Documents (available after contract is saved)
   const { documents, refetch: refetchDocs } = useTenantDocuments(contractId || undefined);
@@ -226,17 +226,23 @@ export const AdminContractForm = () => {
         }
       }
 
+      // 2. Sync Landlord Data
       let finalLandlordId = form.landlord_id;
-      if (!finalLandlordId && form.landlord_name) {
+      const landlordPayload = {
+        name: form.landlord_name,
+        dni: form.landlord_dni,
+        phone: form.landlord_phone,
+        email: form.landlord_email,
+        address: form.landlord_address,
+        notes: form.notes || '' // Mantener notas si existen, o usar las del contrato
+      };
+
+      if (finalLandlordId) {
+        // Update existing landlord
+        await updateLandlord(finalLandlordId, landlordPayload);
+      } else if (form.landlord_name) {
         // Create new landlord
-        const newLandlord = await createLandlord({
-          name: form.landlord_name,
-          dni: form.landlord_dni,
-          phone: form.landlord_phone,
-          email: form.landlord_email,
-          address: form.landlord_address,
-          notes: ''
-        });
+        const newLandlord = await createLandlord(landlordPayload);
         finalLandlordId = newLandlord.id;
       }
 
