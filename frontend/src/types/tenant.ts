@@ -18,6 +18,21 @@ export type DocumentType =
   | 'recibo_comunidad'
   | 'otro';
 
+// ─── LANDLORD ─────────────────────────────────────
+export interface Landlord {
+  id: string;
+  created_at: string;
+  user_id: string;
+  name: string;
+  dni: string | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  notes: string | null;
+}
+
+export type LandlordInsert = Omit<Landlord, 'id' | 'created_at' | 'user_id'>;
+
 // ─── TENANT ─────────────────────────────────────
 export interface Tenant {
   id: string;
@@ -57,6 +72,7 @@ export interface Contract {
   notes: string | null;
   
   // Datos del Propietario (Landlord)
+  landlord_id: string | null;
   landlord_name: string | null;
   landlord_dni: string | null;
   landlord_phone: string | null;

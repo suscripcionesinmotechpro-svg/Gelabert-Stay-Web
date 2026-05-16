@@ -237,7 +237,9 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
 // ─── CREATE / UPDATE / DELETE ────────────────────────────────────────
 export const useInvoiceMutations = () => {
   const calculateTotals = (data: Partial<InvoiceInsert>) => {
-    const base = Number(data.amount) || 0;
+    const originalBase = Number(data.amount) || 0;
+    const discount = Number(data.discount_amount) || 0;
+    const base = originalBase - discount;
     const ivaPct = Number(data.tax_rate) || 0;
     const irpfPct = Number(data.irpf_rate) || 0;
 
@@ -289,7 +291,7 @@ export const useInvoiceMutations = () => {
     const sanitizedData = sanitizeInvoiceData(data);
     const updates: any = { ...sanitizedData };
     
-    if (data.amount !== undefined || data.tax_rate !== undefined || data.irpf_rate !== undefined) {
+    if (data.amount !== undefined || data.discount_amount !== undefined || data.tax_rate !== undefined || data.irpf_rate !== undefined) {
       const totals = calculateTotals({ ...sanitizedData });
       updates.total_amount = totals.total_amount;
       updates.irpf_amount = totals.irpf_amount;

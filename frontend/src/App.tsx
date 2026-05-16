@@ -38,6 +38,7 @@ const AdminTenantsList = lazy(() => import('./pages/admin/AdminTenantsList').the
 const AdminTenantForm = lazy(() => import('./pages/admin/AdminTenantForm').then(m => ({ default: m.AdminTenantForm })));
 const AdminTenantDetail = lazy(() => import('./pages/admin/AdminTenantDetail').then(m => ({ default: m.AdminTenantDetail })));
 const AdminContractForm = lazy(() => import('./pages/admin/AdminContractForm').then(m => ({ default: m.AdminContractForm })));
+const AdminContractsList = lazy(() => import('./pages/admin/AdminContractsList').then(m => ({ default: m.AdminContractsList })));
 const AdminReservations = lazy(() => import('./pages/admin/AdminReservations').then(m => ({ default: m.AdminReservations })));
 const AdminLeadsCRM = lazy(() => import('./pages/admin/AdminLeadsCRM').then(m => ({ default: m.AdminLeadsCRM })));
 const AdminBlogList = lazy(() => import('./pages/admin/AdminBlogList').then(m => ({ default: m.AdminBlogList })));
@@ -125,6 +126,7 @@ function App() {
           <Route path="inquilinos/nuevo" element={<AdminTenantForm />} />
           <Route path="inquilinos/:id" element={<AdminTenantDetail />} />
           <Route path="inquilinos/:id/editar" element={<AdminTenantForm />} />
+          <Route path="contratos" element={<AdminContractsList />} />
           <Route path="contratos/nuevo" element={<AdminContractForm />} />
           <Route path="contratos/:id/editar" element={<AdminContractForm />} />
           <Route path="reservas" element={<AdminReservations />} />

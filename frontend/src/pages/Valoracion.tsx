@@ -45,10 +45,10 @@ export const Valoracion = () => {
           className="max-w-5xl mx-auto w-full"
         >
           {/* Iframe Container */}
-          <div className="w-full bg-white/5 backdrop-blur-sm rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 relative" style={{ height: '800px' }}>
+          <div className="w-full bg-white rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 relative" style={{ height: '800px' }}>
             <iframe 
               src="https://statefox.com/mites/v/6093dc70f21ebc61f637b472" 
-              className="w-full h-full border-none"
+              className="w-full h-full border-none bg-white"
               title="Valorador de Inmuebles Statefox"
               allow="geolocation"
               loading="lazy"

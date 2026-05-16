@@ -5,6 +5,7 @@ import { useContractMutations, useContract } from '../../hooks/useContracts';
 import { useTenants } from '../../hooks/useTenants';
 import { useProperties } from '../../hooks/useProperties';
 import { useTenantDocuments, uploadTenantDocument, deleteTenantDocument } from '../../hooks/useTenantDocuments';
+import { useLandlords, useLandlordMutations } from '../../hooks/useLandlords';
 import {
   ArrowLeft, Save, Loader2, Upload, Trash2, FileText,
   ExternalLink, AlertCircle
@@ -32,6 +33,7 @@ const emptyContract: Omit<ContractInsert, 'tenant_id'> = {
   address: '',
   status: 'active',
   notes: '',
+  landlord_id: null,
   landlord_name: '',
   landlord_dni: '',
   landlord_phone: '',
@@ -113,6 +115,9 @@ export const AdminContractForm = () => {
   const [contractId, setContractId] = useState<string | null>(id || null);
   const [uploadingType, setUploadingType] = useState<DocumentType | null>(null);
 
+  const { landlords } = useLandlords();
+  const { createLandlord } = useLandlordMutations();
+
   // Documents (available after contract is saved)
   const { documents, refetch: refetchDocs } = useTenantDocuments(contractId || undefined);
 
@@ -134,6 +139,7 @@ export const AdminContractForm = () => {
         address: contract.address ?? '',
         status: contract.status,
         notes: contract.notes ?? '',
+        landlord_id: contract.landlord_id ?? null,
         landlord_name: contract.landlord_name ?? '',
         landlord_dni: contract.landlord_dni ?? '',
         landlord_phone: contract.landlord_phone ?? '',
@@ -154,6 +160,33 @@ export const AdminContractForm = () => {
       property_label: p?.title || '',
       room_id: null,
     }));
+  };
+
+  const handleLandlordChange = (landlordId: string) => {
+    if (!landlordId) {
+      setForm(prev => ({
+        ...prev,
+        landlord_id: null,
+        landlord_name: '',
+        landlord_dni: '',
+        landlord_phone: '',
+        landlord_email: '',
+        landlord_address: '',
+      }));
+      return;
+    }
+    const ll = landlords.find(x => x.id === landlordId);
+    if (ll) {
+      setForm(prev => ({
+        ...prev,
+        landlord_id: ll.id,
+        landlord_name: ll.name || '',
+        landlord_dni: ll.dni || '',
+        landlord_phone: ll.phone || '',
+        landlord_email: ll.email || '',
+        landlord_address: ll.address || '',
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -193,7 +226,26 @@ export const AdminContractForm = () => {
         }
       }
 
-      const payload: ContractInsert = { ...form, tenant_id: tenantId };
+      let finalLandlordId = form.landlord_id;
+      if (!finalLandlordId && form.landlord_name) {
+        // Create new landlord
+        const newLandlord = await createLandlord({
+          name: form.landlord_name,
+          dni: form.landlord_dni,
+          phone: form.landlord_phone,
+          email: form.landlord_email,
+          address: form.landlord_address,
+          notes: ''
+        });
+        finalLandlordId = newLandlord.id;
+      }
+
+      const payload: ContractInsert = { 
+        ...form, 
+        tenant_id: tenantId,
+        landlord_id: finalLandlordId,
+      };
+      
       if (isEdit && id) {
         await updateContract(id, payload);
         navigate(`/admin/inquilinos/${tenantId}`);
@@ -404,9 +456,23 @@ export const AdminContractForm = () => {
         <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-6 flex flex-col gap-5">
           <h2 className="font-primary font-bold text-xs uppercase tracking-wider text-[#666]">Datos del Propietario</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Nombre Completo">
+            <div className="sm:col-span-2">
+              <Field label="Seleccionar Propietario Guardado">
+                <select 
+                  className={inputClass} 
+                  value={form.landlord_id || ''}
+                  onChange={e => handleLandlordChange(e.target.value)}
+                >
+                  <option value="">— Nuevo Propietario (Rellenar manual) —</option>
+                  {landlords.map(ll => (
+                    <option key={ll.id} value={ll.id}>{ll.name} {ll.dni ? `(${ll.dni})` : ''}</option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+            <Field label="Nombre Completo *">
               <input type="text" className={inputClass} value={form.landlord_name || ''}
-                onChange={e => set('landlord_name', e.target.value)} placeholder="Ej. Ana Belén Robles" />
+                onChange={e => set('landlord_name', e.target.value)} placeholder="Ej. Ana Belén Robles" required />
             </Field>
             <Field label="DNI / NIE">
               <input type="text" className={inputClass} value={form.landlord_dni || ''}

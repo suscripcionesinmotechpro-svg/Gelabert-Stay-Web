@@ -33,10 +33,11 @@ export interface Invoice {
   items: InvoiceItem[];
 
   amount: number; // Base imponible
+  discount_amount: number; // Descuento
   tax_rate: number; // % IVA
   irpf_rate: number; // % IRPF
   irpf_amount: number; // IRPF amount
-  total_amount: number; // Base + IVA - IRPF
+  total_amount: number; // Base - Descuento + IVA - IRPF
 
   invoice_date: string;
   due_date: string | null;

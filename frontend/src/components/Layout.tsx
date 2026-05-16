@@ -28,9 +28,9 @@ export const Layout = () => {
   const navLinks = [
     { name: t('nav.home'), path: langPrefix || '/' },
     { name: t('nav.properties'), path: `${langPrefix}/propiedades` },
-    { name: t('nav.valuation'), path: `${langPrefix}/valoracion` },
     { name: t('nav.services'), path: `${langPrefix}/servicios` },
     { name: t('nav.owners'), path: `${langPrefix}/propietarios` },
+    { name: t('nav.valuation'), path: `${langPrefix}/valoracion` },
     { name: t('nav.blog'), path: `${langPrefix}/blog` },
     { name: t('nav.about'), path: `${langPrefix}/nosotros` },
     { name: t('nav.contact'), path: `${langPrefix}/contacto` },

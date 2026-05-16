@@ -30,6 +30,7 @@ const DEFAULT_FORM: InvoiceInsert = {
   concept: 'Concepto general',
   items: [],
   amount: 0,
+  discount_amount: 0,
   tax_rate: 21,
   irpf_rate: 0,
   payment_method: '',
@@ -176,6 +177,7 @@ export const AdminInvoiceForm = () => {
         concept: inv.concept || '',
         items: inv.items || [],
         amount: inv.amount,
+        discount_amount: inv.discount_amount || 0,
         tax_rate: inv.tax_rate,
         irpf_rate: inv.irpf_rate || 0,
         payment_method: inv.payment_method || '',
@@ -227,7 +229,8 @@ export const AdminInvoiceForm = () => {
   };
 
 
-  const totalAmount = form.amount + (form.amount * form.tax_rate / 100) - (form.amount * form.irpf_rate / 100);
+  const baseAfterDiscount = form.amount - (form.discount_amount || 0);
+  const totalAmount = baseAfterDiscount + (baseAfterDiscount * form.tax_rate / 100) - (baseAfterDiscount * form.irpf_rate / 100);
 
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n);
@@ -591,25 +594,31 @@ export const AdminInvoiceForm = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className={sectionClass}>
-              <h2 className="font-primary text-[#FAF8F5] font-bold text-[10px] uppercase tracking-[0.2em] pb-3 border-b border-[#1F1F1F]">Impuestos e IRPF</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <h2 className="font-primary text-[#FAF8F5] font-bold text-[10px] uppercase tracking-[0.2em] pb-3 border-b border-[#1F1F1F]">Descuentos e Impuestos</h2>
+              <div className="grid grid-cols-1 gap-4">
                 <div className="flex flex-col gap-2">
-                  <label className={labelClass}>IVA (%)</label>
-                  <select className={inputClass} value={form.tax_rate} onChange={e => set('tax_rate', parseFloat(e.target.value))}>
-                    <option value={0}>0%</option>
-                    <option value={4}>4%</option>
-                    <option value={10}>10%</option>
-                    <option value={21}>21%</option>
-                  </select>
+                  <label className={labelClass}>Descuento / Promoción (€)</label>
+                  <input type="number" step="0.01" className={inputClass} value={form.discount_amount} onChange={e => set('discount_amount', parseFloat(e.target.value) || 0)} />
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label className={labelClass}>IRPF (%)</label>
-                  <select className={inputClass} value={form.irpf_rate} onChange={e => set('irpf_rate', parseFloat(e.target.value))}>
-                    <option value={0}>0%</option>
-                    <option value={7}>7%</option>
-                    <option value={15}>15%</option>
-                    <option value={19}>19%</option>
-                  </select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className={labelClass}>IVA (%)</label>
+                    <select className={inputClass} value={form.tax_rate} onChange={e => set('tax_rate', parseFloat(e.target.value))}>
+                      <option value={0}>0%</option>
+                      <option value={4}>4%</option>
+                      <option value={10}>10%</option>
+                      <option value={21}>21%</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className={labelClass}>IRPF (%)</label>
+                    <select className={inputClass} value={form.irpf_rate} onChange={e => set('irpf_rate', parseFloat(e.target.value))}>
+                      <option value={0}>0%</option>
+                      <option value={7}>7%</option>
+                      <option value={15}>15%</option>
+                      <option value={19}>19%</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
@@ -619,14 +628,20 @@ export const AdminInvoiceForm = () => {
                 <span>Total Base</span>
                 <span>{formatCurrency(form.amount)}</span>
               </div>
+              {form.discount_amount > 0 && (
+                <div className="flex justify-between font-primary text-[10px] uppercase tracking-wider text-[#C9A962]">
+                  <span>Descuento</span>
+                  <span>-{formatCurrency(form.discount_amount)}</span>
+                </div>
+              )}
               <div className="flex justify-between font-primary text-[10px] uppercase tracking-wider text-[#666]">
                 <span>IVA ({form.tax_rate}%)</span>
-                <span>{formatCurrency(form.amount * form.tax_rate / 100)}</span>
+                <span>{formatCurrency(baseAfterDiscount * form.tax_rate / 100)}</span>
               </div>
               {form.irpf_rate > 0 && (
                 <div className="flex justify-between font-primary text-[10px] uppercase tracking-wider text-red-400">
                   <span>IRPF ({form.irpf_rate}%)</span>
-                  <span>-{formatCurrency(form.amount * form.irpf_rate / 100)}</span>
+                  <span>-{formatCurrency(baseAfterDiscount * form.irpf_rate / 100)}</span>
                 </div>
               )}
               <div className="flex justify-between border-t border-[#1F1F1F] pt-3 mt-1">

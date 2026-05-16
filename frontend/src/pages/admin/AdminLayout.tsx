@@ -41,6 +41,7 @@ export const AdminLayout = () => {
     { to: `/admin/propiedades/nueva`, icon: <PlusCircle className="w-4 h-4" />, label: "Nueva Propiedad" },
     { to: `/admin/facturas`, icon: <Receipt className="w-4 h-4" />, label: "Contabilidad" },
     { to: `/admin/inquilinos`, icon: <Users className="w-4 h-4" />, label: "Inquilinos" },
+    { to: `/admin/contratos`, icon: <FileText className="w-4 h-4" />, label: "Contratos" },
     { to: `/admin/reservas`, icon: <CalendarDays className="w-4 h-4" />, label: "Reservas" },
     { to: `/admin/leads`, icon: <Bot className="w-4 h-4" />, label: "CRM Leads (Bot)" },
     { to: `/admin/blog`, icon: <FileText className="w-4 h-4" />, label: "Blog & Insights" },
