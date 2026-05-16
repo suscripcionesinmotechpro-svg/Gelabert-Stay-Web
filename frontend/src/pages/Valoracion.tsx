@@ -1,11 +1,8 @@
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
 import { TrendingUp, Zap, Users } from 'lucide-react';
 
 export const Valoracion = () => {
-  const { t } = useTranslation();
-
   return (
     <div className="w-full bg-[#0F0F0F] min-h-screen text-[#FAF8F5]">
       <Helmet>
