@@ -82,6 +82,7 @@ export const AdminInvoiceForm = () => {
   }, []);
 
   const [form, setForm] = useState<InvoiceInsert>(DEFAULT_FORM);
+  const [expenseMode, setExpenseMode] = useState<'none' | 'fixed' | 'variable'>('none');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadingForm, setLoadingForm] = useState(isEditing);
@@ -111,6 +112,7 @@ export const AdminInvoiceForm = () => {
             concept: `Gasto: ${data.name}`,
             fixed_expense_id: data.id,
           }));
+          setExpenseMode('fixed');
         }
       } else if (variableId) {
         const { data } = await supabase
@@ -128,6 +130,7 @@ export const AdminInvoiceForm = () => {
             concept: `Compra: ${data.name}`,
             variable_category_id: data.id,
           }));
+          setExpenseMode('variable');
         }
       }
     };
@@ -195,6 +198,9 @@ export const AdminInvoiceForm = () => {
         room_id: inv.room_id || null,
         tenant_id: inv.tenant_id || null,
       });
+      if (inv.fixed_expense_id) setExpenseMode('fixed');
+      else if (inv.variable_category_id) setExpenseMode('variable');
+      else setExpenseMode('none');
       setLoadingForm(false);
     };
     load();
@@ -443,9 +449,10 @@ export const AdminInvoiceForm = () => {
                       <label className={labelClass}>Tipo de Gasto</label>
                       <select 
                         className={inputClass}
-                        value={form.fixed_expense_id ? 'fixed' : form.variable_category_id ? 'variable' : 'none'} 
+                        value={expenseMode} 
                         onChange={(e) => {
-                          const val = e.target.value;
+                          const val = e.target.value as 'none' | 'fixed' | 'variable';
+                          setExpenseMode(val);
                           if (val === 'none') {
                             setForm(prev => ({ ...prev, fixed_expense_id: null, variable_category_id: null }));
                           } else if (val === 'fixed') {
@@ -461,9 +468,9 @@ export const AdminInvoiceForm = () => {
                       </select>
                     </div>
 
-                    {form.fixed_expense_id !== undefined && (
+                    {expenseMode !== 'none' && (
                       <div className="flex flex-col gap-2 lg:col-span-2">
-                        {(!form.fixed_expense_id && !form.variable_category_id) ? null : form.variable_category_id || (form.fixed_expense_id && !fixedExpenses.find(f => f.id === form.fixed_expense_id)) ? (
+                        {expenseMode === 'variable' ? (
                           <>
                             <label className={labelClass}>Categoría Variable</label>
                             <select 
