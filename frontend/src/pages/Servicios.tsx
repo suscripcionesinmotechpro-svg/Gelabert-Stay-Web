@@ -78,10 +78,10 @@ const ServiceCard = ({
       )}
 
       {/* Content */}
-      <div className="relative z-20 p-8 md:p-10 h-full flex flex-col justify-end">
+      <div className="relative z-20 p-7 md:p-9 h-full flex flex-col justify-between">
         {/* Top Header inside card */}
-        <div className="absolute top-8 left-8 right-8 flex justify-between items-start">
-          <div className={`p-3.5 backdrop-blur-xl rounded-2xl border transition-all duration-500 ${
+        <div className="flex justify-between items-start mb-6">
+          <div className={`p-3 backdrop-blur-xl rounded-2xl border transition-all duration-500 ${
             isInCart ? 'bg-[#C9A962]/30 border-[#C9A962]/50' : 'bg-black/40 border-white/10 group-hover:border-[#C9A962]/30'
           }`}>
             {icon}
@@ -91,49 +91,41 @@ const ServiceCard = ({
           </span>
         </div>
 
-        <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-          <h3 className={`font-secondary text-3xl md:text-4xl mb-3 transition-colors duration-500 ${
+        <div className="flex flex-col flex-1 justify-end">
+          <h3 className={`font-secondary text-2xl md:text-3xl mb-3 transition-colors duration-500 ${
             isInCart ? 'text-white' : 'text-white group-hover:text-[#C9A962]'
           }`}>
             {title}
           </h3>
-          
-          <p className="font-primary text-white/70 text-sm md:text-base leading-relaxed mb-6 line-clamp-2 max-w-lg">
+
+          <p className="font-primary text-white/60 text-sm leading-relaxed mb-4 max-w-lg">
             {desc}
           </p>
 
-          <div className="flex items-center justify-between gap-4">
-            {/* Add to cart button */}
-            <motion.button
-              onClick={onToggle}
-              whileTap={{ scale: 0.95 }}
-              className={`flex items-center gap-2 px-6 py-3.5 font-primary font-bold text-[11px] uppercase tracking-[0.2em] rounded-xl transition-all duration-500 backdrop-blur-md ${
-                isInCart
-                  ? 'bg-[#C9A962] text-black shadow-[0_0_20px_rgba(201,169,98,0.4)]'
-                  : 'bg-white/10 text-white hover:bg-[#C9A962] hover:text-black border border-white/20 hover:border-[#C9A962]'
-              }`}
-            >
-              {isInCart ? (
-                <>
-                  <Check className="w-4 h-4" /> {t('services.cart.button_selected')}
-                </>
-              ) : (
-                <>
-                  <Plus className="w-4 h-4" /> {t('services.cart.button_add')}
-                </>
-              )}
-            </motion.button>
+          <ul className="flex flex-col gap-2 mb-6">
+            {bullets.slice(0, 4).map((b, i) => (
+              <li key={i} className="flex items-start gap-2 font-primary text-[11px] text-white/55">
+                <CheckCircle className="w-3 h-3 text-[#C9A962] shrink-0 mt-0.5" />
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
 
-            {/* Hidden bullets shown on hover */}
-            <ul className="hidden lg:flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-100">
-              {bullets.slice(0, 2).map((b, i) => (
-                <li key={i} className="flex items-center gap-2 font-primary text-[11px] text-white/60">
-                  <CheckCircle className="w-3 h-3 text-[#C9A962]" />
-                  <span className="line-clamp-1">{b}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <motion.button
+            onClick={onToggle}
+            whileTap={{ scale: 0.95 }}
+            className={`self-start flex items-center gap-2 px-5 py-3 font-primary font-bold text-[11px] uppercase tracking-[0.2em] rounded-xl transition-all duration-500 backdrop-blur-md ${
+              isInCart
+                ? 'bg-[#C9A962] text-black shadow-[0_0_20px_rgba(201,169,98,0.4)]'
+                : 'bg-white/10 text-white hover:bg-[#C9A962] hover:text-black border border-white/20 hover:border-[#C9A962]'
+            }`}
+          >
+            {isInCart ? (
+              <><Check className="w-4 h-4" /> {t('services.cart.button_selected')}</>
+            ) : (
+              <><Plus className="w-4 h-4" /> {t('services.cart.button_add')}</>
+            )}
+          </motion.button>
         </div>
       </div>
     </motion.div>
@@ -166,7 +158,7 @@ export const Servicios = () => {
       image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2000&auto=format&fit=crop',
       desc: t('services.owner_services.compra_venta.desc'),
       bullets: t('services.owner_services.compra_venta.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-2 md:row-span-2 min-h-[500px] md:min-h-[600px]",
+      className: "md:col-span-1 min-h-[500px]",
     },
     {
       id: 'alquiler',
@@ -177,10 +169,10 @@ export const Servicios = () => {
       descKey: 'services.owner_services.alquiler.desc',
       title: t('services.owner_services.alquiler.title'),
       tag: t('services.owner_services.alquiler.tag'),
-      image: 'https://images.unsplash.com/photo-1600607687644-aac4c1566903?q=80&w=1000&auto=format&fit=crop',
+      image: 'https://images.unsplash.com/photo-1733244766159-f58f4184fd38?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.alquiler.desc'),
       bullets: t('services.owner_services.alquiler.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-2 min-h-[400px] md:min-h-[600px]"
+      className: "md:col-span-1 min-h-[500px]"
     },
     {
       id: 'traspaso',
@@ -194,7 +186,7 @@ export const Servicios = () => {
       image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.traspaso.desc'),
       bullets: t('services.owner_services.traspaso.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1 min-h-[350px] md:min-h-[400px]"
+      className: "md:col-span-1 min-h-[480px]"
     },
     {
       id: 'administracion',
@@ -208,7 +200,7 @@ export const Servicios = () => {
       image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.administracion.desc'),
       bullets: t('services.owner_services.administracion.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1 min-h-[350px] md:min-h-[400px]"
+      className: "md:col-span-1 min-h-[480px]"
     },
     {
       id: 'seguro_impago',
@@ -222,7 +214,7 @@ export const Servicios = () => {
       image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.seguro_impago.desc'),
       bullets: t('services.owner_services.seguro_impago.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1 min-h-[350px] md:min-h-[400px]"
+      className: "md:col-span-1 min-h-[480px]"
     },
     {
       id: 'hipoteca',
@@ -236,7 +228,7 @@ export const Servicios = () => {
       image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=2000&auto=format&fit=crop',
       desc: t('services.mortgage.desc'),
       bullets: t('services.mortgage.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:col-span-3 md:row-span-1 min-h-[350px] md:min-h-[400px]",
+      className: "md:col-span-1 min-h-[480px]",
     }
   ];
 
@@ -345,7 +337,7 @@ export const Servicios = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-fr">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {serviciosPropietario.map((s, idx) => (
             <ServiceCard
               key={s.id}
@@ -374,7 +366,7 @@ export const Servicios = () => {
         <InvestorServices />
       </div>
 
-      {/* Tenant Service Card (Pestaña Inquilinos) */}
+      {/* Tenant Service Card */}
       <section className="w-full px-6 py-20 max-w-7xl mx-auto">
         <motion.div {...(fadeUp as any)} className="text-center mb-16">
           <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold mb-4 block">
@@ -386,93 +378,79 @@ export const Servicios = () => {
           <div className="w-16 h-0.5 bg-[#C9A962] mx-auto opacity-40" />
         </motion.div>
 
-        <motion.div 
+        <motion.div
           {...(fadeUp as any)}
-          className="relative w-full glass border border-white/10 rounded-sm overflow-hidden flex flex-col lg:flex-row group"
+          className="relative rounded-3xl overflow-hidden group min-h-[480px] flex flex-col lg:flex-row"
         >
-          {/* Golden Mecha (Border animation) */}
-          <div className="absolute inset-0 pointer-events-none z-10">
-            <div className="absolute inset-0 border border-[#C9A962]/10" />
-            <div className="absolute inset-[-2px] border border-transparent rounded-sm animate-[spin_4s_linear_infinite] opacity-0 group-hover:opacity-100 transition-opacity duration-700"
-              style={{
-                background: 'conic-gradient(from 0deg, transparent, #C9A962, transparent 25%) border-box',
-                WebkitMask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)',
-                WebkitMaskComposite: 'xor',
-                maskComposite: 'exclude',
-              } as any}
-            />
-          </div>
-
-          {/* Left Image Area */}
-          <div className="lg:w-1/2 relative min-h-[450px] overflow-hidden">
-            <img 
-              src="https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=2070&auto=format&fit=crop" 
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-700"
+          {/* Image */}
+          <div className="absolute inset-0 z-0 bg-[#050505]">
+            <img
+              src="https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=2070&auto=format&fit=crop"
+              className="w-full h-full object-cover brightness-[0.4] group-hover:brightness-[0.55] group-hover:scale-105 transition-all duration-[1.5s]"
               alt={t('services.tenants.title')}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/90 via-[#050505]/60 to-transparent" />
           </div>
 
-          {/* Right Content Area */}
-          <div className="lg:w-1/2 p-10 md:p-16 flex flex-col justify-center gap-8 relative z-10 bg-[#0A0A0A]/60 backdrop-blur-md">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-black border border-[#C9A962]/30 flex items-center justify-center">
-                <Key className="w-6 h-6 text-[#C9A962]" />
+          {/* Selected overlay */}
+          {cart.isInCart('tenant_search') && (
+            <div className="absolute inset-0 z-10 bg-[#C9A962]/20 backdrop-blur-[2px] border-2 border-[#C9A962] rounded-3xl" />
+          )}
+
+          {/* Content */}
+          <div className="relative z-20 p-9 md:p-14 flex flex-col justify-between max-w-2xl">
+            <div className="flex items-center gap-4 mb-8">
+              <div className={`p-3 backdrop-blur-xl rounded-2xl border transition-all duration-500 ${
+                cart.isInCart('tenant_search') ? 'bg-[#C9A962]/30 border-[#C9A962]/50' : 'bg-black/40 border-white/10 group-hover:border-[#C9A962]/30'
+              }`}>
+                <Key className="w-6 h-6 text-white group-hover:text-[#C9A962] transition-colors" />
               </div>
-              <div>
-                <span className="block font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.2em] font-bold">
-                  {t('services.tenant_search.tag')}
-                </span>
-                <h3 className="font-secondary text-3xl text-white">
-                  {t('services.tenant_search.title')}
-                </h3>
-              </div>
+              <span className="font-primary text-[10px] font-bold tracking-[0.2em] uppercase px-4 py-1.5 rounded-full bg-[#C9A962] text-black shadow-lg">
+                {t('services.tenant_search.tag')}
+              </span>
             </div>
 
-            <p className="font-primary text-white/60 text-lg leading-relaxed">
-              {t('services.tenants.description')}
-            </p>
-
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {(t('services.tenant_search.bullets', { returnObjects: true }) as string[]).map((bullet, idx) => (
-                <li key={idx} className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-[#C9A962] mt-1 shrink-0" />
-                  <span className="font-primary text-white/50 text-sm leading-tight">{bullet}</span>
-                </li>
-              ))}
-            </ul>
-
-            <button
-              onClick={() => {
-                cart.toggleService({
-                  id: 'tenant_search',
-                  titleKey: 'services.tenant_search.title',
-                  tagKey: 'services.tenant_search.tag',
-                  descKey: 'services.tenant_search.desc',
-                  title: t('services.tenant_search.title'),
-                  tag: t('services.tenant_search.tag'),
-                  icon: "🔑",
-                  desc: t('services.tenant_search.desc')
-                });
-              }}
-              className={`w-fit px-8 py-4 font-primary text-[10px] uppercase tracking-[0.2em] font-bold transition-all duration-500 flex items-center gap-3 ${
-                cart.isInCart('tenant_search')
-                  ? 'bg-[#C9A962] text-black'
-                  : 'bg-transparent text-[#C9A962] border border-[#C9A962]/30 hover:bg-[#C9A962]/10 hover:border-[#C9A962]'
-              }`}
-            >
-              {cart.isInCart('tenant_search') ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  {t('services.cart.added')}
-                </>
-              ) : (
-                <>
-                  <Plus className="w-4 h-4" />
-                  {t('services.cart.add')}
-                </>
-              )}
-            </button>
+            <div>
+              <h3 className="font-secondary text-3xl md:text-5xl text-white mb-4 group-hover:text-[#C9A962] transition-colors duration-500">
+                {t('services.tenant_search.title')}
+              </h3>
+              <p className="font-primary text-white/60 text-base leading-relaxed mb-6 max-w-lg">
+                {t('services.tenants.description')}
+              </p>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                {(t('services.tenant_search.bullets', { returnObjects: true }) as string[]).map((bullet, idx) => (
+                  <li key={idx} className="flex items-start gap-2 font-primary text-[12px] text-white/55">
+                    <CheckCircle className="w-3 h-3 text-[#C9A962] shrink-0 mt-0.5" />
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => {
+                  cart.toggleService({
+                    id: 'tenant_search',
+                    titleKey: 'services.tenant_search.title',
+                    tagKey: 'services.tenant_search.tag',
+                    descKey: 'services.tenant_search.desc',
+                    title: t('services.tenant_search.title'),
+                    tag: t('services.tenant_search.tag'),
+                    icon: "🔑",
+                    desc: t('services.tenant_search.desc')
+                  });
+                }}
+                className={`flex items-center gap-2 px-6 py-3.5 font-primary font-bold text-[11px] uppercase tracking-[0.2em] rounded-xl transition-all duration-500 backdrop-blur-md ${
+                  cart.isInCart('tenant_search')
+                    ? 'bg-[#C9A962] text-black shadow-[0_0_20px_rgba(201,169,98,0.4)]'
+                    : 'bg-white/10 text-white hover:bg-[#C9A962] hover:text-black border border-white/20 hover:border-[#C9A962]'
+                }`}
+              >
+                {cart.isInCart('tenant_search') ? (
+                  <><Check className="w-4 h-4" /> {t('services.cart.added')}</>
+                ) : (
+                  <><Plus className="w-4 h-4" /> {t('services.cart.add')}</>
+                )}
+              </button>
+            </div>
           </div>
         </motion.div>
       </section>
