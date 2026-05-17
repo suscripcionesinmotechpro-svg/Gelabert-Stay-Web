@@ -234,55 +234,33 @@ export const Propietarios = () => {
               {t('owners_page.marketing.portals_title')}
             </h3>
             <div className="flex flex-wrap justify-center items-center gap-12 md:gap-16">
-              {/* Idealista */}
-              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Idealista_logo.svg/320px-Idealista_logo.svg.png"
-                  alt="idealista"
-                  className="h-7 md:h-9 w-auto object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-500"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }}
-                />
-              </div>
-
-              {/* Fotocasa */}
-              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Fotocasa_logo.svg/320px-Fotocasa_logo.svg.png"
-                  alt="fotocasa"
-                  className="h-7 md:h-9 w-auto object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-500"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }}
-                />
-              </div>
-
-              {/* Habitaclia */}
-              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Habitaclia-logo.svg/320px-Habitaclia-logo.svg.png"
-                  alt="habitaclia"
-                  className="h-7 md:h-9 w-auto object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-500"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }}
-                />
-              </div>
-
-              {/* pisos.com */}
-              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
-                <img
-                  src="https://www.pisos.com/img/logo-pisos.svg"
-                  alt="pisos.com"
-                  className="h-7 md:h-9 w-auto object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-500"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }}
-                />
-              </div>
-
-              {/* yaencontre */}
-              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
-                <img
-                  src="https://www.yaencontre.com/noticias/wp-content/uploads/2021/01/yaencontre_logo.png"
-                  alt="yaencontre"
-                  className="h-7 md:h-9 w-auto object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-500"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }}
-                />
-              </div>
+              {[
+                { domain: 'idealista.com',   name: 'idealista'   },
+                { domain: 'fotocasa.es',     name: 'fotocasa'    },
+                { domain: 'habitaclia.com',  name: 'habitaclia'  },
+                { domain: 'pisos.com',       name: 'pisos.com'   },
+                { domain: 'yaencontre.com',  name: 'yaencontre'  },
+              ].map(({ domain, name }) => (
+                <div key={domain} className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-2">
+                  <img
+                    src={`https://logo.clearbit.com/${domain}`}
+                    alt={name}
+                    className="h-8 md:h-10 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500"
+                    onError={(e) => {
+                      const el = e.target as HTMLImageElement;
+                      el.style.display = 'none';
+                      const fallback = el.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'block';
+                    }}
+                  />
+                  <span
+                    className="hidden font-primary text-xl font-bold text-white/60 group-hover:text-white transition-colors"
+                    style={{ display: 'none' }}
+                  >
+                    {name}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
