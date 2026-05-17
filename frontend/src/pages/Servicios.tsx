@@ -51,126 +51,90 @@ const ServiceCard = ({
     <motion.div
       {...(fadeUp as any)}
       onMouseMove={handleMouseMove}
-      className={`relative group p-[2px] rounded-sm overflow-hidden transition-all duration-500 shadow-[0_0_15px_rgba(201,169,98,0.15)] ${className}`}
+      className={`relative group rounded-3xl overflow-hidden transition-all duration-700 ${className}`}
       style={{
         ["--mouse-x" as any]: `${mousePos.x}px`,
         ["--mouse-y" as any]: `${mousePos.y}px`,
       }}
     >
-      {/* Mecha dorada animada constante */}
-      <div className="absolute w-[300%] h-[300%] -top-[100%] -left-[100%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(201,169,98,0)_0%,rgba(201,169,98,0.8)_50%,rgba(201,169,98,0)_100%)] opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
-      
-      {/* Inner Content Container */}
-      <div className={`relative w-full h-full rounded-[1px] overflow-hidden z-10 transition-all duration-500 ${
-        isInCart 
-          ? 'bg-[#0A0A0A] shadow-[0_0_40px_rgba(201,169,98,0.2)]' 
-          : 'bg-[#0A0A0A]'
-      }`}>
-        {/* Image Background */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src={image}
-            alt={title}
-            className={`w-full h-full object-cover transition-all duration-1000 saturate-[1.25] ${
-              isInCart ? 'brightness-[0.65] scale-105' : 'brightness-[0.4] group-hover:brightness-[0.5] group-hover:scale-110'
-            }`}
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0A]/90 via-[#0A0A0A]/70 to-transparent opacity-90" />
+      {/* Glow Effect on Hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none bg-[radial-gradient(600px_circle_at_var(--mouse-x)_var(--mouse-y),rgba(201,169,98,0.15),transparent)] z-20" />
+
+      {/* Image Background */}
+      <div className="absolute inset-0 z-0 bg-[#050505]">
+        <img
+          src={image}
+          alt={title}
+          className={`w-full h-full object-cover transition-transform duration-[1.5s] ease-out ${
+            isInCart ? 'scale-110 brightness-[0.3]' : 'brightness-[0.45] group-hover:scale-105 group-hover:brightness-[0.55]'
+          }`}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent opacity-90" />
+      </div>
+
+      {/* Selected overlay */}
+      {isInCart && (
+        <div className="absolute inset-0 z-10 bg-[#C9A962]/20 backdrop-blur-[2px] transition-all duration-500 border-2 border-[#C9A962] rounded-3xl" />
+      )}
+
+      {/* Content */}
+      <div className="relative z-20 p-8 md:p-10 h-full flex flex-col justify-end">
+        {/* Top Header inside card */}
+        <div className="absolute top-8 left-8 right-8 flex justify-between items-start">
+          <div className={`p-3.5 backdrop-blur-xl rounded-2xl border transition-all duration-500 ${
+            isInCart ? 'bg-[#C9A962]/30 border-[#C9A962]/50' : 'bg-black/40 border-white/10 group-hover:border-[#C9A962]/30'
+          }`}>
+            {icon}
+          </div>
+          <span className="font-primary text-[10px] font-bold tracking-[0.2em] uppercase px-4 py-1.5 rounded-full bg-[#C9A962] text-black shadow-lg">
+            {tag}
+          </span>
         </div>
 
-        {/* Shine effect */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none bg-[radial-gradient(400px_circle_at_var(--mouse-x)_var(--mouse-y),rgba(201,169,98,0.15),transparent)]" />
+        <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+          <h3 className={`font-secondary text-3xl md:text-4xl mb-3 transition-colors duration-500 ${
+            isInCart ? 'text-white' : 'text-white group-hover:text-[#C9A962]'
+          }`}>
+            {title}
+          </h3>
+          
+          <p className="font-primary text-white/70 text-sm md:text-base leading-relaxed mb-6 line-clamp-2 max-w-lg">
+            {desc}
+          </p>
 
-        {/* Selected overlay */}
-        {isInCart && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute inset-0 z-[1] bg-[#C9A962]/10"
-          />
-        )}
-
-        {/* Content */}
-        <div className="relative z-10 p-8 h-full flex flex-col">
-          {/* Editorial number — premium agency style */}
-          {cardNumber && (
-            <span className="absolute top-6 right-8 font-secondary text-[4rem] leading-none text-[#C9A962]/10 select-none pointer-events-none font-bold tracking-tight">
-              {cardNumber}
-            </span>
-          )}
-          <div className="flex justify-between items-start mb-6">
-            <div className={`p-3 backdrop-blur-md rounded-sm border transition-all duration-300 ${
-              isInCart ? 'bg-[#C9A962]/20 border-[#C9A962]/40' : 'bg-black/40 border-[#C9A962]/30'
-            }`}>
-              {icon}
-            </div>
-            {/* Tag Dorado siempre */}
-            <span className="text-[10px] font-primary font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full border bg-[#C9A962] text-[#0A0A0A] border-[#C9A962]">
-              {tag}
-            </span>
-          </div>
-
-      <h3 className={`font-secondary text-2xl md:text-3xl mb-4 transition-colors duration-300 ${
-        isInCart ? 'text-[#C9A962]' : 'text-white group-hover:text-[#C9A962]'
-      }`}>
-        {title}
-      </h3>
-      
-      <p className="font-primary text-white/60 text-sm leading-relaxed mb-6 max-w-sm">
-        {desc}
-      </p>
-
-      <div className="mt-auto pt-6 border-t border-white/10">
-        <ul className={`grid gap-3 mb-6 ${bullets.length > 3 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
-          {bullets.slice(0, 6).map((b, i) => (
-            <li key={i} className="flex items-center gap-3 font-primary text-xs text-white/50 group-hover:text-white/70 transition-colors">
-              <CheckCircle className="w-3.5 h-3.5 text-[#C9A962]/60 shrink-0" />
-              <span className="line-clamp-2">{b}</span>
-            </li>
-          ))}
-        </ul>
-
-          {/* Add to cart button with animated golden border */}
-          <div className={`relative p-[1px] rounded-sm overflow-hidden group/btn mt-auto transition-all ${isInCart ? '' : 'shadow-[0_0_20px_rgba(201,169,98,0.15)]'}`}>
-            {!isInCart && (
-              <div className="absolute w-[400%] h-[400%] -top-[150%] -left-[150%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(201,169,98,0)_0%,rgba(201,169,98,0.8)_50%,rgba(201,169,98,0)_100%)]" />
-            )}
+          <div className="flex items-center justify-between gap-4">
+            {/* Add to cart button */}
             <motion.button
               onClick={onToggle}
-              whileTap={{ scale: 0.98 }}
-              className={`relative w-full flex items-center justify-center gap-2 py-3.5 font-primary font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 rounded-sm ${
+              whileTap={{ scale: 0.95 }}
+              className={`flex items-center gap-2 px-6 py-3.5 font-primary font-bold text-[11px] uppercase tracking-[0.2em] rounded-xl transition-all duration-500 backdrop-blur-md ${
                 isInCart
-                  ? 'bg-[#C9A962] text-[#0A0A0A] shadow-[0_0_20px_rgba(201,169,98,0.3)]'
-                  : 'bg-[#0A0A0A]/90 backdrop-blur-xl text-[#C9A962] hover:bg-[#C9A962]/10 hover:text-white'
+                  ? 'bg-[#C9A962] text-black shadow-[0_0_20px_rgba(201,169,98,0.4)]'
+                  : 'bg-white/10 text-white hover:bg-[#C9A962] hover:text-black border border-white/20 hover:border-[#C9A962]'
               }`}
             >
-              <AnimatePresence mode="wait" initial={false}>
-                {isInCart ? (
-                  <motion.span
-                    key="selected"
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    className="flex items-center gap-2"
-                  >
-                    <Check className="w-3.5 h-3.5" /> {t('services.cart.button_selected')}
-                  </motion.span>
-                ) : (
-                  <motion.span
-                    key="add"
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    className="flex items-center gap-2"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> {t('services.cart.button_add')}
-                  </motion.span>
-                )}
-              </AnimatePresence>
+              {isInCart ? (
+                <>
+                  <Check className="w-4 h-4" /> {t('services.cart.button_selected')}
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" /> {t('services.cart.button_add')}
+                </>
+              )}
             </motion.button>
+
+            {/* Hidden bullets shown on hover */}
+            <ul className="hidden lg:flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-100">
+              {bullets.slice(0, 2).map((b, i) => (
+                <li key={i} className="flex items-center gap-2 font-primary text-[11px] text-white/60">
+                  <CheckCircle className="w-3 h-3 text-[#C9A962]" />
+                  <span className="line-clamp-1">{b}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-      </div>
       </div>
     </motion.div>
   );
@@ -192,36 +156,35 @@ export const Servicios = () => {
   const serviciosPropietario: (Omit<CartService, 'id'> & { icon: React.ReactNode; cartIcon: string; image: string; bullets: string[]; className: string; highlight?: boolean; id: string })[] = [
     {
       id: 'compraventa',
-      icon: <Building2 className="w-6 h-6 text-[#C9A962]" />,
+      icon: <Building2 className="w-6 h-6 text-white group-hover:text-[#C9A962] transition-colors" />,
       cartIcon: '🏠',
       titleKey: 'services.owner_services.compra_venta.title',
       tagKey: 'services.owner_services.compra_venta.tag',
       descKey: 'services.owner_services.compra_venta.desc',
       title: t('services.owner_services.compra_venta.title'),
       tag: t('services.owner_services.compra_venta.tag'),
-      image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1000&auto=format&fit=crop',
+      image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2000&auto=format&fit=crop',
       desc: t('services.owner_services.compra_venta.desc'),
       bullets: t('services.owner_services.compra_venta.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1 min-h-[480px]",
-      highlight: true
+      className: "md:col-span-2 md:row-span-2 min-h-[500px] md:min-h-[600px]",
     },
     {
       id: 'alquiler',
-      icon: <Key className="w-6 h-6 text-[#C9A962]" />,
+      icon: <Key className="w-6 h-6 text-white group-hover:text-[#C9A962] transition-colors" />,
       cartIcon: '🔑',
       titleKey: 'services.owner_services.alquiler.title',
       tagKey: 'services.owner_services.alquiler.tag',
       descKey: 'services.owner_services.alquiler.desc',
       title: t('services.owner_services.alquiler.title'),
       tag: t('services.owner_services.alquiler.tag'),
-      image: 'https://images.unsplash.com/photo-1733244766159-f58f4184fd38?q=80&w=1000&auto=format&fit=crop',
+      image: 'https://images.unsplash.com/photo-1600607687644-aac4c1566903?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.alquiler.desc'),
       bullets: t('services.owner_services.alquiler.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1 min-h-[480px]"
+      className: "md:col-span-1 md:row-span-2 min-h-[400px] md:min-h-[600px]"
     },
     {
       id: 'traspaso',
-      icon: <Briefcase className="w-6 h-6 text-[#C9A962]" />,
+      icon: <Briefcase className="w-6 h-6 text-white group-hover:text-[#C9A962] transition-colors" />,
       cartIcon: '💼',
       titleKey: 'services.owner_services.traspaso.title',
       tagKey: 'services.owner_services.traspaso.tag',
@@ -231,11 +194,11 @@ export const Servicios = () => {
       image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.traspaso.desc'),
       bullets: t('services.owner_services.traspaso.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1 min-h-[480px]"
+      className: "md:col-span-1 md:row-span-1 min-h-[350px] md:min-h-[400px]"
     },
     {
       id: 'administracion',
-      icon: <ShieldCheck className="w-6 h-6 text-[#C9A962]" />,
+      icon: <ShieldCheck className="w-6 h-6 text-white group-hover:text-[#C9A962] transition-colors" />,
       cartIcon: '🛡️',
       titleKey: 'services.owner_services.administracion.title',
       tagKey: 'services.owner_services.administracion.tag',
@@ -245,37 +208,35 @@ export const Servicios = () => {
       image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.administracion.desc'),
       bullets: t('services.owner_services.administracion.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1 min-h-[480px]"
+      className: "md:col-span-1 md:row-span-1 min-h-[350px] md:min-h-[400px]"
     },
     {
       id: 'seguro_impago',
-      icon: <ShieldCheck className="w-6 h-6 text-[#C9A962]" />,
+      icon: <ShieldCheck className="w-6 h-6 text-white group-hover:text-[#C9A962] transition-colors" />,
       cartIcon: '🛡️',
       titleKey: 'services.owner_services.seguro_impago.title',
       tagKey: 'services.owner_services.seguro_impago.tag',
       descKey: 'services.owner_services.seguro_impago.desc',
       title: t('services.owner_services.seguro_impago.title'),
       tag: t('services.owner_services.seguro_impago.tag'),
-      image: 'https://images.unsplash.com/photo-1769028885299-c5c3503d6778?q=80&w=1000&auto=format&fit=crop',
+      image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1000&auto=format&fit=crop',
       desc: t('services.owner_services.seguro_impago.desc'),
       bullets: t('services.owner_services.seguro_impago.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1 min-h-[480px]"
+      className: "md:col-span-1 md:row-span-1 min-h-[350px] md:min-h-[400px]"
     },
-
     {
       id: 'hipoteca',
-      icon: <Building2 className="w-6 h-6 text-[#C9A962]" />,
+      icon: <Building2 className="w-6 h-6 text-white group-hover:text-[#C9A962] transition-colors" />,
       cartIcon: '🏦',
       titleKey: 'services.mortgage.title',
       tagKey: 'services.mortgage.tag',
       descKey: 'services.mortgage.desc',
       title: t('services.mortgage.title'),
       tag: t('services.mortgage.tag'),
-      image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1000&auto=format&fit=crop',
+      image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=2000&auto=format&fit=crop',
       desc: t('services.mortgage.desc'),
       bullets: t('services.mortgage.bullets', { returnObjects: true }) as string[],
-      className: "md:col-span-1 md:row-span-1 min-h-[480px]",
-      highlight: true
+      className: "md:col-span-1 md:col-span-3 md:row-span-1 min-h-[350px] md:min-h-[400px]",
     }
   ];
 
@@ -384,7 +345,7 @@ export const Servicios = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-fr">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-fr">
           {serviciosPropietario.map((s, idx) => (
             <ServiceCard
               key={s.id}
