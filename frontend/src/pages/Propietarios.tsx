@@ -230,15 +230,59 @@ export const Propietarios = () => {
 
           {/* Portals Section */}
           <div className="border border-white/5 bg-[#0F0F0F] p-10 md:p-16 flex flex-col items-center">
-            <h3 className="font-primary text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold mb-12 text-center">
+            <h3 className="font-primary text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold mb-14 text-center">
               {t('owners_page.marketing.portals_title')}
             </h3>
-            <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-70">
-              <span className="font-secondary text-3xl md:text-4xl hover:text-[#C9A962] transition-colors cursor-default text-white">idealista</span>
-              <span className="font-primary text-2xl md:text-3xl font-bold tracking-tight hover:text-[#C9A962] transition-colors cursor-default text-white">fotocasa</span>
-              <span className="font-secondary text-2xl md:text-3xl italic hover:text-[#C9A962] transition-colors cursor-default text-white">habitaclia</span>
-              <span className="font-primary text-xl md:text-2xl font-black uppercase tracking-tighter hover:text-[#C9A962] transition-colors cursor-default text-white">pisos.com</span>
-              <span className="font-primary text-2xl md:text-3xl font-medium tracking-wide hover:text-[#C9A962] transition-colors cursor-default text-white">yaencontre</span>
+            <div className="flex flex-wrap justify-center items-center gap-12 md:gap-16">
+              {/* Idealista */}
+              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Idealista_logo.svg/320px-Idealista_logo.svg.png"
+                  alt="idealista"
+                  className="h-7 md:h-9 w-auto object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-500"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }}
+                />
+              </div>
+
+              {/* Fotocasa */}
+              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Fotocasa_logo.svg/320px-Fotocasa_logo.svg.png"
+                  alt="fotocasa"
+                  className="h-7 md:h-9 w-auto object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-500"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }}
+                />
+              </div>
+
+              {/* Habitaclia */}
+              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Habitaclia-logo.svg/320px-Habitaclia-logo.svg.png"
+                  alt="habitaclia"
+                  className="h-7 md:h-9 w-auto object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-500"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }}
+                />
+              </div>
+
+              {/* pisos.com */}
+              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
+                <img
+                  src="https://www.pisos.com/img/logo-pisos.svg"
+                  alt="pisos.com"
+                  className="h-7 md:h-9 w-auto object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-500"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }}
+                />
+              </div>
+
+              {/* yaencontre */}
+              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
+                <img
+                  src="https://www.yaencontre.com/noticias/wp-content/uploads/2021/01/yaencontre_logo.png"
+                  alt="yaencontre"
+                  className="h-7 md:h-9 w-auto object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-500"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }}
+                />
+              </div>
             </div>
           </div>
         </div>
