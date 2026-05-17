@@ -238,7 +238,7 @@ export const Propietarios = () => {
 
                 {/* Idealista */}
                 <a href="https://www.idealista.com" target="_blank" rel="noopener noreferrer"
-                  className="group opacity-40 hover:opacity-100 transition-all duration-500 grayscale hover:grayscale-0 flex items-center justify-center">
+                  className="group opacity-85 hover:opacity-100 transition-all duration-300 flex items-center justify-center">
                   <svg viewBox="0 0 555 160" className="h-6 md:h-8 w-auto fill-[#c5e600] transition-colors duration-300" aria-label="Idealista">
                     <path d="M90,115 L90,70 L60,70 L60,55 L90,55 L90,25 L105,25 L105,130 L90,130 L60,130 L60,115 L90,115 Z M465,55 L480,55 L480,70 L465,70 L465,115 L450,115 L450,70 L435,70 L435,55 L450,55 L450,25 L465,25 L465,55 Z M345,70 L345,130 L330,130 L330,70 L315,70 L315,55 L345,55 L345,70 Z M30,70 L30,130 L15,130 L15,70 L0,70 L0,55 L30,55 L30,70 Z M240,115 L240,100 L210,100 L210,85 L240,85 L240,70 L255,70 L255,130 L240,130 L210,130 L210,115 L240,115 Z M540,115 L540,100 L510,100 L510,85 L540,85 L540,70 L555,70 L555,130 L540,130 L510,130 L510,115 L540,115 Z M165,100 L135,100 L135,115 L120,115 L120,70 L135,70 L135,85 L165,85 L165,70 L180,70 L180,100 L165,100 Z M300,40 L300,130 L285,130 L285,40 L270,40 L270,25 L300,25 L300,40 Z M375,55 L420,55 L420,70 L375,70 L375,55 Z M360,70 L375,70 L375,85 L360,85 L360,70 Z M375,85 L405,85 L405,100 L375,100 L375,85 Z M405,100 L420,100 L420,115 L405,115 L405,100 Z M360,115 L405,115 L405,130 L360,130 L360,115 Z M135,115 L165,115 L165,130 L135,130 L135,115 Z M135,55 L165,55 L165,70 L135,70 L135,55 Z M510,55 L540,55 L540,70 L510,70 L510,55 Z M495,100 L510,100 L510,115 L495,115 L495,100 Z M210,55 L240,55 L240,70 L210,70 L210,55 Z M195,100 L210,100 L210,115 L195,115 L195,100 Z M15,25 L30,25 L30,40 L15,40 L15,25 Z M330,25 L345,25 L345,40 L330,40 L330,25 Z M465,115 L480,115 L480,130 L465,130 L465,115 Z M45,70 L60,70 L60,115 L45,115 L45,70 Z" />
                   </svg>
@@ -246,7 +246,7 @@ export const Propietarios = () => {
 
                 {/* Fotocasa */}
                 <a href="https://www.fotocasa.es" target="_blank" rel="noopener noreferrer"
-                  className="group opacity-40 hover:opacity-100 transition-all duration-500 grayscale hover:grayscale-0 flex items-center justify-center">
+                  className="group opacity-85 hover:opacity-100 transition-all duration-300 flex items-center justify-center">
                   <svg viewBox="0 0 98 14" className="h-6 md:h-8 w-auto transition-colors duration-300" aria-label="Fotocasa">
                     <path d="M7,0 C10.87,0 14,3.13 14,7 C14,10.87 10.87,14 7,14 C5.28,14 3.71,13.38 2.5,12.35 L0,14 L0.65,11.5 C0.25,10.15 0,8.71 0,7 C0,3.13 3.13,0 7,0 Z" fill="#30c3b0" />
                     <path d="M7,3.5 L3.5,7 L4.5,7 L4.5,10.5 L6,10.5 L6,8.5 L8,8.5 L8,10.5 L9.5,10.5 L9.5,7 L10.5,7 Z" fill="#ffffff" />
@@ -258,7 +258,7 @@ export const Propietarios = () => {
 
                 {/* Habitaclia */}
                 <a href="https://www.habitaclia.com" target="_blank" rel="noopener noreferrer"
-                  className="group opacity-40 hover:opacity-100 transition-all duration-500 grayscale hover:grayscale-0 flex items-center justify-center">
+                  className="group opacity-85 hover:opacity-100 transition-all duration-300 flex items-center justify-center">
                   <svg viewBox="0 0 425.1 110.6" className="h-6 md:h-8 w-auto fill-[#f60] transition-colors duration-300" aria-label="Habitaclia">
                     <g>
                       <path d="m87.9 21.8c-8.1 0-16.1 2.1-20.7 4l3.5 9.5c3.9-1.7 10.4-3.3 15.6-3.3 6.4 0 10.5 2.2 10.5 8v2.9c-16.9.9-32.7 3.9-32.7 19.2 0 11.4 8.4 18 25.2 18 8.4 0 16.8-1.9 20.9-4v-34.4c-.1-14.3-8-19.9-22.3-19.9zm8.9 47.1c-1.4.6-5 1.1-8 1.1-7.4 0-11.5-3-11.5-8.3 0-8.4 9.1-9.3 19.5-9.8z"/>
@@ -280,7 +280,7 @@ export const Propietarios = () => {
 
                 {/* Pisos.com */}
                 <a href="https://www.pisos.com" target="_blank" rel="noopener noreferrer"
-                  className="group opacity-40 hover:opacity-100 transition-all duration-500 grayscale hover:grayscale-0 flex items-center justify-center">
+                  className="group opacity-85 hover:opacity-100 transition-all duration-300 flex items-center justify-center">
                   <svg viewBox="0 0 90.63 43.09" className="h-8 md:h-10 w-auto transition-colors duration-300" aria-label="Pisos.com">
                     <g>
                       <path fill="#001689" d="M0,32.36V7.46H4.52l.32,2.21a6.58,6.58,0,0,1,5.74-2.52c5.08,0,8.55,3.57,8.55,9,0,5.6-3.54,9-8.62,9a6.88,6.88,0,0,1-5.43-2.45v9.7ZM14,16.11a4.12,4.12,0,0,0-4.24-4.45c-2.28,0-4.66,1.16-4.66,4.45a4.43,4.43,0,0,0,4.66,4.45A4.12,4.12,0,0,0,14,16.11Z"/>
@@ -298,11 +298,16 @@ export const Propietarios = () => {
 
                 {/* Yaencontre */}
                 <a href="https://www.yaencontre.com" target="_blank" rel="noopener noreferrer"
-                  className="group opacity-40 hover:opacity-100 transition-all duration-500 grayscale hover:grayscale-0 flex items-center justify-center">
-                  <svg viewBox="0 0 192 192" className="h-7 md:h-9 w-auto rounded transition-colors duration-300" aria-label="Yaencontre">
-                    <rect fill="#e5005a" width="192" height="192" rx="16" />
-                    <path fill="#fff" d="M151.959 61.0489H168.441V130.489H152.238L151.391 120.347C147.46 128.523 136.601 132.47 128.876 132.607C108.291 132.746 93.0596 120.073 93.0596 95.6972C93.0596 71.7477 109.003 59.2214 129.284 59.3605C138.563 59.3605 147.458 63.7254 151.389 70.6373L151.959 61.0489ZM110.272 95.6972C110.272 108.957 119.405 116.833 130.833 116.833C157.869 116.833 157.869 74.7072 130.833 74.7072C119.405 74.7072 110.272 82.4633 110.272 95.6972Z"/>
-                    <path fill="#fff" d="M25.8384 142.456C27.5124 142.736 29.2848 142.876 31.1458 142.876C34.8656 142.876 37.7292 141.875 39.7318 139.88C41.7295 137.875 43.0342 136.052 44.43 132.529L18.2598 61.2422H37.6236L54.9322 110.954L72.2359 61.2422H91.6622L76.7615 100.826C72.1904 113.201 68.154 125.39 62.7482 137.012C60.7864 141.204 58.8318 144.753 56.8748 147.694C54.9178 150.62 52.7713 153.04 50.4498 154.941C48.121 156.848 45.4853 158.241 42.5498 159.126C39.6166 160.019 36.1919 160.453 32.2826 160.453C29.0185 160.453 26.0111 160.158 23.2626 159.549L25.8384 142.456Z"/>
+                  className="group opacity-85 hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                  <svg viewBox="0 0 320 60" className="h-8 md:h-10 w-auto" aria-label="Yaencontre">
+                    {/* The "ya" icon */}
+                    <g transform="translate(0, 5) scale(0.26)">
+                      <rect fill="#e5005a" width="192" height="192" rx="32" />
+                      <path fill="#fff" d="M151.959 61.0489H168.441V130.489H152.238L151.391 120.347C147.46 128.523 136.601 132.47 128.876 132.607C108.291 132.746 93.0596 120.073 93.0596 95.6972C93.0596 71.7477 109.003 59.2214 129.284 59.3605C138.563 59.3605 147.458 63.7254 151.389 70.6373L151.959 61.0489ZM110.272 95.6972C110.272 108.957 119.405 116.833 130.833 116.833C157.869 116.833 157.869 74.7072 130.833 74.7072C119.405 74.7072 110.272 82.4633 110.272 95.6972Z"/>
+                      <path fill="#fff" d="M25.8384 142.456C27.5124 142.736 29.2848 142.876 31.1458 142.876C34.8656 142.876 37.7292 141.875 39.7318 139.88C41.7295 137.875 43.0342 136.052 44.43 132.529L18.2598 61.2422H37.6236L54.9322 110.954L72.2359 61.2422H91.6622L76.7615 100.826C72.1904 113.201 68.154 125.39 62.7482 137.012C60.7864 141.204 58.8318 144.753 56.8748 147.694C54.9178 150.62 52.7713 153.04 50.4498 154.941C48.121 156.848 45.4853 158.241 42.5498 159.126C39.6166 160.019 36.1919 160.453 32.2826 160.453C29.0185 160.453 26.0111 160.158 23.2626 159.549L25.8384 142.456Z"/>
+                    </g>
+                    {/* The "encontre" text */}
+                    <text x="62" y="38" fontFamily="system-ui, -apple-system, sans-serif" fontSize="26" fontWeight="bold" fill="#ffffff" letterSpacing="-0.5">encontre</text>
                   </svg>
                 </a>
 
