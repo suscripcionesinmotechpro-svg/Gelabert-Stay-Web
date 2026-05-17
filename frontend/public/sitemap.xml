@@ -2,52 +2,52 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://gelaberthomes.es</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/propiedades</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/propiedades</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/servicios</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/servicios</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/propietarios</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/propietarios</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/contacto</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/contacto</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
@@ -101,6 +101,26 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://gelaberthomes.es/propiedades/GEL-133</loc>
+    <lastmod>2026-05-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/en/propiedades/GEL-133</loc>
+    <lastmod>2026-05-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/propiedades/GEL-102</loc>
+    <lastmod>2026-05-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/en/propiedades/GEL-102</loc>
+    <lastmod>2026-05-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://gelaberthomes.es/propiedades/GEL-126</loc>
     <lastmod>2026-05-08</lastmod>
     <priority>0.6</priority>
@@ -108,6 +128,16 @@
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-126</loc>
     <lastmod>2026-05-08</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/propiedades/GEL-134</loc>
+    <lastmod>2026-05-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/en/propiedades/GEL-134</loc>
+    <lastmod>2026-05-16</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -121,16 +151,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://gelaberthomes.es/propiedades/GEL-115</loc>
-    <lastmod>2026-05-03</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://gelaberthomes.es/en/propiedades/GEL-115</loc>
-    <lastmod>2026-05-03</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://gelaberthomes.es/propiedades/GEL-112</loc>
     <lastmod>2026-04-29</lastmod>
     <priority>0.6</priority>
@@ -141,13 +161,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://gelaberthomes.es/propiedades/GEL-133</loc>
-    <lastmod>2026-05-14</lastmod>
+    <loc>https://gelaberthomes.es/propiedades/GEL-115</loc>
+    <lastmod>2026-05-16</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://gelaberthomes.es/en/propiedades/GEL-133</loc>
-    <lastmod>2026-05-14</lastmod>
+    <loc>https://gelaberthomes.es/en/propiedades/GEL-115</loc>
+    <lastmod>2026-05-16</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -162,12 +182,12 @@
   </url>
   <url>
     <loc>https://gelaberthomes.es/propiedades/GEL-117</loc>
-    <lastmod>2026-04-22</lastmod>
+    <lastmod>2026-05-16</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-117</loc>
-    <lastmod>2026-04-22</lastmod>
+    <lastmod>2026-05-16</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -191,16 +211,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://gelaberthomes.es/propiedades/GEL-102</loc>
-    <lastmod>2026-04-22</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://gelaberthomes.es/en/propiedades/GEL-102</loc>
-    <lastmod>2026-04-22</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://gelaberthomes.es/propiedades/GEL-130</loc>
     <lastmod>2026-05-13</lastmod>
     <priority>0.6</priority>
@@ -212,12 +222,22 @@
   </url>
   <url>
     <loc>https://gelaberthomes.es/propiedades/GEL-102-01</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-16</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-102-01</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/propiedades/GEL-135</loc>
+    <lastmod>2026-05-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/en/propiedades/GEL-135</loc>
+    <lastmod>2026-05-16</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -231,33 +251,23 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://gelaberthomes.es/propiedades/GEL-135</loc>
-    <lastmod>2026-05-15</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://gelaberthomes.es/en/propiedades/GEL-135</loc>
-    <lastmod>2026-05-15</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://gelaberthomes.es/propiedades/GEL-124</loc>
-    <lastmod>2026-04-22</lastmod>
+    <lastmod>2026-05-16</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-124</loc>
-    <lastmod>2026-04-22</lastmod>
+    <lastmod>2026-05-16</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/propiedades/GEL-125</loc>
-    <lastmod>2026-04-23</lastmod>
+    <lastmod>2026-05-16</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-125</loc>
-    <lastmod>2026-04-23</lastmod>
+    <lastmod>2026-05-16</lastmod>
     <priority>0.6</priority>
   </url>
 </urlset>

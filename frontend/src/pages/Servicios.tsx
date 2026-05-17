@@ -33,7 +33,7 @@ interface ServiceCardProps {
 }
 
 const ServiceCard = ({ 
-  title, tag, icon, desc, image, bullets, className = "", cardNumber,
+  title, tag, icon, desc, image, bullets, className = "",
   isInCart, onToggle 
 }: ServiceCardProps & { isInCart?: boolean; onToggle?: () => void }) => {
   const { t } = useTranslation();
