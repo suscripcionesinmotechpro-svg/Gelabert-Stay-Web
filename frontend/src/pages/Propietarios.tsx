@@ -233,34 +233,43 @@ export const Propietarios = () => {
             <h3 className="font-primary text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold mb-14 text-center">
               {t('owners_page.marketing.portals_title')}
             </h3>
-            <div className="flex flex-wrap justify-center items-center gap-12 md:gap-16">
-              {[
-                { domain: 'idealista.com',   name: 'idealista'   },
-                { domain: 'fotocasa.es',     name: 'fotocasa'    },
-                { domain: 'habitaclia.com',  name: 'habitaclia'  },
-                { domain: 'pisos.com',       name: 'pisos.com'   },
-                { domain: 'yaencontre.com',  name: 'yaencontre'  },
-              ].map(({ domain, name }) => (
-                <div key={domain} className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-2">
-                  <img
-                    src={`https://logo.clearbit.com/${domain}`}
-                    alt={name}
-                    className="h-8 md:h-10 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500"
-                    onError={(e) => {
-                      const el = e.target as HTMLImageElement;
-                      el.style.display = 'none';
-                      const fallback = el.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = 'block';
-                    }}
-                  />
-                  <span
-                    className="hidden font-primary text-xl font-bold text-white/60 group-hover:text-white transition-colors"
-                    style={{ display: 'none' }}
-                  >
-                    {name}
-                  </span>
-                </div>
-              ))}
+            <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16">
+
+              {/* Idealista — orange wordmark */}
+              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
+                <svg viewBox="0 0 160 40" className="h-8 md:h-10 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <text x="0" y="30" fontFamily="Arial, sans-serif" fontSize="28" fontWeight="700" fill="#FF6544" letterSpacing="-0.5">idealista</text>
+                </svg>
+              </div>
+
+              {/* Fotocasa — red wordmark */}
+              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
+                <svg viewBox="0 0 170 40" className="h-8 md:h-10 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <text x="0" y="30" fontFamily="Arial, sans-serif" fontSize="28" fontWeight="700" fill="#EF3E36" letterSpacing="-0.5">fotocasa</text>
+                </svg>
+              </div>
+
+              {/* Habitaclia — orange wordmark */}
+              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
+                <svg viewBox="0 0 210 40" className="h-8 md:h-10 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <text x="0" y="30" fontFamily="Arial, sans-serif" fontSize="28" fontWeight="700" fill="#FF6B00" letterSpacing="-0.5">habitaclia</text>
+                </svg>
+              </div>
+
+              {/* Pisos.com — blue wordmark */}
+              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
+                <svg viewBox="0 0 160 40" className="h-8 md:h-10 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <text x="0" y="30" fontFamily="Arial, sans-serif" fontSize="28" fontWeight="900" fill="#1A56DB" letterSpacing="-0.5">pisos.com</text>
+                </svg>
+              </div>
+
+              {/* Yaencontre — orange wordmark */}
+              <div className="group cursor-default opacity-50 hover:opacity-100 transition-opacity duration-300">
+                <svg viewBox="0 0 240 40" className="h-8 md:h-10 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <text x="0" y="30" fontFamily="Arial, sans-serif" fontSize="28" fontWeight="700" fill="#FF5A00" letterSpacing="-0.5">yaencontre</text>
+                </svg>
+              </div>
+
             </div>
           </div>
         </div>
