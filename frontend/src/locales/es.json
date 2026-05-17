@@ -658,7 +658,8 @@
         "legal": "Asesoría jurídica y fiscal"
       },
       "whatsapp_label": "Contactar por WhatsApp",
-      "whatsapp_message": "Hola, me gustaría solicitar información sobre vuestros servicios para propietarios."
+      "whatsapp_message": "Hola, me gustaría solicitar información sobre vuestros servicios para propietarios.",
+      "discover_tech_label": "Descubrir Tecnología"
     },
     "legal": {
       "title": "Información básica sobre protección de datos",

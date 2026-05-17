@@ -133,10 +133,27 @@ export const Propietarios = () => {
             </div>
           </motion.div>
         </div>
+
+        {/* Scroll Indicator - Shows a floating scroll-down cue on desktop to guide users to content below */}
+        <div 
+          className="hidden lg:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex-col items-center gap-2 cursor-pointer group pointer-events-auto select-none"
+          onClick={() => document.getElementById('marketing-tech')?.scrollIntoView({ behavior: 'smooth' })}
+        >
+          <span className="font-primary text-[10px] uppercase tracking-[0.25em] text-[#C9A962] font-semibold opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+            {t('owners_page.hero.discover_tech_label', 'Descubrir Tecnología')}
+          </span>
+          <motion.div 
+            animate={{ y: [0, 6, 0] }}
+            transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+            className="w-5 h-8 rounded-full border border-[#C9A962]/40 flex justify-center p-1 group-hover:border-[#C9A962] transition-colors duration-300"
+          >
+            <div className="w-1.5 h-1.5 bg-[#C9A962] rounded-full" />
+          </motion.div>
+        </div>
       </div>
 
       {/* Marketing & Technology Section */}
-      <section className="w-full bg-[#0A0A0A] py-24 md:py-32 relative z-10 border-t border-white/5">
+      <section id="marketing-tech" className="w-full bg-[#0A0A0A] py-24 md:py-32 relative z-10 border-t border-white/5">
         <div className="max-w-[1440px] mx-auto px-6 md:px-14">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
