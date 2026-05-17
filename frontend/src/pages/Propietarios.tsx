@@ -140,7 +140,7 @@ export const Propietarios = () => {
           onClick={() => document.getElementById('marketing-tech')?.scrollIntoView({ behavior: 'smooth' })}
         >
           <span className="font-primary text-[10px] uppercase tracking-[0.25em] text-[#C9A962] font-semibold opacity-60 group-hover:opacity-100 transition-opacity duration-300">
-            {t('owners_page.hero.discover_tech_label', 'Descubrir Tecnología')}
+            {t('owners_page.hero.discover_tech_label', 'Nuestra Estrategia')}
           </span>
           <motion.div 
             animate={{ y: [0, 6, 0] }}

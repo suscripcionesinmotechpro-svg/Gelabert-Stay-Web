@@ -91,7 +91,7 @@ export const LanguageSwitcher = () => {
                 `}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-sm filter grayscale group-hover/item:grayscale-0 transition-all duration-500">{lang.flag}</span>
+                  <span className="text-sm transition-all duration-500">{lang.flag}</span>
                   <span className="uppercase">{lang.label}</span>
                 </div>
                 {i18n.language.startsWith(lang.code) && (
