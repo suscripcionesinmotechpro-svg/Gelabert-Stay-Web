@@ -144,7 +144,7 @@
         "available": "Available",
         "reserved": "Reserved",
         "rented": "Rented",
-        "view_tour": "View Tour",
+        "view_tour": "View Tour Video",
         "room_distribution": "Room Distribution",
         "common_areas": "Common Areas",
         "additional_features": "Additional Features",
@@ -185,14 +185,7 @@
         "floor_plan_short": "Plan",
         "location": "Location",
         "the_room": "The Room",
-        "common_areas": "Common Areas",
-        "room_distribution": "Room Distribution",
-        "view_tour": "View Tour Video",
         "private": "Private",
-        "room_prefix": "Room",
-        "available": "Available",
-        "reserved": "Reserved",
-        "rented": "Rented",
         "not_found": "Property not found",
         "has_elevator": "Elevator",
         "is_furnished": "Furnished",
@@ -271,10 +264,22 @@
     "cta_title": "Your next home",
     "services": {
       "title": "Our Services",
-      "rent": { "title": "Rentals", "desc": "Any type of rental" },
-      "sale": { "title": "Sales", "desc": "Featured properties" },
-      "transfers": { "title": "Transfers", "desc": "Business and commercial premises" },
-      "management": { "title": "Management", "desc": "Full administration" }
+      "rent": {
+        "title": "Rentals",
+        "desc": "Any type of rental"
+      },
+      "sale": {
+        "title": "Sales",
+        "desc": "Featured properties"
+      },
+      "transfers": {
+        "title": "Transfers",
+        "desc": "Business and commercial premises"
+      },
+      "management": {
+        "title": "Management",
+        "desc": "Full administration"
+      }
     },
     "owners": {
       "title": "Trust the management of your property to experts",
@@ -284,9 +289,18 @@
     "customers": {
       "title": "Find your next home",
       "subtitle": "Discover featured properties in Malaga & Costa del Sol with the support of a professional team.",
-      "feature1": { "title": "Personalized Attention", "desc": "We accompany you at every step of the buying or renting process." },
-      "feature2": { "title": "Selected Portfolio", "desc": "Access to featured properties and unique opportunities." },
-      "feature3": { "title": "Legal Advice", "desc": "Total legal security in all your real estate operations." },
+      "feature1": {
+        "title": "Personalized Attention",
+        "desc": "We accompany you at every step of the buying or renting process."
+      },
+      "feature2": {
+        "title": "Selected Portfolio",
+        "desc": "Access to featured properties and unique opportunities."
+      },
+      "feature3": {
+        "title": "Legal Advice",
+        "desc": "Total legal security in all your real estate operations."
+      },
       "button": "Search Properties"
     },
     "featured": {
@@ -307,17 +321,28 @@
     "testimonials": {
       "title": "What our clients say",
       "badge": "Success Stories",
-      "item1": { "name": "Maria Gomez", "role": "Owner", "text": "I've been with Gelabert Homes for a year managing the rental of my apartment and it's completely hands-off for me. Real peace of mind and quick problem solving. 100% recommended." },
-      "item2": { "name": "Carlos Ruiz", "role": "Buyer", "text": "We were looking for months until we found them. They showed us options that were a perfect fit and stayed with us through all the buying paperwork. Exceptional service." },
-      "item3": { "name": "Laura Sanchez", "role": "Tenant", "text": "We rented with them a couple of months ago. Everything was clear from the start, no hidden clauses. Great communication and a very transparent contract." },
+      "item1": {
+        "name": "Maria Gomez",
+        "role": "Owner",
+        "text": "I've been with Gelabert Homes for a year managing the rental of my apartment and it's completely hands-off for me. Real peace of mind and quick problem solving. 100% recommended."
+      },
+      "item2": {
+        "name": "Carlos Ruiz",
+        "role": "Buyer",
+        "text": "We were looking for months until we found them. They showed us options that were a perfect fit and stayed with us through all the buying paperwork. Exceptional service."
+      },
+      "item3": {
+        "name": "Laura Sanchez",
+        "role": "Tenant",
+        "text": "We rented with them a couple of months ago. Everything was clear from the start, no hidden clauses. Great communication and a very transparent contract."
+      },
       "verified": "Verified Client"
     },
     "stats": {
       "years": "Years of experience",
       "properties": "Properties",
       "clients": "Happy clients"
-    },
-    "cta_title": "Your next home"
+    }
   },
   "seo": {
     "home_title": "Gelabert Homes Real Estate | Real Estate in Malaga & Costa del Sol",
@@ -405,7 +430,12 @@
   },
   "services": {
     "tenants": {
-      "image_alt": "Quality home"
+      "badge": "For Tenants",
+      "title": "Find your ideal home",
+      "description": "Looking for a home in Malaga or the Costa del Sol? Let us do the work for you. We have access to featured properties and the experience to find exactly what you need.",
+      "request_search": "Request search",
+      "includes": "What's included?",
+      "view_properties": "View available properties"
     },
     "seo": {
       "title": "Real Estate Services in Malaga | Gelabert Homes Real Estate",
@@ -455,14 +485,6 @@
       "description": "From the first consultation to the closing of the operation, our team becomes your strategic partner to get the most out of your property.",
       "more_info": "More info for Owners",
       "free_valuation": "Request free valuation"
-    },
-    "tenants": {
-      "badge": "For Tenants",
-      "title": "Find your ideal home",
-      "description": "Looking for a home in Malaga or the Costa del Sol? Let us do the work for you. We have access to featured properties and the experience to find exactly what you need.",
-      "request_search": "Request search",
-      "includes": "What's included?",
-      "view_properties": "View available properties"
     },
     "why_choose_us": {
       "title": "Why Gelabert Homes Real Estate?",
@@ -637,9 +659,22 @@
       "recipients": "Recipients",
       "recipients_text": "Legitimate interested parties and real estate portals for promotion.",
       "rights": "Rights"
+    },
+    "marketing": {
+      "badge": "Premium Strategy",
+      "title_1": "Our Marketing",
+      "title_2": "Plan",
+      "subtitle": "We maximize the visibility of your property using the latest technologies and leading real estate portals.",
+      "tech_title": "Visual Technology",
+      "tech_drone": "Drone Video",
+      "tech_drone_desc": "Cinematic aerial shots that highlight the surroundings.",
+      "tech_360": "360º Virtual Tour",
+      "tech_360_desc": "Immersive visits from anywhere in the world.",
+      "tech_photo": "Professional Photography",
+      "tech_photo_desc": "High-quality shoots and digital Home Staging.",
+      "portals_title": "Global Reach"
     }
   },
-
   "contact_page": {
     "seo": {
       "title": "Contact | Gelabert Homes Real Estate",
@@ -783,13 +818,34 @@
           "title": "3. Purposes of processing",
           "content": "Personal data will be processed for the following purposes:",
           "subsections": [
-            { "title": "a) Handling of inquiries", "content": "Handle requests for information, resolve inquiries and manage contact with users interested in properties or real estate services." },
-            { "title": "b) Management of real estate services", "content": "Manage services related to real estate brokerage, both in rental and purchase-sale, as well as the relationship with owners, buyers, sellers, lessors, lessees or interested parties." },
-            { "title": "c) Pre-contractual and contractual management", "content": "Process reservations, visits, offers, applications, deposits, contracts, annexes and other necessary actions before or during a real estate operation." },
-            { "title": "d) Solvency study", "content": "Request, review and assess identifying, economic and labor documentation to analyze the capacity and solvency of a person interested in a real estate operation." },
-            { "title": "e) Publication and promotion of properties", "content": "Manage the promotion and dissemination of properties on the own website and on real estate portals such as Idealista, Fotocasa, Pisos.com or other similar ones." },
-            { "title": "f) Commercial follow-up", "content": "Maintain communications related to properties of interest, real estate opportunities, visits, availability and professional follow-up of operations." },
-            { "title": "g) Compliance with legal obligations", "content": "Comply with legal, administrative, tax, accounting obligations or attend requirements from competent authorities." }
+            {
+              "title": "a) Handling of inquiries",
+              "content": "Handle requests for information, resolve inquiries and manage contact with users interested in properties or real estate services."
+            },
+            {
+              "title": "b) Management of real estate services",
+              "content": "Manage services related to real estate brokerage, both in rental and purchase-sale, as well as the relationship with owners, buyers, sellers, lessors, lessees or interested parties."
+            },
+            {
+              "title": "c) Pre-contractual and contractual management",
+              "content": "Process reservations, visits, offers, applications, deposits, contracts, annexes and other necessary actions before or during a real estate operation."
+            },
+            {
+              "title": "d) Solvency study",
+              "content": "Request, review and assess identifying, economic and labor documentation to analyze the capacity and solvency of a person interested in a real estate operation."
+            },
+            {
+              "title": "e) Publication and promotion of properties",
+              "content": "Manage the promotion and dissemination of properties on the own website and on real estate portals such as Idealista, Fotocasa, Pisos.com or other similar ones."
+            },
+            {
+              "title": "f) Commercial follow-up",
+              "content": "Maintain communications related to properties of interest, real estate opportunities, visits, availability and professional follow-up of operations."
+            },
+            {
+              "title": "g) Compliance with legal obligations",
+              "content": "Comply with legal, administrative, tax, accounting obligations or attend requirements from competent authorities."
+            }
           ]
         },
         {
@@ -900,10 +956,22 @@
           "title": "2. What types of cookies this website may use",
           "content": "This website may use its own and third-party cookies, according to their purpose:",
           "subsections": [
-            { "title": "a) Technical or necessary cookies", "content": "These are essential to allow navigation through the website and the use of its basic functions, such as controlling traffic, identifying the session, remembering integrated elements or managing technical preferences.\n\nThese cookies do not require consent when limited to strictly technical or necessary purposes." },
-            { "title": "b) Personalization cookies", "content": "They allow remembering certain characteristics or preferences of the user, such as language, type of browser or regional configuration, when applicable." },
-            { "title": "c) Analysis or measurement cookies", "content": "They allow quantifying the number of users and performing statistical analysis on the use of the website, in order to improve the services offered and the navigation experience." },
-            { "title": "d) Advertising or marketing cookies", "content": "They allow managing advertising spaces or monitoring user behavior to show relevant ads adapted to their browsing habits.\n\nThese cookies will only be used if the user expressly accepts them." }
+            {
+              "title": "a) Technical or necessary cookies",
+              "content": "These are essential to allow navigation through the website and the use of its basic functions, such as controlling traffic, identifying the session, remembering integrated elements or managing technical preferences.\n\nThese cookies do not require consent when limited to strictly technical or necessary purposes."
+            },
+            {
+              "title": "b) Personalization cookies",
+              "content": "They allow remembering certain characteristics or preferences of the user, such as language, type of browser or regional configuration, when applicable."
+            },
+            {
+              "title": "c) Analysis or measurement cookies",
+              "content": "They allow quantifying the number of users and performing statistical analysis on the use of the website, in order to improve the services offered and the navigation experience."
+            },
+            {
+              "title": "d) Advertising or marketing cookies",
+              "content": "They allow managing advertising spaces or monitoring user behavior to show relevant ads adapted to their browsing habits.\n\nThese cookies will only be used if the user expressly accepts them."
+            }
           ]
         },
         {

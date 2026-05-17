@@ -17,12 +17,12 @@
     "save": "Guardar",
     "cancel": "Cancelar",
     "month": "mes",
-    "year": "a\u00f1o",
+    "year": "año",
     "new": "Nuevo",
     "scroll": "Explorar",
     "share": "Compartir",
     "copy_link": "Copiar enlace",
-    "copied": "\u00a1Copiado!",
+    "copied": "¡Copiado!",
     "share_email": "Compartir por email"
   },
   "common_area_types": {
@@ -268,10 +268,22 @@
     "cta_title": "Tu próximo hogar",
     "services": {
       "title": "Nuestros Servicios",
-      "rent": { "title": "Alquileres", "desc": "Cualquier tipo de alquiler" },
-      "sale": { "title": "Ventas", "desc": "Propiedades destacadas" },
-      "transfers": { "title": "Traspasos", "desc": "Locales y negocios" },
-      "management": { "title": "Gestión", "desc": "Administración integral" }
+      "rent": {
+        "title": "Alquileres",
+        "desc": "Cualquier tipo de alquiler"
+      },
+      "sale": {
+        "title": "Ventas",
+        "desc": "Propiedades destacadas"
+      },
+      "transfers": {
+        "title": "Traspasos",
+        "desc": "Locales y negocios"
+      },
+      "management": {
+        "title": "Gestión",
+        "desc": "Administración integral"
+      }
     },
     "owners": {
       "title": "Confía la gestión de tu propiedad a expertos",
@@ -281,9 +293,18 @@
     "customers": {
       "title": "Encuentra tu próximo hogar",
       "subtitle": "Descubre propiedades destacadas en Málaga & Costa del Sol con el respaldo de un equipo profesional.",
-      "feature1": { "title": "Atención Personalizada", "desc": "Te acompañamos en cada paso del proceso de compra o alquiler." },
-      "feature2": { "title": "Cartera Seleccionada", "desc": "Acceso a propiedades destacadas y oportunidades únicas." },
-      "feature3": { "title": "Asesoramiento Legal", "desc": "Seguridad jurídica total en todas tus operaciones inmobiliarias." },
+      "feature1": {
+        "title": "Atención Personalizada",
+        "desc": "Te acompañamos en cada paso del proceso de compra o alquiler."
+      },
+      "feature2": {
+        "title": "Cartera Seleccionada",
+        "desc": "Acceso a propiedades destacadas y oportunidades únicas."
+      },
+      "feature3": {
+        "title": "Asesoramiento Legal",
+        "desc": "Seguridad jurídica total en todas tus operaciones inmobiliarias."
+      },
       "button": "Buscar Propiedades"
     },
     "featured": {
@@ -304,17 +325,28 @@
     "testimonials": {
       "title": "Lo que dicen nuestros clientes",
       "badge": "Casos de éxito",
-      "item1": { "name": "María Gómez", "role": "Propietaria", "text": "Llevo un año con Gelabert Homes gestionando el alquiler de mi piso y me he desentendido de todo. Te dan mucha tranquilidad y resuelven cualquier problema rápido, los recomiendo 100%." },
-      "item2": { "name": "Carlos Ruiz", "role": "Comprador", "text": "Llevábamos meses buscando casa hasta que dimos con ellos. Nos enseñaron opciones que encajaban perfecto y nos acompañaron con todo el papeleo de la compra. Trato inmejorable." },
-      "item3": { "name": "Laura Sánchez", "role": "Inquilina", "text": "Alquilamos con ellos hace un par de meses. Todo claro desde el minuto cero, sin letra pequeña. Muy buena comunicación y el contrato súper transparente." },
+      "item1": {
+        "name": "María Gómez",
+        "role": "Propietaria",
+        "text": "Llevo un año con Gelabert Homes gestionando el alquiler de mi piso y me he desentendido de todo. Te dan mucha tranquilidad y resuelven cualquier problema rápido, los recomiendo 100%."
+      },
+      "item2": {
+        "name": "Carlos Ruiz",
+        "role": "Comprador",
+        "text": "Llevábamos meses buscando casa hasta que dimos con ellos. Nos enseñaron opciones que encajaban perfecto y nos acompañaron con todo el papeleo de la compra. Trato inmejorable."
+      },
+      "item3": {
+        "name": "Laura Sánchez",
+        "role": "Inquilina",
+        "text": "Alquilamos con ellos hace un par de meses. Todo claro desde el minuto cero, sin letra pequeña. Muy buena comunicación y el contrato súper transparente."
+      },
       "verified": "Cliente Verificado"
     },
     "stats": {
       "years": "Años de experiencia",
       "properties": "Propiedades",
       "clients": "Clientes contentos"
-    },
-    "cta_title": "Tu próximo hogar"
+    }
   },
   "seo": {
     "home_title": "Gelabert Homes Real Estate | Inmobiliaria en Málaga & Costa del Sol",
@@ -403,7 +435,12 @@
   },
   "services": {
     "tenants": {
-      "image_alt": "Hogar de calidad"
+      "badge": "Para Inquilinos",
+      "title": "Encuentra tu hogar ideal",
+      "description": "¿Buscas vivienda en Málaga o la Málaga & Costa del Sol? Déjanos el trabajo a nosotros. Tenemos acceso a propiedades destacadas y la experiencia para encontrar exactamente lo que necesitas.",
+      "request_search": "Solicitar búsqueda",
+      "includes": "¿Qué incluye?",
+      "view_properties": "Ver propiedades disponibles"
     },
     "seo": {
       "title": "Servicios Inmobiliarios en Málaga | Gelabert Homes Real Estate",
@@ -459,14 +496,6 @@
       "description": "Desde la primera consulta hasta el cierre de la operación, nuestro equipo se convierte en su socio estratégico para sacar el máximo partido a su inmueble.",
       "more_info": "Más info para Propietarios",
       "free_valuation": "Solicitar valoración gratuita"
-    },
-    "tenants": {
-      "badge": "Para Inquilinos",
-      "title": "Encuentra tu hogar ideal",
-      "description": "¿Buscas vivienda en Málaga o la Málaga & Costa del Sol? Déjanos el trabajo a nosotros. Tenemos acceso a propiedades destacadas y la experiencia para encontrar exactamente lo que necesitas.",
-      "request_search": "Solicitar búsqueda",
-      "includes": "¿Qué incluye?",
-      "view_properties": "Ver propiedades disponibles"
     },
     "why_choose_us": {
       "title": "¿Por qué Gelabert Homes Real Estate?",
@@ -641,6 +670,20 @@
       "recipients": "Destinatarios",
       "recipients_text": "Interesados legítimos y portales inmobiliarios para promoción.",
       "rights": "Derechos"
+    },
+    "marketing": {
+      "badge": "Estrategia Premium",
+      "title_1": "Nuestro Plan de",
+      "title_2": "Marketing",
+      "subtitle": "Maximizamos la visibilidad de tu inmueble utilizando las últimas tecnologías y los portales inmobiliarios líderes.",
+      "tech_title": "Tecnología Visual",
+      "tech_drone": "Vídeo con Dron",
+      "tech_drone_desc": "Tomas aéreas cinemáticas que destacan el entorno.",
+      "tech_360": "Tour Virtual 360º",
+      "tech_360_desc": "Visitas inmersivas desde cualquier lugar del mundo.",
+      "tech_photo": "Fotografía Profesional",
+      "tech_photo_desc": "Reportajes de alta calidad y Home Staging digital.",
+      "portals_title": "Alcance Global"
     }
   },
   "contact_page": {
@@ -786,13 +829,34 @@
           "title": "3. Finalidades del tratamiento",
           "content": "Los datos personales serán tratados para las siguientes finalidades:",
           "subsections": [
-            { "title": "a) Atención de consultas", "content": "Atender solicitudes de información, resolver consultas y gestionar el contacto con usuarios interesados en inmuebles o servicios inmobiliarios." },
-            { "title": "b) Gestión de servicios inmobiliarios", "content": "Gestionar servicios relacionados con la intermediación inmobiliaria, tanto en alquiler como en compraventa, así como la relación con propietarios, compradores, vendedores, arrendadores, arrendatarios o interesados." },
-            { "title": "c) Gestión precontractual y contractual", "content": "Tramitar reservas, visitas, ofertas, candidaturas, arras, contratos, anexos y demás actuaciones necesarias antes o durante una operación inmobiliaria." },
-            { "title": "d) Estudio de solvencia", "content": "Solicitar, revisar y valorar documentación identificativa, económica y laboral para analizar la capacidad y solvencia de una persona interesada en una operación inmobiliaria." },
-            { "title": "e) Publicación y promoción de inmuebles", "content": "Gestionar la promoción y difusión de inmuebles en la web propia y en portales inmobiliarios como Idealista, Fotocasa, Pisos.com u otros similares." },
-            { "title": "f) Seguimiento comercial", "content": "Mantener comunicaciones relacionadas con inmuebles de interés, oportunidades inmobiliarias, visitas, disponibilidad y seguimiento profesional de operaciones." },
-            { "title": "g) Cumplimiento de obligaciones legales", "content": "Cumplir obligaciones legales, administrativas, fiscales, contables o atender requerimientos de autoridades competentes." }
+            {
+              "title": "a) Atención de consultas",
+              "content": "Atender solicitudes de información, resolver consultas y gestionar el contacto con usuarios interesados en inmuebles o servicios inmobiliarios."
+            },
+            {
+              "title": "b) Gestión de servicios inmobiliarios",
+              "content": "Gestionar servicios relacionados con la intermediación inmobiliaria, tanto en alquiler como en compraventa, así como la relación con propietarios, compradores, vendedores, arrendadores, arrendatarios o interesados."
+            },
+            {
+              "title": "c) Gestión precontractual y contractual",
+              "content": "Tramitar reservas, visitas, ofertas, candidaturas, arras, contratos, anexos y demás actuaciones necesarias antes o durante una operación inmobiliaria."
+            },
+            {
+              "title": "d) Estudio de solvencia",
+              "content": "Solicitar, revisar y valorar documentación identificativa, económica y laboral para analizar la capacidad y solvencia de una persona interesada en una operación inmobiliaria."
+            },
+            {
+              "title": "e) Publicación y promoción de inmuebles",
+              "content": "Gestionar la promoción y difusión de inmuebles en la web propia y en portales inmobiliarios como Idealista, Fotocasa, Pisos.com u otros similares."
+            },
+            {
+              "title": "f) Seguimiento comercial",
+              "content": "Mantener comunicaciones relacionadas con inmuebles de interés, oportunidades inmobiliarias, visitas, disponibilidad y seguimiento profesional de operaciones."
+            },
+            {
+              "title": "g) Cumplimiento de obligaciones legales",
+              "content": "Cumplir obligaciones legales, administrativas, fiscales, contables o atender requerimientos de autoridades competentes."
+            }
           ]
         },
         {
@@ -903,10 +967,22 @@
           "title": "2. Qué tipos de cookies puede utilizar este sitio web",
           "content": "Este sitio web puede utilizar cookies propias y de terceros, según su finalidad:",
           "subsections": [
-            { "title": "a) Cookies técnicas o necesarias", "content": "Son aquellas imprescindibles para permitir la navegación por el sitio web y el uso de sus funciones básicas, como controlar el tráfico, identificar la sesión, recordar elementos integrados o gestionar preferencias técnicas.\n\nEstas cookies no requieren consentimiento cuando se limitan a finalidades estrictamente técnicas o necesarias." },
-            { "title": "b) Cookies de personalización", "content": "Permiten recordar determinadas características o preferencias del usuario, como idioma, tipo de navegador o configuración regional, cuando ello resulte aplicable." },
-            { "title": "c) Cookies de análisis o medición", "content": "Permiten cuantificar el número de usuarios y realizar análisis estadísticos sobre el uso del sitio web, con el fin de mejorar los servicios ofrecidos y la experiencia de navegación." },
-            { "title": "d) Cookies publicitarias o de marketing", "content": "Permiten gestionar espacios publicitarios o realizar seguimiento del comportamiento del usuario para mostrar anuncios relevantes o adaptados a sus hábitos de navegación.\n\nEstas cookies solo se utilizarán si el usuario las acepta expresamente." }
+            {
+              "title": "a) Cookies técnicas o necesarias",
+              "content": "Son aquellas imprescindibles para permitir la navegación por el sitio web y el uso de sus funciones básicas, como controlar el tráfico, identificar la sesión, recordar elementos integrados o gestionar preferencias técnicas.\n\nEstas cookies no requieren consentimiento cuando se limitan a finalidades estrictamente técnicas o necesarias."
+            },
+            {
+              "title": "b) Cookies de personalización",
+              "content": "Permiten recordar determinadas características o preferencias del usuario, como idioma, tipo de navegador o configuración regional, cuando ello resulte aplicable."
+            },
+            {
+              "title": "c) Cookies de análisis o medición",
+              "content": "Permiten cuantificar el número de usuarios y realizar análisis estadísticos sobre el uso del sitio web, con el fin de mejorar los servicios ofrecidos y la experiencia de navegación."
+            },
+            {
+              "title": "d) Cookies publicitarias o de marketing",
+              "content": "Permiten gestionar espacios publicitarios o realizar seguimiento del comportamiento del usuario para mostrar anuncios relevantes o adaptados a sus hábitos de navegación.\n\nEstas cookies solo se utilizarán si el usuario las acepta expresamente."
+            }
           ]
         },
         {
