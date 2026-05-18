@@ -381,7 +381,7 @@ export const Propietarios = () => {
               <img 
                 src="https://images.unsplash.com/photo-1508614589041-895b88991e3e?q=80&w=1000&auto=format&fit=crop" 
                 alt="Vídeo Aéreo con Dron"
-                className="w-full h-full object-cover object-center opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
+                className="w-full h-full object-contain object-center opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
               <div className="absolute top-5 left-5">
@@ -408,7 +408,7 @@ export const Propietarios = () => {
               <img 
                 src="https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?q=80&w=1000&auto=format&fit=crop" 
                 alt="Tour Virtual 360º"
-                className="w-full h-full object-cover object-center opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
+                className="w-full h-full object-contain object-center opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
               <div className="absolute top-5 left-5">
@@ -563,7 +563,7 @@ export const Propietarios = () => {
                 },
                 {
                   key: 's3', icon: Camera,
-                  img: 'photo-1560185007-cde13a4e3b82',
+                  img: 'photo-1513694203232-719a280e022f',
                   alt: 'Preparación premium y Home Staging'
                 },
                 {
@@ -602,7 +602,7 @@ export const Propietarios = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-80px" }}
                     transition={{ duration: 0.7 }}
-                    className={`flex flex-col lg:flex-row items-stretch relative w-full gap-0 ${
+                    className={`group flex flex-col lg:flex-row items-stretch relative w-full gap-0 ${
                       isEven ? 'lg:flex-row-reverse' : ''
                     }`}
                   >
@@ -641,12 +641,8 @@ export const Propietarios = () => {
                       <img
                         src={`https://images.unsplash.com/${step.img}?q=80&w=800&auto=format&fit=crop`}
                         alt={step.alt}
-                        className="absolute inset-0 w-full h-full object-cover object-center opacity-35 hover:opacity-55 transition-opacity duration-700"
+                        className="absolute inset-0 w-full h-full object-cover object-center opacity-75 group-hover:opacity-100 transition-opacity duration-700"
                       />
-                      {/* Directional fade toward timeline center */}
-                      <div className={`absolute inset-0 ${isEven ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-[#0A0A0A] via-[#0A0A0A]/20 to-transparent`} />
-                      {/* Top/bottom fade */}
-                      <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-transparent to-[#0A0A0A]/60" />
                     </div>
 
                   </motion.div>
