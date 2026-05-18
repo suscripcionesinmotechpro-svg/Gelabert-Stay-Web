@@ -353,7 +353,7 @@ export const Propietarios = () => {
               <img 
                 src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop" 
                 alt="Fotografía Profesional de Inmuebles"
-                className="w-full h-full object-cover opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
+                className="w-full h-full object-cover object-center opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
               {/* Top label chip */}
@@ -381,7 +381,7 @@ export const Propietarios = () => {
               <img 
                 src="https://images.unsplash.com/photo-1508614589041-895b88991e3e?q=80&w=1000&auto=format&fit=crop" 
                 alt="Vídeo Aéreo con Dron"
-                className="w-full h-full object-cover opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
+                className="w-full h-full object-cover object-center opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
               <div className="absolute top-5 left-5">
@@ -408,7 +408,7 @@ export const Propietarios = () => {
               <img 
                 src="https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?q=80&w=1000&auto=format&fit=crop" 
                 alt="Tour Virtual 360º"
-                className="w-full h-full object-cover opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
+                className="w-full h-full object-cover object-center opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
               <div className="absolute top-5 left-5">
@@ -546,18 +546,51 @@ export const Propietarios = () => {
           </motion.div>
 
           <div className="relative mt-16">
-            <div className="hidden lg:block absolute left-1/2 top-4 bottom-4 w-px bg-gradient-to-b from-[#C9A962]/0 via-[#C9A962]/30 to-[#C9A962]/0 -translate-x-1/2" />
+            {/* Vertical timeline line */}
+            <div className="hidden lg:block absolute left-1/2 top-4 bottom-4 w-px bg-gradient-to-b from-[#C9A962]/0 via-[#C9A962]/30 to-[#C9A962]/0 -translate-x-1/2 z-10" />
 
-            <div className="space-y-8 lg:space-y-12">
+            <div className="space-y-8 lg:space-y-10">
               {[
-                { key: 's1', icon: Phone },
-                { key: 's2', icon: ClipboardList },
-                { key: 's3', icon: Camera },
-                { key: 's4', icon: Megaphone },
-                { key: 's5', icon: UsersRound },
-                { key: 's6', icon: Handshake },
-                { key: 's7', icon: FileText },
-                { key: 's8', icon: Key }
+                {
+                  key: 's1', icon: Phone,
+                  img: 'photo-1560472354-b33ff0c44a43',
+                  alt: 'Consulta inicial con asesor inmobiliario'
+                },
+                {
+                  key: 's2', icon: ClipboardList,
+                  img: 'photo-1553877522-43269d4ea984',
+                  alt: 'Plan estratégico de venta personalizado'
+                },
+                {
+                  key: 's3', icon: Camera,
+                  img: 'photo-1560185007-cde13a4e3b82',
+                  alt: 'Preparación premium y Home Staging'
+                },
+                {
+                  key: 's4', icon: Megaphone,
+                  img: 'photo-1460925895917-afdab827c52f',
+                  alt: 'Marketing digital avanzado en portales'
+                },
+                {
+                  key: 's5', icon: UsersRound,
+                  img: 'photo-1560518883-ce09059eeffa',
+                  alt: 'Visita de compradores cualificados'
+                },
+                {
+                  key: 's6', icon: Handshake,
+                  img: 'photo-1507679799987-c73779587ccf',
+                  alt: 'Negociación profesional de ofertas'
+                },
+                {
+                  key: 's7', icon: FileText,
+                  img: 'photo-1450101499163-c8848c66ca85',
+                  alt: 'Firma de arras y documentación legal'
+                },
+                {
+                  key: 's8', icon: Key,
+                  img: 'photo-1582407947304-fd86f28f7d8b',
+                  alt: 'Entrega de llaves y cierre exitoso'
+                }
               ].map((step, idx) => {
                 const Icon = step.icon;
                 const isEven = idx % 2 === 0;
@@ -567,26 +600,29 @@ export const Propietarios = () => {
                     key={step.key}
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
+                    viewport={{ once: true, margin: "-80px" }}
                     transition={{ duration: 0.7 }}
-                    className={`flex flex-col lg:flex-row items-center relative w-full ${
+                    className={`flex flex-col lg:flex-row items-stretch relative w-full gap-0 ${
                       isEven ? 'lg:flex-row-reverse' : ''
                     }`}
                   >
-                    <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-[#0A0A0A] border border-[#C9A962] items-center justify-center z-20 shadow-[0_0_15px_rgba(201,169,98,0.2)]">
+                    {/* Center number bubble */}
+                    <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#0A0A0A] border border-[#C9A962] items-center justify-center z-20 shadow-[0_0_20px_rgba(201,169,98,0.25)]">
                       <span className="font-secondary text-xs text-[#C9A962] font-semibold">
                         0{idx + 1}
                       </span>
                     </div>
 
-                    <div className="w-full lg:w-[calc(50%-40px)] flex flex-col justify-center">
-                      <div className="group bg-[#0E0E0E] border border-white/5 hover:border-[#C9A962]/30 p-8 rounded-sm relative transition-all duration-300">
+                    {/* ── Text Card ── */}
+                    <div className="w-full lg:w-[calc(50%-28px)] flex flex-col justify-center">
+                      <div className="group bg-[#0E0E0E] border border-white/5 hover:border-[#C9A962]/30 p-8 h-full relative transition-all duration-300">
+                        {/* Mobile step badge */}
                         <div className="lg:hidden absolute top-4 right-4 text-xs font-semibold text-[#C9A962] bg-[#C9A962]/10 px-2.5 py-1 uppercase tracking-widest font-primary">
                           Paso 0{idx + 1}
                         </div>
                         
                         <div className="flex items-center gap-4 mb-5">
-                          <div className="w-10 h-10 rounded-full bg-black border border-[#C9A962]/20 flex items-center justify-center group-hover:border-[#C9A962] group-hover:bg-[#C9A962]/5 transition-all duration-300">
+                          <div className="w-10 h-10 rounded-full bg-black border border-[#C9A962]/20 flex items-center justify-center group-hover:border-[#C9A962] group-hover:bg-[#C9A962]/5 transition-all duration-300 flex-shrink-0">
                             <Icon className="w-4 h-4 text-[#C9A962]" />
                           </div>
                           <h3 className="font-secondary text-xl text-white group-hover:text-[#C9A962] transition-colors duration-300">
@@ -594,13 +630,25 @@ export const Propietarios = () => {
                           </h3>
                         </div>
 
-                        <p className="font-primary text-sm text-white/50 leading-relaxed font-light group-hover:text-white/70 transition-colors duration-300">
+                        <p className="font-primary text-sm text-white/55 leading-relaxed font-light group-hover:text-white/75 transition-colors duration-300">
                           {t(`owners_page.process.${step.key}_desc`)}
                         </p>
                       </div>
                     </div>
 
-                    <div className="hidden lg:block w-[calc(50%-40px)]" />
+                    {/* ── Image Panel (desktop only) ── */}
+                    <div className="hidden lg:block w-[calc(50%-28px)] relative overflow-hidden min-h-[180px]">
+                      <img
+                        src={`https://images.unsplash.com/${step.img}?q=80&w=800&auto=format&fit=crop`}
+                        alt={step.alt}
+                        className="absolute inset-0 w-full h-full object-cover object-center opacity-35 hover:opacity-55 transition-opacity duration-700"
+                      />
+                      {/* Directional fade toward timeline center */}
+                      <div className={`absolute inset-0 ${isEven ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-[#0A0A0A] via-[#0A0A0A]/20 to-transparent`} />
+                      {/* Top/bottom fade */}
+                      <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/60 via-transparent to-[#0A0A0A]/60" />
+                    </div>
+
                   </motion.div>
                 );
               })}
