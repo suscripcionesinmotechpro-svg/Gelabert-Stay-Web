@@ -379,9 +379,9 @@ export const Propietarios = () => {
             >
               {/* Aerial drone coastline — genuinely represents drone footage over Mediterranean */}
               <img 
-                src="https://images.unsplash.com/photo-1508614589041-895b88991e3e?q=80&w=1000&auto=format&fit=crop" 
+                src="https://images.unsplash.com/photo-1473968512647-3e447244af8f?q=80&w=1000&auto=format&fit=crop" 
                 alt="Vídeo Aéreo con Dron"
-                className="w-full h-full object-contain object-center opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
+                className="w-full h-full object-cover object-center opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
               <div className="absolute top-5 left-5">
@@ -406,9 +406,9 @@ export const Propietarios = () => {
             >
               {/* VR headset / immersive virtual-tour technology */}
               <img 
-                src="https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?q=80&w=1000&auto=format&fit=crop" 
+                src="https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=1000&auto=format&fit=crop" 
                 alt="Tour Virtual 360º"
-                className="w-full h-full object-contain object-center opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
+                className="w-full h-full object-cover object-center opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
               <div className="absolute top-5 left-5">
