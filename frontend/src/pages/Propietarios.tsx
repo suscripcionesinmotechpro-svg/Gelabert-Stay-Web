@@ -58,13 +58,13 @@ export const Propietarios = () => {
       <div className="w-full min-h-screen flex flex-col lg:flex-row relative">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          {/* Imagen: Villa mediterránea ultra-premium, moderna con piscina reflectante al atardecer */}
+          {/* Imagen original: Villa mediterránea premium con jardín y detalles arquitectónicos elegantes */}
           <img 
-            src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2000&auto=format&fit=crop" 
-            className="w-full h-full object-cover opacity-75 brightness-[1.0] saturate-[1.4] contrast-[1.1] scale-105"
+            src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2000&auto=format&fit=crop" 
+            className="w-full h-full object-cover opacity-80 brightness-[0.95] saturate-[1.3] contrast-[1.05] scale-105"
             alt=""
           />
-          <div className="absolute inset-0 bg-gradient-to-l from-[#050505]/90 via-[#050505]/40 to-[#050505]/70" />
+          <div className="absolute inset-0 bg-gradient-to-l from-[#050505]/90 via-[#050505]/40 to-[#050505]/65" />
         </div>
 
         {/* Background Mesh */}
@@ -271,7 +271,7 @@ export const Propietarios = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { key: 'p1', icon: TrendingUp },
               { key: 'p2', icon: Camera },
@@ -287,19 +287,26 @@ export const Propietarios = () => {
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
-                  className="group relative bg-[#0C0C0C] border border-white/5 p-8 md:p-10 hover:border-[#C9A962]/30 transition-all duration-500 rounded-sm hover:-translate-y-1"
+                  transition={{ duration: 0.5, delay: idx * 0.08 }}
+                  className="group relative bg-[#0C0C0C] border border-white/5 p-8 hover:border-[#C9A962]/30 transition-all duration-500 rounded-sm hover:-translate-y-1 overflow-hidden"
                 >
+                  {/* Top accent line on hover */}
                   <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#C9A962] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
-                  <div className="w-12 h-12 rounded-sm border border-[#C9A962]/20 flex items-center justify-center mb-6 bg-black/40 group-hover:border-[#C9A962]/60 group-hover:bg-[#C9A962]/5 transition-all duration-500">
-                    <Icon className="w-5 h-5 text-[#C9A962] transition-transform duration-500 group-hover:scale-110" />
+
+                  {/* Large background number */}
+                  <span className="absolute top-4 right-5 font-secondary text-6xl text-white/[0.04] select-none group-hover:text-[#C9A962]/[0.07] transition-colors duration-500 leading-none">
+                    0{idx + 1}
+                  </span>
+
+                  <div className="flex items-center gap-4 mb-5">
+                    <div className="w-11 h-11 rounded-sm border border-[#C9A962]/20 flex items-center justify-center bg-black/40 group-hover:border-[#C9A962]/60 group-hover:bg-[#C9A962]/5 transition-all duration-500 flex-shrink-0">
+                      <Icon className="w-5 h-5 text-[#C9A962] transition-transform duration-500 group-hover:scale-110" />
+                    </div>
+                    <h3 className="font-secondary text-xl text-white group-hover:text-[#C9A962] transition-colors duration-300">
+                      {t(`owners_page.pillars.${pillar.key}_title`)}
+                    </h3>
                   </div>
-                  
-                  <h3 className="font-secondary text-xl text-white mb-4 group-hover:text-[#C9A962] transition-colors duration-300">
-                    {t(`owners_page.pillars.${pillar.key}_title`)}
-                  </h3>
-                  
+
                   <p className="font-primary text-sm text-white/50 leading-relaxed font-light group-hover:text-white/70 transition-colors duration-300">
                     {t(`owners_page.pillars.${pillar.key}_desc`)}
                   </p>
@@ -331,76 +338,91 @@ export const Propietarios = () => {
             </p>
           </motion.div>
 
-          {/* Technology Cards */}
+          {/* Technology Cards — tall portrait cards with real matching images */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            {/* Drone */}
+
+            {/* ── FOTOGRAFÍA PROFESIONAL ── real estate interior shoot */}
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="group relative h-[400px] overflow-hidden bg-black border border-white/10"
+              className="group relative h-[460px] overflow-hidden bg-black border border-white/10 hover:border-[#C9A962]/30 transition-colors duration-500"
             >
+              {/* Professional real-estate interior photography */}
               <img 
-                src="https://images.unsplash.com/photo-1504109586057-7a2ae83d1338?q=80&w=1000&auto=format&fit=crop" 
-                alt="Drone & Aerial Video"
-                className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
+                src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop" 
+                alt="Fotografía Profesional de Inmuebles"
+                className="w-full h-full object-cover opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
+              {/* Top label chip */}
+              <div className="absolute top-5 left-5">
+                <span className="font-primary text-[9px] uppercase tracking-[0.3em] text-[#C9A962] bg-black/60 backdrop-blur-sm px-3 py-1.5 border border-[#C9A962]/30">01</span>
+              </div>
               <div className="absolute bottom-0 left-0 right-0 p-8">
-                <div className="w-10 h-10 rounded-full border border-[#C9A962]/40 flex items-center justify-center mb-4 bg-black/40 backdrop-blur-md">
-                  <Sparkles className="w-4 h-4 text-[#C9A962]" />
+                <div className="w-10 h-10 rounded-sm border border-[#C9A962]/40 flex items-center justify-center mb-4 bg-black/40 backdrop-blur-md">
+                  <Camera className="w-4 h-4 text-[#C9A962]" />
                 </div>
-                <h3 className="font-secondary text-2xl text-white mb-2">{t('owners_page.marketing.tech_drone')}</h3>
-                <p className="font-primary text-sm text-white/60">{t('owners_page.marketing.tech_drone_desc')}</p>
+                <h3 className="font-secondary text-2xl text-white mb-3 leading-tight">{t('owners_page.marketing.tech_photo')}</h3>
+                <p className="font-primary text-sm text-white/60 leading-relaxed">{t('owners_page.marketing.tech_photo_desc')}</p>
               </div>
             </motion.div>
 
-            {/* 360 Tour */}
+            {/* ── VÍDEO AÉREO CON DRON ── real aerial coastline shot */}
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="group relative h-[400px] overflow-hidden bg-black border border-white/10"
+              className="group relative h-[460px] overflow-hidden bg-black border border-white/10 hover:border-[#C9A962]/30 transition-colors duration-500"
             >
+              {/* Aerial drone coastline — genuinely represents drone footage over Mediterranean */}
               <img 
-                src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1000&auto=format&fit=crop" 
-                alt="360º Virtual Tour"
-                className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
+                src="https://images.unsplash.com/photo-1508614589041-895b88991e3e?q=80&w=1000&auto=format&fit=crop" 
+                alt="Vídeo Aéreo con Dron"
+                className="w-full h-full object-cover opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
+              <div className="absolute top-5 left-5">
+                <span className="font-primary text-[9px] uppercase tracking-[0.3em] text-[#C9A962] bg-black/60 backdrop-blur-sm px-3 py-1.5 border border-[#C9A962]/30">02</span>
+              </div>
               <div className="absolute bottom-0 left-0 right-0 p-8">
-                <div className="w-10 h-10 rounded-full border border-[#C9A962]/40 flex items-center justify-center mb-4 bg-black/40 backdrop-blur-md">
-                  <CheckCircle2 className="w-4 h-4 text-[#C9A962]" />
+                <div className="w-10 h-10 rounded-sm border border-[#C9A962]/40 flex items-center justify-center mb-4 bg-black/40 backdrop-blur-md">
+                  <Sparkles className="w-4 h-4 text-[#C9A962]" />
                 </div>
-                <h3 className="font-secondary text-2xl text-white mb-2">{t('owners_page.marketing.tech_360')}</h3>
-                <p className="font-primary text-sm text-white/60">{t('owners_page.marketing.tech_360_desc')}</p>
+                <h3 className="font-secondary text-2xl text-white mb-3 leading-tight">{t('owners_page.marketing.tech_drone')}</h3>
+                <p className="font-primary text-sm text-white/60 leading-relaxed">{t('owners_page.marketing.tech_drone_desc')}</p>
               </div>
             </motion.div>
 
-            {/* Photography */}
+            {/* ── TOUR VIRTUAL 360º ── VR / immersive tour */}
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="group relative h-[400px] overflow-hidden bg-black border border-white/10"
+              className="group relative h-[460px] overflow-hidden bg-black border border-white/10 hover:border-[#C9A962]/30 transition-colors duration-500"
             >
+              {/* VR headset / immersive virtual-tour technology */}
               <img 
-                src="https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=1000&auto=format&fit=crop" 
-                alt="Professional Photography & Styling"
-                className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
+                src="https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?q=80&w=1000&auto=format&fit=crop" 
+                alt="Tour Virtual 360º"
+                className="w-full h-full object-cover opacity-65 group-hover:opacity-85 group-hover:scale-105 transition-all duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
+              <div className="absolute top-5 left-5">
+                <span className="font-primary text-[9px] uppercase tracking-[0.3em] text-[#C9A962] bg-black/60 backdrop-blur-sm px-3 py-1.5 border border-[#C9A962]/30">03</span>
+              </div>
               <div className="absolute bottom-0 left-0 right-0 p-8">
-                <div className="w-10 h-10 rounded-full border border-[#C9A962]/40 flex items-center justify-center mb-4 bg-black/40 backdrop-blur-md">
-                  <Sparkles className="w-4 h-4 text-[#C9A962]" />
+                <div className="w-10 h-10 rounded-sm border border-[#C9A962]/40 flex items-center justify-center mb-4 bg-black/40 backdrop-blur-md">
+                  <CheckCircle2 className="w-4 h-4 text-[#C9A962]" />
                 </div>
-                <h3 className="font-secondary text-2xl text-white mb-2">{t('owners_page.marketing.tech_photo')}</h3>
-                <p className="font-primary text-sm text-white/60">{t('owners_page.marketing.tech_photo_desc')}</p>
+                <h3 className="font-secondary text-2xl text-white mb-3 leading-tight">{t('owners_page.marketing.tech_360')}</h3>
+                <p className="font-primary text-sm text-white/60 leading-relaxed">{t('owners_page.marketing.tech_360_desc')}</p>
               </div>
             </motion.div>
+
           </div>
 
           {/* Portals Section */}
