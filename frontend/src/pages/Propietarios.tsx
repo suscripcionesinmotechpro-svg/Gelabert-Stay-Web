@@ -588,7 +588,7 @@ export const Propietarios = () => {
                 },
                 {
                   key: 's8', icon: Key,
-                  img: 'photo-1582407947304-fd86f28f7d8b',
+                  img: 'photo-1558036117-15d82a90b9b1',
                   alt: 'Entrega de llaves y cierre exitoso'
                 }
               ].map((step, idx) => {
