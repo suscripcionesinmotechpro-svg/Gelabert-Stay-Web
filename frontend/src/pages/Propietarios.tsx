@@ -342,8 +342,8 @@ export const Propietarios = () => {
               className="group relative h-[400px] overflow-hidden bg-black border border-white/10"
             >
               <img 
-                src="https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=1000&auto=format&fit=crop" 
-                alt="Drone Photography"
+                src="https://images.unsplash.com/photo-1504109586057-7a2ae83d1338?q=80&w=1000&auto=format&fit=crop" 
+                alt="Drone & Aerial Video"
                 className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
@@ -365,8 +365,8 @@ export const Propietarios = () => {
               className="group relative h-[400px] overflow-hidden bg-black border border-white/10"
             >
               <img 
-                src="https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?q=80&w=1000&auto=format&fit=crop" 
-                alt="360 Virtual Tour"
+                src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1000&auto=format&fit=crop" 
+                alt="360º Virtual Tour"
                 className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
@@ -388,8 +388,8 @@ export const Propietarios = () => {
               className="group relative h-[400px] overflow-hidden bg-black border border-white/10"
             >
               <img 
-                src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1000&auto=format&fit=crop" 
-                alt="Professional Photography"
+                src="https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=1000&auto=format&fit=crop" 
+                alt="Professional Photography & Styling"
                 className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
