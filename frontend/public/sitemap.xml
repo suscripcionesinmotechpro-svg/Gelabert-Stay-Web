@@ -151,16 +151,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://gelaberthomes.es/propiedades/GEL-134-01</loc>
-    <lastmod>2026-05-18</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://gelaberthomes.es/en/propiedades/GEL-134-01</loc>
-    <lastmod>2026-05-18</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://gelaberthomes.es/propiedades/GEL-112</loc>
     <lastmod>2026-04-29</lastmod>
     <priority>0.6</priority>
@@ -168,6 +158,16 @@
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-112</loc>
     <lastmod>2026-04-29</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/propiedades/GEL-134-02</loc>
+    <lastmod>2026-05-18</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/en/propiedades/GEL-134-02</loc>
+    <lastmod>2026-05-18</lastmod>
     <priority>0.6</priority>
   </url>
   <url>

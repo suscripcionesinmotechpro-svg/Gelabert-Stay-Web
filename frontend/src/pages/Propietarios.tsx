@@ -58,9 +58,9 @@ export const Propietarios = () => {
       <div className="w-full min-h-screen flex flex-col lg:flex-row relative">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          {/* Imagen: Villa de lujo con fachada blanca, piscina y palmeras — estilo mediterráneo premium */}
+          {/* Imagen: Villa mediterránea ultra-premium, moderna con piscina reflectante al atardecer */}
           <img 
-            src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2000&auto=format&fit=crop" 
+            src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2000&auto=format&fit=crop" 
             className="w-full h-full object-cover opacity-75 brightness-[1.0] saturate-[1.4] contrast-[1.1] scale-105"
             alt=""
           />
@@ -150,10 +150,10 @@ export const Propietarios = () => {
           </motion.div>
         </div>
 
-        {/* Scroll Indicator - Shows a floating scroll-down cue on desktop to guide users to content below */}
+        {/* Scroll Indicator - Shows a floating scroll-down cue on desktop to guide owners down */}
         <div 
           className="hidden lg:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex-col items-center gap-2 cursor-pointer group pointer-events-auto select-none"
-          onClick={() => document.getElementById('marketing-tech')?.scrollIntoView({ behavior: 'smooth' })}
+          onClick={() => document.getElementById('why-choose')?.scrollIntoView({ behavior: 'smooth' })}
         >
           <span className="font-primary text-[10px] uppercase tracking-[0.25em] text-[#C9A962] font-semibold opacity-60 group-hover:opacity-100 transition-opacity duration-300">
             {t('owners_page.hero.discover_tech_label', 'Nuestra Estrategia')}
@@ -168,15 +168,157 @@ export const Propietarios = () => {
         </div>
       </div>
 
-      {/* Marketing & Technology Section */}
-      <section id="marketing-tech" className="w-full bg-[#0A0A0A] py-24 md:py-32 relative z-10 border-t border-white/5">
+      {/* SECTION 1: Why Choose Gelabert Homes & Objective Section */}
+      <section id="why-choose" className="w-full bg-[#050505] py-12 md:py-16 relative z-10 border-t border-white/5">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-14">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-stretch">
+            
+            <div className="lg:col-span-7 flex flex-col justify-center">
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+              >
+                <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold block mb-4">
+                  {t('owners_page.why.badge')}
+                </span>
+                <h2 className="font-secondary text-4xl md:text-5xl text-white mb-6 leading-tight">
+                  {t('owners_page.why.title_1')} <span className="italic text-[#C9A962]">{t('owners_page.why.title_2')}</span>
+                </h2>
+              </motion.div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  'f1', 'f2', 'f3', 'f4', 'f5', 'f6'
+                ].map((featureKey, idx) => (
+                  <motion.div
+                    key={featureKey}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: idx * 0.05 }}
+                    className="flex items-start gap-4 p-4 border border-white/5 hover:border-[#C9A962]/20 hover:bg-[#C9A962]/5 transition-all duration-300 group rounded-sm"
+                  >
+                    <div className="mt-1 w-5 h-5 rounded-full border border-[#C9A962]/30 flex items-center justify-center flex-shrink-0 group-hover:border-[#C9A962] group-hover:bg-[#C9A962]/10 transition-colors">
+                      <Check className="w-3 h-3 text-[#C9A962]" />
+                    </div>
+                    <p className="font-primary text-sm text-white/60 leading-relaxed font-light group-hover:text-white/80 transition-colors">
+                      {t(`owners_page.why.${featureKey}`)}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 flex items-stretch">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="w-full bg-[#0C0C0C] border border-[#C9A962]/20 p-8 md:p-12 rounded-sm flex flex-col justify-between relative overflow-hidden group shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#C9A962]/10 blur-3xl pointer-events-none rounded-full" />
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#C9A962]/5 blur-3xl pointer-events-none rounded-full" />
+
+                <div>
+                  <div className="w-14 h-14 rounded-full border border-[#C9A962]/30 flex items-center justify-center mb-10 bg-black shadow-[0_0_15px_rgba(201,169,98,0.1)] group-hover:border-[#C9A962] transition-colors duration-500">
+                    <Gem className="w-6 h-6 text-[#C9A962]" />
+                  </div>
+                  
+                  <span className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.4em] font-bold block mb-4">
+                    {t('owners_page.why.objective_badge')}
+                  </span>
+                  
+                  <h3 className="font-secondary text-3xl md:text-4xl text-white leading-snug italic font-light">
+                    &ldquo;{t('owners_page.why.objective_title')}&rdquo;
+                  </h3>
+                </div>
+
+                <div className="mt-14 pt-8 border-t border-white/5 flex items-center justify-between">
+                  <span className="font-secondary text-xs uppercase tracking-[0.2em] text-white/30 font-semibold">
+                    Gelabert Homes Real Estate
+                  </span>
+                  <div className="w-8 h-[1px] bg-[#C9A962]/40" />
+                </div>
+              </motion.div>
+            </div>
+            
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 2: 6 Strategic Pillars Section */}
+      <section id="strategic-pillars" className="w-full bg-[#050505] py-12 md:py-16 relative z-10 border-t border-white/5">
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#C9A962]/3 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
         <div className="max-w-[1440px] mx-auto px-6 md:px-14">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="text-center max-w-3xl mx-auto mb-20"
+            className="text-center max-w-3xl mx-auto mb-12"
+          >
+            <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold block mb-4">
+              {t('owners_page.pillars.badge')}
+            </span>
+            <h2 className="font-secondary text-4xl md:text-5xl text-white mb-6 leading-tight">
+              {t('owners_page.pillars.title_1')} <span className="italic text-[#C9A962]">{t('owners_page.pillars.title_2')}</span>
+            </h2>
+            <p className="font-primary text-white/50 text-lg font-light leading-relaxed">
+              {t('owners_page.pillars.subtitle')}
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              { key: 'p1', icon: TrendingUp },
+              { key: 'p2', icon: Camera },
+              { key: 'p3', icon: Megaphone },
+              { key: 'p4', icon: UsersRound },
+              { key: 'p5', icon: BarChart3 },
+              { key: 'p6', icon: Shield }
+            ].map((pillar, idx) => {
+              const Icon = pillar.icon;
+              return (
+                <motion.div
+                  key={pillar.key}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: idx * 0.1 }}
+                  className="group relative bg-[#0C0C0C] border border-white/5 p-8 md:p-10 hover:border-[#C9A962]/30 transition-all duration-500 rounded-sm hover:-translate-y-1"
+                >
+                  <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#C9A962] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <div className="w-12 h-12 rounded-sm border border-[#C9A962]/20 flex items-center justify-center mb-6 bg-black/40 group-hover:border-[#C9A962]/60 group-hover:bg-[#C9A962]/5 transition-all duration-500">
+                    <Icon className="w-5 h-5 text-[#C9A962] transition-transform duration-500 group-hover:scale-110" />
+                  </div>
+                  
+                  <h3 className="font-secondary text-xl text-white mb-4 group-hover:text-[#C9A962] transition-colors duration-300">
+                    {t(`owners_page.pillars.${pillar.key}_title`)}
+                  </h3>
+                  
+                  <p className="font-primary text-sm text-white/50 leading-relaxed font-light group-hover:text-white/70 transition-colors duration-300">
+                    {t(`owners_page.pillars.${pillar.key}_desc`)}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: Marketing & Technology Section */}
+      <section id="marketing-tech" className="w-full bg-[#050505] py-12 md:py-16 relative z-10 border-t border-white/5">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-14">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center max-w-3xl mx-auto mb-12"
           >
             <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold block mb-4">
               {t('owners_page.marketing.badge')}
@@ -190,7 +332,7 @@ export const Propietarios = () => {
           </motion.div>
 
           {/* Technology Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-24">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
             {/* Drone */}
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
@@ -200,7 +342,7 @@ export const Propietarios = () => {
               className="group relative h-[400px] overflow-hidden bg-black border border-white/10"
             >
               <img 
-                src="https://images.unsplash.com/photo-1508614589041-895b88991e3e?q=80&w=1000&auto=format&fit=crop" 
+                src="https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=1000&auto=format&fit=crop" 
                 alt="Drone Photography"
                 className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
               />
@@ -223,7 +365,7 @@ export const Propietarios = () => {
               className="group relative h-[400px] overflow-hidden bg-black border border-white/10"
             >
               <img 
-                src="https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?q=80&w=1000&auto=format&fit=crop" 
+                src="https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?q=80&w=1000&auto=format&fit=crop" 
                 alt="360 Virtual Tour"
                 className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
               />
@@ -246,7 +388,7 @@ export const Propietarios = () => {
               className="group relative h-[400px] overflow-hidden bg-black border border-white/10"
             >
               <img 
-                src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop" 
+                src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1000&auto=format&fit=crop" 
                 alt="Professional Photography"
                 className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
               />
@@ -263,10 +405,10 @@ export const Propietarios = () => {
 
           {/* Portals Section */}
           <div className="border border-white/5 bg-[#0F0F0F] p-10 md:p-16 flex flex-col items-center">
-            <h3 className="font-primary text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold mb-14 text-center">
+            <h3 className="font-primary text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold mb-8 text-center">
               {t('owners_page.marketing.portals_title')}
             </h3>
-            <div className="flex flex-col items-center gap-10">
+            <div className="flex flex-col items-center gap-8">
               <div className="flex flex-wrap justify-center items-center gap-10 md:gap-14">
 
                 {/* Idealista */}
@@ -359,69 +501,8 @@ export const Propietarios = () => {
         </div>
       </section>
 
-      {/* 6 Strategic Pillars Section */}
-      <section className="w-full bg-[#050505] py-24 md:py-32 relative z-10 border-t border-white/5">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#C9A962]/3 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
-        <div className="max-w-[1440px] mx-auto px-6 md:px-14">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center max-w-3xl mx-auto mb-20"
-          >
-            <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold block mb-4">
-              {t('owners_page.pillars.badge')}
-            </span>
-            <h2 className="font-secondary text-4xl md:text-5xl text-white mb-6 leading-tight">
-              {t('owners_page.pillars.title_1')} <span className="italic text-[#C9A962]">{t('owners_page.pillars.title_2')}</span>
-            </h2>
-            <p className="font-primary text-white/50 text-lg font-light leading-relaxed">
-              {t('owners_page.pillars.subtitle')}
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { key: 'p1', icon: TrendingUp },
-              { key: 'p2', icon: Camera },
-              { key: 'p3', icon: Megaphone },
-              { key: 'p4', icon: UsersRound },
-              { key: 'p5', icon: BarChart3 },
-              { key: 'p6', icon: Shield }
-            ].map((pillar, idx) => {
-              const Icon = pillar.icon;
-              return (
-                <motion.div
-                  key={pillar.key}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
-                  className="group relative bg-[#0C0C0C] border border-white/5 p-8 md:p-10 hover:border-[#C9A962]/30 transition-all duration-500 rounded-sm hover:-translate-y-1"
-                >
-                  <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#C9A962] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
-                  <div className="w-12 h-12 rounded-sm border border-[#C9A962]/20 flex items-center justify-center mb-6 bg-black/40 group-hover:border-[#C9A962]/60 group-hover:bg-[#C9A962]/5 transition-all duration-500">
-                    <Icon className="w-5 h-5 text-[#C9A962] transition-transform duration-500 group-hover:scale-110" />
-                  </div>
-                  
-                  <h3 className="font-secondary text-xl text-white mb-4 group-hover:text-[#C9A962] transition-colors duration-300">
-                    {t(`owners_page.pillars.${pillar.key}_title`)}
-                  </h3>
-                  
-                  <p className="font-primary text-sm text-white/50 leading-relaxed font-light group-hover:text-white/70 transition-colors duration-300">
-                    {t(`owners_page.pillars.${pillar.key}_desc`)}
-                  </p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* 8-Step Selling Process Timeline Section */}
-      <section className="w-full bg-[#0A0A0A] py-24 md:py-32 relative z-10 border-t border-white/5">
+      {/* SECTION 4: 8-Step Selling Process Timeline Section */}
+      <section id="selling-process" className="w-full bg-[#0A0A0A] py-12 md:py-16 relative z-10 border-t border-white/5">
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#C9A962]/2 blur-[120px] rounded-full mix-blend-screen pointer-events-none" />
         <div className="max-w-[1440px] mx-auto px-6 md:px-14">
           <motion.div 
@@ -429,7 +510,7 @@ export const Propietarios = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="text-center max-w-3xl mx-auto mb-20"
+            className="text-center max-w-3xl mx-auto mb-12"
           >
             <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold block mb-4">
               {t('owners_page.process.badge')}
@@ -445,7 +526,7 @@ export const Propietarios = () => {
           <div className="relative mt-16">
             <div className="hidden lg:block absolute left-1/2 top-4 bottom-4 w-px bg-gradient-to-b from-[#C9A962]/0 via-[#C9A962]/30 to-[#C9A962]/0 -translate-x-1/2" />
 
-            <div className="space-y-12 lg:space-y-20">
+            <div className="space-y-8 lg:space-y-12">
               {[
                 { key: 's1', icon: Phone },
                 { key: 's2', icon: ClipboardList },
@@ -506,89 +587,8 @@ export const Propietarios = () => {
         </div>
       </section>
 
-      {/* Why Choose Gelabert Homes & Objective Section */}
-      <section className="w-full bg-[#050505] py-24 md:py-32 relative z-10 border-t border-white/5">
-        <div className="max-w-[1440px] mx-auto px-6 md:px-14">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-stretch">
-            
-            <div className="lg:col-span-7 flex flex-col justify-center">
-              <motion.div 
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-              >
-                <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold block mb-4">
-                  {t('owners_page.why.badge')}
-                </span>
-                <h2 className="font-secondary text-4xl md:text-5xl text-white mb-10 leading-tight">
-                  {t('owners_page.why.title_1')} <span className="italic text-[#C9A962]">{t('owners_page.why.title_2')}</span>
-                </h2>
-              </motion.div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[
-                  'f1', 'f2', 'f3', 'f4', 'f5', 'f6'
-                ].map((featureKey, idx) => (
-                  <motion.div
-                    key={featureKey}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: idx * 0.05 }}
-                    className="flex items-start gap-4 p-4 border border-white/5 hover:border-[#C9A962]/20 hover:bg-[#C9A962]/5 transition-all duration-300 group rounded-sm"
-                  >
-                    <div className="mt-1 w-5 h-5 rounded-full border border-[#C9A962]/30 flex items-center justify-center flex-shrink-0 group-hover:border-[#C9A962] group-hover:bg-[#C9A962]/10 transition-colors">
-                      <Check className="w-3 h-3 text-[#C9A962]" />
-                    </div>
-                    <p className="font-primary text-sm text-white/60 leading-relaxed font-light group-hover:text-white/80 transition-colors">
-                      {t(`owners_page.why.${featureKey}`)}
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            <div className="lg:col-span-5 flex items-stretch">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="w-full bg-[#0C0C0C] border border-[#C9A962]/20 p-8 md:p-12 rounded-sm flex flex-col justify-between relative overflow-hidden group shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
-              >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#C9A962]/10 blur-3xl pointer-events-none rounded-full" />
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#C9A962]/5 blur-3xl pointer-events-none rounded-full" />
-
-                <div>
-                  <div className="w-14 h-14 rounded-full border border-[#C9A962]/30 flex items-center justify-center mb-10 bg-black shadow-[0_0_15px_rgba(201,169,98,0.1)] group-hover:border-[#C9A962] transition-colors duration-500">
-                    <Gem className="w-6 h-6 text-[#C9A962]" />
-                  </div>
-                  
-                  <span className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.4em] font-bold block mb-4">
-                    {t('owners_page.why.objective_badge')}
-                  </span>
-                  
-                  <h3 className="font-secondary text-3xl md:text-4xl text-white leading-snug italic font-light">
-                    &ldquo;{t('owners_page.why.objective_title')}&rdquo;
-                  </h3>
-                </div>
-
-                <div className="mt-14 pt-8 border-t border-white/5 flex items-center justify-between">
-                  <span className="font-secondary text-xs uppercase tracking-[0.2em] text-white/30 font-semibold">
-                    Gelabert Homes Real Estate
-                  </span>
-                  <div className="w-8 h-[1px] bg-[#C9A962]/40" />
-                </div>
-              </motion.div>
-            </div>
-            
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action Banner (Valuation) */}
-      <section className="w-full py-24 md:py-32 bg-[#050505] relative z-10 border-t border-white/5 overflow-hidden">
+      {/* SECTION 5: Call to Action Banner (Valuation) */}
+      <section className="w-full py-12 md:py-16 bg-[#050505] relative z-10 border-t border-white/5 overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#C9A962]/5 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
         
         <div className="max-w-[1440px] mx-auto px-6 md:px-14">
@@ -597,7 +597,7 @@ export const Propietarios = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="w-full bg-[#0C0C0C] border border-[#C9A962]/30 p-10 md:p-20 relative rounded-sm text-center shadow-[0_15px_40px_rgba(0,0,0,0.6)]"
+            className="w-full bg-[#0C0C0C] border border-[#C9A962]/30 p-8 md:p-12 relative rounded-sm text-center shadow-[0_15px_40px_rgba(0,0,0,0.6)]"
           >
             <div className="absolute top-0 inset-x-0 h-1 w-full bg-gradient-to-r from-transparent via-[#C9A962]/40 to-transparent" />
             <div className="absolute bottom-0 inset-x-0 h-1 w-full bg-gradient-to-r from-transparent via-[#C9A962]/40 to-transparent" />
@@ -611,7 +611,7 @@ export const Propietarios = () => {
                 {t('owners_page.cta_banner.title')}
               </h2>
 
-              <p className="font-primary text-white/50 text-base md:text-lg font-light leading-relaxed mb-12 max-w-2xl">
+              <p className="font-primary text-white/50 text-base md:text-lg font-light leading-relaxed mb-8 max-w-2xl">
                 {t('owners_page.cta_banner.subtitle')}
               </p>
 
@@ -633,4 +633,3 @@ export const Propietarios = () => {
     </div>
   );
 };
-
