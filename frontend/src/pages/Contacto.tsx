@@ -61,7 +61,7 @@ export const Contacto = () => {
             "mainEntity": {
               "@type": "RealEstateAgent",
               "name": "Gelabert Homes Real Estate",
-              "telephone": "+34611898827",
+              "telephone": ["+34611898827", "+34604932510"],
               "email": "info@gelaberthomes.es",
               "url": "https://gelaberthomes.es/",
               "address": {
@@ -144,9 +144,14 @@ export const Contacto = () => {
               <span className="block text-[#666666] text-xs uppercase tracking-widest mb-2 font-bold font-primary">
                 {t('contact_page.hero.phone')}
               </span>
-              <a href="tel:+34611898827" className="text-white hover:text-[#C9A962] transition-colors font-secondary text-lg">
-                +34 611 89 88 27
-              </a>
+              <div className="flex flex-col gap-1.5">
+                <a href="tel:+34611898827" className="text-white hover:text-[#C9A962] transition-colors font-secondary text-lg block">
+                  +34 611 89 88 27
+                </a>
+                <a href="tel:+34604932510" className="text-white hover:text-[#C9A962] transition-colors font-secondary text-lg block">
+                  +34 604 93 25 10
+                </a>
+              </div>
             </motion.div>
           </div>
 
