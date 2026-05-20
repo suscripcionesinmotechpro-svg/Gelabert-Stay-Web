@@ -88,6 +88,22 @@ export const Home = () => {
   }, [featuredPropertiesData]);
   const [heroIndex, setHeroIndex] = useState(0);
   
+  // Guardar de forma dinámica qué diapositivas ya han sido cargadas en el DOM (inicialmente la 1 y la 2)
+  const [loadedIndices, setLoadedIndices] = useState<number[]>([0, 1]);
+
+  useEffect(() => {
+    const nextIndex = (heroIndex + 1) % TOTAL_SLIDES;
+    setLoadedIndices(prev => {
+      if (prev.includes(heroIndex) && prev.includes(nextIndex)) {
+        return prev;
+      }
+      const next = [...prev];
+      if (!next.includes(heroIndex)) next.push(heroIndex);
+      if (!next.includes(nextIndex)) next.push(nextIndex);
+      return next;
+    });
+  }, [heroIndex]);
+  
   // Create refs for multiple videos
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -240,6 +256,9 @@ export const Home = () => {
       <div className="absolute inset-0 z-0 bg-[#080808]">
         {/* Mixed media slides */}
         {HERO_SLIDES.map((slide, i) => {
+          const isLoaded = loadedIndices.includes(i);
+          if (!isLoaded) return null;
+
           if (slide.type === 'image') {
             return (
               <img
