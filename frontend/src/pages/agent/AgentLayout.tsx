@@ -134,7 +134,7 @@ export const AgentLayout = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] flex">
+    <div className="min-h-screen bg-[#0F0F0F] flex admin-panel">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-60 bg-[#0A0A0A] border-r border-[#1F1F1F] flex-col flex-shrink-0 fixed top-0 left-0 h-full z-30">
         {sidebarContent}

@@ -244,3 +244,103 @@
 .property-grid-container {
   will-change: transform;
 }
+
+/* ==========================================================================
+   Admin & Agent Panel Contrast & Readability Enhancements
+   ========================================================================== */
+.admin-panel {
+  color: #FAF8F5 !important;
+}
+
+/* Base text contrast improvements */
+.admin-panel p,
+.admin-panel span,
+.admin-panel div,
+.admin-panel h1,
+.admin-panel h2,
+.admin-panel h3,
+.admin-panel label {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Override dark/muted text colors with higher contrast options */
+.admin-panel .text-\[\#888888\] {
+  color: #D1D5DB !important; /* Lighter bright grey */
+}
+
+.admin-panel .text-\[\#666666\] {
+  color: #9CA3AF !important; /* Clearly readable medium grey */
+}
+
+.admin-panel .text-\[\#444444\] {
+  color: #888888 !important; /* Lighter dark-grey for table headers */
+}
+
+.admin-panel .text-\[\#333333\] {
+  color: #777777 !important;
+}
+
+/* Explicit class-based overrides for Tailwind color palettes in admin panel */
+.admin-panel .text-neutral-400,
+.admin-panel .text-gray-400 {
+  color: #F3F4F6 !important;
+}
+
+.admin-panel .text-neutral-500,
+.admin-panel .text-gray-500 {
+  color: #E5E7EB !important;
+}
+
+.admin-panel .text-neutral-600,
+.admin-panel .text-gray-600 {
+  color: #9CA3AF !important;
+}
+
+/* Label accessibility & readability */
+.admin-panel label,
+.admin-panel .labelClass {
+  color: #FAF8F5 !important; /* Keep all form labels clean off-white */
+  font-weight: 600 !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Table headers */
+.admin-panel .grid span.text-\[\#444444\] {
+  color: #FAF8F5 !important;
+  font-weight: 700 !important;
+}
+
+/* Input placeholder visibility */
+.admin-panel input::placeholder,
+.admin-panel textarea::placeholder {
+  color: #666666 !important;
+}
+
+/* Focus and inputs border visibility */
+.admin-panel input,
+.admin-panel select,
+.admin-panel textarea {
+  border-color: #374151 !important; /* Slightly lighter border */
+}
+
+.admin-panel input:focus,
+.admin-panel select:focus,
+.admin-panel textarea:focus {
+  border-color: #C9A962 !important;
+}
+
+/* Navigation items in sidebar */
+.admin-panel nav a.text-\[\#888888\] {
+  color: #D1D5DB !important;
+}
+
+.admin-panel nav a:hover {
+  color: #FAF8F5 !important;
+}
+
+/* Footer / user info visibility */
+.admin-panel .text-\[\#444444\].truncate {
+  color: #FAF8F5 !important;
+  font-weight: 500 !important;
+}
+
