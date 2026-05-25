@@ -65,8 +65,8 @@ export const AdminAgentCRM = () => {
                tenantsAll, contractsActive] = await Promise.all([
           supabase.from('properties').select('id', { count: 'exact', head: true }).eq('agent_id', agentId),
           supabase.from('properties').select('id', { count: 'exact', head: true }).eq('agent_id', agentId).eq('status', 'publicada'),
-          supabase.from('properties').select('id', { count: 'exact', head: true }).eq('agent_id', agentId).eq('tipo_oferta', 'alquiler'),
-          supabase.from('properties').select('id', { count: 'exact', head: true }).eq('agent_id', agentId).eq('tipo_oferta', 'venta'),
+          supabase.from('properties').select('id', { count: 'exact', head: true }).eq('agent_id', agentId).eq('operation', 'alquiler'),
+          supabase.from('properties').select('id', { count: 'exact', head: true }).eq('agent_id', agentId).eq('operation', 'venta'),
           supabase.from('invoices').select('amount', { count: 'exact' }).eq('agent_id', agentId),
           supabase.from('invoices').select('amount', { count: 'exact' }).eq('agent_id', agentId).gte('created_at', firstOfMonth),
           supabase.from('leads_crm').select('id', { count: 'exact', head: true }).eq('agent_id', agentId),

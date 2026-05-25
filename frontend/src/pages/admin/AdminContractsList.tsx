@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContracts } from '../../hooks/useContracts';
+import { useAuth } from '../../hooks/useAuth';
 import { 
   FileText, Search, Plus, MapPin, Calendar, 
   User, CheckCircle2, XCircle, Clock
@@ -9,7 +10,9 @@ import { CONTRACT_STATUS_LABELS, CONTRACT_STATUS_COLORS } from '../../types/tena
 
 export const AdminContractsList = () => {
   const navigate = useNavigate();
-  const { contracts, loading } = useContracts();
+  const { user } = useAuth();
+  const [filterAgent, setFilterAgent] = useState<'mine' | 'all'>('mine');
+  const { contracts, loading } = useContracts(undefined, filterAgent === 'mine' ? user?.id : undefined);
   const [search, setSearch] = useState('');
 
   const filteredContracts = contracts.filter(c => {
@@ -39,6 +42,30 @@ export const AdminContractsList = () => {
         >
           <Plus className="w-4 h-4" />
           Nuevo Contrato
+        </button>
+      </div>
+
+      {/* Tab Selector */}
+      <div className="flex border-b border-[#1F1F1F] bg-[#0A0A0A] p-1 gap-2 self-start rounded-sm">
+        <button
+          onClick={() => setFilterAgent('mine')}
+          className={`px-6 py-2.5 text-xs font-primary uppercase font-bold tracking-wider rounded-sm transition-all ${
+            filterAgent === 'mine'
+              ? 'bg-[#C9A962] text-[#0A0A0A]'
+              : 'text-[#666] hover:text-[#FAF8F5] bg-transparent'
+          }`}
+        >
+          Mis Contratos
+        </button>
+        <button
+          onClick={() => setFilterAgent('all')}
+          className={`px-6 py-2.5 text-xs font-primary uppercase font-bold tracking-wider rounded-sm transition-all ${
+            filterAgent === 'all'
+              ? 'bg-[#C9A962] text-[#0A0A0A]'
+              : 'text-[#666] hover:text-[#FAF8F5] bg-transparent'
+          }`}
+        >
+          Todos los Contratos
         </button>
       </div>
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInvoiceSummary, useInvoices, useInvoiceMutations } from '../../hooks/useInvoices';
+import { useAuth } from '../../hooks/useAuth';
 import { useAccounting } from '../../hooks/useAccounting';
 import { STATUS_LABELS } from '../../types/invoice';
 import { 
@@ -18,6 +19,8 @@ const cardClass = "bg-[#0A0A0A] border border-[#1F1F1F] p-5 flex flex-col gap-2"
 const inputClass = "w-full h-10 bg-[#0F0F0F] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
 
 export const AdminInvoices = () => {
+  const { user } = useAuth();
+  const [filterAgent, setFilterAgent] = useState<'mine' | 'all'>('mine');
   const [activeTab, setActiveTab] = useState<'invoices' | 'variable_expenses' | 'fixed_expenses' | 'issuers'>('invoices');
   
   const currentYear = new Date().getFullYear();
@@ -82,13 +85,13 @@ export const AdminInvoices = () => {
   const { summary, loading: loadingSummary } = useInvoiceSummary({
     startDate: dateRange.start,
     endDate: dateRange.end
-  });
+  }, filterAgent === 'mine' ? user?.id : undefined);
   
   const { invoices, refetch } = useInvoices({
     startDate: dateRange.start,
     endDate: dateRange.end,
     status: selectedStatus,
-  });
+  }, filterAgent === 'mine' ? user?.id : undefined);
 
   const filteredInvoices = invoices.filter(inv => {
     if (activeTab === 'invoices') {
@@ -230,6 +233,30 @@ export const AdminInvoices = () => {
             Emisores
           </button>
         </div>
+      </div>
+
+      {/* Tab Selector */}
+      <div className="flex border-b border-[#1F1F1F] bg-[#0A0A0A] p-1 gap-2 self-start rounded-sm">
+        <button
+          onClick={() => setFilterAgent('mine')}
+          className={`px-6 py-2.5 text-xs font-primary uppercase font-bold tracking-wider rounded-sm transition-all ${
+            filterAgent === 'mine'
+              ? 'bg-[#C9A962] text-[#0A0A0A]'
+              : 'text-[#666] hover:text-[#FAF8F5] bg-transparent'
+          }`}
+        >
+          Mis Facturas
+        </button>
+        <button
+          onClick={() => setFilterAgent('all')}
+          className={`px-6 py-2.5 text-xs font-primary uppercase font-bold tracking-wider rounded-sm transition-all ${
+            filterAgent === 'all'
+              ? 'bg-[#C9A962] text-[#0A0A0A]'
+              : 'text-[#666] hover:text-[#FAF8F5] bg-transparent'
+          }`}
+        >
+          Todas las Facturas
+        </button>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">

@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTenants } from '../../hooks/useTenants';
 import { useContracts } from '../../hooks/useContracts';
+import { useAuth } from '../../hooks/useAuth.tsx';
 import { Search, PlusCircle, Users, AlertTriangle, ChevronRight, Phone, Mail, Eye } from 'lucide-react';
 import { CONTRACT_STATUS_COLORS, CONTRACT_STATUS_LABELS, daysUntilExpiry } from '../../types/tenant';
 import type { Contract } from '../../types/tenant';
 
 export const AdminTenantsList = () => {
+  const { user } = useAuth();
+  const [filterAgent, setFilterAgent] = useState<'mine' | 'all'>('mine');
+  const agentId = filterAgent === 'mine' ? user?.id : undefined;
+
   const [inputValue, setInputValue] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
@@ -16,8 +21,8 @@ export const AdminTenantsList = () => {
     return () => clearTimeout(timer);
   }, [inputValue]);
 
-  const { tenants, loading } = useTenants(debouncedSearch);
-  const { contracts } = useContracts();
+  const { tenants, loading } = useTenants(debouncedSearch, agentId);
+  const { contracts } = useContracts(undefined, agentId);
 
   // Map tenant_id → active contract
   const contractByTenant = contracts.reduce<Record<string, Contract>>((acc, c) => {
@@ -41,13 +46,38 @@ export const AdminTenantsList = () => {
           <h1 className="font-secondary text-3xl text-[#FAF8F5]">Inquilinos</h1>
           <p className="font-primary text-[#666] text-sm mt-1">Gestión de inquilinos y contratos de alquiler</p>
         </div>
-        <Link
-          to="/admin/inquilinos/nuevo"
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#D4B673] transition-colors"
-        >
-          <PlusCircle className="w-4 h-4" />
-          Nuevo Inquilino
-        </Link>
+        <div className="flex items-center gap-3">
+          {/* Mine / All tab selector */}
+          <div className="flex bg-[#0A0A0A] border border-[#1F1F1F] p-0.5">
+            <button
+              onClick={() => setFilterAgent('mine')}
+              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
+                filterAgent === 'mine'
+                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
+                  : 'text-[#666] hover:text-[#FAF8F5]'
+              }`}
+            >
+              Mis Inquilinos
+            </button>
+            <button
+              onClick={() => setFilterAgent('all')}
+              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
+                filterAgent === 'all'
+                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
+                  : 'text-[#666] hover:text-[#FAF8F5]'
+              }`}
+            >
+              Todos
+            </button>
+          </div>
+          <Link
+            to="/admin/inquilinos/nuevo"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#D4B673] transition-colors"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Nuevo Inquilino
+          </Link>
+        </div>
       </div>
 
       {/* Search */}

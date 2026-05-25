@@ -156,7 +156,7 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false, agen
   useEffect(() => {
     fetchProperties(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtersString, adminMode]);
+  }, [filtersString, adminMode, agentId]);
 
   const loadMore = () => {
     if (!loading && !loadingMore && hasMore) {

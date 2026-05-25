@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react';
 import { Search, MessageSquare, User, Trash2, ExternalLink, Copy, Check } from 'lucide-react';
 import type { LeadCRM, ScoredProperty } from '../../hooks/useLeadsCRM';
 import { useLeadsCRM, updateLeadStatus, updateLeadNotes, searchPropertiesForBot, deleteLead } from '../../hooks/useLeadsCRM';
+import { useAuth } from '../../hooks/useAuth.tsx';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { supabase } from '../../lib/supabase';
 
 export const AdminLeadsCRM = () => {
+  const { user } = useAuth();
+  const [filterAgent, setFilterAgent] = useState<'mine' | 'all'>('mine');
+  const agentId = filterAgent === 'mine' ? user?.id : undefined;
+
   const [filterIntent, setFilterIntent] = useState<string>('todos');
   const [filterStatus, setFilterStatus] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,6 +22,7 @@ export const AdminLeadsCRM = () => {
     intent: filterIntent,
     status: filterStatus,
     search: searchQuery,
+    agentId,
   });
 
   const [notes, setNotes] = useState('');
@@ -122,7 +128,31 @@ export const AdminLeadsCRM = () => {
           <p className="text-[#888888] font-primary text-xs mt-1 uppercase tracking-wider">Gestión de prospectos captados</p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Mine / All tab selector */}
+          <div className="flex bg-[#0A0A0A] border border-[#1F1F1F] p-0.5">
+            <button
+              onClick={() => setFilterAgent('mine')}
+              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
+                filterAgent === 'mine'
+                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
+                  : 'text-[#666] hover:text-[#FAF8F5]'
+              }`}
+            >
+              Mis Leads
+            </button>
+            <button
+              onClick={() => setFilterAgent('all')}
+              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
+                filterAgent === 'all'
+                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
+                  : 'text-[#666] hover:text-[#FAF8F5]'
+              }`}
+            >
+              Todos
+            </button>
+          </div>
+
           {captureLinks.map((link) => (
             <button
               key={link.id}

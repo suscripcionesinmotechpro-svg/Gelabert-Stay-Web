@@ -1,26 +1,39 @@
 import { Link } from 'react-router-dom';
-import { useAdminStats } from '../../hooks/useProperties';
+import { useAuth } from '../../hooks/useAuth.tsx';
+import { useAdminStats, useAgentStats } from '../../hooks/useProperties';
 import { useExpiringContracts, useContracts } from '../../hooks/useContracts';
 import { useTenants } from '../../hooks/useTenants';
 import { Building2, Eye, FileText, TrendingUp, PlusCircle, List, Users, AlertTriangle, CalendarClock } from 'lucide-react';
 import { daysUntilExpiry } from '../../types/tenant';
+import { useState } from 'react';
 
 export const AdminDashboard = () => {
-  const { stats, loading } = useAdminStats();
-  const { tenants } = useTenants();
-  const { contracts } = useContracts();
-  const { contracts: expiring } = useExpiringContracts(60);
+  const { user } = useAuth();
+  const [filterAgent, setFilterAgent] = useState<'mine' | 'all'>('mine');
+  const agentId = filterAgent === 'mine' ? user?.id : undefined;
+
+  const { stats: adminStats, loading: adminLoading } = useAdminStats();
+  const { stats: agentStats, loading: agentLoading } = useAgentStats(agentId);
+
+  const stats  = filterAgent === 'mine' ? agentStats  : adminStats;
+  const loading = filterAgent === 'mine' ? agentLoading : adminLoading;
+
+  const { tenants } = useTenants(undefined, agentId);
+  const { contracts } = useContracts(undefined, agentId);
+  const { contracts: expiring } = useExpiringContracts(60, agentId);
 
   const activeContracts = contracts.filter(c => c.status === 'active').length;
 
+  const isMine = filterAgent === 'mine';
+
   const statCards = [
-    { label: 'Total', value: stats.total, icon: <Building2 className="w-5 h-5" />, color: 'text-[#C9A962]' },
+    { label: isMine ? 'Mis Propiedades' : 'Total Oficina', value: stats.total, icon: <Building2 className="w-5 h-5" />, color: 'text-[#C9A962]' },
     { label: 'Publicadas', value: stats.publicadas, icon: <Eye className="w-5 h-5" />, color: 'text-green-400' },
     { label: 'Borradores', value: stats.borradores, icon: <FileText className="w-5 h-5" />, color: 'text-yellow-400' },
     { label: 'Alquiler', value: stats.alquiler, icon: <TrendingUp className="w-5 h-5" />, color: 'text-blue-400' },
     { label: 'Venta', value: stats.venta, icon: <TrendingUp className="w-5 h-5" />, color: 'text-purple-400' },
     { label: 'Traspaso', value: stats.traspaso, icon: <TrendingUp className="w-5 h-5" />, color: 'text-orange-400' },
-    { label: 'Inquilinos', value: tenants.length, icon: <Users className="w-5 h-5" />, color: 'text-[#C9A962]' },
+    { label: isMine ? 'Mis Inquilinos' : 'Todos los Inquilinos', value: tenants.length, icon: <Users className="w-5 h-5" />, color: 'text-[#C9A962]' },
     { label: 'Contratos Activos', value: activeContracts, icon: <CalendarClock className="w-5 h-5" />, color: 'text-teal-400' },
   ];
 
@@ -32,13 +45,38 @@ export const AdminDashboard = () => {
           <h1 className="font-secondary text-3xl text-[#FAF8F5]">Panel de Control</h1>
           <p className="font-primary text-[#666666] text-sm mt-1">Gestión integral de propiedades y contratos</p>
         </div>
-        <Link
-          to="/admin/propiedades/nueva"
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#D4B673] transition-colors"
-        >
-          <PlusCircle className="w-4 h-4" />
-          Nueva Propiedad
-        </Link>
+        <div className="flex items-center gap-3">
+          {/* Mine / All tab selector */}
+          <div className="flex bg-[#0A0A0A] border border-[#1F1F1F] p-0.5">
+            <button
+              onClick={() => setFilterAgent('mine')}
+              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
+                filterAgent === 'mine'
+                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
+                  : 'text-[#666] hover:text-[#FAF8F5]'
+              }`}
+            >
+              Mis Datos
+            </button>
+            <button
+              onClick={() => setFilterAgent('all')}
+              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
+                filterAgent === 'all'
+                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
+                  : 'text-[#666] hover:text-[#FAF8F5]'
+              }`}
+            >
+              Toda la Oficina
+            </button>
+          </div>
+          <Link
+            to="/admin/propiedades/nueva"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#D4B673] transition-colors"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Nueva Propiedad
+          </Link>
+        </div>
       </div>
 
       {/* Expiry Alert */}

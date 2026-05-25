@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { useProperties } from '../../hooks/useProperties';
 import { usePropertyContracts } from '../../hooks/useContracts';
+import { useAuth } from '../../hooks/useAuth.tsx';
 import type { Property } from '../../types/property';
 import { COMMERCIAL_STATUS_COLORS, COMMERCIAL_STATUS_LABELS } from '../../types/property';
 import { supabase } from '../../lib/supabase';
@@ -257,7 +258,11 @@ const PropertyRow = ({ property }: { property: Property }) => {
 };
 
 export const AdminReservations = () => {
-  const { properties, loading, refetch } = useProperties(undefined, true);
+  const { user } = useAuth();
+  const [filterAgent, setFilterAgent] = useState<'mine' | 'all'>('mine');
+  const agentId = filterAgent === 'mine' ? user?.id : undefined;
+
+  const { properties, loading, refetch } = useProperties(undefined, true, agentId);
   const [search, setSearch] = useState('');
 
   const rental = properties.filter(p =>
@@ -293,6 +298,29 @@ export const AdminReservations = () => {
           </p>
         </div>
         <div className="flex items-center gap-4">
+          {/* Mine / All tab selector */}
+          <div className="flex bg-black/30 border border-[#1F1F1F] p-0.5">
+            <button
+              onClick={() => setFilterAgent('mine')}
+              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
+                filterAgent === 'mine'
+                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
+                  : 'text-[#666] hover:text-[#FAF8F5]'
+              }`}
+            >
+              Mis Propiedades
+            </button>
+            <button
+              onClick={() => setFilterAgent('all')}
+              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
+                filterAgent === 'all'
+                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
+                  : 'text-[#666] hover:text-[#FAF8F5]'
+              }`}
+            >
+              Todas
+            </button>
+          </div>
           <button 
             onClick={handleSyncStatuses}
             disabled={syncing}
