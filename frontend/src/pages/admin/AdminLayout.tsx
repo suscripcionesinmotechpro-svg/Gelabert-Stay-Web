@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 export const AdminLayout = () => {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, userProfile } = useAuth();
 
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -50,10 +50,18 @@ export const AdminLayout = () => {
   ];
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate(`/admin/login`, { replace: true });
+    if (!loading) {
+      if (!user) {
+        navigate(`/admin/login`, { replace: true });
+      } else if (userProfile && userProfile.role !== 'admin') {
+        if (userProfile.role === 'agent') {
+          navigate(`/agente/dashboard`, { replace: true });
+        } else {
+          signOut().then(() => navigate(`/admin/login`, { replace: true }));
+        }
+      }
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, userProfile, navigate, signOut]);
 
   if (loading) {
     return (

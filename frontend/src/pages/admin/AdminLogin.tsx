@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, Lock } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 export const AdminLogin = () => {
   const [email, setEmail] = useState('');
@@ -10,22 +11,26 @@ export const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { signIn, user } = useAuth();
+  const { signIn, user, userProfile } = useAuth();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Forzar siempre español en el login administrativo
+    // Forzar siempre español en el login administrativo/privado
     if (i18n.language !== 'es') {
       i18n.changeLanguage('es');
     }
   }, [i18n]);
 
   useEffect(() => {
-    if (user) {
-      navigate(`/admin/dashboard`);
+    if (user && userProfile) {
+      if (userProfile.role === 'agent') {
+        navigate(`/agente/dashboard`, { replace: true });
+      } else {
+        navigate(`/admin/dashboard`, { replace: true });
+      }
     }
-  }, [user, navigate]);
+  }, [user, userProfile, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,10 +43,26 @@ export const AdminLogin = () => {
     const result = await signIn(email, password);
     if (result.error) {
       setError(result.error);
+      setLoading(false);
     } else {
-      navigate(`/admin/dashboard`);
+      // Determinar rol e ir a la ruta correspondiente inmediatamente
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser) {
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('role')
+          .eq('id', currentUser.id)
+          .maybeSingle();
+
+        if (profile?.role === 'agent') {
+          navigate(`/agente/dashboard`, { replace: true });
+        } else {
+          navigate(`/admin/dashboard`, { replace: true });
+        }
+      } else {
+        navigate(`/admin/dashboard`, { replace: true });
+      }
     }
-    setLoading(false);
   };
 
   return (
