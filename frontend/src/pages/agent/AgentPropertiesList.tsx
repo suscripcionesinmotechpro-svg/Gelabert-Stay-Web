@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProperties, usePropertyMutations } from '../../hooks/useProperties';
+import { useAuth } from '../../hooks/useAuth.tsx';
 import type { Property, PropertyStatus, CommercialStatus } from '../../types/property';
 import { STATUS_LABELS, STATUS_COLORS, OPERATION_LABELS, COMMERCIAL_STATUS_LABELS, COMMERCIAL_STATUS_COLORS } from '../../types/property';
 import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid } from 'lucide-react';
@@ -96,7 +97,8 @@ const CommercialStatusDropdown = ({ property, onStatusChange }: { property: Prop
 };
 
 export const AgentPropertiesList = () => {
-  const { properties, loading, error, refetch } = useProperties(undefined, true);
+  const { user } = useAuth();
+  const { properties, loading, error, refetch } = useProperties(undefined, true, user?.id);
   const { deleteProperty, toggleFeatured } = usePropertyMutations();
   const [deleting, setDeleting] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState('');

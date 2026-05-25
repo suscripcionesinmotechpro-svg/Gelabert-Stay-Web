@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTenants } from '../../hooks/useTenants';
 import { useContracts } from '../../hooks/useContracts';
+import { useAuth } from '../../hooks/useAuth.tsx';
 import { Search, PlusCircle, Users, AlertTriangle, ChevronRight, Phone, Mail, Eye } from 'lucide-react';
 import { CONTRACT_STATUS_COLORS, CONTRACT_STATUS_LABELS, daysUntilExpiry } from '../../types/tenant';
 import type { Contract } from '../../types/tenant';
 
 export const AgentTenantsList = () => {
+  const { user } = useAuth();
+  const agentId = user?.id;
   const [inputValue, setInputValue] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
@@ -16,8 +19,8 @@ export const AgentTenantsList = () => {
     return () => clearTimeout(timer);
   }, [inputValue]);
 
-  const { tenants, loading } = useTenants(debouncedSearch);
-  const { contracts } = useContracts();
+  const { tenants, loading } = useTenants(debouncedSearch, agentId);
+  const { contracts } = useContracts(undefined, agentId);
 
   // Map tenant_id → active contract
   const contractByTenant = contracts.reduce<Record<string, Contract>>((acc, c) => {

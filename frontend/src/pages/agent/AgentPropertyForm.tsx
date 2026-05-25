@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useProperty, usePropertyMutations, uploadPropertyMedia, deletePropertyMedia } from '../../hooks/useProperties';
+import { useAuth } from '../../hooks/useAuth.tsx';
 import { usePropertyContracts } from '../../hooks/useContracts';
 import type { PropertyInsert, PropertyOperation, PropertyType, PropertyStatus, CommercialStatus } from '../../types/property';
 import { AVAILABLE_TAGS } from '../../types/property';
@@ -111,6 +112,7 @@ const DEFAULT_FORM: Partial<PropertyInsert> = {
 
 
 export const AgentPropertyForm = () => {
+  const { user } = useAuth();
   const { id } = useParams<{ id?: string }>();
   const isEditing = !!id && id !== 'nueva';
   const navigate = useNavigate();
@@ -505,6 +507,11 @@ export const AgentPropertyForm = () => {
     try {
       // 1. Clonar el estado para limpieza
       const data: any = { ...form };
+
+      // Asignar el agente actual a la propiedad si es nueva
+      if (!isEditing && user?.id) {
+        data.agent_id = user.id;
+      }
       
       // Auto-generar SEO si faltan datos críticos
       if (!data.slug && data.title) {

@@ -9,7 +9,7 @@ export interface InvoiceFilters {
 }
 
 // ─── LIST & FILTER ──────────────────────────────────────────────────
-export const useInvoices = (filters?: InvoiceFilters) => {
+export const useInvoices = (filters?: InvoiceFilters, agentId?: string) => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +22,11 @@ export const useInvoices = (filters?: InvoiceFilters) => {
         .from('invoices')
         .select('*')
         .order('invoice_date', { ascending: false });
+
+      // Filter by agent if provided
+      if (agentId) {
+        query = query.eq('agent_id', agentId);
+      }
 
       if (filters?.startDate) {
         query = query.gte('invoice_date', filters.startDate);
@@ -54,13 +59,13 @@ export const useInvoices = (filters?: InvoiceFilters) => {
     }
   };
 
-  useEffect(() => { fetchInvoices(); }, [filters?.startDate, filters?.endDate, filters?.status]);
+  useEffect(() => { fetchInvoices(); }, [filters?.startDate, filters?.endDate, filters?.status, agentId]);
 
   return { invoices, loading, error, refetch: fetchInvoices };
 };
 
 // ─── SUMMARY / STATS ────────────────────────────────────────────────
-export const useInvoiceSummary = (filters: { startDate: string; endDate: string }) => {
+export const useInvoiceSummary = (filters: { startDate: string; endDate: string }, agentId?: string) => {
   const [summary, setSummary] = useState<InvoiceSummary>({
     totalPeriod: 0, 
     taxPeriod: 0, 
@@ -82,11 +87,13 @@ export const useInvoiceSummary = (filters: { startDate: string; endDate: string 
   const fetchSummary = async () => {
     setLoading(true);
 
-    const { data: invoiceData } = await supabase
+    let invoiceQuery = supabase
       .from('invoices')
       .select('*')
       .gte('invoice_date', filters.startDate)
       .lte('invoice_date', filters.endDate);
+    if (agentId) invoiceQuery = invoiceQuery.eq('agent_id', agentId);
+    const { data: invoiceData } = await invoiceQuery;
 
     const { data: fixedData } = await supabase
       .from('accounting_fixed_expenses')

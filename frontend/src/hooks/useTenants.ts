@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import type { Tenant, TenantInsert } from '../types/tenant';
 
 // ─── LIST ────────────────────────────────────────────────────────────────────
-export const useTenants = (search?: string) => {
+export const useTenants = (search?: string, agentId?: string) => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,6 +16,11 @@ export const useTenants = (search?: string) => {
         .from('tenants')
         .select('*')
         .order('last_name', { ascending: true });
+
+      // Filter by agent if provided
+      if (agentId) {
+        query = query.eq('agent_id', agentId);
+      }
 
       if (search && search.trim()) {
         const term = `%${search.trim()}%`;
@@ -30,7 +35,7 @@ export const useTenants = (search?: string) => {
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [search, agentId]);
 
   useEffect(() => { fetchTenants(); }, [fetchTenants]);
 

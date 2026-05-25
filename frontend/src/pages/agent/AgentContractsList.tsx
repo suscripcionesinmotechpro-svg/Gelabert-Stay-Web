@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContracts } from '../../hooks/useContracts';
+import { useAuth } from '../../hooks/useAuth.tsx';
 import { 
   FileText, Search, Plus, MapPin, Calendar, 
   User, CheckCircle2, XCircle, Clock
@@ -9,7 +10,8 @@ import { CONTRACT_STATUS_LABELS, CONTRACT_STATUS_COLORS } from '../../types/tena
 
 export const AgentContractsList = () => {
   const navigate = useNavigate();
-  const { contracts, loading } = useContracts();
+  const { user } = useAuth();
+  const { contracts, loading } = useContracts(undefined, user?.id);
   const [search, setSearch] = useState('');
 
   const filteredContracts = contracts.filter(c => {

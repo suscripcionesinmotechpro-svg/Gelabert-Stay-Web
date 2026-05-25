@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useProperties } from '../../hooks/useProperties';
+import { useAuth } from '../../hooks/useAuth.tsx';
 import { usePropertyContracts } from '../../hooks/useContracts';
 import type { Property } from '../../types/property';
 import { COMMERCIAL_STATUS_COLORS, COMMERCIAL_STATUS_LABELS } from '../../types/property';
@@ -257,7 +258,8 @@ const PropertyRow = ({ property }: { property: Property }) => {
 };
 
 export const AgentReservations = () => {
-  const { properties, loading, refetch } = useProperties(undefined, true);
+  const { user } = useAuth();
+  const { properties, loading, refetch } = useProperties(undefined, true, user?.id);
   const [search, setSearch] = useState('');
 
   const rental = properties.filter(p =>

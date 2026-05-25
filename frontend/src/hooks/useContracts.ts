@@ -29,8 +29,8 @@ const dedupContracts = (contracts: Contract[]): Contract[] => {
   return Array.from(map.values());
 };
 
-// ─── LIST ALL (with tenant join) ─────────────────────────────────────────────
-export const useContracts = (tenantId?: string) => {
+// ─── LIST ALL (with tenant join) ─────────────────────────────────────────────────────
+export const useContracts = (tenantId?: string, agentId?: string) => {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +45,8 @@ export const useContracts = (tenantId?: string) => {
         .order('end_date', { ascending: true });
 
       if (tenantId) query = query.eq('tenant_id', tenantId);
+      // Filter by agent if provided
+      if (agentId) query = query.eq('agent_id', agentId);
 
       const { data, error: err } = await query;
       if (err) throw err;
@@ -54,15 +56,15 @@ export const useContracts = (tenantId?: string) => {
     } finally {
       setLoading(false);
     }
-  }, [tenantId]);
+  }, [tenantId, agentId]);
 
   useEffect(() => { fetchContracts(); }, [fetchContracts]);
 
   return { contracts, loading, error, refetch: fetchContracts };
 };
 
-// ─── EXPIRING WITHIN N DAYS ──────────────────────────────────────────────────
-export const useExpiringContracts = (days = 60) => {
+// ─── EXPIRING WITHIN N DAYS ──────────────────────────────────────────────────────
+export const useExpiringContracts = (days = 60, agentId?: string) => {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -74,18 +76,24 @@ export const useExpiringContracts = (days = 60) => {
     const todayStr = today.toISOString().split('T')[0];
     const futureStr = future.toISOString().split('T')[0];
 
-    supabase
+    let query = supabase
       .from('contracts')
       .select(`*, tenant:tenants(id, first_name, last_name)`)
       .eq('status', 'active')
       .gte('end_date', todayStr)
       .lte('end_date', futureStr)
-      .order('end_date', { ascending: true })
-      .then(({ data }) => {
-        setContracts(dedupContracts((data || []) as Contract[]));
-        setLoading(false);
-      });
-  }, [days]);
+      .order('end_date', { ascending: true });
+
+    // Filter by agent if provided
+    if (agentId) {
+      query = query.eq('agent_id', agentId);
+    }
+
+    query.then(({ data }) => {
+      setContracts(dedupContracts((data || []) as Contract[]));
+      setLoading(false);
+    });
+  }, [days, agentId]);
 
   return { contracts, loading };
 };

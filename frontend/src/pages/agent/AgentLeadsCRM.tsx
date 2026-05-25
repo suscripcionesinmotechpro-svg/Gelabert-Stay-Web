@@ -5,8 +5,11 @@ import { useLeadsCRM, updateLeadStatus, updateLeadNotes, searchPropertiesForBot,
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../hooks/useAuth.tsx';
 
 export const AgentLeadsCRM = () => {
+  const { user } = useAuth();
+  const [filterAgent, setFilterAgent] = useState<'mine' | 'all'>('mine');
   const [filterIntent, setFilterIntent] = useState<string>('todos');
   const [filterStatus, setFilterStatus] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,6 +20,7 @@ export const AgentLeadsCRM = () => {
     intent: filterIntent,
     status: filterStatus,
     search: searchQuery,
+    agentId: filterAgent === 'mine' ? user?.id : undefined,
   });
 
   const [notes, setNotes] = useState('');
@@ -146,6 +150,20 @@ export const AgentLeadsCRM = () => {
       <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
         {/* Left column: List */}
         <div className="w-full lg:w-1/3 flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] rounded-lg overflow-hidden">
+          <div className="grid grid-cols-2 border-b border-[#1F1F1F]">
+            <button
+              onClick={() => setFilterAgent('mine')}
+              className={`py-3 text-xs font-primary uppercase font-bold tracking-wider text-center border-b-2 transition-all ${filterAgent === 'mine' ? 'border-[#C9A962] text-[#C9A962] bg-[#111]' : 'border-transparent text-[#666] hover:text-[#FAF8F5]'}`}
+            >
+              Mis Leads
+            </button>
+            <button
+              onClick={() => setFilterAgent('all')}
+              className={`py-3 text-xs font-primary uppercase font-bold tracking-wider text-center border-b-2 transition-all ${filterAgent === 'all' ? 'border-[#C9A962] text-[#C9A962] bg-[#111]' : 'border-transparent text-[#666] hover:text-[#FAF8F5]'}`}
+            >
+              Todos los Leads
+            </button>
+          </div>
           <div className="p-4 border-b border-[#1F1F1F] space-y-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#888888]" />

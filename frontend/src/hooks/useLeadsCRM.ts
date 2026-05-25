@@ -148,6 +148,7 @@ export interface LeadFilters {
   intent?: string;
   status?: string;
   search?: string;
+  agentId?: string;
 }
 
 export const useLeadsCRM = (filters?: LeadFilters) => {
@@ -176,6 +177,9 @@ export const useLeadsCRM = (filters?: LeadFilters) => {
       if (filters?.search) {
         query = query.or(`name.ilike.%${filters.search}%,email.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`);
       }
+      if (filters?.agentId) {
+        query = query.eq('agent_id', filters.agentId);
+      }
 
       const { data, error: err } = await query;
       if (err) throw err;
@@ -192,7 +196,7 @@ export const useLeadsCRM = (filters?: LeadFilters) => {
     } finally {
       setLoading(false);
     }
-  }, [filters?.intent, filters?.status, filters?.search]);
+  }, [filters?.intent, filters?.status, filters?.search, filters?.agentId]);
 
   useEffect(() => { 
     fetchLeads(); 

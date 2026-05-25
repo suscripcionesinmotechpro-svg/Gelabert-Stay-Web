@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.tsx';
-import { useAdminStats } from '../../hooks/useProperties';
+import { useAgentStats } from '../../hooks/useProperties';
 import { useExpiringContracts, useContracts } from '../../hooks/useContracts';
 import { useTenants } from '../../hooks/useTenants';
 import {
@@ -10,11 +10,12 @@ import {
 import { daysUntilExpiry } from '../../types/tenant';
 
 export const AgentDashboard = () => {
-  const { userProfile } = useAuth();
-  const { stats, loading } = useAdminStats();
-  const { tenants } = useTenants();
-  const { contracts } = useContracts();
-  const { contracts: expiring } = useExpiringContracts(60);
+  const { user, userProfile } = useAuth();
+  const agentId = user?.id;
+  const { stats, loading } = useAgentStats(agentId);
+  const { tenants } = useTenants(undefined, agentId);
+  const { contracts } = useContracts(undefined, agentId);
+  const { contracts: expiring } = useExpiringContracts(60, agentId);
 
   const agentName = userProfile?.agent_name || 'Agente';
   const activeContracts = contracts.filter(c => c.status === 'active').length;

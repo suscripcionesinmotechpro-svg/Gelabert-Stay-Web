@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInvoiceSummary, useInvoices, useInvoiceMutations } from '../../hooks/useInvoices';
 import { useAccounting } from '../../hooks/useAccounting';
+import { useAuth } from '../../hooks/useAuth.tsx';
 import { STATUS_LABELS } from '../../types/invoice';
 import { 
   PlusCircle, TrendingUp, Zap,
@@ -18,6 +19,8 @@ const cardClass = "bg-[#0A0A0A] border border-[#1F1F1F] p-5 flex flex-col gap-2"
 const inputClass = "w-full h-10 bg-[#0F0F0F] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
 
 export const AgentInvoices = () => {
+  const { user } = useAuth();
+  const agentId = user?.id;
   const [activeTab, setActiveTab] = useState<'invoices' | 'variable_expenses' | 'fixed_expenses' | 'issuers'>('invoices');
   
   const currentYear = new Date().getFullYear();
@@ -82,13 +85,13 @@ export const AgentInvoices = () => {
   const { summary, loading: loadingSummary } = useInvoiceSummary({
     startDate: dateRange.start,
     endDate: dateRange.end
-  });
+  }, agentId);
   
   const { invoices, refetch } = useInvoices({
     startDate: dateRange.start,
     endDate: dateRange.end,
     status: selectedStatus,
-  });
+  }, agentId);
 
   const filteredInvoices = invoices.filter(inv => {
     if (activeTab === 'invoices') {

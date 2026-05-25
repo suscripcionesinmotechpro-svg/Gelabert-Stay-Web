@@ -12,7 +12,7 @@ Object.keys(propertiesCache).forEach(k => delete propertiesCache[k]);
 // ============================================================
 // useProperties — list with optional filters (public: only published)
 // ============================================================
-export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
+export const useProperties = (filters?: PropertyFilters, adminMode = false, agentId?: string) => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -22,7 +22,7 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
 
   // stringify filters para evitar loops de re-renderizados por referencias de objeto literales
   const filtersString = JSON.stringify(filters);
-  const cacheKey = `${adminMode ? 'admin' : 'public'}-${filtersString}`;
+  const cacheKey = `${adminMode ? 'admin' : 'public'}-${agentId || 'all'}-${filtersString}`;
 
   const currentLimit = filters?.limit || 10000;
 
@@ -58,6 +58,11 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
 
       if (!adminMode) {
         query = query.eq('status', 'publicada');
+      }
+
+      // Filter by agent if agentId is provided (agent panel mode)
+      if (agentId) {
+        query = query.eq('agent_id', agentId);
       }
 
       if (currentFilters?.operation) query = query.eq('operation', currentFilters.operation);
@@ -145,7 +150,7 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false) => {
         setLoading(false);
       }
     }
-  }, [filtersString, cacheKey, page, properties, currentLimit, adminMode]);
+  }, [filtersString, cacheKey, page, properties, currentLimit, adminMode, agentId]);
 
   // Si los filtros cambian (not catch by page update), we start from page 0
   useEffect(() => {
@@ -321,7 +326,7 @@ export const usePropertyMutations = () => {
 };
 
 // ============================================================
-// useAdminStats — dashboard numbers
+// useAdminStats — dashboard numbers (all properties, admin only)
 // ============================================================
 export const useAdminStats = () => {
   const [stats, setStats] = useState({
@@ -350,6 +355,47 @@ export const useAdminStats = () => {
     };
     fetch();
   }, []);
+
+  return { stats, loading };
+};
+
+// ============================================================
+// useAgentStats — dashboard numbers filtered by agent_id
+// ============================================================
+export const useAgentStats = (agentId?: string) => {
+  const [stats, setStats] = useState({
+    total: 0, publicadas: 0, borradores: 0,
+    alquiler: 0, venta: 0, traspaso: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!agentId) {
+      setLoading(false);
+      return;
+    }
+    const fetch = async () => {
+      try {
+        const { data } = await supabase
+          .from('properties')
+          .select('status, operation')
+          .eq('agent_id', agentId);
+        if (data) {
+          setStats({
+            total: data.length,
+            publicadas: data.filter(p => p.status === 'publicada').length,
+            borradores: data.filter(p => p.status === 'borrador').length,
+            alquiler: data.filter(p => p.operation === 'alquiler').length,
+            venta: data.filter(p => p.operation === 'venta').length,
+            traspaso: data.filter(p => p.operation === 'traspaso').length,
+          });
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetch();
+  }, [agentId]);
 
   return { stats, loading };
 };
