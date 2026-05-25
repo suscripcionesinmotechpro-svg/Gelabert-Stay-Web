@@ -55,6 +55,7 @@ export interface LeadCRM {
   privacy_accepted_at?: string;
   agent_notes?: string;
   assigned_agent_id?: string;
+  agent_id?: string | null;
   // Leads Form Specific
   occupants?: any[];
   property_ad_url?: string;

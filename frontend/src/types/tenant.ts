@@ -38,6 +38,7 @@ export interface Tenant {
   id: string;
   created_at: string;
   user_id: string;
+  agent_id?: string | null;
   first_name: string;
   last_name: string;
   dni: string | null;
@@ -58,6 +59,7 @@ export interface Contract {
   id: string;
   created_at: string;
   user_id: string;
+  agent_id?: string | null;
   tenant_id: string;
   property_id: string | null;
   property_label: string | null;

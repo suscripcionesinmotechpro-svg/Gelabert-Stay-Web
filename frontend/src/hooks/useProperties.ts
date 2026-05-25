@@ -216,9 +216,14 @@ export const useProperty = (idOrSlug: string | undefined, adminMode = false) => 
 // ============================================================
 export const usePropertyMutations = () => {
   const createProperty = async (data: PropertyInsert): Promise<Property> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    const payload = {
+      ...data,
+      ...(user && !data.agent_id ? { agent_id: user.id } : {})
+    };
     const { data: created, error } = await supabase
       .from('properties')
-      .insert(data)
+      .insert(payload)
       .select()
       .single();
     if (error) throw error;

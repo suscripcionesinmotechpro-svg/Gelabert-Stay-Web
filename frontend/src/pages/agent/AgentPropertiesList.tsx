@@ -1,0 +1,344 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useProperties, usePropertyMutations } from '../../hooks/useProperties';
+import type { Property, PropertyStatus, CommercialStatus } from '../../types/property';
+import { STATUS_LABELS, STATUS_COLORS, OPERATION_LABELS, COMMERCIAL_STATUS_LABELS, COMMERCIAL_STATUS_COLORS } from '../../types/property';
+import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid } from 'lucide-react';
+import { PropertyReference } from '../../components/PropertyReference';
+import { getOptimizedImage } from '../../utils/images';
+import { getCommunityShareMessage } from '../../utils/whatsapp';
+
+const WhatsAppIcon = () => (
+  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+);
+
+const StatusDropdown = ({ property, onStatusChange }: { property: Property; onStatusChange: () => void }) => {
+  const [open, setOpen] = useState(false);
+  const { changeStatus } = usePropertyMutations();
+  const statuses: PropertyStatus[] = ['publicada', 'borrador', 'oculta'];
+
+  const handleChange = async (status: PropertyStatus) => {
+    await changeStatus(property.id, status);
+    setOpen(false);
+    onStatusChange();
+  };
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-primary font-bold rounded-sm ${STATUS_COLORS[property.status]}`}
+      >
+        {STATUS_LABELS[property.status]}
+        <ChevronDown className="w-3 h-3" />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full mt-1 z-20 bg-[#161616] border border-[#1F1F1F] min-w-[140px] shadow-lg">
+          {statuses.map(s => (
+            <button
+              key={s}
+              onClick={() => handleChange(s)}
+              className={`w-full text-left px-3 py-2 font-primary text-xs transition-colors ${
+                property.status === s ? 'text-[#C9A962] bg-[#C9A962]/10' : 'text-[#888888] hover:text-[#FAF8F5] hover:bg-[#1F1F1F]'
+              }`}
+            >
+              {STATUS_LABELS[s]}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const CommercialStatusDropdown = ({ property, onStatusChange }: { property: Property; onStatusChange: () => void }) => {
+  const [open, setOpen] = useState(false);
+  const { changeCommercialStatus } = usePropertyMutations();
+  const statuses: CommercialStatus[] = ['disponible', 'reservado', 'alquilado', 'vendido', 'traspasado'];
+
+  const handleChange = async (status: CommercialStatus) => {
+    await changeCommercialStatus(property.id, status);
+    setOpen(false);
+    onStatusChange();
+  };
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-primary font-bold rounded-sm ${COMMERCIAL_STATUS_COLORS[property.commercial_status]}`}
+      >
+        {COMMERCIAL_STATUS_LABELS[property.commercial_status]}
+        {property.is_manual_commercial_status && (
+          <span className="ml-1 text-[8px] bg-white/20 px-1 rounded-full" title="Manual">M</span>
+        )}
+        <ChevronDown className="w-3 h-3" />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full mt-1 z-20 bg-[#161616] border border-[#1F1F1F] min-w-[140px] shadow-lg">
+          {statuses.map(s => (
+            <button
+              key={s}
+              onClick={() => handleChange(s)}
+              className={`w-full text-left px-3 py-2 font-primary text-xs transition-colors ${
+                property.commercial_status === s ? 'text-[#C9A962] bg-[#C9A962]/10' : 'text-[#888888] hover:text-[#FAF8F5] hover:bg-[#1F1F1F]'
+              }`}
+            >
+              {COMMERCIAL_STATUS_LABELS[s]}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const AgentPropertiesList = () => {
+  const { properties, loading, error, refetch } = useProperties(undefined, true);
+  const { deleteProperty, toggleFeatured } = usePropertyMutations();
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterCommercial, setFilterCommercial] = useState('');
+  const [filterOp, setFilterOp] = useState('');
+  const [search, setSearch] = useState('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleShareToChannel = (p: Property) => {
+    const text = getCommunityShareMessage(p);
+    
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedId(p.id);
+      setTimeout(() => setCopiedId(null), 3000);
+      window.open('https://whatsapp.com/channel/0029Vb7ZmzoJUM2Ugg1Tdt0m', '_blank');
+    });
+  };
+
+  const filtered = properties.filter(p => {
+    if (filterStatus && p.status !== filterStatus) return false;
+    if (filterCommercial && p.commercial_status !== filterCommercial) return false;
+    if (filterOp && p.operation !== filterOp) return false;
+    if (search && !p.title.toLowerCase().includes(search.toLowerCase()) && !p.reference?.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`¿Estás seguro de que quieres eliminar "${title}"? Esta acción no se puede deshacer.`)) return;
+    setDeleting(id);
+    await deleteProperty(id);
+    setDeleting(null);
+    refetch();
+  };
+
+  const handleToggleFeatured = async (p: Property) => {
+    await toggleFeatured(p.id, !p.is_featured);
+    refetch();
+  };
+
+  return (
+    <div className="flex flex-col gap-6 max-w-7xl">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-secondary text-3xl text-[#FAF8F5]">Propiedades</h1>
+          <p className="font-primary text-[#666666] text-sm mt-1">
+            {loading ? 'Cargando propiedades...' : (
+              filtered.length === 1 
+                ? '1 propiedad encontrada'
+                : `${filtered.length} propiedades encontradas`
+            )}
+          </p>
+        </div>
+        <div className="flex items-center gap-3 self-start">
+          <Link
+            to="/agente/propiedades/organizar"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#161616] text-[#FAF8F5] border border-[#1F1F1F] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#1F1F1F] transition-colors"
+          >
+            <LayoutGrid className="w-4 h-4" />
+            Organizar Listado
+          </Link>
+          <Link
+            to="/agente/propiedades/nueva"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#D4B673] transition-colors"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Nueva Propiedad
+          </Link>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3 bg-[#0A0A0A] border border-[#1F1F1F] p-4">
+        <input
+          type="text"
+          placeholder="Buscar por título o referencia..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="flex-1 min-w-48 h-9 bg-[#161616] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]"
+        />
+        <select
+          value={filterStatus}
+          onChange={e => setFilterStatus(e.target.value)}
+          className="h-9 bg-[#161616] border border-[#1F1F1F] px-3 font-primary text-[#888888] text-sm outline-none focus:border-[#C9A962] transition-colors"
+        >
+          <option value="">Todos los estados</option>
+          {(['publicada','borrador','oculta'] as PropertyStatus[]).map(s => (
+            <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+          ))}
+        </select>
+        <select
+          value={filterCommercial}
+          onChange={e => setFilterCommercial(e.target.value)}
+          className="h-9 bg-[#161616] border border-[#1F1F1F] px-3 font-primary text-[#888888] text-sm outline-none focus:border-[#C9A962] transition-colors"
+        >
+          <option value="">Todos los estados com.</option>
+          {(['disponible','reservado','alquilado','vendido','traspasado'] as CommercialStatus[]).map(s => (
+            <option key={s} value={s}>{COMMERCIAL_STATUS_LABELS[s]}</option>
+          ))}
+        </select>
+        <select
+          value={filterOp}
+          onChange={e => setFilterOp(e.target.value)}
+          className="h-9 bg-[#161616] border border-[#1F1F1F] px-3 font-primary text-[#888888] text-sm outline-none focus:border-[#C9A962] transition-colors"
+        >
+          <option value="">Todas las operaciones</option>
+          <option value="alquiler">Alquiler</option>
+          <option value="venta">Venta</option>
+          <option value="traspaso">Traspaso</option>
+        </select>
+      </div>
+
+      {/* Error */}
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/30 p-4">
+          <p className="font-primary text-red-400 text-sm">{error}</p>
+        </div>
+      )}
+
+      {/* Table */}
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="w-8 h-8 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 bg-[#0A0A0A] border border-[#1F1F1F] gap-4">
+          <PlusCircle className="w-12 h-12 text-[#333333]" />
+          <p className="font-primary text-[#666666] text-sm">No se han encontrado propiedades.</p>
+          <Link to="/agente/propiedades/nueva" className="font-primary text-[#C9A962] text-sm hover:underline">
+            Añadir tu primera propiedad
+          </Link>
+        </div>
+      ) : (
+        <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-x-auto">
+          {/* Table header */}
+          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 px-4 py-3 border-b border-[#1F1F1F] min-w-[900px]">
+            {[
+              { key: 'property', label: 'Propiedad' },
+              { key: 'operation', label: 'Operación' },
+              { key: 'price', label: 'Precio' },
+              { key: 'status', label: 'Estado' },
+              { key: 'commercial', label: 'Comercial' },
+              { key: 'featured', label: 'Destacada' },
+              { key: 'actions', label: 'Acciones' }
+            ].map(h => (
+              <span key={h.key} className="font-primary text-xs text-[#444444] uppercase tracking-wider">{h.label}</span>
+            ))}
+          </div>
+
+          {/* Table rows */}
+          {filtered.map(p => (
+            <div
+              key={p.id}
+              className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 px-4 py-4 border-b border-[#1F1F1F] items-center hover:bg-[#0F0F0F] transition-colors min-w-[900px]"
+            >
+              {/* Title + ref */}
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-12 h-12 bg-[#1A1A1A] shrink-0 overflow-hidden border border-[#1F1F1F]">
+                  {p.main_image ? (
+                    <img src={getOptimizedImage(p.main_image, { width: 100, height: 100, format: 'webp' })} alt={p.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[#333333]">
+                      <Eye className="w-4 h-4" />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-primary text-[#FAF8F5] text-sm font-bold truncate">{p.title}</p>
+                  <PropertyReference 
+                    reference={p.reference || p.id.slice(0, 8)} 
+                    variant="minimal" 
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              {/* Operation */}
+              <span className="font-primary text-[#888888] text-sm">{OPERATION_LABELS[p.operation]}</span>
+
+              {/* Price */}
+              <span className="font-secondary text-[#C9A962] text-sm">
+                {p.price ? `€${p.price.toLocaleString('es-ES')}` : '—'}
+              </span>
+
+              {/* Status dropdown */}
+              <div><StatusDropdown property={p} onStatusChange={refetch} /></div>
+              
+              {/* Commercial Status dropdown */}
+              <div><CommercialStatusDropdown property={p} onStatusChange={refetch} /></div>
+
+              {/* Featured toggle */}
+              <button
+                onClick={() => handleToggleFeatured(p)}
+                className={`transition-colors ${p.is_featured ? 'text-[#C9A962]' : 'text-[#333333] hover:text-[#C9A962]'}`}
+                title={p.is_featured ? 'Quitar de destacados' : 'Marcar como destacado'}
+              >
+                <Star className="w-4 h-4" fill={p.is_featured ? 'currentColor' : 'none'} />
+              </button>
+
+              {/* Actions */}
+              <div className="flex items-center gap-2">
+                <Link
+                  to={`/agente/propiedades/${p.id}/editar`}
+                  className="p-1.5 text-[#888888] hover:text-[#C9A962] border border-transparent hover:border-[#C9A962] transition-all"
+                  title="Editar"
+                >
+                  <Edit className="w-3.5 h-3.5" />
+                </Link>
+                <button
+                  onClick={() => handleShareToChannel(p)}
+                  className={`p-1.5 border transition-all flex items-center justify-center gap-1 ${
+                    copiedId === p.id 
+                      ? 'text-[#4ADE80] border-[#4ADE80] bg-[#4ADE80]/10' 
+                      : 'text-[#888888] hover:text-[#4ADE80] border-transparent hover:border-[#4ADE80]'
+                  }`}
+                  title="Compartir en Canal WhatsApp"
+                >
+                  {copiedId === p.id ? <CheckCheck className="w-3.5 h-3.5" /> : <WhatsAppIcon />}
+                  {copiedId === p.id && <span className="text-[8px] font-bold uppercase tracking-tighter">Copiado</span>}
+                </button>
+                {p.status === 'publicada' ? (
+                  <a href={`/propiedades/${p.slug || p.id}`} target="_blank" className="p-1.5 text-[#888888] hover:text-[#FAF8F5] border border-transparent hover:border-[#1F1F1F] transition-all" title="Ver en la web">
+                    <Eye className="w-3.5 h-3.5" />
+                  </a>
+                ) : (
+                  <span className="p-1.5 text-[#333333]" title="No publicada">
+                    <EyeOff className="w-3.5 h-3.5" />
+                  </span>
+                )}
+                <button
+                  onClick={() => handleDelete(p.id, p.title)}
+                  disabled={deleting === p.id}
+                  className="p-1.5 text-[#888888] hover:text-red-400 border border-transparent hover:border-red-400 transition-all disabled:opacity-50"
+                  title="Eliminar"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};

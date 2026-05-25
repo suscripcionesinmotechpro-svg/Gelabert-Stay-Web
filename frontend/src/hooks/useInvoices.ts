@@ -314,7 +314,12 @@ export const useInvoiceMutations = () => {
   const createInvoice = async (data: InvoiceInsert) => {
     const sanitizedData = sanitizeInvoiceData(data);
     const totals = calculateTotals(sanitizedData);
-    const { error } = await supabase.from('invoices').insert([{ ...sanitizedData, ...totals }]);
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from('invoices').insert([{ 
+      ...sanitizedData, 
+      ...totals,
+      ...(user ? { agent_id: user.id } : {})
+    }]);
     if (error) throw error;
   };
 

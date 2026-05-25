@@ -3,7 +3,8 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { supabase } from '../../lib/supabase';
 import {
-  LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X, Receipt, Users, CalendarDays, Bot, FileText, LayoutGrid
+  LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X,
+  Receipt, Users, CalendarDays, Bot, FileText, LayoutGrid, BarChart3
 } from 'lucide-react';
 
 export const AdminLayout = () => {
@@ -45,6 +46,7 @@ export const AdminLayout = () => {
     { to: `/admin/reservas`, icon: <CalendarDays className="w-4 h-4" />, label: "Reservas" },
     { to: `/admin/leads`, icon: <Bot className="w-4 h-4" />, label: "CRM Leads (Bot)" },
     { to: `/admin/blog`, icon: <FileText className="w-4 h-4" />, label: "Blog & Insights" },
+    { to: `/admin/crm-agentes`, icon: <BarChart3 className="w-4 h-4" />, label: "CRM Agentes" },
   ];
 
   useEffect(() => {

@@ -957,7 +957,7 @@ export const AdminPropertyForm = () => {
         <div className={sectionClass}>
           <RoomManager 
             rooms={form.rooms || []} 
-            onChange={(rooms) => set('rooms', rooms)}
+            onChange={(rooms: any[]) => set('rooms', rooms)}
           />
         </div>
       )}
@@ -967,7 +967,7 @@ export const AdminPropertyForm = () => {
         <div className={sectionClass}>
           <CommonAreaManager 
             areas={form.common_areas || []} 
-            onChange={(areas) => set('common_areas', areas)}
+            onChange={(areas: any[]) => set('common_areas', areas)}
           />
         </div>
       )}
@@ -1128,7 +1128,7 @@ export const AdminPropertyForm = () => {
           <RichTextEditor
             key={formReady ? 'ready' : 'loading'}
             content={form.description ?? ''}
-            onChange={v => set('description', v)}
+            onChange={(v: string) => set('description', v)}
             placeholder="Describe la propiedad en detalle..."
           />
         </div>

@@ -11,6 +11,7 @@ export interface Invoice {
   id: string;
   created_at: string;
   user_id: string;
+  agent_id?: string | null;
 
   series: string;
   invoice_number: string;

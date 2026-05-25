@@ -13,6 +13,7 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
+  userProfile: { role: string; agent_name: string } | null;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -20,6 +21,16 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<{ role: string; agent_name: string } | null>(null);
+
+  const fetchProfile = async (userId: string) => {
+    const { data } = await supabase
+      .from('user_profiles')
+      .select('role, agent_name')
+      .eq('id', userId)
+      .maybeSingle();
+    if (data) setUserProfile(data);
+  };
 
   useEffect(() => {
     if (!SUPABASE_CONFIGURED) {
@@ -29,11 +40,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) fetchProfile(session.user.id);
       setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setUserProfile(null);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -43,7 +60,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!SUPABASE_CONFIGURED) {
       return { error: 'Supabase no está configurado.' };
     }
-
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { error: error.message };
     return { error: null };
@@ -51,12 +67,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     setUser(null);
+    setUserProfile(null);
     if (SUPABASE_CONFIGURED) {
       await supabase.auth.signOut();
     }
   };
 
-  const value: AuthContextType = { user, loading, signIn, signOut };
+  const value: AuthContextType = { user, loading, signIn, signOut, userProfile };
 
   return (
     <AuthContext.Provider value={value}>

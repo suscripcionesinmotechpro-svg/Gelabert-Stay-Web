@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, MessageSquare, User, Trash2, ExternalLink, Copy, Check } from 'lucide-react';
 import type { LeadCRM, ScoredProperty } from '../../hooks/useLeadsCRM';
 import { useLeadsCRM, updateLeadStatus, updateLeadNotes, searchPropertiesForBot, deleteLead } from '../../hooks/useLeadsCRM';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { supabase } from '../../lib/supabase';
 
 export const AdminLeadsCRM = () => {
   const [filterIntent, setFilterIntent] = useState<string>('todos');
@@ -21,6 +22,18 @@ export const AdminLeadsCRM = () => {
   const [notes, setNotes] = useState('');
   const [isSearchingMatches, setIsSearchingMatches] = useState(false);
   const [leadMatches, setLeadMatches] = useState<ScoredProperty[] | null>(null);
+  const [agentsList, setAgentsList] = useState<{ id: string; agent_name: string }[]>([]);
+
+  useEffect(() => {
+    const fetchAgents = async () => {
+      const { data } = await supabase
+        .from('user_profiles')
+        .select('id, agent_name')
+        .eq('role', 'agent');
+      if (data) setAgentsList(data);
+    };
+    fetchAgents();
+  }, []);
 
   const handleUpdateStatus = async (id: string, status: LeadCRM['status']) => {
     try {
@@ -57,6 +70,23 @@ export const AdminLeadsCRM = () => {
     } catch (e) {
       console.error(e);
       alert('Error al eliminar el lead');
+    }
+  };
+
+  const handleAssignAgent = async (leadId: string, agentId: string | null) => {
+    try {
+      const { error } = await supabase
+        .from('leads_crm')
+        .update({ agent_id: agentId })
+        .eq('id', leadId);
+      if (error) throw error;
+      refetch();
+      if (selectedLead && selectedLead.id === leadId) {
+        setSelectedLead({ ...selectedLead, agent_id: agentId });
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error al asignar agente');
     }
   };
 
@@ -217,6 +247,20 @@ export const AdminLeadsCRM = () => {
                       <option value="cualificado">Cualificado</option>
                       <option value="cerrado">Cerrado</option>
                       <option value="descartado">Descartado</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-[#888888] mr-2">Agente:</span>
+                    <select
+                      value={selectedLead.agent_id || ''}
+                      onChange={(e) => handleAssignAgent(selectedLead.id, e.target.value || null)}
+                      className="text-xs px-3 py-1.5 rounded-md border border-[#1F1F1F] outline-none cursor-pointer uppercase tracking-wider bg-[#1A1A1A] text-[#FAF8F5] focus:border-[#C9A962]"
+                    >
+                      <option value="">Sin Asignar</option>
+                      {agentsList.map(a => (
+                        <option key={a.id} value={a.id}>{a.agent_name}</option>
+                      ))}
                     </select>
                   </div>
                   

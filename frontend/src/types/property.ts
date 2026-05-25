@@ -149,6 +149,7 @@ export interface Property {
   is_manual_commercial_status?: boolean;
   is_featured: boolean;
   order_index: number | null;
+  agent_id?: string | null;
 }
 
 export type PropertyInsert = Omit<Property, 'id' | 'created_at' | 'updated_at' | 'reference' | 'slug'> & {

@@ -44,6 +44,24 @@ const AdminLeadsCRM = lazy(() => import('./pages/admin/AdminLeadsCRM').then(m =>
 const AdminBlogList = lazy(() => import('./pages/admin/AdminBlogList').then(m => ({ default: m.AdminBlogList })));
 const AdminBlogPostForm = lazy(() => import('./pages/admin/AdminBlogPostForm').then(m => ({ default: m.AdminBlogPostForm })));
 const AdminPropertyReorder = lazy(() => import('./pages/admin/AdminPropertyReorder').then(m => ({ default: m.AdminPropertyReorder })));
+const AdminAgentCRM = lazy(() => import('./pages/admin/AdminAgentCRM').then(m => ({ default: m.AdminAgentCRM })));
+
+// Agent portal
+const AgentLogin = lazy(() => import('./pages/agent/AgentLogin').then(m => ({ default: m.AgentLogin })));
+const AgentLayout = lazy(() => import('./pages/agent/AgentLayout').then(m => ({ default: m.AgentLayout })));
+const AgentDashboard = lazy(() => import('./pages/agent/AgentDashboard').then(m => ({ default: m.AgentDashboard })));
+const AgentPropertiesList = lazy(() => import('./pages/agent/AgentPropertiesList').then(m => ({ default: m.AgentPropertiesList })));
+const AgentPropertyReorder = lazy(() => import('./pages/agent/AgentPropertyReorder').then(m => ({ default: m.AgentPropertyReorder })));
+const AgentPropertyForm = lazy(() => import('./pages/agent/AgentPropertyForm').then(m => ({ default: m.AgentPropertyForm })));
+const AgentInvoices = lazy(() => import('./pages/agent/AgentInvoices').then(m => ({ default: m.AgentInvoices })));
+const AgentInvoiceForm = lazy(() => import('./pages/agent/AgentInvoiceForm').then(m => ({ default: m.AgentInvoiceForm })));
+const AgentTenantsList = lazy(() => import('./pages/agent/AgentTenantsList').then(m => ({ default: m.AgentTenantsList })));
+const AgentTenantForm = lazy(() => import('./pages/agent/AgentTenantForm').then(m => ({ default: m.AgentTenantForm })));
+const AgentTenantDetail = lazy(() => import('./pages/agent/AgentTenantDetail').then(m => ({ default: m.AgentTenantDetail })));
+const AgentContractsList = lazy(() => import('./pages/agent/AgentContractsList').then(m => ({ default: m.AgentContractsList })));
+const AgentContractForm = lazy(() => import('./pages/agent/AgentContractForm').then(m => ({ default: m.AgentContractForm })));
+const AgentReservations = lazy(() => import('./pages/agent/AgentReservations').then(m => ({ default: m.AgentReservations })));
+const AgentLeadsCRM = lazy(() => import('./pages/agent/AgentLeadsCRM').then(m => ({ default: m.AgentLeadsCRM })));
 
 // Legal
 const AvisoLegal = lazy(() => import('./pages/legal/AvisoLegal').then(m => ({ default: m.AvisoLegal })));
@@ -134,7 +152,32 @@ function App() {
           <Route path="blog" element={<AdminBlogList />} />
           <Route path="blog/nuevo" element={<AdminBlogPostForm />} />
           <Route path="blog/:id/editar" element={<AdminBlogPostForm />} />
+          <Route path="crm-agentes" element={<AdminAgentCRM />} />
 
+        </Route>
+
+        {/* Agent login (standalone) */}
+        <Route path="/agente/login" element={<AgentLogin />} />
+
+        {/* Agent portal (auth guard inside AgentLayout) */}
+        <Route path="/agente" element={<AgentLayout />}>
+          <Route path="dashboard" element={<AgentDashboard />} />
+          <Route path="propiedades" element={<AgentPropertiesList />} />
+          <Route path="propiedades/organizar" element={<AgentPropertyReorder />} />
+          <Route path="propiedades/nueva" element={<AgentPropertyForm />} />
+          <Route path="propiedades/:id/editar" element={<AgentPropertyForm />} />
+          <Route path="facturas" element={<AgentInvoices />} />
+          <Route path="facturas/nueva" element={<AgentInvoiceForm />} />
+          <Route path="facturas/:id/editar" element={<AgentInvoiceForm />} />
+          <Route path="inquilinos" element={<AgentTenantsList />} />
+          <Route path="inquilinos/nuevo" element={<AgentTenantForm />} />
+          <Route path="inquilinos/:id" element={<AgentTenantDetail />} />
+          <Route path="inquilinos/:id/editar" element={<AgentTenantForm />} />
+          <Route path="contratos" element={<AgentContractsList />} />
+          <Route path="contratos/nuevo" element={<AgentContractForm />} />
+          <Route path="contratos/:id/editar" element={<AgentContractForm />} />
+          <Route path="reservas" element={<AgentReservations />} />
+          <Route path="leads" element={<AgentLeadsCRM />} />
         </Route>
 
         {/* 404 catch-all */}
