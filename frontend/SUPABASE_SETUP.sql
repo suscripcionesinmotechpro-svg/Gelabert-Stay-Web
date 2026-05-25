@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS public.properties (
   main_image TEXT,
   gallery TEXT[] DEFAULT '{}',
   virtual_tour_url TEXT,
+  floor_plans TEXT[] DEFAULT '{}',
   video_url TEXT,
   
   -- SEO & Meta

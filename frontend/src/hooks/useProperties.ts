@@ -250,7 +250,7 @@ export const usePropertyMutations = () => {
     // 1. Obtener la propiedad primero para conocer sus archivos
     const { data: property } = await supabase
       .from('properties')
-      .select('main_image, gallery, video_url, videos, floor_plan, videos_metadata, common_areas, rooms')
+      .select('main_image, gallery, video_url, videos, floor_plan, floor_plans, videos_metadata, common_areas, rooms, virtual_tour_url')
       .eq('id', id)
       .maybeSingle();
 
@@ -275,9 +275,9 @@ export const usePropertyMutations = () => {
         ...(property.videos || []),
         ...(property.videos_metadata || []).map((v: any) => v.url),
         ...(property.floor_plan ? [property.floor_plan] : []),
+        ...(property.floor_plans || []),
         ...(property.common_areas || []).flatMap((ca: any) => ca.images || []),
-        ...(property.rooms || []).flatMap((r: any) => r.images || [])
-      ].filter(Boolean);
+        ...(property.rooms || []).flatMap((r: any) => r.images || [])      ].filter(Boolean);
 
       allMedia.forEach((url: string) => {
         const path = extractPath(url);

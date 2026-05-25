@@ -5,9 +5,10 @@ import { useAuth } from '../../hooks/useAuth.tsx';
 import { usePropertyContracts } from '../../hooks/useContracts';
 import type { PropertyInsert, PropertyOperation, PropertyType, PropertyStatus, CommercialStatus } from '../../types/property';
 import { AVAILABLE_TAGS } from '../../types/property';
-import { ChevronLeft, Save, Eye, Plus, X, Upload, ExternalLink, Sparkles } from 'lucide-react';
+import { ChevronLeft, Save, Eye, Plus, X, ExternalLink, Sparkles } from 'lucide-react';
 import { SortableImageGallery } from '../../components/admin/SortableImageGallery';
 import { SortableVideoGallery } from '../../components/admin/SortableVideoGallery';
+import { SortableFloorPlansGallery } from '../../components/admin/SortableFloorPlansGallery';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PropertyMap } from '../../components/PropertyMap';
 import { useJsApiLoader, Autocomplete } from '@react-google-maps/api';
@@ -96,7 +97,7 @@ const DEFAULT_FORM: Partial<PropertyInsert> = {
   property_condition: '', availability: '',
   short_description: '', description: '', highlights: [], 
   tags: [],
-  main_image: '', gallery: [], video_url: '', videos: [], videos_metadata: [], floor_plan: '',
+  main_image: '', gallery: [], video_url: '', videos: [], videos_metadata: [], floor_plan: '', floor_plans: [], virtual_tour_url: '',
   slug: '', meta_title: '', meta_description: '',
   status: 'borrador', commercial_status: 'disponible', is_manual_commercial_status: false, is_featured: false,
   rent_type: null, reference: '',
@@ -160,6 +161,7 @@ export const AgentPropertyForm = () => {
         tags: property.tags ?? [],
         main_image: property.main_image ?? '', gallery: property.gallery ?? [],
         video_url: property.video_url ?? '', videos: property.videos ?? [], floor_plan: property.floor_plan ?? '',
+        floor_plans: property.floor_plans ?? [], virtual_tour_url: property.virtual_tour_url ?? '',
         slug: property.slug ?? '', meta_title: property.meta_title ?? '',
         meta_description: property.meta_description ?? '', status: property.status,
         commercial_status: property.commercial_status ?? 'disponible', 
@@ -195,6 +197,7 @@ export const AgentPropertyForm = () => {
         ...(property.videos || []),
         ...(property.videos_metadata || []).map((v: any) => v.url),
         ...(property.floor_plan ? [property.floor_plan] : []),
+        ...(property.floor_plans || []),
         ...(property.common_areas || []).flatMap((ca: any) => ca.images || []),
         ...(property.rooms || []).flatMap((r: any) => r.images || [])
       ].filter(Boolean);
@@ -413,23 +416,58 @@ export const AgentPropertyForm = () => {
     });
   };
 
-  const handleFloorPlanUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const allFloorPlans = useMemo(() => {
+    const main = form.floor_plan;
+    const list = form.floor_plans || [];
+    const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
+    const mainNorm = main ? normalize(main) : '';
+    const combined = [
+      ...(main ? [main] : []),
+      ...list.filter((img: string) => normalize(img) !== mainNorm)
+    ];
+    const seen = new Set();
+    return combined.filter((img: string) => {
+      const n = normalize(img);
+      if (seen.has(n)) return false;
+      seen.add(n);
+      return true;
+    });
+  }, [form.floor_plan, form.floor_plans]);
 
-    // Validate size (20MB)
-    if (file.size > 20 * 1024 * 1024) {
-      setError('El plano es demasiado grande (máximo 20MB)');
-      return;
+  const handleFloorPlansChange = (newPlans: string[]) => {
+    const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
+    const seen = new Set();
+    const unique = newPlans.filter((img: string) => {
+      const n = normalize(img);
+      if (seen.has(n)) return false;
+      seen.add(n);
+      return true;
+    });
+
+    if (unique.length === 0) {
+      setForm(prev => ({ ...prev, floor_plan: '', floor_plans: [] }));
+    } else {
+      setForm(prev => ({ ...prev, floor_plan: unique[0], floor_plans: unique.slice(1) }));
     }
+  };
 
+  const handleFloorPlansUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
     setUploadingFloorPlan(true);
     setError(null);
     try {
-      const url = await uploadPropertyMedia(file, 'floor-plans');
-      set('floor_plan', url);
+      const urls: string[] = [];
+      for (const file of files) {
+        if (file.size > 20 * 1024 * 1024) {
+          throw new Error(`El plano ${file.name} es demasiado grande (máximo 20MB)`);
+        }
+        const url = await uploadPropertyMedia(file, 'floor-plans');
+        urls.push(url);
+      }
+      handleFloorPlansChange([...allFloorPlans, ...urls]);
     } catch (err) {
-      setError(err instanceof Error ? `Error subiendo plano: ${err.message}` : 'Error subiendo plano');
+      setError(err instanceof Error ? err.message : 'Error subiendo plano');
     } finally {
       setUploadingFloorPlan(false);
     }
@@ -536,7 +574,7 @@ export const AgentPropertyForm = () => {
       
       // 3. Limpiar strings vacíos para evitar conflictos en UNIQUE (reference, slug)
       // y para que se guarden como NULL en Postgres
-      const nullableFields = ['reference', 'slug', 'meta_title', 'meta_description', 'street_number', 'door_number', 'parking_price', 'short_description', 'description', 'video_url', 'floor_plan', 'availability', 'property_condition', 'energy_rating', 'emissions_rating', 'conservation_state', 'block_staircase', 'urbanization'];
+      const nullableFields = ['reference', 'slug', 'meta_title', 'meta_description', 'street_number', 'door_number', 'parking_price', 'short_description', 'description', 'video_url', 'floor_plan', 'virtual_tour_url', 'availability', 'property_condition', 'energy_rating', 'emissions_rating', 'conservation_state', 'block_staircase', 'urbanization'];
       
       nullableFields.forEach(field => {
         if (data[field] === undefined || (typeof data[field] === 'string' && data[field].trim() === '')) {
@@ -601,6 +639,7 @@ export const AgentPropertyForm = () => {
           ...(data.video_url ? [data.video_url] : []),
           ...(data.videos || []),
           ...(data.floor_plan ? [data.floor_plan] : []),
+          ...(data.floor_plans || []),
           ...(data.videos_metadata || []).map((v: any) => v.url),
           ...(data.common_areas || []).flatMap((ca: any) => ca.images || []),
           ...(data.rooms || []).flatMap((r: any) => r.images || [])
@@ -1207,29 +1246,44 @@ export const AgentPropertyForm = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-          <div className="flex flex-col gap-2">
-            <label className={labelClass}>Plano de la Propiedad</label>
-            <div className="flex gap-2">
-              <input className={`${inputClass} flex-1`} placeholder="URL del plano o sube un archivo..." value={form.floor_plan ?? ''} onChange={e => set('floor_plan', e.target.value)} />
-              <div className="relative flex-shrink-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pt-6 border-t border-[#1F1F1F]">
+          {/* Planos de la Propiedad */}
+          <div className="flex flex-col gap-3">
+            <label className={labelClass}>Planos de la Propiedad</label>
+            <SortableFloorPlansGallery 
+              plans={allFloorPlans}
+              onChange={handleFloorPlansChange}
+              onUpload={handleFloorPlansUpload}
+              uploading={uploadingFloorPlan}
+            />
+          </div>
+
+          {/* Tour Virtual */}
+          <div className="flex flex-col gap-3">
+            <label className={labelClass}>Tour Virtual 360°</label>
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
                 <input 
-                  type="file" 
-                  accept="image/*,.pdf" 
-                  onChange={handleFloorPlanUpload} 
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  disabled={uploadingFloorPlan}
-                  title="Subir archivo"
+                  className={`${inputClass} flex-1`} 
+                  placeholder="Ej: https://my.matterport.com/show/?m=..." 
+                  value={form.virtual_tour_url ?? ''} 
+                  onChange={e => set('virtual_tour_url', e.target.value)} 
                 />
-                <button 
-                  type="button" 
-                  className="flex items-center justify-center h-10 px-4 bg-[#161616] border border-[#1F1F1F] text-[#FAF8F5] text-sm hover:border-[#C9A962] transition-colors disabled:opacity-50"
-                  disabled={uploadingFloorPlan}
-                >
-                  <Upload className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">{uploadingFloorPlan ? "Subiendo..." : "Subir"}</span>
-                </button>
+                {form.virtual_tour_url && (
+                  <a 
+                    href={form.virtual_tour_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center justify-center h-10 px-4 bg-[#161616] border border-[#1F1F1F] text-[#C9A962] hover:border-[#C9A962] transition-colors"
+                    title="Probar enlace del tour virtual"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                )}
               </div>
+              <p className="text-[10px] text-[#666666] italic">
+                Introduce el enlace al tour virtual 360° de la propiedad (ej. Matterport, Floorfy, etc.).
+              </p>
             </div>
           </div>
         </div>

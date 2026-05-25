@@ -4,7 +4,7 @@ import { useAutoTranslate, useAutoTranslateArray } from '../hooks/useAutoTransla
 import { PropertyCard } from '../components/PropertyCard';
 import { PremiumImage } from '../components/PremiumImage';
 import { getOptimizedImage } from '../utils/images';
-import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass, Copy, CheckCheck, Send, AlertCircle, Camera, Video } from 'lucide-react';
+import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass, Copy, CheckCheck, Send, AlertCircle, Camera, Video, ExternalLink } from 'lucide-react';
 import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import type { PropertyVideo, PropertyRoom } from '../types/property';
 import { cn } from '../lib/utils';
@@ -51,8 +51,9 @@ export const FichaPropiedad = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [solvencyAccepted, setSolvencyAccepted] = useState(false);
-  const [activeTab, setActiveTab] = useState<'fotos' | 'video' | 'plano' | 'ubicacion'>('fotos');
+  const [activeTab, setActiveTab] = useState<'fotos' | 'video' | 'plano' | 'tour' | 'ubicacion'>('fotos');
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
+  const [activePlanIdx, setActivePlanIdx] = useState(0);
   const [linkCopied, setLinkCopied] = useState(false);
   const [roomStatuses, setRoomStatuses] = useState<Record<string, string>>({});
   const [videoError, setVideoError] = useState(false);
@@ -96,6 +97,16 @@ export const FichaPropiedad = () => {
     ] as (PropertyVideo & { poster?: string })[];
     return videos;
   }, [property, t]);
+
+  const allFloorPlans = useMemo(() => {
+    const main = property?.floor_plan;
+    const list = property?.floor_plans || [];
+    const combined = [
+      ...(main ? [main] : []),
+      ...list.filter(item => item !== main)
+    ];
+    return combined.filter(Boolean);
+  }, [property]);
 
   // Get the current video URL directly — no cache-busting
   const currentVideoUrl = allVideos[activeVideoIndex]?.url || '';
@@ -480,7 +491,7 @@ export const FichaPropiedad = () => {
       </div>
 
       {/* Media Tabs */}
-      {((property.video_url || (property.videos && property.videos.length > 0)) || property.floor_plan || (property.latitude && property.longitude)) && (
+      {((property.video_url || (property.videos && property.videos.length > 0)) || allFloorPlans.length > 0 || property.virtual_tour_url || (property.latitude && property.longitude)) && (
         <div id="media-tabs" className="w-full px-6 md:px-14 pt-6 flex gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide">
           <button 
             onClick={() => setActiveTab('fotos')} 
@@ -496,7 +507,15 @@ export const FichaPropiedad = () => {
               <Play className="w-4 h-4" /> {t('property.labels.features.video')}
             </button>
           )}
-          {property.floor_plan && (
+          {property.virtual_tour_url && (
+            <button 
+              onClick={() => setActiveTab('tour')} 
+              className={`flex items-center gap-2 font-primary text-sm uppercase tracking-wider pb-2 border-b-2 transition-colors flex-shrink-0 ${activeTab === 'tour' ? 'border-[#C9A962] text-[#C9A962]' : 'border-transparent text-[#888888] hover:text-[#FAF8F5]'}`}
+            >
+              <Compass className="w-4 h-4" /> {t('property.labels.features.view_tour', 'Tour Virtual')}
+            </button>
+          )}
+          {allFloorPlans.length > 0 && (
             <button 
               onClick={() => setActiveTab('plano')} 
               className={`flex items-center gap-2 font-primary text-sm uppercase tracking-wider pb-2 border-b-2 transition-colors flex-shrink-0 ${activeTab === 'plano' ? 'border-[#C9A962] text-[#C9A962]' : 'border-transparent text-[#888888] hover:text-[#FAF8F5]'}`}
@@ -578,7 +597,16 @@ export const FichaPropiedad = () => {
                       <Video className="w-4 h-4" />
                     </button>
                   )}
-                  {property.floor_plan && (
+                  {property.virtual_tour_url && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setActiveTab('tour'); }}
+                      className="pointer-events-auto flex items-center justify-center w-8 h-8 rounded-sm bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-[#C9A962] hover:text-black transition-colors shadow-lg" 
+                      title={t('property.labels.features.view_tour', 'Tour Virtual')}
+                    >
+                      <Compass className="w-4 h-4" />
+                    </button>
+                  )}
+                  {allFloorPlans.length > 0 && (
                     <button 
                       onClick={(e) => { e.stopPropagation(); setActiveTab('plano'); }}
                       className="pointer-events-auto flex items-center justify-center w-8 h-8 rounded-sm bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-[#C9A962] hover:text-black transition-colors shadow-lg" 
@@ -790,21 +818,72 @@ export const FichaPropiedad = () => {
           </div>
         )}
 
-        {/* Floor Plan */}
-        {activeTab === 'plano' && property.floor_plan && (
-          <div className="w-full border border-[#1F1F1F] bg-[#161616] p-4 flex items-center justify-center min-h-[400px]">
-            {property.floor_plan.toLowerCase().endsWith('.pdf') ? (
-              <div className="flex flex-col items-center gap-4 py-20">
-                <MapIcon className="w-16 h-16 text-[#C9A962]" />
-                <p className="font-primary text-[#FAF8F5]">{t('property.labels.features.floor_plan_is_pdf')}</p>
-                <a href={property.floor_plan} target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold uppercase text-sm hover:bg-[#D4B673] transition-colors">
-                  {t('property.labels.features.open_pdf')}
-                </a>
-              </div>
-            ) : (
-              <a href={property.floor_plan} target="_blank" rel="noopener noreferrer" className="block w-full h-full flex items-center justify-center cursor-zoom-in" title="Ver plano original">
-                <img src={property.floor_plan} alt="Plano de la propiedad" className="max-w-full max-h-[70vh] object-contain" />
+        {/* Tour Virtual */}
+        {activeTab === 'tour' && property.virtual_tour_url && (
+          <div className="w-full flex flex-col gap-4">
+            <div className="w-full h-[500px] md:h-[600px] border border-[#1F1F1F] bg-black relative">
+              <iframe 
+                src={property.virtual_tour_url}
+                className="w-full h-full"
+                allowFullScreen
+                loading="lazy"
+                title="Tour Virtual"
+                frameBorder="0"
+              />
+            </div>
+            <div className="flex justify-center">
+              <a 
+                href={property.virtual_tour_url} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center gap-2 px-6 py-3 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold uppercase text-sm hover:bg-[#D4B673] transition-colors shadow-lg"
+              >
+                <ExternalLink className="w-4 h-4" />
+                {t('property.labels.features.open_tour_fullscreen', 'Abrir a pantalla completa')}
               </a>
+            </div>
+          </div>
+        )}
+
+        {/* Floor Plan */}
+        {activeTab === 'plano' && allFloorPlans.length > 0 && (
+          <div className="flex flex-col gap-4">
+            <div className="w-full border border-[#1F1F1F] bg-[#161616] p-4 flex items-center justify-center min-h-[400px]">
+              {allFloorPlans[activePlanIdx].toLowerCase().split('?')[0].endsWith('.pdf') ? (
+                <div className="flex flex-col items-center gap-4 py-20">
+                  <MapIcon className="w-16 h-16 text-[#C9A962]" />
+                  <p className="font-primary text-[#FAF8F5]">{t('property.labels.features.floor_plan_is_pdf')}</p>
+                  <a href={allFloorPlans[activePlanIdx]} target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold uppercase text-sm hover:bg-[#D4B673] transition-colors">
+                    {t('property.labels.features.open_pdf')}
+                  </a>
+                </div>
+              ) : (
+                <a href={allFloorPlans[activePlanIdx]} target="_blank" rel="noopener noreferrer" className="block w-full h-full flex items-center justify-center cursor-zoom-in" title="Ver plano original">
+                  <img src={allFloorPlans[activePlanIdx]} alt={`Plano ${activePlanIdx + 1}`} className="max-w-full max-h-[70vh] object-contain" />
+                </a>
+              )}
+            </div>
+            {/* Multiple Plans selector if there is more than 1 */}
+            {allFloorPlans.length > 1 && (
+              <div className="flex flex-wrap gap-2">
+                {allFloorPlans.map((plan, idx) => {
+                  const isPdf = plan.toLowerCase().split('?')[0].endsWith('.pdf');
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setActivePlanIdx(idx)}
+                      className={cn(
+                        "px-4 py-2 text-[10px] font-primary border transition-all uppercase tracking-widest font-bold h-10 flex items-center justify-center min-w-[120px]",
+                        activePlanIdx === idx 
+                          ? 'bg-[#C9A962] text-[#0A0A0A] border-[#C9A962] shadow-[0_0_15px_rgba(201,169,98,0.2)]' 
+                          : 'bg-[#0A0A0A] text-[#888888] border-[#1F1F1F] hover:border-[#C9A962] hover:text-[#FAF8F5]'
+                      )}
+                    >
+                      {isPdf ? `PLANO PDF ${idx + 1}` : `PLANO ${idx + 1}`}
+                    </button>
+                  );
+                })}
+              </div>
             )}
           </div>
         )}

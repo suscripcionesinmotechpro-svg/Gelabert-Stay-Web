@@ -4,10 +4,11 @@ import { useProperties, usePropertyMutations } from '../../hooks/useProperties';
 import { useAuth } from '../../hooks/useAuth';
 import type { Property, PropertyStatus, CommercialStatus } from '../../types/property';
 import { STATUS_LABELS, STATUS_COLORS, OPERATION_LABELS, COMMERCIAL_STATUS_LABELS, COMMERCIAL_STATUS_COLORS } from '../../types/property';
-import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid, FolderArchive, Loader2 } from 'lucide-react';
 import { PropertyReference } from '../../components/PropertyReference';
 import { getOptimizedImage } from '../../utils/images';
 import { getCommunityShareMessage } from '../../utils/whatsapp';
+import { downloadPropertyImagesAsZip } from '../../utils/downloadPropertyImages';
 
 const WhatsAppIcon = () => (
   <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -111,6 +112,21 @@ export const AdminPropertiesList = () => {
   const [filterOp, setFilterOp] = useState('');
   const [search, setSearch] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [downloadingZip, setDownloadingZip] = useState<string | null>(null);
+  const [downloadedZip, setDownloadedZip] = useState<string | null>(null);
+
+  const handleDownloadZip = async (p: Property) => {
+    setDownloadingZip(p.id);
+    try {
+      await downloadPropertyImagesAsZip(p);
+      setDownloadedZip(p.id);
+      setTimeout(() => setDownloadedZip(null), 3000);
+    } catch (err: any) {
+      alert(err?.message || 'Error al generar el ZIP.');
+    } finally {
+      setDownloadingZip(null);
+    }
+  };
 
   const handleShareToChannel = (p: Property) => {
     const text = getCommunityShareMessage(p);
@@ -347,6 +363,23 @@ export const AdminPropertiesList = () => {
                 >
                   {copiedId === p.id ? <CheckCheck className="w-3.5 h-3.5" /> : <WhatsAppIcon />}
                   {copiedId === p.id && <span className="text-[8px] font-bold uppercase tracking-tighter">Copiado</span>}
+                </button>
+                {/* ZIP download button */}
+                <button
+                  onClick={() => handleDownloadZip(p)}
+                  disabled={downloadingZip === p.id}
+                  className={`p-1.5 border transition-all disabled:opacity-50 ${
+                    downloadedZip === p.id
+                      ? 'text-[#4ADE80] border-[#4ADE80] bg-[#4ADE80]/10'
+                      : 'text-[#888888] hover:text-[#C9A962] border-transparent hover:border-[#C9A962]'
+                  }`}
+                  title="Descargar fotos en ZIP"
+                >
+                  {downloadingZip === p.id
+                    ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    : downloadedZip === p.id
+                      ? <CheckCheck className="w-3.5 h-3.5" />
+                      : <FolderArchive className="w-3.5 h-3.5" />}
                 </button>
                 {p.status === 'publicada' ? (
                   <a href={`/propiedades/${p.slug || p.id}`} target="_blank" className="p-1.5 text-[#888888] hover:text-[#FAF8F5] border border-transparent hover:border-[#1F1F1F] transition-all" title="Ver en la web">

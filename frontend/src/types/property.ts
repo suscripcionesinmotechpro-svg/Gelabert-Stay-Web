@@ -130,6 +130,8 @@ export interface Property {
   videos: string[] | null;
   videos_metadata: PropertyVideo[] | null;
   floor_plan: string | null;
+  floor_plans: string[] | null;
+  virtual_tour_url: string | null;
 
   // Alquiler por habitaciones
   is_room_rental: boolean;
