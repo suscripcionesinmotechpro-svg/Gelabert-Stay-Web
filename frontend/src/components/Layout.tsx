@@ -56,22 +56,51 @@ export const Layout = () => {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8 font-primary text-[13px] tracking-wide uppercase">
-          {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              className={`hover:text-[#C9A962] transition-colors ${location.pathname === link.path ? 'text-[#C9A962]' : 'text-[#FAF8F5]'}`}
-            >
-              {link.name}
-            </Link>
-          ))}
+        <nav className="hidden md:flex items-center gap-7 font-primary text-[12px] tracking-widest uppercase">
+          {navLinks.map((link) => {
+            const isActive = location.pathname === link.path;
+            return (
+              <Link
+                key={link.path}
+                to={link.path}
+                className="relative group py-1"
+              >
+                <span
+                  className={`transition-colors duration-300 ${
+                    isActive ? 'text-[#C9A962]' : 'text-[#B0A99A] group-hover:text-[#FAF8F5]'
+                  }`}
+                >
+                  {link.name}
+                </span>
+                {/* Underline animada */}
+                <span
+                  className="absolute bottom-0 left-0 h-[1.5px] bg-gradient-to-r from-[#C9A962] via-[#D4B673] to-[#C9A962] rounded-full transition-all duration-500 ease-out"
+                  style={{
+                    width: isActive ? '100%' : '0%',
+                    opacity: isActive ? 1 : 0,
+                  }}
+                />
+                <span
+                  className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.5px] bg-gradient-to-r from-transparent via-[#C9A962]/60 to-transparent rounded-full transition-all duration-300 ease-out opacity-0 group-hover:opacity-100 group-hover:w-full w-0"
+                />
+              </Link>
+            );
+          })}
+
+          {/* Acceso Privado — Premium */}
           <Link
             to="/admin/login"
-            className="px-5 py-2 border border-[#C9A962] text-[#C9A962] hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-colors"
+            className="relative ml-2 flex items-center gap-2 px-5 py-2 overflow-hidden group
+              border border-[#C9A962]/50 text-[#C9A962] text-[11px] tracking-[0.15em]
+              hover:border-[#C9A962] transition-all duration-500
+              shadow-[0_0_0px_rgba(201,169,98,0)] hover:shadow-[0_0_20px_rgba(201,169,98,0.25)]"
           >
-            {t('nav.clientArea')}
+            {/* Fondo con sweep dorado al hover */}
+            <span className="absolute inset-0 bg-gradient-to-r from-[#C9A962]/0 via-[#C9A962]/10 to-[#C9A962]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <Lock size={12} className="transition-transform duration-500 group-hover:rotate-[15deg] group-hover:scale-110" />
+            <span>{t('nav.clientArea')}</span>
           </Link>
+
           <LanguageSwitcher />
         </nav>
 
@@ -91,28 +120,54 @@ export const Layout = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: -20, backdropFilter: 'blur(0px)' }}
+            animate={{ opacity: 1, y: 0, backdropFilter: 'blur(24px)' }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-0 w-full bg-[#0F0F0F] border-b border-[#1F1F1F] z-40 flex flex-col md:hidden py-6 px-6 gap-6 font-primary text-[14px] uppercase tracking-wider"
+            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+            className="fixed top-20 left-0 w-full bg-[#0A0A0A]/95 backdrop-blur-2xl border-b border-[#C9A962]/10 z-40 flex flex-col md:hidden py-8 px-8 gap-0 font-primary uppercase tracking-widest"
           >
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`${location.pathname === link.path ? 'text-[#C9A962]' : 'text-[#FAF8F5]'}`}
-              >
-                {link.name}
-              </Link>
-            ))}
-            <Link
-              to="/admin/login"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="text-[#C9A962] mt-4 flex items-center gap-2"
+            {navLinks.map((link, i) => {
+              const isActive = location.pathname === link.path;
+              return (
+                <motion.div
+                  key={link.path}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05, duration: 0.3 }}
+                >
+                  <Link
+                    to={link.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center justify-between py-4 text-[13px] border-b border-[#1A1A1A] transition-colors duration-300 ${
+                      isActive ? 'text-[#C9A962]' : 'text-[#888888] hover:text-[#FAF8F5]'
+                    }`}
+                  >
+                    <span>{link.name}</span>
+                    {isActive && (
+                      <motion.span
+                        layoutId="mobile-active"
+                        className="w-1.5 h-1.5 rounded-full bg-[#C9A962] shadow-[0_0_8px_#C9A962]"
+                      />
+                    )}
+                  </Link>
+                </motion.div>
+              );
+            })}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: navLinks.length * 0.05, duration: 0.3 }}
+              className="mt-6"
             >
-              {t('nav.clientArea')} <Lock size={14} />
-            </Link>
+              <Link
+                to="/admin/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center justify-center gap-3 py-3 px-6 border border-[#C9A962]/50 text-[#C9A962] text-[12px] tracking-[0.15em] hover:border-[#C9A962] hover:shadow-[0_0_20px_rgba(201,169,98,0.2)] transition-all duration-500"
+              >
+                <Lock size={13} />
+                <span>{t('nav.clientArea')}</span>
+              </Link>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
