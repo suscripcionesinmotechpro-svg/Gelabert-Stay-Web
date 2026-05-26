@@ -63,23 +63,39 @@ export async function downloadPropertyImagesAsZip(
   const folder = zip.folder(property.reference || property.id.slice(0, 8)) as JSZip;
 
   let done = 0;
+  let successfulDownloads = 0;
 
   await Promise.all(
     images.map(async ({ url, filename }) => {
       try {
-        const response = await fetch(url);
+        // CORREGIR BUG DE CACHÉ DE CORS EN NAVEGADORES:
+        // Si las imágenes ya se cargaron en la página mediante etiquetas <img> normales sin crossorigin,
+        // el navegador las guarda en caché sin cabeceras CORS. Un fetch() posterior a la misma URL
+        // fallará por CORS al leer de la caché. Añadir un timestamp como parámetro único
+        // obliga a realizar una petición de red limpia que sí obtiene las cabeceras CORS correctas de Supabase.
+        const cacheBustingUrl = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+        
+        const response = await fetch(cacheBustingUrl);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const blob = await response.blob();
         folder.file(filename, blob);
-      } catch {
+        successfulDownloads++;
+      } catch (err) {
         // Skip images that can't be fetched (CORS, 404, etc.)
-        console.warn(`[ZIP] Could not fetch: ${url}`);
+        console.warn(`[ZIP] Could not fetch: ${url}`, err);
       } finally {
         done++;
         onProgress?.(Math.round((done / images.length) * 100));
       }
     })
   );
+
+  // Evitar la descarga de una carpeta vacía si todos los fetch fallan
+  if (successfulDownloads === 0) {
+    throw new Error(
+      'No se ha podido descargar ninguna de las imágenes. Esto suele deberse a un problema de permisos CORS en el servidor de Supabase Storage o restricciones de red del navegador.'
+    );
+  }
 
   const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
 
