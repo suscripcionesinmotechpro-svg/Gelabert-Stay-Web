@@ -82,18 +82,58 @@
 }
 
 @utility description-body {
-  color: #FAF8F5;
+  color: rgba(250, 248, 245, 0.95);
   font-family: var(--font-primary);
-  line-height: 1.8;
-  font-size: 1.125rem;
+  line-height: 1.85;
+  font-size: 1.05rem;
   letter-spacing: 0.01em;
+}
+
+.description-body p {
+  margin-bottom: 1.25rem;
+  color: rgba(250, 248, 245, 0.9);
+}
+
+.description-body ul {
+  padding-left: 0rem;
+  margin-bottom: 1.5rem;
+  list-style: none;
+}
+
+.description-body ul li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.65rem;
+  color: rgba(250, 248, 245, 0.85);
+}
+
+.description-body ul li::before {
+  content: "•";
+  position: absolute;
+  left: 0.25rem;
+  color: #C9A962;
+  font-weight: bold;
+  font-size: 1.1rem;
+  text-shadow: 0 0 8px rgba(201, 169, 98, 0.4);
+}
+
+.description-body ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+  list-style-type: decimal;
+}
+
+.description-body ol li {
+  margin-bottom: 0.65rem;
+  color: rgba(250, 248, 245, 0.85);
+  padding-left: 0.25rem;
 }
 
 .description-body em, .description-body i {
   color: #C9A962;
   font-style: italic;
   font-weight: 500;
-  border-bottom: 1px solid rgba(201, 169, 98, 0.2);
+  border-bottom: 1px dashed rgba(201, 169, 98, 0.2);
   padding-bottom: 1px;
 }
 
@@ -101,6 +141,19 @@
   color: #FAF8F5;
   font-weight: 700;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.description-body a {
+  color: #C9A962;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(201, 169, 98, 0.4);
+  transition: all 0.3s ease;
+}
+
+.description-body a:hover {
+  color: #FAF8F5;
+  border-bottom-style: solid;
+  border-bottom-color: #C9A962;
 }
 
 .prose { 

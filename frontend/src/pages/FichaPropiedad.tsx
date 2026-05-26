@@ -979,15 +979,15 @@ export const FichaPropiedad = () => {
               </div>
               <h1 className="font-secondary text-2xl md:text-5xl text-[#FAF8F5] leading-tight">{translatedTitle}</h1>
               {(property.zone || property.city || property.urbanization) && (
-                <div className="flex flex-col gap-1 text-[#888888]">
+                <div className="flex flex-col gap-1 text-white/80">
                   <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    <span className="font-primary text-sm">
+                    <MapPin className="w-4 h-4 text-[#C9A962]" />
+                    <span className="font-primary text-sm font-medium">
                       {[property.urbanization, property.zone, property.city].filter(Boolean).join(', ')}
                     </span>
                   </div>
                   {property.block_staircase && (
-                    <span className="font-primary text-[10px] uppercase tracking-wider ml-5 text-[#666666]">
+                    <span className="font-primary text-[10px] uppercase tracking-wider ml-5 text-white/55">
                       {t('admin.form.fields.block')}: {property.block_staircase}
                     </span>
                   )}
@@ -998,11 +998,11 @@ export const FichaPropiedad = () => {
               {property.price && (
                 <p className="font-secondary text-4xl text-[#C9A962]">
                   {formatPropertyPrice(property.price, property.price_type, property.max_price, property.currency, i18n.language)}
-                  {property.operation === 'alquiler' && <span className="font-primary text-lg text-[#888888] ml-1">{t('property.labels.features.price_per_month')}</span>}
+                  {property.operation === 'alquiler' && <span className="font-primary text-lg text-white/50 ml-1">{t('property.labels.features.price_per_month')}</span>}
                 </p>
               )}
               {property.operation === 'venta' && (property.community_fees || property.ibi) && (
-                <div className="flex flex-col items-end gap-1 mt-1 font-primary text-xs text-[#666666]">
+                <div className="flex flex-col items-end gap-1 mt-1 font-primary text-xs text-white/60">
                   {property.community_fees && <span>{t('property.labels.features.community_fees')}: {property.community_fees}€/{t('common.month')}</span>}
                   {property.ibi && <span>{t('property.labels.features.ibi')}: {property.ibi}€/{t('common.year')}</span>}
                 </div>
@@ -1015,28 +1015,28 @@ export const FichaPropiedad = () => {
             {property.area_m2 && (
               <motion.div whileHover={{ y: -5 }} className="flex flex-col items-center gap-2 p-5 bg-[#0A0A0A] border border-[#1F1F1F] hover:border-[#C9A962] transition-colors group">
                 <Maximize className="w-5 h-5 text-[#C9A962] transform group-hover:scale-110 transition-transform" />
-                <p className="font-primary text-xs text-[#666666] uppercase tracking-wider">{t('property.labels.features.area')}</p>
+                <p className="font-primary text-xs text-[#B0A99A] uppercase tracking-wider">{t('property.labels.features.area')}</p>
                 <p className="font-primary text-[#FAF8F5] font-bold text-sm">{property.area_m2} m²</p>
               </motion.div>
             )}
             {property.bedrooms > 0 && (
               <motion.div whileHover={{ y: -5 }} className="flex flex-col items-center gap-2 p-5 bg-[#0A0A0A] border border-[#1F1F1F] hover:border-[#C9A962] transition-colors group">
                 <Bed className="w-5 h-5 text-[#C9A962] transform group-hover:scale-110 transition-transform" />
-                <p className="font-primary text-xs text-[#666666] uppercase tracking-wider">{t('property.labels.features.bedrooms')}</p>
+                <p className="font-primary text-xs text-[#B0A99A] uppercase tracking-wider">{t('property.labels.features.bedrooms')}</p>
                 <p className="font-primary text-[#FAF8F5] font-bold text-sm">{property.bedrooms}</p>
               </motion.div>
             )}
             {property.bathrooms > 0 && (
               <motion.div whileHover={{ y: -5 }} className="flex flex-col items-center gap-2 p-5 bg-[#0A0A0A] border border-[#1F1F1F] hover:border-[#C9A962] transition-colors group">
                 <Bath className="w-5 h-5 text-[#C9A962] transform group-hover:scale-110 transition-transform" />
-                <p className="font-primary text-xs text-[#666666] uppercase tracking-wider">{t('property.labels.features.bathrooms')}</p>
+                <p className="font-primary text-xs text-[#B0A99A] uppercase tracking-wider">{t('property.labels.features.bathrooms')}</p>
                 <p className="font-primary text-[#FAF8F5] font-bold text-sm">{property.bathrooms}</p>
               </motion.div>
             )}
             {property.floor && (
               <motion.div whileHover={{ y: -5 }} className="flex flex-col items-center gap-2 p-5 bg-[#0A0A0A] border border-[#1F1F1F] hover:border-[#C9A962] transition-colors group">
                 <Layers className="w-5 h-5 text-[#C9A962] transform group-hover:scale-110 transition-transform" />
-                <p className="font-primary text-xs text-[#666666] uppercase tracking-wider">{t('property.labels.features.floor')}</p>
+                <p className="font-primary text-xs text-[#B0A99A] uppercase tracking-wider">{t('property.labels.features.floor')}</p>
                 <p className="font-primary text-[#FAF8F5] font-bold text-sm">
                   {property.floor}{(!String(property.floor).includes('º') && !String(property.floor).includes('ª') && /^\d+$/.test(String(property.floor))) ? 'º' : ''}
                 </p>
@@ -1045,7 +1045,7 @@ export const FichaPropiedad = () => {
             {property.orientation && property.orientation.length > 0 && (
               <motion.div whileHover={{ y: -5 }} className="flex flex-col items-center gap-2 p-5 bg-[#0A0A0A] border border-[#1F1F1F] hover:border-[#C9A962] transition-colors group">
                 <Compass className="w-5 h-5 text-[#C9A962] transform group-hover:scale-110 transition-transform" />
-                <p className="font-primary text-xs text-[#666666] uppercase tracking-wider">{t('property.form.fields.orientation')}</p>
+                <p className="font-primary text-xs text-[#B0A99A] uppercase tracking-wider">{t('property.form.fields.orientation')}</p>
                 <p className="font-primary text-[#FAF8F5] font-bold text-[10px] uppercase">
                   {property.orientation.map(o => t(`admin.form.fields.orientation_${o.toLowerCase().charAt(0)}`)).join(' · ')}
                 </p>
@@ -1140,7 +1140,7 @@ export const FichaPropiedad = () => {
                         {room.price !== undefined && room.price !== null && (
                           <span className="font-primary text-[#C9A962] font-bold text-sm flex-shrink-0 mt-0.5">
                             {room.price}€
-                            <span className="text-[10px] text-[#888888] font-normal ml-0.5">/{t('common.month')}</span>
+                            <span className="text-[10px] text-white/50 font-normal ml-0.5">/{t('common.month')}</span>
                           </span>
                         )}
                       </div>
@@ -1274,7 +1274,7 @@ export const FichaPropiedad = () => {
               <h2 className="font-secondary text-2xl text-[#FAF8F5]">{t('property.labels.features.highlights')}</h2>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {autoHighlights.filter(h => h && cleanContent(h) !== '').map((h, i) => (
-                  <li key={i} className="flex items-start gap-2 font-primary text-sm text-[#888888]">
+                  <li key={i} className="flex items-start gap-2 font-primary text-sm text-[#FAF8F5]/90">
                     <span className="text-[#C9A962] mt-0.5">•</span>
                     {h}
                   </li>
@@ -1305,9 +1305,9 @@ export const FichaPropiedad = () => {
                 { label: t('property.labels.features.has_wardrobes'), value: property.has_wardrobes },
                 { label: t('property.labels.features.has_fireplace'), value: property.has_fireplace },
               ].filter(f => f.value === true).map(feat => (
-                <div key={feat.label} className="flex items-center gap-3 p-3 bg-[#0A0A0A] border border-[#1F1F1F]">
-                  <Check className="w-4 h-4 text-green-400" />
-                  <span className="font-primary text-sm text-green-400 font-medium">{feat.label}</span>
+                <div key={feat.label} className="flex items-center gap-3 p-3.5 bg-[#0C0C0C] border border-[#1F1F1F] hover:border-[#C9A962]/30 transition-all duration-300 rounded-sm">
+                  <Check className="w-4 h-4 text-[#C9A962] filter drop-shadow-[0_0_4px_rgba(201,169,98,0.2)]" />
+                  <span className="font-primary text-sm text-[#FAF8F5]/90 font-medium">{feat.label}</span>
                 </div>
               ))}
 
@@ -1316,7 +1316,7 @@ export const FichaPropiedad = () => {
               <div className="flex flex-col gap-2 p-4 bg-[#0A0A0A]/50 border-l-2 border-[#C9A962]">
                 {(property.conservation_state || property.property_condition) && (
                   <div className="flex justify-between items-center text-sm font-primary">
-                    <span className="text-[#666666] uppercase tracking-wider text-xs">{t('property.labels.features.condition')}</span>
+                    <span className="text-white/50 uppercase tracking-wider text-xs">{t('property.labels.features.condition')}</span>
                     <span className="text-[#FAF8F5] font-bold">
                       {property.conservation_state ? (
                         t(`property_conditions.${property.conservation_state}`, { defaultValue: property.conservation_state })
@@ -1328,7 +1328,7 @@ export const FichaPropiedad = () => {
                 )}
                 {property.availability && (
                   <div className="flex justify-between items-center text-sm font-primary">
-                    <span className="text-[#666666] uppercase tracking-wider text-xs">{t('property.labels.features.availability')}</span>
+                    <span className="text-white/50 uppercase tracking-wider text-xs">{t('property.labels.features.availability')}</span>
                     <span className="text-[#FAF8F5] font-bold">{autoAvailability}</span>
                   </div>
                 )}
@@ -1343,8 +1343,8 @@ export const FichaPropiedad = () => {
                   {property.energy_rating && (
                     <div className="flex items-center justify-between p-4 bg-[#0A0A0A] border border-[#1F1F1F]">
                       <div className="flex flex-col">
-                        <span className="text-[#666666] text-[10px] uppercase tracking-widest mb-1">{t('admin.form.fields.energy_rating')}</span>
-                        {property.energy_consumption && <span className="text-[#888888] text-xs">{property.energy_consumption} kWh/m² {t('common.year')}</span>}
+                        <span className="text-white/50 text-[10px] uppercase tracking-widest mb-1">{t('admin.form.fields.energy_rating')}</span>
+                        {property.energy_consumption && <span className="text-white/70 text-xs">{property.energy_consumption} kWh/m² {t('common.year')}</span>}
                       </div>
                       <div className="w-10 h-10 flex items-center justify-center bg-[#C9A962] text-[#0A0A0A] font-bold text-xl rounded-sm">
                         {property.energy_rating}
@@ -1354,8 +1354,8 @@ export const FichaPropiedad = () => {
                   {property.emissions_rating && (
                     <div className="flex items-center justify-between p-4 bg-[#0A0A0A] border border-[#1F1F1F]">
                       <div className="flex flex-col">
-                        <span className="text-[#666666] text-[10px] uppercase tracking-widest mb-1">{t('admin.form.fields.emissions_rating')}</span>
-                        {property.emissions_value && <span className="text-[#888888] text-xs">{property.emissions_value} kg CO₂/m² {t('common.year')}</span>}
+                        <span className="text-white/50 text-[10px] uppercase tracking-widest mb-1">{t('admin.form.fields.emissions_rating')}</span>
+                        {property.emissions_value && <span className="text-white/70 text-xs">{property.emissions_value} kg CO₂/m² {t('common.year')}</span>}
                       </div>
                       <div className="w-10 h-10 flex items-center justify-center bg-[#444444] text-white font-bold text-xl rounded-sm">
                         {property.emissions_rating}
@@ -1394,7 +1394,7 @@ export const FichaPropiedad = () => {
               <WhatsAppIcon />
               {t('property.labels.features.whatsapp')}
             </a>
-            <p className="text-[11px] text-[#888888] font-primary leading-relaxed text-center">
+            <p className="text-xs text-white/70 font-primary leading-relaxed text-center">
               <Trans 
                 i18nKey="property.labels.features.accept_privacy_short"
                 components={[<Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/privacidad`} className="text-[#C9A962] hover:underline" />]}
@@ -1463,8 +1463,8 @@ export const FichaPropiedad = () => {
                 />
                 
                 {/* Legal Disclaimer Block */}
-                <div className="mt-2 p-3 bg-white/5 border border-white/10 rounded-sm">
-                  <p className="text-[10px] text-[#888888] leading-relaxed font-primary uppercase tracking-wider">
+                <div className="mt-2 p-3.5 bg-white/5 border border-white/10 rounded-sm">
+                  <p className="text-[11px] text-white/60 leading-relaxed font-primary uppercase tracking-wider">
                     {property.operation === 'alquiler' 
                       ? t('forms.legal_disclaimers.rentals') 
                       : t('forms.legal_disclaimers.general')
@@ -1483,7 +1483,7 @@ export const FichaPropiedad = () => {
                       onChange={(e) => setPrivacyAccepted(e.target.checked)}
                       className="mt-1 w-3.5 h-3.5 accent-[#C9A962] bg-[#161616] border-[#1F1F1F] cursor-pointer"
                     />
-                    <label htmlFor="property_privacy_accepted" className="text-[#888888] text-[11px] font-primary leading-tight cursor-pointer">
+                    <label htmlFor="property_privacy_accepted" className="text-white/70 text-xs font-primary leading-tight cursor-pointer">
                       <Trans 
                         i18nKey="forms.privacy_accept"
                         components={[
@@ -1510,7 +1510,7 @@ export const FichaPropiedad = () => {
                         onChange={(e) => setSolvencyAccepted(e.target.checked)}
                         className="mt-1 w-3.5 h-3.5 accent-[#C9A962] bg-[#161616] border-[#1F1F1F] cursor-pointer"
                       />
-                      <label htmlFor="property_solvency_accepted" className="text-[#888888] text-[11px] font-primary leading-tight cursor-pointer">
+                      <label htmlFor="property_solvency_accepted" className="text-white/70 text-xs font-primary leading-tight cursor-pointer">
                         {t('forms.solvency_accept')}
                       </label>
                     </div>
@@ -1530,13 +1530,13 @@ export const FichaPropiedad = () => {
                 </button>
               </form>
             )}
-            <div className="flex items-center gap-2 pt-2 border-t border-[#1F1F1F] text-[#666666]">
-              <Phone className="w-3.5 h-3.5" />
-              <span className="font-primary text-xs">+34 611 89 88 27</span>
+            <div className="flex items-center gap-2 pt-2 border-t border-[#1F1F1F] text-white/70">
+              <Phone className="w-3.5 h-3.5 text-[#C9A962]" />
+              <span className="font-primary text-xs font-medium">+34 611 89 88 27</span>
             </div>
-            <div className="flex items-center gap-2 text-[#666666]">
-              <Mail className="w-3.5 h-3.5" />
-              <span className="font-primary text-xs">info@gelaberthomes.es</span>
+            <div className="flex items-center gap-2 text-white/70">
+              <Mail className="w-3.5 h-3.5 text-[#C9A962]" />
+              <span className="font-primary text-xs font-medium">info@gelaberthomes.es</span>
             </div>
 
           </div>
