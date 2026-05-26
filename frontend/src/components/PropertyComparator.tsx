@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { formatPropertyPrice } from '../utils/textUtils';
 import { 
   X, GitCompare, ArrowRight, Check, Minus,
   Euro, Maximize2, Bed, Bath, LayoutGrid,
@@ -12,18 +13,7 @@ import type { Property } from '../types/property';
 import { cn } from '../lib/utils';
 import { getOptimizedImage } from '../utils/images';
 
-const formatPrice = (price: any, locale: string = 'es-ES') => {
-  if (price === null || price === undefined || isNaN(Number(price))) return '—';
-  try {
-    return new Intl.NumberFormat(locale, { 
-      style: 'currency', 
-      currency: 'EUR', 
-      maximumFractionDigits: 0 
-    }).format(Number(price));
-  } catch (e) {
-    return (price?.toString() || '0') + ' €';
-  }
-};
+
 
 interface FeatureRow {
   key: string;
@@ -41,7 +31,7 @@ const ROWS_CONFIG: FeatureRow[] = [
     label: 'Precio', 
     icon: Euro,
     getValue: p => p.price ?? 0, 
-    format: v => <span className="font-bold text-[#C9A962] text-[11px]">{v > 0 ? formatPrice(v) : '—'}</span>,
+    format: (_v, p) => <span className="font-bold text-[#C9A962] text-[11px]">{formatPropertyPrice(p.price, p.price_type, p.max_price, p.currency, 'es')}</span>,
     isBetter: (v1, v2) => v1 > 0 && v2 > 0 ? v1 < v2 : v1 > v2,
     priority: 15
   },

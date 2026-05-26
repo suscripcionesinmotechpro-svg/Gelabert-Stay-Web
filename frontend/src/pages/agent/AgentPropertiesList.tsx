@@ -9,6 +9,7 @@ import { PropertyReference } from '../../components/PropertyReference';
 import { getOptimizedImage } from '../../utils/images';
 import { getCommunityShareMessage } from '../../utils/whatsapp';
 import { downloadPropertyImagesAsZip } from '../../utils/downloadPropertyImages';
+import { formatPropertyPrice } from '../../utils/textUtils';
 
 const WhatsAppIcon = () => (
   <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -296,7 +297,7 @@ export const AgentPropertiesList = () => {
 
               {/* Price */}
               <span className="font-secondary text-[#C9A962] text-sm">
-                {p.price ? `€${p.price.toLocaleString('es-ES')}` : '—'}
+                {formatPropertyPrice(p.price, p.price_type, p.max_price, p.currency, 'es')}
               </span>
 
               {/* Status dropdown */}

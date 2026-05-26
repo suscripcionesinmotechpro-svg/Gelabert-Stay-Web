@@ -86,7 +86,7 @@ const ContractHistory = ({ propertyId }: { propertyId: string }) => {
 
 const DEFAULT_FORM: Partial<PropertyInsert> = {
   title: '', operation: 'alquiler', property_type: 'piso',
-  price: undefined, currency: 'EUR', city: '', zone: '', address: '',
+  price: undefined, max_price: undefined, price_type: 'exact', currency: 'EUR', city: '', zone: '', address: '',
   postal_code: '', street_number: '', door_number: '', 
   area_m2: undefined, bedrooms: 0, bathrooms: 0, floor: '',
   has_elevator: false, is_furnished: false, has_terrace: false, has_balcony: false,
@@ -142,7 +142,7 @@ export const AgentPropertyForm = () => {
     if (isEditing && property) {
       const newForm = {
         title: property.title, operation: property.operation, property_type: property.property_type,
-        price: property.price ?? undefined, currency: property.currency, city: property.city ?? '',
+        price: property.price ?? undefined, max_price: property.max_price ?? undefined, price_type: property.price_type ?? 'exact', currency: property.currency, city: property.city ?? '',
         zone: property.zone ?? '', address: property.address ?? '', postal_code: property.postal_code ?? '',
         street_number: property.street_number ?? '', door_number: property.door_number ?? '',
         area_m2: property.area_m2 ?? undefined, bedrooms: property.bedrooms, bathrooms: property.bathrooms,
@@ -583,7 +583,7 @@ export const AgentPropertyForm = () => {
       });
 
       // 4. Asegurar que los campos numéricos son números o null
-      const numericFields = ['price', 'energy_consumption', 'emissions_value', 'community_fees', 'ibi'];
+      const numericFields = ['price', 'max_price', 'energy_consumption', 'emissions_value', 'community_fees', 'ibi'];
       numericFields.forEach(field => {
         if (data[field] !== null && data[field] !== undefined) {
           const p = Number(data[field]);
@@ -833,11 +833,32 @@ export const AgentPropertyForm = () => {
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="flex flex-col gap-2">
-            <label className={labelClass}>Precio</label>
+            <label className={labelClass}>Tipo de Precio</label>
+            <select className={selectClass} value={form.price_type} onChange={e => {
+              set('price_type', e.target.value);
+              if (e.target.value !== 'range') {
+                set('max_price', undefined);
+              }
+            }}>
+              <option value="exact">Precio Exacto</option>
+              <option value="from">Precio Desde</option>
+              <option value="range">Rango de Precios</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className={labelClass}>
+              {form.price_type === 'from' ? 'Precio Inicial *' : form.price_type === 'range' ? 'Precio Mínimo *' : 'Precio *'}
+            </label>
             <input type="number" className={inputClass} placeholder="Ej: 350000" value={form.price ?? ''} onChange={e => set('price', e.target.value ? Number(e.target.value) : undefined)} />
           </div>
+          {form.price_type === 'range' && (
+            <div className="flex flex-col gap-2">
+              <label className={labelClass}>Precio Máximo *</label>
+              <input type="number" className={inputClass} placeholder="Ej: 450000" value={form.max_price ?? ''} onChange={e => set('max_price', e.target.value ? Number(e.target.value) : undefined)} />
+            </div>
+          )}
           <div className="flex flex-col gap-2">
             <label className={labelClass}>Moneda</label>
             <select className={selectClass} value={form.currency} onChange={e => set('currency', e.target.value)}>
@@ -845,7 +866,7 @@ export const AgentPropertyForm = () => {
               <option value="USD">USD ($)</option>
             </select>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 col-span-1 sm:col-span-2 lg:col-span-1">
             <label className={labelClass}>Destacada</label>
             <div className="flex items-center h-10">
               <ToggleField label="Marcar como destacada" checked={form.is_featured ?? false} onChange={v => set('is_featured', v)} />

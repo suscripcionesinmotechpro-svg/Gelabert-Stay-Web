@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, Heart, GitCompare, Maximize2, BedDouble, Bat
 import { useState, useMemo, memo } from 'react';
 import { PremiumImage } from './PremiumImage';
 import { getOptimizedImage } from '../utils/images';
+import { formatPropertyPrice } from '../utils/textUtils';
 
 export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   title: string;
@@ -46,6 +47,9 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   is_room_rental?: boolean;
   rooms?: any[] | null;
   common_areas?: any[] | null;
+  price_type?: 'exact' | 'from' | 'range' | null;
+  max_price?: number | null;
+  currency?: string | null;
 }
 
 export const PropertyCard = memo(({
@@ -85,9 +89,12 @@ export const PropertyCard = memo(({
   is_room_rental,
   rooms,
   common_areas,
+  price_type,
+  max_price,
+  currency,
   ...props
 }: PropertyCardProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const { translatedText: autoTitle } = useAutoTranslate(title, title_en);
@@ -134,12 +141,8 @@ export const PropertyCard = memo(({
   };
 
   const formattedPrice = useMemo(() => 
-    new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency: 'EUR',
-      maximumFractionDigits: 0
-    }).format(price),
-    [price]
+    formatPropertyPrice(price, price_type, max_price, currency, i18n.language),
+    [price, price_type, max_price, currency, i18n.language]
   );
 
   const card = (

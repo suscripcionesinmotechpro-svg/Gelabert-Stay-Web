@@ -22,7 +22,7 @@ import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
-import { cleanContent } from '../utils/textUtils';
+import { cleanContent, formatPropertyPrice } from '../utils/textUtils';
 
 const WhatsAppIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -304,7 +304,8 @@ export const FichaPropiedad = () => {
   // Ej: "Alquiler Piso · Málaga · 800 €/mes · 40 m² · Baños 1 · Planta 5º"
   const formatPrice = (price: number | null, operation: string) => {
     if (!price) return null;
-    return `${price.toLocaleString('es-ES')} €${operation === 'alquiler' ? '/mes' : ''}`;
+    const formatted = formatPropertyPrice(price, property.price_type, property.max_price, property.currency, i18n.language);
+    return `${formatted}${operation === 'alquiler' ? '/mes' : ''}`;
   };
 
   const operationLabel = property.operation === 'alquiler' && property.is_room_rental
@@ -996,7 +997,7 @@ export const FichaPropiedad = () => {
             <div className="flex flex-col gap-1 text-right">
               {property.price && (
                 <p className="font-secondary text-4xl text-[#C9A962]">
-                  €{property.price.toLocaleString(i18n.language === 'en' ? 'en-US' : 'es-ES')}
+                  {formatPropertyPrice(property.price, property.price_type, property.max_price, property.currency, i18n.language)}
                   {property.operation === 'alquiler' && <span className="font-primary text-lg text-[#888888] ml-1">{t('property.labels.features.price_per_month')}</span>}
                 </p>
               )}
@@ -1575,7 +1576,7 @@ export const FichaPropiedad = () => {
           <div className="flex flex-col min-w-0">
             {property.price ? (
               <span className="font-secondary text-[#C9A962] text-lg leading-none">
-                €{property.price.toLocaleString('es-ES')}
+                {formatPropertyPrice(property.price, property.price_type, property.max_price, property.currency, i18n.language)}
               </span>
             ) : null}
             {property.operation === 'alquiler' && (
@@ -1633,6 +1634,9 @@ export const FichaPropiedad = () => {
                 title={p.title}
                 title_en={p.title_en ?? undefined}
                 price={p.price ?? 0}
+                price_type={p.price_type}
+                max_price={p.max_price}
+                currency={p.currency}
                 location={[p.zone, p.city].filter(Boolean).join(', ')}
                 area={p.area_m2 ?? 0}
                 bedrooms={p.bedrooms}

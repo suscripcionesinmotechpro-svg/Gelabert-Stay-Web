@@ -637,6 +637,9 @@ export const Home = () => {
                 title={p.title}
                 title_en={p.title_en || undefined}
                 price={p.price ?? 0}
+                price_type={p.price_type}
+                max_price={p.max_price}
+                currency={p.currency}
                 location={[p.zone, p.city].filter(Boolean).join(', ')}
                 area={p.area_m2 ?? 0}
                 bedrooms={p.bedrooms}

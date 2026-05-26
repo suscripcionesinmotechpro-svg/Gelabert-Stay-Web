@@ -63,6 +63,8 @@ export interface Property {
   operation: PropertyOperation;
   property_type: PropertyType;
   price: number | null;
+  max_price: number | null;
+  price_type: 'exact' | 'from' | 'range';
   currency: string;
 
   // Ubicación

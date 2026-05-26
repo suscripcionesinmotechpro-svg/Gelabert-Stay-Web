@@ -26,3 +26,38 @@ export const cleanContent = (content: string | undefined | null): string => {
 
   return cleaned.trim();
 };
+
+export const formatPropertyPrice = (
+  price: number | null | undefined,
+  priceType?: 'exact' | 'from' | 'range' | null,
+  maxPrice?: number | null | undefined,
+  currency?: string | null | undefined,
+  language = 'es'
+): string => {
+  if (price === null || price === undefined) return '-';
+  
+  const curr = currency || 'EUR';
+  const isEn = language.startsWith('en');
+  
+  const format = (val: number) => {
+    return new Intl.NumberFormat(isEn ? 'en-US' : 'de-DE', {
+      style: 'currency',
+      currency: curr,
+      maximumFractionDigits: 0
+    }).format(val);
+  };
+
+  const formattedPrice = format(price);
+
+  if (priceType === 'from') {
+    return isEn ? `From ${formattedPrice}` : `Desde ${formattedPrice}`;
+  }
+  
+  if (priceType === 'range' && maxPrice) {
+    const formattedMax = format(maxPrice);
+    return `${formattedPrice} - ${formattedMax}`;
+  }
+
+  return formattedPrice;
+};
+
