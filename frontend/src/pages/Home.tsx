@@ -303,7 +303,7 @@ export const Home = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-secondary text-[2.8rem] md:text-[4.2rem] lg:text-[4.9rem] text-[#FAF8F5] leading-[0.9] tracking-tighter relative group drop-shadow-[0_8px_24px_rgba(0,0,0,0.8)]"
+            className="font-secondary text-[2rem] sm:text-[2.8rem] md:text-[4.2rem] lg:text-[4.9rem] text-[#FAF8F5] leading-[0.9] tracking-tighter relative group drop-shadow-[0_8px_24px_rgba(0,0,0,0.8)]"
           >
             <span className="relative inline-block">
               {t('hero.hero_title')}
@@ -315,7 +315,7 @@ export const Home = () => {
               />
             </span>
             <br/> 
-            <span className="text-[#C9A962] italic font-light block mt-4 text-[2.3rem] md:text-[3.3rem] tracking-normal drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]">
+            <span className="text-[#C9A962] italic font-light block mt-4 text-[1.65rem] sm:text-[2.3rem] md:text-[3.3rem] tracking-normal drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]">
               Real Estate
             </span>
           </motion.h1>

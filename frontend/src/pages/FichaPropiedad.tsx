@@ -482,7 +482,7 @@ export const FichaPropiedad = () => {
       </Helmet>
       {/* Breadcrumb */}
       <div className="w-full px-6 md:px-14 py-4 border-b border-[#1F1F1F] bg-[#0A0A0A]">
-        <div className="flex items-center gap-2 font-primary text-xs text-[#666666]">
+        <div className="flex items-center gap-2 font-primary text-xs text-[#FAF8F5]/60">
           <Link to={i18n.language.startsWith('en') ? "/en" : "/"} className="hover:text-[#FAF8F5] transition-colors">{t('nav.home')}</Link>
           <span>›</span>
           <Link to={i18n.language.startsWith('en') ? "/en/propiedades" : "/propiedades"} className="hover:text-[#FAF8F5] transition-colors">{t('nav.properties')}</Link>
@@ -549,7 +549,7 @@ export const FichaPropiedad = () => {
             <div className="flex flex-col md:flex-row gap-3">
               {/* Main image */}
             <div
-              className="flex-1 md:w-2/3 h-64 md:h-[600px] overflow-hidden border border-[#1F1F1F] relative cursor-zoom-in group bg-[#0A0A0A]"
+              className="flex-1 md:w-2/3 h-[280px] sm:h-[360px] md:h-[600px] overflow-hidden border border-[#1F1F1F] relative cursor-zoom-in group bg-[#0A0A0A]"
               onClick={() => generalImages.length > 0 && openLightbox(generalImages, activeImg)}
             >
             {generalImages.length > 0 ? (
@@ -994,9 +994,9 @@ export const FichaPropiedad = () => {
                 </div>
               )}
             </div>
-            <div className="flex flex-col gap-1 text-right">
+            <div className="flex flex-col gap-1 text-left md:text-right">
               {property.price && (
-                <p className="font-secondary text-4xl text-[#C9A962]">
+                <p className="font-secondary text-3xl sm:text-4xl text-[#C9A962]">
                   {formatPropertyPrice(property.price, property.price_type, property.max_price, property.currency, i18n.language)}
                   {property.operation === 'alquiler' && <span className="font-primary text-lg text-white/50 ml-1">{t('property.labels.features.price_per_month')}</span>}
                 </p>
@@ -1140,7 +1140,7 @@ export const FichaPropiedad = () => {
                         {room.price !== undefined && room.price !== null && (
                           <span className="font-primary text-[#C9A962] font-bold text-sm flex-shrink-0 mt-0.5">
                             {room.price}€
-                            <span className="text-[10px] text-white/50 font-normal ml-0.5">/{t('common.month')}</span>
+                            <span className="text-[10px] text-white/70 font-medium ml-0.5">/{t('common.month')}</span>
                           </span>
                         )}
                       </div>
@@ -1208,7 +1208,7 @@ export const FichaPropiedad = () => {
                           <span className="text-[9px] text-[#C9A962] font-bold uppercase tracking-widest">{t('property.labels.features.private')}</span>
                         )}
                       </div>
-                      <div className="px-2 py-1 bg-white/5 border border-white/10 text-[#888888] font-primary text-[9px] uppercase tracking-wider rounded-sm">
+                      <div className="px-2 py-1 bg-white/5 border border-white/10 text-[#FAF8F5]/70 font-primary text-[9px] uppercase tracking-wider rounded-sm">
                         {t(`common_area_types.${area.type}`, { defaultValue: area.type })}
                       </div>
                     </div>
@@ -1316,7 +1316,7 @@ export const FichaPropiedad = () => {
               <div className="flex flex-col gap-2 p-4 bg-[#0A0A0A]/50 border-l-2 border-[#C9A962]">
                 {(property.conservation_state || property.property_condition) && (
                   <div className="flex justify-between items-center text-sm font-primary">
-                    <span className="text-white/50 uppercase tracking-wider text-xs">{t('property.labels.features.condition')}</span>
+                    <span className="text-[#FAF8F5]/70 uppercase tracking-wider text-xs">{t('property.labels.features.condition')}</span>
                     <span className="text-[#FAF8F5] font-bold">
                       {property.conservation_state ? (
                         t(`property_conditions.${property.conservation_state}`, { defaultValue: property.conservation_state })
@@ -1328,7 +1328,7 @@ export const FichaPropiedad = () => {
                 )}
                 {property.availability && (
                   <div className="flex justify-between items-center text-sm font-primary">
-                    <span className="text-white/50 uppercase tracking-wider text-xs">{t('property.labels.features.availability')}</span>
+                    <span className="text-[#FAF8F5]/70 uppercase tracking-wider text-xs">{t('property.labels.features.availability')}</span>
                     <span className="text-[#FAF8F5] font-bold">{autoAvailability}</span>
                   </div>
                 )}
@@ -1343,8 +1343,8 @@ export const FichaPropiedad = () => {
                   {property.energy_rating && (
                     <div className="flex items-center justify-between p-4 bg-[#0A0A0A] border border-[#1F1F1F]">
                       <div className="flex flex-col">
-                        <span className="text-white/50 text-[10px] uppercase tracking-widest mb-1">{t('admin.form.fields.energy_rating')}</span>
-                        {property.energy_consumption && <span className="text-white/70 text-xs">{property.energy_consumption} kWh/m² {t('common.year')}</span>}
+                        <span className="text-[#FAF8F5]/75 text-[10px] uppercase tracking-widest mb-1">{t('admin.form.fields.energy_rating')}</span>
+                        {property.energy_consumption && <span className="text-[#FAF8F5]/90 text-xs">{property.energy_consumption} kWh/m² {t('common.year')}</span>}
                       </div>
                       <div className="w-10 h-10 flex items-center justify-center bg-[#C9A962] text-[#0A0A0A] font-bold text-xl rounded-sm">
                         {property.energy_rating}
@@ -1354,8 +1354,8 @@ export const FichaPropiedad = () => {
                   {property.emissions_rating && (
                     <div className="flex items-center justify-between p-4 bg-[#0A0A0A] border border-[#1F1F1F]">
                       <div className="flex flex-col">
-                        <span className="text-white/50 text-[10px] uppercase tracking-widest mb-1">{t('admin.form.fields.emissions_rating')}</span>
-                        {property.emissions_value && <span className="text-white/70 text-xs">{property.emissions_value} kg CO₂/m² {t('common.year')}</span>}
+                        <span className="text-[#FAF8F5]/75 text-[10px] uppercase tracking-widest mb-1">{t('admin.form.fields.emissions_rating')}</span>
+                        {property.emissions_value && <span className="text-[#FAF8F5]/90 text-xs">{property.emissions_value} kg CO₂/m² {t('common.year')}</span>}
                       </div>
                       <div className="w-10 h-10 flex items-center justify-center bg-[#444444] text-white font-bold text-xl rounded-sm">
                         {property.emissions_rating}
@@ -1434,7 +1434,7 @@ export const FichaPropiedad = () => {
                   required 
                   value={formData.name} 
                   onChange={e => setFormData(p => ({...p, name: e.target.value}))} 
-                  className="h-10 bg-[#161616] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]" 
+                  className="h-10 bg-[#161616] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#FAF8F5]/45" 
                 />
                 <input 
                   type="email" 
@@ -1443,7 +1443,7 @@ export const FichaPropiedad = () => {
                   required 
                   value={formData.email} 
                   onChange={e => setFormData(p => ({...p, email: e.target.value}))} 
-                  className="h-10 bg-[#161616] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]" 
+                  className="h-10 bg-[#161616] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#FAF8F5]/45" 
                 />
                 <input 
                   type="tel" 
@@ -1451,7 +1451,7 @@ export const FichaPropiedad = () => {
                   placeholder={t('property.labels.features.phone')} 
                   value={formData.phone} 
                   onChange={e => setFormData(p => ({...p, phone: e.target.value}))} 
-                  className="h-10 bg-[#161616] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]" 
+                  className="h-10 bg-[#161616] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#FAF8F5]/45" 
                 />
                 <textarea 
                   name="message"
@@ -1459,12 +1459,12 @@ export const FichaPropiedad = () => {
                   rows={4} 
                   value={formData.message} 
                   onChange={e => setFormData(p => ({...p, message: e.target.value}))} 
-                  className="bg-[#161616] border border-[#1F1F1F] px-3 py-2.5 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444] resize-none" 
+                  className="bg-[#161616] border border-[#1F1F1F] px-3 py-2.5 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#FAF8F5]/45 resize-none" 
                 />
                 
                 {/* Legal Disclaimer Block */}
                 <div className="mt-2 p-3.5 bg-white/5 border border-white/10 rounded-sm">
-                  <p className="text-[11px] text-white/60 leading-relaxed font-primary uppercase tracking-wider">
+                  <p className="text-[11px] text-white/75 leading-relaxed font-primary normal-case tracking-wide">
                     {property.operation === 'alquiler' 
                       ? t('forms.legal_disclaimers.rentals') 
                       : t('forms.legal_disclaimers.general')
@@ -1483,7 +1483,7 @@ export const FichaPropiedad = () => {
                       onChange={(e) => setPrivacyAccepted(e.target.checked)}
                       className="mt-1 w-3.5 h-3.5 accent-[#C9A962] bg-[#161616] border-[#1F1F1F] cursor-pointer"
                     />
-                    <label htmlFor="property_privacy_accepted" className="text-white/70 text-xs font-primary leading-tight cursor-pointer">
+                    <label htmlFor="property_privacy_accepted" className="text-white/85 text-xs font-primary leading-tight cursor-pointer">
                       <Trans 
                         i18nKey="forms.privacy_accept"
                         components={[
@@ -1510,7 +1510,7 @@ export const FichaPropiedad = () => {
                         onChange={(e) => setSolvencyAccepted(e.target.checked)}
                         className="mt-1 w-3.5 h-3.5 accent-[#C9A962] bg-[#161616] border-[#1F1F1F] cursor-pointer"
                       />
-                      <label htmlFor="property_solvency_accepted" className="text-white/70 text-xs font-primary leading-tight cursor-pointer">
+                      <label htmlFor="property_solvency_accepted" className="text-white/85 text-xs font-primary leading-tight cursor-pointer">
                         {t('forms.solvency_accept')}
                       </label>
                     </div>
@@ -1530,11 +1530,11 @@ export const FichaPropiedad = () => {
                 </button>
               </form>
             )}
-            <div className="flex items-center gap-2 pt-2 border-t border-[#1F1F1F] text-white/70">
+            <div className="flex items-center gap-2 pt-2 border-t border-[#1F1F1F] text-[#FAF8F5]/90">
               <Phone className="w-3.5 h-3.5 text-[#C9A962]" />
               <span className="font-primary text-xs font-medium">+34 611 89 88 27</span>
             </div>
-            <div className="flex items-center gap-2 text-white/70">
+            <div className="flex items-center gap-2 text-[#FAF8F5]/90">
               <Mail className="w-3.5 h-3.5 text-[#C9A962]" />
               <span className="font-primary text-xs font-medium">info@gelaberthomes.es</span>
             </div>
@@ -1543,7 +1543,7 @@ export const FichaPropiedad = () => {
 
           {/* Share Buttons */}
           <div className="flex flex-col gap-2 pt-2">
-            <span className="font-primary text-[10px] text-[#666666] uppercase tracking-[0.2em] font-bold">{t('common.share', 'Compartir')}</span>
+            <span className="font-primary text-[10px] text-[#FAF8F5]/60 uppercase tracking-[0.2em] font-bold">{t('common.share', 'Compartir')}</span>
             <div className="flex gap-2">
               <button
                 onClick={handleCopyLink}
@@ -1551,7 +1551,7 @@ export const FichaPropiedad = () => {
                   "flex-1 flex items-center justify-center gap-2 py-2.5 border font-primary text-[11px] uppercase tracking-wider font-bold transition-all",
                   linkCopied
                     ? "border-green-400 text-green-400 bg-green-400/10"
-                    : "border-[#1F1F1F] text-[#888888] hover:border-[#C9A962] hover:text-[#C9A962]"
+                    : "border-white/10 text-[#FAF8F5]/60 hover:border-[#C9A962] hover:text-[#C9A962]"
                 )}
               >
                 {linkCopied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -1559,7 +1559,7 @@ export const FichaPropiedad = () => {
               </button>
               <a
                 href={`mailto:?subject=${encodeURIComponent(seoTitle)}&body=${encodeURIComponent(`${seoTitle}\n\n${featureSnippet}\n\n${propertyUrl}`)}`}
-                className="px-3 py-2.5 border border-[#1F1F1F] text-[#888888] hover:border-[#C9A962] hover:text-[#C9A962] transition-all flex items-center justify-center"
+                className="px-3 py-2.5 border border-white/10 text-[#FAF8F5]/60 hover:border-[#C9A962] hover:text-[#C9A962] transition-all flex items-center justify-center"
                 title={t('common.share_email', 'Compartir por email')}
               >
                 <Send className="w-3.5 h-3.5" />
@@ -1580,7 +1580,7 @@ export const FichaPropiedad = () => {
               </span>
             ) : null}
             {property.operation === 'alquiler' && (
-              <span className="font-primary text-white/40 text-[10px]">/mes</span>
+              <span className="font-primary text-[#FAF8F5]/70 text-[10px]">/mes</span>
             )}
           </div>
           {/* WhatsApp */}
@@ -1613,7 +1613,7 @@ export const FichaPropiedad = () => {
               address={property.address || undefined}
             />
           </div>
-          <p className="mt-3 font-primary text-[10px] text-[#666666] italic tracking-wide">
+          <p className="mt-3 font-primary text-[10px] text-[#FAF8F5]/60 italic tracking-wide">
             * {t('property.labels.features.map_hint_public')}
           </p>
         </section>

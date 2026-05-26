@@ -114,7 +114,7 @@ export const Contacto = () => {
             </span>
           </h1>
 
-          <p className="font-primary text-lg text-white/50 font-light mb-16 leading-relaxed">
+          <p className="font-primary text-lg text-[#FAF8F5]/70 font-light mb-16 leading-relaxed">
             {t('contact_page.hero.description')}
           </p>
 
@@ -126,7 +126,7 @@ export const Contacto = () => {
               <div className="w-10 h-10 bg-black border border-white/5 group-hover:border-[#C9A962]/30 flex items-center justify-center mb-6 transition-colors font-primary">
                 <Mail className="w-5 h-5 text-[#C9A962]" />
               </div>
-              <span className="block text-[#666666] text-xs uppercase tracking-widest mb-2 font-bold font-primary">
+              <span className="block text-[#FAF8F5]/75 text-xs uppercase tracking-widest mb-2 font-bold font-primary">
                 {t('contact_page.hero.email')}
               </span>
               <a href="mailto:info@gelaberthomes.es" className="text-white hover:text-[#C9A962] transition-colors font-secondary text-lg break-all">
@@ -141,7 +141,7 @@ export const Contacto = () => {
               <div className="w-10 h-10 bg-black border border-white/5 group-hover:border-[#C9A962]/30 flex items-center justify-center mb-6 transition-colors font-primary">
                 <Phone className="w-5 h-5 text-[#C9A962]" />
               </div>
-              <span className="block text-[#666666] text-xs uppercase tracking-widest mb-2 font-bold font-primary">
+              <span className="block text-[#FAF8F5]/75 text-xs uppercase tracking-widest mb-2 font-bold font-primary">
                 {t('contact_page.hero.phone')}
               </span>
               <div className="flex flex-col gap-1.5">
@@ -179,14 +179,14 @@ export const Contacto = () => {
             <GeneralContactForm />
             {/* RGPD / Protección de datos */}
             <div className="mt-6 pt-5 border-t border-white/5">
-              <p className="font-primary text-[10px] text-white/25 leading-relaxed">
-                <span className="text-[#C9A962]/50 font-bold uppercase tracking-wider">{t('contact_page.legal.title')} · </span>
-+                <strong className="text-white/30">{t('contact_page.legal.responsible')}:</strong> Gelabert Homes Real Estate.{' '}
-+                <strong className="text-white/30">{t('contact_page.legal.purpose')}:</strong> {t('contact_page.legal.purpose_text')}{' '}
-+                <strong className="text-white/30">{t('contact_page.legal.legitimation')}:</strong> {t('contact_page.legal.legitimation_text')}{' '}
-+                <strong className="text-white/30">{t('contact_page.legal.recipients')}:</strong> {t('contact_page.legal.recipients_text')}{' '}
-+                <strong className="text-white/30">{t('contact_page.legal.rights')}:</strong>{' '}
-                <a href="mailto:info@gelaberthomes.es" className="text-[#C9A962]/40 hover:text-[#C9A962]/70 transition-colors underline underline-offset-2">
+              <p className="font-primary text-[10px] text-white/60 leading-relaxed">
+                <span className="text-[#C9A962] font-bold uppercase tracking-wider">{t('contact_page.legal.title')} · </span>
+                <strong className="text-[#FAF8F5]/80">{t('contact_page.legal.responsible')}:</strong> Gelabert Homes Real Estate.{' '}
+                <strong className="text-[#FAF8F5]/80">{t('contact_page.legal.purpose')}:</strong> {t('contact_page.legal.purpose_text')}{' '}
+                <strong className="text-[#FAF8F5]/80">{t('contact_page.legal.legitimation')}:</strong> {t('contact_page.legal.legitimation_text')}{' '}
+                <strong className="text-[#FAF8F5]/80">{t('contact_page.legal.recipients')}:</strong> {t('contact_page.legal.recipients_text')}{' '}
+                <strong className="text-[#FAF8F5]/80">{t('contact_page.legal.rights')}:</strong>{' '}
+                <a href="mailto:info@gelaberthomes.es" className="text-[#C9A962] hover:text-[#D4B673] transition-colors underline underline-offset-2">
                   info@gelaberthomes.es
                 </a>
               </p>

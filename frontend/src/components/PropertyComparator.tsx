@@ -123,7 +123,7 @@ export const PropertyComparator = ({ properties = [], onRemove, onClear }: any) 
         </span>
         <div className="w-[1px] h-4 bg-white/10" />
         <button onClick={onClear} className="p-1 hover:bg-white/10 rounded-full transition-colors">
-          <X className="w-3.5 h-3.5 text-white/40" />
+          <X className="w-3.5 h-3.5 text-white/60" />
         </button>
       </div>
     );
@@ -154,8 +154,8 @@ export const PropertyComparator = ({ properties = [], onRemove, onClear }: any) 
           </h2>
         </div>
         <div className="flex items-center gap-6">
-          <button onClick={() => setIsMinimized(true)} className="text-[9px] font-black text-white/20 hover:text-white uppercase tracking-widest transition-colors">Minimizar</button>
-          <button onClick={onClear} className="text-[9px] font-black text-white/20 hover:text-red-500 uppercase tracking-widest transition-colors">Limpiar</button>
+          <button onClick={() => setIsMinimized(true)} className="text-[9px] font-black text-white/50 hover:text-white uppercase tracking-widest transition-colors">Minimizar</button>
+          <button onClick={onClear} className="text-[9px] font-black text-white/50 hover:text-red-500 uppercase tracking-widest transition-colors">Limpiar</button>
         </div>
       </div>
 
@@ -165,7 +165,7 @@ export const PropertyComparator = ({ properties = [], onRemove, onClear }: any) 
           <thead className="sticky top-0 z-50 bg-[#0A0A0A]">
             <tr>
               <th className="p-4 w-[160px] border-b border-white/10 text-left bg-[#0D0D0D] sticky left-0 z-50">
-                <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em]">Propiedades</span>
+                <span className="text-[8px] font-black text-white/55 uppercase tracking-[0.2em]">Propiedades</span>
               </th>
               {validProperties.map((p, idx) => (
                 <th key={p.id} className="p-4 border-b border-white/10 min-w-[180px] bg-[#0A0A0A]">
@@ -198,7 +198,7 @@ export const PropertyComparator = ({ properties = [], onRemove, onClear }: any) 
             {ROWS_CONFIG.map(row => (
               <tr key={row.key} className="group hover:bg-white/[0.02]">
                 <td className="p-2.5 bg-[#0D0D0D] sticky left-0 z-40 border-r border-white/5">
-                  <div className="flex items-center gap-2 text-white/20 group-hover:text-[#C9A962] transition-colors pl-2">
+                  <div className="flex items-center gap-2 text-white/55 group-hover:text-[#C9A962] transition-colors pl-2">
                     {row.icon && <row.icon className="w-3 h-3" />}
                     <span className="text-[8px] font-bold uppercase tracking-widest whitespace-nowrap">{row.label}</span>
                   </div>
@@ -213,7 +213,7 @@ export const PropertyComparator = ({ properties = [], onRemove, onClear }: any) 
                       <div className={cn("flex items-center justify-center gap-2", isWinner ? "text-[#C9A962] font-bold" : "text-white/70")}>
                         {row.format ? row.format(val, p) : (
                           isBoolean ? (
-                            val ? <Check className="w-3.5 h-3.5 text-[#C9A962]" /> : <Minus className="w-3.5 h-3.5 text-white/5" />
+                            val ? <Check className="w-3.5 h-3.5 text-[#C9A962]" /> : <Minus className="w-3.5 h-3.5 text-white/25" />
                           ) : <span className="text-[10px] tracking-tight">{val || '—'}</span>
                         )}
                       </div>
@@ -226,10 +226,10 @@ export const PropertyComparator = ({ properties = [], onRemove, onClear }: any) 
             {/* Action Row */}
             <tr className="bg-black/40">
               <td className="p-6 bg-[#0D0D0D] sticky left-0 z-40 border-r border-white/5">
-                 <div className="flex flex-col gap-1 pl-2">
+                  <div className="flex flex-col gap-1 pl-2">
                     <span className="text-[#C9A962] font-black text-[10px]">VEREDICTO</span>
-                    <span className="text-[6px] text-white/20 uppercase">Selección final</span>
-                 </div>
+                    <span className="text-[6px] text-white/50 uppercase">Selección final</span>
+                  </div>
               </td>
               {validProperties.map((p, idx) => (
                 <td key={p.id} className="p-4">
@@ -239,7 +239,7 @@ export const PropertyComparator = ({ properties = [], onRemove, onClear }: any) 
                       "flex items-center justify-center gap-2 w-full py-2.5 text-[8px] font-black uppercase tracking-[0.2em] transition-all rounded shadow-xl",
                       isBestOption(idx) 
                         ? "bg-[#C9A962] text-black hover:bg-white" 
-                        : "bg-white/5 text-white/40 hover:bg-white hover:text-black"
+                        : "bg-white/5 text-white/60 hover:bg-white hover:text-black"
                     )}
                   >
                     Detalles <ArrowRight className="w-3 h-3" />

@@ -298,7 +298,7 @@ export const PropertyCard = memo(({
                 {formattedPrice}
               </span>
               {operation === 'ALQUILER' && (
-                <span className="font-primary text-[8px] uppercase tracking-widest text-white/40 mt-1">
+                <span className="font-primary text-[8px] uppercase tracking-widest text-white/65 mt-1">
                   / {t('property.labels.features.month')}
                 </span>
               )}

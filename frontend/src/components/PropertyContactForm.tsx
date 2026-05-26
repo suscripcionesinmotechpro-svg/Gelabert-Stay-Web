@@ -137,7 +137,7 @@ export const PropertyContactForm = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">
-            <label htmlFor="name" className="text-[#666666] text-xs uppercase tracking-widest font-bold">{t('forms.name')}</label>
+            <label htmlFor="name" className="text-[#FAF8F5]/80 text-xs uppercase tracking-widest font-bold">{t('forms.name')}</label>
             <input
               type="text"
               id="name"
@@ -145,12 +145,12 @@ export const PropertyContactForm = () => {
               required
               value={formData.name}
               onChange={handleChange}
-            className="bg-black/40 border border-white/5 p-4 text-white font-primary focus:border-[#C9A962]/50 outline-none transition-all placeholder:text-white/20"
+            className="bg-black/40 border border-white/5 p-4 text-white font-primary focus:border-[#C9A962]/50 outline-none transition-all placeholder:text-white/45"
               placeholder={t('forms.name_placeholder')}
             />
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="email" className="text-[#666666] text-xs uppercase tracking-widest font-bold">{t('forms.email')}</label>
+            <label htmlFor="email" className="text-[#FAF8F5]/80 text-xs uppercase tracking-widest font-bold">{t('forms.email')}</label>
             <input
               type="email"
               id="email"
@@ -158,7 +158,7 @@ export const PropertyContactForm = () => {
               required
               value={formData.email}
               onChange={handleChange}
-            className="bg-black/40 border border-white/5 p-4 text-white font-primary focus:border-[#C9A962]/50 outline-none transition-all placeholder:text-white/20"
+            className="bg-black/40 border border-white/5 p-4 text-white font-primary focus:border-[#C9A962]/50 outline-none transition-all placeholder:text-white/45"
               placeholder={t('forms.email_placeholder')}
             />
           </div>
@@ -166,7 +166,7 @@ export const PropertyContactForm = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">
-            <label htmlFor="phone" className="text-[#666666] text-xs uppercase tracking-widest font-bold">{t('forms.phone')}</label>
+            <label htmlFor="phone" className="text-[#FAF8F5]/80 text-xs uppercase tracking-widest font-bold">{t('forms.phone')}</label>
             <input
               type="tel"
               id="phone"
@@ -174,12 +174,12 @@ export const PropertyContactForm = () => {
               required
               value={formData.phone}
               onChange={handleChange}
-            className="bg-black/40 border border-white/5 p-4 text-white font-primary focus:border-[#C9A962]/50 outline-none transition-all placeholder:text-white/20"
+            className="bg-black/40 border border-white/5 p-4 text-white font-primary focus:border-[#C9A962]/50 outline-none transition-all placeholder:text-white/45"
               placeholder={t('forms.phone_placeholder')}
             />
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="city" className="text-[#666666] text-xs uppercase tracking-widest font-bold">{t('forms.city')}</label>
+            <label htmlFor="city" className="text-[#FAF8F5]/80 text-xs uppercase tracking-widest font-bold">{t('forms.city')}</label>
             <input
               type="text"
               id="city"
@@ -187,14 +187,14 @@ export const PropertyContactForm = () => {
               required
               value={formData.city}
               onChange={handleChange}
-            className="bg-black/40 border border-white/5 p-4 text-white font-primary focus:border-[#C9A962]/50 outline-none transition-all placeholder:text-white/20"
+            className="bg-black/40 border border-white/5 p-4 text-white font-primary focus:border-[#C9A962]/50 outline-none transition-all placeholder:text-white/45"
               placeholder={t('forms.city_placeholder')}
             />
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-[#666666] text-xs uppercase tracking-widest font-bold mb-2">{t('forms.owner_inquiry.label')}</label>
+          <label className="text-[#FAF8F5]/80 text-xs uppercase tracking-widest font-bold mb-2">{t('forms.owner_inquiry.label')}</label>
           <div className="flex gap-8">
             <label className="flex items-center gap-3 cursor-pointer group">
               <input
@@ -222,7 +222,7 @@ export const PropertyContactForm = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="message" className="text-[#666666] text-xs uppercase tracking-widest font-bold">{t('forms.owner_inquiry.message_label')}</label>
+          <label htmlFor="message" className="text-[#FAF8F5]/80 text-xs uppercase tracking-widest font-bold">{t('forms.owner_inquiry.message_label')}</label>
           <textarea
             id="message"
             name="message"
@@ -236,7 +236,7 @@ export const PropertyContactForm = () => {
 
         {/* Legal Disclaimer Block */}
         <div className="mt-4 p-4 bg-white/5 border border-white/10 rounded-sm">
-          <p className="text-[10px] text-[#888888] leading-relaxed font-primary uppercase tracking-wider mb-2">
+          <p className="text-[10px] text-[#FAF8F5]/75 leading-relaxed font-primary normal-case tracking-wide mb-2">
             {t('forms.legal_disclaimers.owners')}
           </p>
         </div>
@@ -253,7 +253,7 @@ export const PropertyContactForm = () => {
               className="w-4 h-4 accent-[#C9A962] bg-black/40 border-white/10 cursor-pointer"
             />
           </div>
-          <label htmlFor="privacy_accepted_owner" className="text-[#888888] text-[11px] font-primary leading-tight cursor-pointer">
+          <label htmlFor="privacy_accepted_owner" className="text-[#FAF8F5]/75 text-[11px] font-primary leading-tight cursor-pointer">
             <Trans 
               i18nKey="property.labels.features.accept_privacy_short"
               components={[

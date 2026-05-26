@@ -17,7 +17,7 @@ import { useDebounce } from '../hooks/useDebounce';
 import { sortPropertiesByAvailability } from '../utils/propertySorting';
 
 
-const inputClass = "h-11 bg-white/[0.03] border border-white/10 px-4 font-primary text-white/70 text-sm outline-none focus:border-[#C9A962] focus:bg-white/[0.05] transition-all rounded-sm placeholder:text-white/20";
+const inputClass = "h-11 bg-white/[0.03] border border-white/10 px-4 font-primary text-white/70 text-sm outline-none focus:border-[#C9A962] focus:bg-white/[0.05] transition-all rounded-sm placeholder:text-[#FAF8F5]/45";
 
 export const Propiedades = () => {
   const { t, i18n } = useTranslation();
@@ -239,7 +239,7 @@ export const Propiedades = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="font-secondary text-5xl md:text-7xl text-[#FAF8F5] leading-tight mb-4">
+            <h1 className="font-secondary text-4xl sm:text-5xl md:text-7xl text-[#FAF8F5] leading-tight mb-4">
               {t('nav.properties')}
             </h1>
             <p className="font-primary text-[#DFDFE6]/60 text-lg md:text-xl leading-relaxed max-w-2xl font-light">
@@ -255,7 +255,7 @@ export const Propiedades = () => {
                   className={`flex-1 sm:flex-none px-4 md:px-8 py-3 font-primary text-[9px] md:text-[10px] transition-all font-bold tracking-[0.1em] md:tracking-[0.2em] uppercase rounded-sm ${
                     operation === op.value 
                       ? 'bg-[#C9A962] text-[#0A0A0A] shadow-[0_0_20px_rgba(201,169,98,0.2)]' 
-                      : 'text-white/40 hover:text-white hover:bg-white/5'
+                      : 'text-[#FAF8F5]/60 hover:text-white hover:bg-white/5'
                   }`}
                 >
                   {op.label}
@@ -272,9 +272,9 @@ export const Propiedades = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {/* Buscador Global */}
             <div className="flex items-center gap-3 h-11 bg-white/[0.03] border border-white/10 px-4 lg:col-span-2 rounded-sm focus-within:border-[#C9A962] transition-colors">
-              <Search className="w-4 h-4 text-white/30 shrink-0" />
+              <Search className="w-4 h-4 text-[#FAF8F5]/55 shrink-0" />
               <input 
-                className="flex-1 bg-transparent font-primary text-white text-sm outline-none placeholder:text-white/20"
+                className="flex-1 bg-transparent font-primary text-white text-sm outline-none placeholder:text-[#FAF8F5]/45"
                 placeholder={t('property.labels.features.search_placeholder')}
                 value={keyword}
                 onChange={e => setKeyword(e.target.value)}
@@ -316,13 +316,13 @@ export const Propiedades = () => {
             <div className="flex items-center gap-2 bg-white/5 p-1 rounded-sm border border-white/10">
               <button 
                 onClick={() => setViewMode('list')}
-                className={cn("p-2 rounded-sm transition-all", viewMode === 'list' ? "bg-[#C9A962] text-black" : "text-white/40 hover:text-white")}
+                className={cn("p-2 rounded-sm transition-all", viewMode === 'list' ? "bg-[#C9A962] text-black" : "text-white/60 hover:text-white")}
               >
                 <ListIcon className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => setViewMode('map')}
-                className={cn("p-2 rounded-sm transition-all", viewMode === 'map' ? "bg-[#C9A962] text-black" : "text-white/40 hover:text-white")}
+                className={cn("p-2 rounded-sm transition-all", viewMode === 'map' ? "bg-[#C9A962] text-black" : "text-white/60 hover:text-white")}
               >
                 <MapIcon className="w-4 h-4" />
               </button>
@@ -337,7 +337,7 @@ export const Propiedades = () => {
               className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-6 mt-2 border-t border-white/5"
             >
               <div className="flex flex-col gap-6">
-                <span className="font-primary text-[10px] text-white/30 uppercase tracking-[0.3em] font-bold">{t('property.labels.features.additional_features')}</span>
+                <span className="font-primary text-[10px] text-white/60 uppercase tracking-[0.3em] font-bold">{t('property.labels.features.additional_features')}</span>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <input className={inputClass} placeholder={t('property.labels.features.min_bedrooms')} type="number" value={bedrooms} onChange={e => setBedrooms(e.target.value)} />
                   <input className={inputClass} placeholder={t('property.labels.features.min_bathrooms')} type="number" value={bathrooms} onChange={e => setBathrooms(e.target.value)} />
@@ -348,7 +348,7 @@ export const Propiedades = () => {
               </div>
               
               <div className="flex flex-col gap-6">
-                <span className="font-primary text-[10px] text-white/30 uppercase tracking-[0.3em] font-bold">{t('property.labels.features.amenities')}</span>
+                <span className="font-primary text-[10px] text-white/60 uppercase tracking-[0.3em] font-bold">{t('property.labels.features.amenities')}</span>
                 <div className="flex flex-wrap gap-2">
                   {[
                     { key: 'has_elevator', label: t('property.labels.features.has_elevator') },
@@ -374,7 +374,7 @@ export const Propiedades = () => {
                       className={`px-4 py-2 font-primary text-[10px] uppercase font-bold tracking-widest transition-all border rounded-sm ${
                         filtersBool[key as keyof typeof filtersBool] 
                           ? 'bg-[#C9A962] border-[#C9A962] text-[#0A0A0A]' 
-                          : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30 hover:text-white'
+                          : 'bg-white/5 border-white/10 text-white/60 hover:border-white/30 hover:text-white'
                       }`}
                     >
                       {label}
@@ -434,7 +434,7 @@ export const Propiedades = () => {
 
         {/* Count */}
         <div className="flex justify-between items-center mb-10 pb-6 border-b border-white/5">
-          <p className="font-primary text-white/40 text-xs font-bold tracking-widest uppercase">
+          <p className="font-primary text-[#FAF8F5]/65 text-xs font-bold tracking-widest uppercase">
             {loading ? t('property.labels.features.loading') : error ? t('property.labels.features.error') : `${sortedProperties.length} ${t('property.labels.features.results')}`}
           </p>
         </div>
@@ -560,7 +560,7 @@ export const Propiedades = () => {
       </section>
 
       <div className="text-center py-4">
-        <Link to="/admin/login" className="font-primary text-xs text-[#333333] hover:text-[#666666] transition-colors">
+        <Link to="/admin/login" className="font-primary text-xs text-white/30 hover:text-[#C9A962] transition-colors">
           {t('property.labels.features.admin_panel')} &rarr;
         </Link>
       </div>
