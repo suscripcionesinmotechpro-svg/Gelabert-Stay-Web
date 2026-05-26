@@ -660,6 +660,7 @@ export const Home = () => {
                 rooms={p.rooms}
                 common_areas={p.common_areas}
                 createdAt={p.created_at}
+                availability={p.availability ?? undefined}
               />
             ))
           ) : (

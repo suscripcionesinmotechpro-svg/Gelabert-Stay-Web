@@ -524,6 +524,7 @@ export const Propiedades = () => {
                 createdAt={p.created_at}
                 tags={p.tags}
                 onTagClick={handleTagClick}
+                availability={p.availability ?? undefined}
                 isFavorite={isFavorite(p.id)}
                 onToggleFavorite={(e) => handleToggleFavorite(p.id, e)}
                 isInCompare={isInCompare(p.id)}

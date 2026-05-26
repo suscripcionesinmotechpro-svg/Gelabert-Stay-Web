@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAutoTranslate } from '../hooks/useAutoTranslate';
 import { type CommercialStatus, COMMERCIAL_STATUS_LABELS, type PropertyType } from '../types/property';
-import { ChevronLeft, ChevronRight, Heart, GitCompare, Maximize2, BedDouble, Bath, Camera, Video, Map } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, GitCompare, Maximize2, BedDouble, Bath, Camera, Video, Map, CalendarClock } from 'lucide-react';
 import { useState, useMemo, memo } from 'react';
 import { PremiumImage } from './PremiumImage';
 import { getOptimizedImage } from '../utils/images';
@@ -50,6 +50,7 @@ export interface PropertyCardProps extends HTMLMotionProps<"div"> {
   price_type?: 'exact' | 'from' | 'range' | null;
   max_price?: number | null;
   currency?: string | null;
+  availability?: string | null;
 }
 
 export const PropertyCard = memo(({
@@ -92,6 +93,7 @@ export const PropertyCard = memo(({
   price_type,
   max_price,
   currency,
+  availability,
   ...props
 }: PropertyCardProps) => {
   const { t, i18n } = useTranslation();
@@ -324,6 +326,24 @@ export const PropertyCard = memo(({
               </div>
             )}
           </div>
+
+          {/* Availability Date */}
+          {availability && (
+            <div className="flex items-center gap-2 pt-3 border-t border-white/5">
+              <CalendarClock className="w-3.5 h-3.5 text-[#C9A962]/70 shrink-0" />
+              <span className="font-primary text-[10px] uppercase tracking-widest text-white/50 font-bold">
+                {t('property.labels.features.available_from', 'Disponible desde')}
+              </span>
+              <span className="font-primary text-xs text-[#C9A962] font-bold ml-auto">
+                {(() => {
+                  const d = new Date(availability);
+                  return isNaN(d.getTime())
+                    ? availability
+                    : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                })()}
+              </span>
+            </div>
+          )}
         </div>
       </Link>
     </motion.div>

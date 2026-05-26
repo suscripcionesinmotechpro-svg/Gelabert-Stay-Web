@@ -77,6 +77,7 @@ const SortableProperty = ({ property, index }: SortableItemProps) => {
         common_areas={property.common_areas}
         createdAt={property.created_at}
         tags={property.tags}
+        availability={property.availability ?? undefined}
         className="pointer-events-none" // Disable clicks during reordering
       />
     </div>

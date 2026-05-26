@@ -1658,6 +1658,7 @@ export const FichaPropiedad = () => {
                 createdAt={p.created_at}
                 description={p.short_description ?? undefined}
                 description_en={p.short_description_en ?? undefined}
+                availability={p.availability ?? undefined}
               />
             ))}
           </div>
