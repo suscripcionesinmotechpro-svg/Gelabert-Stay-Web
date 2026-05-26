@@ -150,21 +150,27 @@ export const Propietarios = () => {
           </motion.div>
         </div>
 
-        {/* Scroll Indicator - Shows a floating scroll-down cue on desktop to guide owners down */}
-        <div 
-          className="hidden lg:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex-col items-center gap-2 cursor-pointer group pointer-events-auto select-none"
-          onClick={() => document.getElementById('why-choose')?.scrollIntoView({ behavior: 'smooth' })}
-        >
-          <span className="font-primary text-[10px] uppercase tracking-[0.25em] text-[#C9A962] font-semibold opacity-60 group-hover:opacity-100 transition-opacity duration-300">
-            {t('owners_page.hero.discover_tech_label', 'Nuestra Estrategia')}
-          </span>
-          <motion.div 
-            animate={{ y: [0, 6, 0] }}
-            transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
-            className="w-5 h-8 rounded-full border border-[#C9A962]/40 flex justify-center p-1 group-hover:border-[#C9A962] transition-colors duration-300"
+        {/* CTA — ¿Por qué elegirnos? */}
+        <div className="hidden lg:flex absolute bottom-10 left-1/2 -translate-x-1/2 z-20 pointer-events-auto select-none">
+          <button
+            onClick={() => document.getElementById('why-choose')?.scrollIntoView({ behavior: 'smooth' })}
+            className="group relative flex items-center gap-3 px-7 py-3.5 overflow-hidden
+              border border-[#C9A962]/50 text-[#C9A962] font-primary text-[11px] tracking-[0.2em] uppercase
+              hover:border-[#C9A962] transition-all duration-500
+              shadow-[0_0_0px_rgba(201,169,98,0)] hover:shadow-[0_0_28px_rgba(201,169,98,0.3)]"
           >
-            <div className="w-1.5 h-1.5 bg-[#C9A962] rounded-full" />
-          </motion.div>
+            {/* Sweep glow on hover */}
+            <span className="absolute inset-0 bg-gradient-to-r from-[#C9A962]/0 via-[#C9A962]/10 to-[#C9A962]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <span className="relative z-10">{t('owners_page.hero.why_choose_btn', '¿Por qué elegirnos?')}</span>
+            <motion.svg
+              animate={{ y: [0, 4, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+              className="relative z-10 w-4 h-4 text-[#C9A962]"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </motion.svg>
+          </button>
         </div>
       </div>
 
