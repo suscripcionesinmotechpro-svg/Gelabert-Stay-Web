@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useProperties, usePropertyMutations } from '../../hooks/useProperties';
-import { useAuth } from '../../hooks/useAuth';
 import type { Property, PropertyStatus, CommercialStatus } from '../../types/property';
 import { STATUS_LABELS, STATUS_COLORS, OPERATION_LABELS, COMMERCIAL_STATUS_LABELS, COMMERCIAL_STATUS_COLORS } from '../../types/property';
-import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid, FolderArchive, Loader2 } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid, FolderArchive, Loader2, Filter } from 'lucide-react';
 import { PropertyReference } from '../../components/PropertyReference';
 import { getOptimizedImage } from '../../utils/images';
 import { getCommunityShareMessage } from '../../utils/whatsapp';
 import { downloadPropertyImagesAsZip } from '../../utils/downloadPropertyImages';
 import { formatPropertyPrice } from '../../utils/textUtils';
+import { supabase } from '../../lib/supabase';
 
 const WhatsAppIcon = () => (
   <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -99,12 +99,22 @@ const CommercialStatusDropdown = ({ property, onStatusChange }: { property: Prop
 };
 
 export const AdminPropertiesList = () => {
-  const { user } = useAuth();
-  const [filterAgent, setFilterAgent] = useState<'mine' | 'all'>('mine');
+  const [selectedAgentId, setSelectedAgentId] = useState<string>('all');
+  const [agents, setAgents] = useState<{ id: string; agent_name: string; role: string }[]>([]);
+
+  useEffect(() => {
+    supabase.from('user_profiles')
+      .select('id, agent_name, role')
+      .in('role', ['admin', 'agent'])
+      .then(({ data }) => {
+        if (data) setAgents(data);
+      });
+  }, []);
+
   const { properties, loading, error, refetch } = useProperties(
     undefined, 
     true, 
-    filterAgent === 'mine' ? user?.id : undefined
+    selectedAgentId === 'all' ? undefined : selectedAgentId
   );
   const { deleteProperty, toggleFeatured } = usePropertyMutations();
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -122,8 +132,9 @@ export const AdminPropertiesList = () => {
       await downloadPropertyImagesAsZip(p);
       setDownloadedZip(p.id);
       setTimeout(() => setDownloadedZip(null), 3000);
-    } catch (err: any) {
-      alert(err?.message || 'Error al generar el ZIP.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al generar el ZIP.';
+      alert(msg);
     } finally {
       setDownloadingZip(null);
     }
@@ -192,28 +203,22 @@ export const AdminPropertiesList = () => {
         </div>
       </div>
 
-      {/* Tab Selector */}
-      <div className="flex border-b border-[#1F1F1F] bg-[#0A0A0A] p-1 gap-2 self-start rounded-sm">
-        <button
-          onClick={() => setFilterAgent('mine')}
-          className={`px-6 py-2.5 text-xs font-primary uppercase font-bold tracking-wider rounded-sm transition-all ${
-            filterAgent === 'mine'
-              ? 'bg-[#C9A962] text-[#0A0A0A]'
-              : 'text-[#666] hover:text-[#FAF8F5] bg-transparent'
-          }`}
+      {/* Agent Selector Dropdown */}
+      <div className="flex items-center gap-2 bg-[#0A0A0A] border border-[#1F1F1F] px-4 py-2.5 self-start rounded-sm">
+        <Filter className="w-4 h-4 text-[#C9A962]" />
+        <span className="font-primary text-xs text-[#666] uppercase tracking-wider font-bold">Filtrar por Agente:</span>
+        <select
+          value={selectedAgentId}
+          onChange={(e) => setSelectedAgentId(e.target.value)}
+          className="bg-transparent text-[#C9A962] font-primary text-xs uppercase tracking-wider font-bold outline-none cursor-pointer"
         >
-          Mis Propiedades
-        </button>
-        <button
-          onClick={() => setFilterAgent('all')}
-          className={`px-6 py-2.5 text-xs font-primary uppercase font-bold tracking-wider rounded-sm transition-all ${
-            filterAgent === 'all'
-              ? 'bg-[#C9A962] text-[#0A0A0A]'
-              : 'text-[#666] hover:text-[#FAF8F5] bg-transparent'
-          }`}
-        >
-          Todas las Propiedades
-        </button>
+          <option value="all">Todas las Propiedades</option>
+          {agents.map(a => (
+            <option key={a.id} value={a.id}>
+              {a.agent_name} ({a.role === 'admin' ? 'Admin' : 'Agente'})
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Filters */}

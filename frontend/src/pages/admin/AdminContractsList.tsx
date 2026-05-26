@@ -1,18 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContracts } from '../../hooks/useContracts';
-import { useAuth } from '../../hooks/useAuth';
 import { 
   FileText, Search, Plus, MapPin, Calendar, 
-  User, CheckCircle2, XCircle, Clock
+  User, CheckCircle2, XCircle, Clock, Filter
 } from 'lucide-react';
 import { CONTRACT_STATUS_LABELS, CONTRACT_STATUS_COLORS } from '../../types/tenant';
+import { supabase } from '../../lib/supabase';
 
 export const AdminContractsList = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [filterAgent, setFilterAgent] = useState<'mine' | 'all'>('mine');
-  const { contracts, loading } = useContracts(undefined, filterAgent === 'mine' ? user?.id : undefined);
+  const [selectedAgentId, setSelectedAgentId] = useState<string>('all');
+  const [agents, setAgents] = useState<{ id: string; agent_name: string; role: string }[]>([]);
+
+  useEffect(() => {
+    supabase.from('user_profiles')
+      .select('id, agent_name, role')
+      .in('role', ['admin', 'agent'])
+      .then(({ data }) => {
+        if (data) setAgents(data);
+      });
+  }, []);
+
+  const { contracts, loading } = useContracts(
+    undefined, 
+    selectedAgentId === 'all' ? undefined : selectedAgentId
+  );
   const [search, setSearch] = useState('');
 
   const filteredContracts = contracts.filter(c => {
@@ -45,28 +58,22 @@ export const AdminContractsList = () => {
         </button>
       </div>
 
-      {/* Tab Selector */}
-      <div className="flex border-b border-[#1F1F1F] bg-[#0A0A0A] p-1 gap-2 self-start rounded-sm">
-        <button
-          onClick={() => setFilterAgent('mine')}
-          className={`px-6 py-2.5 text-xs font-primary uppercase font-bold tracking-wider rounded-sm transition-all ${
-            filterAgent === 'mine'
-              ? 'bg-[#C9A962] text-[#0A0A0A]'
-              : 'text-[#666] hover:text-[#FAF8F5] bg-transparent'
-          }`}
+      {/* Agent Selector Dropdown */}
+      <div className="flex items-center gap-2 bg-[#0A0A0A] border border-[#1F1F1F] px-4 py-2.5 self-start rounded-sm">
+        <Filter className="w-4 h-4 text-[#C9A962]" />
+        <span className="font-primary text-xs text-[#666] uppercase tracking-wider font-bold">Filtrar por Agente:</span>
+        <select
+          value={selectedAgentId}
+          onChange={(e) => setSelectedAgentId(e.target.value)}
+          className="bg-transparent text-[#C9A962] font-primary text-xs uppercase tracking-wider font-bold outline-none cursor-pointer"
         >
-          Mis Contratos
-        </button>
-        <button
-          onClick={() => setFilterAgent('all')}
-          className={`px-6 py-2.5 text-xs font-primary uppercase font-bold tracking-wider rounded-sm transition-all ${
-            filterAgent === 'all'
-              ? 'bg-[#C9A962] text-[#0A0A0A]'
-              : 'text-[#666] hover:text-[#FAF8F5] bg-transparent'
-          }`}
-        >
-          Todos los Contratos
-        </button>
+          <option value="all">Todos los Contratos</option>
+          {agents.map(a => (
+            <option key={a.id} value={a.id}>
+              {a.agent_name} ({a.role === 'admin' ? 'Admin' : 'Agente'})
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Toolbar */}

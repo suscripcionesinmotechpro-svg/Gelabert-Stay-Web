@@ -1,22 +1,32 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth.tsx';
 import { useAdminStats, useAgentStats } from '../../hooks/useProperties';
 import { useExpiringContracts, useContracts } from '../../hooks/useContracts';
 import { useTenants } from '../../hooks/useTenants';
-import { Building2, Eye, FileText, TrendingUp, PlusCircle, List, Users, AlertTriangle, CalendarClock } from 'lucide-react';
+import { Building2, Eye, FileText, TrendingUp, PlusCircle, List, Users, AlertTriangle, CalendarClock, Filter } from 'lucide-react';
 import { daysUntilExpiry } from '../../types/tenant';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
 
 export const AdminDashboard = () => {
-  const { user } = useAuth();
-  const [filterAgent, setFilterAgent] = useState<'mine' | 'all'>('mine');
-  const agentId = filterAgent === 'mine' ? user?.id : undefined;
+  const [selectedAgentId, setSelectedAgentId] = useState<string>('all');
+  const [agents, setAgents] = useState<{ id: string; agent_name: string; role: string }[]>([]);
+
+  useEffect(() => {
+    supabase.from('user_profiles')
+      .select('id, agent_name, role')
+      .in('role', ['admin', 'agent'])
+      .then(({ data }) => {
+        if (data) setAgents(data);
+      });
+  }, []);
+
+  const agentId = selectedAgentId === 'all' ? undefined : selectedAgentId;
 
   const { stats: adminStats, loading: adminLoading } = useAdminStats();
   const { stats: agentStats, loading: agentLoading } = useAgentStats(agentId);
 
-  const stats  = filterAgent === 'mine' ? agentStats  : adminStats;
-  const loading = filterAgent === 'mine' ? agentLoading : adminLoading;
+  const stats  = selectedAgentId === 'all' ? adminStats  : agentStats;
+  const loading = selectedAgentId === 'all' ? adminLoading : agentLoading;
 
   const { tenants } = useTenants(undefined, agentId);
   const { contracts } = useContracts(undefined, agentId);
@@ -24,16 +34,20 @@ export const AdminDashboard = () => {
 
   const activeContracts = contracts.filter(c => c.status === 'active').length;
 
-  const isMine = filterAgent === 'mine';
+  const getAgentLabel = () => {
+    if (selectedAgentId === 'all') return 'Oficina';
+    const found = agents.find(a => a.id === selectedAgentId);
+    return found ? found.agent_name : 'Mis';
+  };
 
   const statCards = [
-    { label: isMine ? 'Mis Propiedades' : 'Total Oficina', value: stats.total, icon: <Building2 className="w-5 h-5" />, color: 'text-[#C9A962]' },
+    { label: selectedAgentId === 'all' ? 'Total Oficina' : `Propiedades (${getAgentLabel()})`, value: stats.total, icon: <Building2 className="w-5 h-5" />, color: 'text-[#C9A962]' },
     { label: 'Publicadas', value: stats.publicadas, icon: <Eye className="w-5 h-5" />, color: 'text-green-400' },
     { label: 'Borradores', value: stats.borradores, icon: <FileText className="w-5 h-5" />, color: 'text-yellow-400' },
     { label: 'Alquiler', value: stats.alquiler, icon: <TrendingUp className="w-5 h-5" />, color: 'text-blue-400' },
     { label: 'Venta', value: stats.venta, icon: <TrendingUp className="w-5 h-5" />, color: 'text-purple-400' },
     { label: 'Traspaso', value: stats.traspaso, icon: <TrendingUp className="w-5 h-5" />, color: 'text-orange-400' },
-    { label: isMine ? 'Mis Inquilinos' : 'Todos los Inquilinos', value: tenants.length, icon: <Users className="w-5 h-5" />, color: 'text-[#C9A962]' },
+    { label: selectedAgentId === 'all' ? 'Todos los Inquilinos' : `Inquilinos (${getAgentLabel()})`, value: tenants.length, icon: <Users className="w-5 h-5" />, color: 'text-[#C9A962]' },
     { label: 'Contratos Activos', value: activeContracts, icon: <CalendarClock className="w-5 h-5" />, color: 'text-teal-400' },
   ];
 
@@ -46,28 +60,22 @@ export const AdminDashboard = () => {
           <p className="font-primary text-[#666666] text-sm mt-1">Gestión integral de propiedades y contratos</p>
         </div>
         <div className="flex items-center gap-3">
-          {/* Mine / All tab selector */}
-          <div className="flex bg-[#0A0A0A] border border-[#1F1F1F] p-0.5">
-            <button
-              onClick={() => setFilterAgent('mine')}
-              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
-                filterAgent === 'mine'
-                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
-                  : 'text-[#666] hover:text-[#FAF8F5]'
-              }`}
+          {/* Agent select selector */}
+          <div className="flex items-center gap-2 bg-[#0A0A0A] border border-[#1F1F1F] px-3 py-1.5 rounded-sm">
+            <Filter className="w-3.5 h-3.5 text-[#C9A962]" />
+            <span className="font-primary text-[10px] text-[#666] uppercase tracking-wider font-bold">Agente:</span>
+            <select
+              value={selectedAgentId}
+              onChange={(e) => setSelectedAgentId(e.target.value)}
+              className="bg-transparent text-[#C9A962] font-primary text-xs uppercase tracking-wider font-bold outline-none cursor-pointer"
             >
-              Mis Datos
-            </button>
-            <button
-              onClick={() => setFilterAgent('all')}
-              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
-                filterAgent === 'all'
-                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
-                  : 'text-[#666] hover:text-[#FAF8F5]'
-              }`}
-            >
-              Toda la Oficina
-            </button>
+              <option value="all">Toda la Oficina</option>
+              {agents.map(a => (
+                <option key={a.id} value={a.id}>
+                  {a.agent_name} ({a.role === 'admin' ? 'Admin' : 'Agente'})
+                </option>
+              ))}
+            </select>
           </div>
           <Link
             to="/admin/propiedades/nueva"
@@ -102,7 +110,7 @@ export const AdminDashboard = () => {
                       <CalendarClock className={`w-4 h-4 flex-shrink-0 mt-0.5 sm:mt-0 ${isUrgent ? 'text-red-400' : 'text-orange-400'}`} />
                       <div className="flex flex-col gap-0.5">
                         <p className="font-primary text-sm text-[#FAF8F5] font-semibold group-hover:text-orange-400 transition-colors">
-                          {(c.tenant as any)?.first_name} {(c.tenant as any)?.last_name}
+                          {c.tenant?.first_name} {c.tenant?.last_name}
                         </p>
                         {c.property_label && (
                           c.property_id ? (

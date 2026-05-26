@@ -1,16 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useInvoiceSummary, useInvoices, useInvoiceMutations } from '../../hooks/useInvoices';
-import { useAuth } from '../../hooks/useAuth';
 import { useAccounting } from '../../hooks/useAccounting';
 import { STATUS_LABELS } from '../../types/invoice';
+import type { FixedExpense, InvoiceIssuer } from '../../types/invoice';
 import { 
   PlusCircle, TrendingUp, Zap,
   Trash2, Edit, ArrowUpRight, 
-  Calculator, Check, X, Building2, Mail, Phone, MapPin, Receipt
+  Calculator, Check, X, Building2, Mail, Phone, MapPin, Receipt, Filter
 } from 'lucide-react';
 import { useIssuers } from '../../hooks/useIssuers';
 import { cn } from '../../lib/utils';
+import { supabase } from '../../lib/supabase';
 
 const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 type PeriodType = 'year' | 'h1' | 'h2' | 'q1' | 'q2' | 'q3' | 'q4' | 'month';
@@ -19,8 +20,18 @@ const cardClass = "bg-[#0A0A0A] border border-[#1F1F1F] p-5 flex flex-col gap-2"
 const inputClass = "w-full h-10 bg-[#0F0F0F] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
 
 export const AdminInvoices = () => {
-  const { user } = useAuth();
-  const [filterAgent, setFilterAgent] = useState<'mine' | 'all'>('mine');
+  const [selectedAgentId, setSelectedAgentId] = useState<string>('all');
+  const [agents, setAgents] = useState<{ id: string; agent_name: string; role: string }[]>([]);
+
+  useEffect(() => {
+    supabase.from('user_profiles')
+      .select('id, agent_name, role')
+      .in('role', ['admin', 'agent'])
+      .then(({ data }) => {
+        if (data) setAgents(data);
+      });
+  }, []);
+
   const [activeTab, setActiveTab] = useState<'invoices' | 'variable_expenses' | 'fixed_expenses' | 'issuers'>('invoices');
   
   const currentYear = new Date().getFullYear();
@@ -42,7 +53,7 @@ export const AdminInvoices = () => {
     category: 'General',
     day_of_month: 1,
     day_of_month_end: null as number | null,
-    frequency: 'monthly' as const,
+    frequency: 'monthly' as FixedExpense['frequency'],
     is_variable: false,
     is_active: true,
     tax_rate: 0,
@@ -67,7 +78,7 @@ export const AdminInvoices = () => {
       const lastDay = new Date(selectedYear, selectedMonth, 0).getDate();
       return { start: `${selectedYear}-${m}-01`, end: `${selectedYear}-${m}-${lastDay}`, label: MONTHS[selectedMonth - 1] };
     }
-    const mapping: Record<PeriodType, any> = {
+    const mapping: Record<PeriodType, { start: string; end: string; label: string }> = {
       'h1': { start: `${selectedYear}-01-01`, end: `${selectedYear}-06-30`, label: '1º Semestre' },
       'h2': { start: `${selectedYear}-07-01`, end: `${selectedYear}-12-31`, label: '2º Semestre' },
       'q1': { start: `${selectedYear}-01-01`, end: `${selectedYear}-03-31`, label: 'Q1' },
@@ -85,13 +96,13 @@ export const AdminInvoices = () => {
   const { summary, loading: loadingSummary } = useInvoiceSummary({
     startDate: dateRange.start,
     endDate: dateRange.end
-  }, filterAgent === 'mine' ? user?.id : undefined);
+  }, selectedAgentId === 'all' ? undefined : selectedAgentId);
   
   const { invoices, refetch } = useInvoices({
     startDate: dateRange.start,
     endDate: dateRange.end,
     status: selectedStatus,
-  }, filterAgent === 'mine' ? user?.id : undefined);
+  }, selectedAgentId === 'all' ? undefined : selectedAgentId);
 
   const filteredInvoices = invoices.filter(inv => {
     if (activeTab === 'invoices') {
@@ -141,9 +152,9 @@ export const AdminInvoices = () => {
   });
 
   const [editingFixedId, setEditingFixedId] = useState<string | null>(null);
-  const [editingFixedData, setEditingFixedData] = useState<any>(null);
+  const [editingFixedData, setEditingFixedData] = useState<FixedExpense | null>(null);
   const [editingIssuerId, setEditingIssuerId] = useState<string | null>(null);
-  const [editingIssuerData, setEditingIssuerData] = useState<any>(null);
+  const [editingIssuerData, setEditingIssuerData] = useState<InvoiceIssuer | null>(null);
 
   const handleSaveFixedExpense = async () => {
     if (!newFixedExpense.name || newFixedExpense.amount <= 0) return;
@@ -155,7 +166,7 @@ export const AdminInvoices = () => {
       category: 'General', 
       day_of_month: 1, 
       day_of_month_end: null,
-      frequency: 'monthly',
+      frequency: 'monthly' as FixedExpense['frequency'],
       is_variable: false,
       is_active: true,
       tax_rate: 0,
@@ -175,7 +186,7 @@ export const AdminInvoices = () => {
     try {
       await createIssuer(newIssuer);
       setIsAddingIssuer(false);
-      setNewIssuer({ name: '', nif: '', street_type: '', street_name: '', street_number: '', floor_door: '', address: '', zip: '', city: '', province: '', email: '', phone: '', is_default: false, type: 'provider' as any, iban: '', notes: '' });
+      setNewIssuer({ name: '', nif: '', street_type: '', street_name: '', street_number: '', floor_door: '', address: '', zip: '', city: '', province: '', email: '', phone: '', is_default: false, type: 'provider' as const, iban: '', notes: '' });
     } catch (err) {
       console.error('Error saving issuer:', err);
     }
@@ -235,28 +246,22 @@ export const AdminInvoices = () => {
         </div>
       </div>
 
-      {/* Tab Selector */}
-      <div className="flex border-b border-[#1F1F1F] bg-[#0A0A0A] p-1 gap-2 self-start rounded-sm">
-        <button
-          onClick={() => setFilterAgent('mine')}
-          className={`px-6 py-2.5 text-xs font-primary uppercase font-bold tracking-wider rounded-sm transition-all ${
-            filterAgent === 'mine'
-              ? 'bg-[#C9A962] text-[#0A0A0A]'
-              : 'text-[#666] hover:text-[#FAF8F5] bg-transparent'
-          }`}
+      {/* Agent Selector Dropdown */}
+      <div className="flex items-center gap-2 bg-[#0A0A0A] border border-[#1F1F1F] px-4 py-2.5 self-start rounded-sm">
+        <Filter className="w-4 h-4 text-[#C9A962]" />
+        <span className="font-primary text-xs text-[#666] uppercase tracking-wider font-bold">Filtrar por Agente:</span>
+        <select
+          value={selectedAgentId}
+          onChange={(e) => setSelectedAgentId(e.target.value)}
+          className="bg-transparent text-[#C9A962] font-primary text-xs uppercase tracking-wider font-bold outline-none cursor-pointer"
         >
-          Mis Facturas
-        </button>
-        <button
-          onClick={() => setFilterAgent('all')}
-          className={`px-6 py-2.5 text-xs font-primary uppercase font-bold tracking-wider rounded-sm transition-all ${
-            filterAgent === 'all'
-              ? 'bg-[#C9A962] text-[#0A0A0A]'
-              : 'text-[#666] hover:text-[#FAF8F5] bg-transparent'
-          }`}
-        >
-          Todas las Facturas
-        </button>
+          <option value="all">Todas las Facturas</option>
+          {agents.map(a => (
+            <option key={a.id} value={a.id}>
+              {a.agent_name} ({a.role === 'admin' ? 'Admin' : 'Agente'})
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
@@ -423,14 +428,14 @@ export const AdminInvoices = () => {
               <div className="w-px h-6 bg-[#1F1F1F] mx-2" />
 
               <div className="flex bg-[#111] border border-[#1F1F1F] p-0.5 h-9">
-                {[
+                {([
                   { id: 'all', label: 'Todos' },
                   { id: 'income', label: 'Ingresos' },
                   { id: 'expense', label: 'Gastos' }
-                ].map((t) => (
+                ] as const).map((t) => (
                   <button
                     key={t.id}
-                    onClick={() => setFilterInvoiceType(t.id as any)}
+                    onClick={() => setFilterInvoiceType(t.id)}
                     className={cn(
                       "px-3 h-full font-primary text-[9px] uppercase tracking-wider font-bold transition-all",
                       filterInvoiceType === t.id ? "bg-[#C9A962] text-[#0A0A0A]" : "text-[#666] hover:text-[#FAF8F5]"
@@ -746,7 +751,7 @@ export const AdminInvoices = () => {
                       <select 
                         className={cn(inputClass, "w-24 mx-auto")} 
                         value={newFixedExpense.frequency} 
-                        onChange={e => setNewFixedExpense({...newFixedExpense, frequency: e.target.value as any})}
+                        onChange={e => setNewFixedExpense({...newFixedExpense, frequency: e.target.value as FixedExpense['frequency']})}
                       >
                         <option value="monthly">Mensual</option>
                         <option value="quarterly">Trimestral</option>
@@ -816,21 +821,21 @@ export const AdminInvoices = () => {
                             <input 
                               className={inputClass} 
                               value={editingFixedData?.name || ''} 
-                              onChange={e => setEditingFixedData({ ...editingFixedData, name: e.target.value })} 
+                              onChange={e => setEditingFixedData(prev => prev ? { ...prev, name: e.target.value } : null)} 
                             />
                           </td>
                           <td className="px-6 py-4">
                             <input 
                               className={inputClass} 
                               value={editingFixedData?.category || ''} 
-                              onChange={e => setEditingFixedData({ ...editingFixedData, category: e.target.value })} 
+                              onChange={e => setEditingFixedData(prev => prev ? { ...prev, category: e.target.value } : null)} 
                             />
                           </td>
                           <td className="px-6 py-4 text-center">
                             <select 
                               className={cn(inputClass, "w-24 mx-auto")} 
                               value={editingFixedData?.frequency || 'monthly'} 
-                              onChange={e => setEditingFixedData({...editingFixedData, frequency: e.target.value as any})}
+                              onChange={e => setEditingFixedData(prev => prev ? { ...prev, frequency: e.target.value as FixedExpense['frequency'] } : null)}
                             >
                               <option value="monthly">Mensual</option>
                               <option value="quarterly">Trimestral</option>
@@ -844,23 +849,23 @@ export const AdminInvoices = () => {
                                 type="number" 
                                 className={cn(inputClass, "w-12 text-center px-1")} 
                                 value={editingFixedData?.day_of_month || 1} 
-                                onChange={e => setEditingFixedData({ ...editingFixedData, day_of_month: parseInt(e.target.value) || 1 })} 
+                                onChange={e => setEditingFixedData(prev => prev ? { ...prev, day_of_month: parseInt(e.target.value) || 1 } : null)} 
                               />
                               <span className="text-[#444]">-</span>
                               <input 
                                 type="number" 
                                 className={cn(inputClass, "w-12 text-center px-1")} 
                                 value={editingFixedData?.day_of_month_end || ''} 
-                                onChange={e => setEditingFixedData({ ...editingFixedData, day_of_month_end: parseInt(e.target.value) || null })} 
+                                onChange={e => setEditingFixedData(prev => prev ? { ...prev, day_of_month_end: parseInt(e.target.value) || null } : null)} 
                               />
                             </div>
                           </td>
                           <td className="px-6 py-4 text-center">
                             <input 
-                              type="checkbox" 
-                              className="accent-[#C9A962]" 
-                              checked={editingFixedData?.is_variable || false} 
-                              onChange={e => setEditingFixedData({...editingFixedData, is_variable: e.target.checked})} 
+                               type="checkbox" 
+                               className="accent-[#C9A962]" 
+                               checked={editingFixedData?.is_variable || false} 
+                               onChange={e => setEditingFixedData(prev => prev ? { ...prev, is_variable: e.target.checked } : null)} 
                             />
                           </td>
                           <td className="px-6 py-4 text-right">
@@ -870,16 +875,16 @@ export const AdminInvoices = () => {
                                 step="0.01" 
                                 className={cn(inputClass, "w-24 text-right")} 
                                 value={editingFixedData?.amount || 0} 
-                                onChange={e => setEditingFixedData({ ...editingFixedData, amount: parseFloat(e.target.value) || 0 })} 
+                                onChange={e => setEditingFixedData(prev => prev ? { ...prev, amount: parseFloat(e.target.value) || 0 } : null)} 
                               />
                               <div className="flex gap-1">
                                 <div className="flex flex-col gap-0.5">
                                   <span className="text-[8px] text-[#444] uppercase text-right">IVA %</span>
-                                  <input type="number" className={cn(inputClass, "w-10 h-6 text-[9px] px-1 text-right")} value={editingFixedData?.tax_rate || 0} onChange={e => setEditingFixedData({ ...editingFixedData, tax_rate: parseFloat(e.target.value) || 0 })} />
+                                  <input type="number" className={cn(inputClass, "w-10 h-6 text-[9px] px-1 text-right")} value={editingFixedData?.tax_rate || 0} onChange={e => setEditingFixedData(prev => prev ? { ...prev, tax_rate: parseFloat(e.target.value) || 0 } : null)} />
                                 </div>
                                 <div className="flex flex-col gap-0.5">
                                   <span className="text-[8px] text-[#444] uppercase text-right">IRPF %</span>
-                                  <input type="number" className={cn(inputClass, "w-10 h-6 text-[9px] px-1 text-right")} value={editingFixedData?.irpf_rate || 0} onChange={e => setEditingFixedData({ ...editingFixedData, irpf_rate: parseFloat(e.target.value) || 0 })} />
+                                  <input type="number" className={cn(inputClass, "w-10 h-6 text-[9px] px-1 text-right")} value={editingFixedData?.irpf_rate || 0} onChange={e => setEditingFixedData(prev => prev ? { ...prev, irpf_rate: parseFloat(e.target.value) || 0 } : null)} />
                                 </div>
                               </div>
                             </div>
@@ -986,7 +991,7 @@ export const AdminInvoices = () => {
                       <input className={inputClass} placeholder="Nombre Fiscal" value={newIssuer.name} onChange={e => setNewIssuer({...newIssuer, name: e.target.value})} />
                     </td>
                     <td className="px-6 py-4">
-                      <select className={cn(inputClass, "text-[10px]")} value={newIssuer.type} onChange={e => setNewIssuer({...newIssuer, type: e.target.value as any})}>
+                      <select className={cn(inputClass, "text-[10px]")} value={newIssuer.type} onChange={e => setNewIssuer({...newIssuer, type: e.target.value as InvoiceIssuer['type']})}>
                         <option value="provider">Proveedor</option>
                         <option value="client">Cliente</option>
                         <option value="both">Ambos</option>
@@ -1048,11 +1053,11 @@ export const AdminInvoices = () => {
                             <input 
                               className={inputClass} 
                               value={editingIssuerData?.name || ''} 
-                              onChange={e => setEditingIssuerData({ ...editingIssuerData, name: e.target.value })} 
+                              onChange={e => setEditingIssuerData(prev => prev ? { ...prev, name: e.target.value } : null)} 
                             />
                           </td>
                           <td className="px-6 py-4">
-                            <select className={cn(inputClass, "text-[10px]")} value={editingIssuerData?.type || 'provider'} onChange={e => setEditingIssuerData({ ...editingIssuerData, type: e.target.value as any })}>
+                            <select className={cn(inputClass, "text-[10px]")} value={editingIssuerData?.type || 'provider'} onChange={e => setEditingIssuerData(prev => prev ? { ...prev, type: e.target.value as InvoiceIssuer['type'] } : null)}>
                               <option value="provider">Proveedor</option>
                               <option value="client">Cliente</option>
                               <option value="both">Ambos</option>
@@ -1062,13 +1067,13 @@ export const AdminInvoices = () => {
                             <input 
                               className={inputClass} 
                               value={editingIssuerData?.nif || ''} 
-                              onChange={e => setEditingIssuerData({ ...editingIssuerData, nif: e.target.value })} 
+                              onChange={e => setEditingIssuerData(prev => prev ? { ...prev, nif: e.target.value } : null)} 
                             />
                           </td>
                           <td className="px-6 py-4 min-w-[280px]">
                             <div className="flex flex-col gap-2">
                               <div className="flex items-center gap-2">
-                                <select className={cn(inputClass, "w-1/3 px-1 text-center")} value={editingIssuerData?.street_type || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, street_type: e.target.value })}>
+                                <select className={cn(inputClass, "w-1/3 px-1 text-center")} value={editingIssuerData?.street_type || ''} onChange={e => setEditingIssuerData(prev => prev ? { ...prev, street_type: e.target.value } : null)}>
                                   <option value="">Tipo Vía</option>
                                   <option value="Calle">Calle</option>
                                   <option value="Avenida">Avenida</option>
@@ -1079,16 +1084,16 @@ export const AdminInvoices = () => {
                                   <option value="Ronda">Ronda</option>
                                   <option value="Pasaje">Pasaje</option>
                                 </select>
-                                <input className={cn(inputClass, "w-2/3")} placeholder="Nombre Vía" value={editingIssuerData?.street_name || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, street_name: e.target.value })} />
+                                <input className={cn(inputClass, "w-2/3")} placeholder="Nombre Vía" value={editingIssuerData?.street_name || ''} onChange={e => setEditingIssuerData(prev => prev ? { ...prev, street_name: e.target.value } : null)} />
                               </div>
                               <div className="grid grid-cols-4 gap-2">
-                                <input className={cn(inputClass, "col-span-1")} placeholder="Nº" value={editingIssuerData?.street_number || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, street_number: e.target.value })} />
-                                <input className={cn(inputClass, "col-span-1")} placeholder="Piso" value={editingIssuerData?.floor_door || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, floor_door: e.target.value })} />
-                                <input className={cn(inputClass, "col-span-2")} placeholder="C.P." value={editingIssuerData?.zip || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, zip: e.target.value })} />
+                                <input className={cn(inputClass, "col-span-1")} placeholder="Nº" value={editingIssuerData?.street_number || ''} onChange={e => setEditingIssuerData(prev => prev ? { ...prev, street_number: e.target.value } : null)} />
+                                <input className={cn(inputClass, "col-span-1")} placeholder="Piso" value={editingIssuerData?.floor_door || ''} onChange={e => setEditingIssuerData(prev => prev ? { ...prev, floor_door: e.target.value } : null)} />
+                                <input className={cn(inputClass, "col-span-2")} placeholder="C.P." value={editingIssuerData?.zip || ''} onChange={e => setEditingIssuerData(prev => prev ? { ...prev, zip: e.target.value } : null)} />
                               </div>
                               <div className="grid grid-cols-2 gap-2">
-                                <input className={inputClass} placeholder="Municipio" value={editingIssuerData?.city || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, city: e.target.value })} />
-                                <input className={inputClass} placeholder="Provincia" value={editingIssuerData?.province || ''} onChange={e => setEditingIssuerData({ ...editingIssuerData, province: e.target.value })} />
+                                <input className={inputClass} placeholder="Municipio" value={editingIssuerData?.city || ''} onChange={e => setEditingIssuerData(prev => prev ? { ...prev, city: e.target.value } : null)} />
+                                <input className={inputClass} placeholder="Provincia" value={editingIssuerData?.province || ''} onChange={e => setEditingIssuerData(prev => prev ? { ...prev, province: e.target.value } : null)} />
                               </div>
                             </div>
                           </td>
@@ -1098,19 +1103,19 @@ export const AdminInvoices = () => {
                                 className={cn(inputClass, "h-8")} 
                                 placeholder="Email" 
                                 value={editingIssuerData?.email || ''} 
-                                onChange={e => setEditingIssuerData({ ...editingIssuerData, email: e.target.value })} 
+                                onChange={e => setEditingIssuerData(prev => prev ? { ...prev, email: e.target.value } : null)} 
                               />
                               <input 
                                 className={cn(inputClass, "h-8 text-[10px]")} 
                                 placeholder="Teléfono" 
                                 value={editingIssuerData?.phone || ''} 
-                                onChange={e => setEditingIssuerData({ ...editingIssuerData, phone: e.target.value })} 
+                                onChange={e => setEditingIssuerData(prev => prev ? { ...prev, phone: e.target.value } : null)} 
                               />
                               <input 
                                 className={cn(inputClass, "h-8 text-[9px]")} 
                                 placeholder="IBAN" 
                                 value={editingIssuerData?.iban || ''} 
-                                onChange={e => setEditingIssuerData({ ...editingIssuerData, iban: e.target.value })} 
+                                onChange={e => setEditingIssuerData(prev => prev ? { ...prev, iban: e.target.value } : null)} 
                               />
                             </div>
                           </td>

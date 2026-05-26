@@ -1,23 +1,22 @@
 import { useState, useEffect } from 'react';
-import { Search, MessageSquare, User, Trash2, ExternalLink, Copy, Check } from 'lucide-react';
+import { Search, MessageSquare, User, Trash2, ExternalLink, Copy, Check, Filter } from 'lucide-react';
 import type { LeadCRM, ScoredProperty } from '../../hooks/useLeadsCRM';
 import { useLeadsCRM, updateLeadStatus, updateLeadNotes, searchPropertiesForBot, deleteLead } from '../../hooks/useLeadsCRM';
-import { useAuth } from '../../hooks/useAuth.tsx';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { supabase } from '../../lib/supabase';
 
 export const AdminLeadsCRM = () => {
-  const { user } = useAuth();
-  const [filterAgent, setFilterAgent] = useState<'mine' | 'all'>('mine');
-  const agentId = filterAgent === 'mine' ? user?.id : undefined;
-
+  const [selectedAgentId, setSelectedAgentId] = useState<string>('all');
+  
   const [filterIntent, setFilterIntent] = useState<string>('todos');
   const [filterStatus, setFilterStatus] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLead, setSelectedLead] = useState<LeadCRM | null>(null);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   
+  const agentId = selectedAgentId === 'all' ? undefined : selectedAgentId;
+
   const { leads, loading, refetch } = useLeadsCRM({
     intent: filterIntent,
     status: filterStatus,
@@ -28,14 +27,14 @@ export const AdminLeadsCRM = () => {
   const [notes, setNotes] = useState('');
   const [isSearchingMatches, setIsSearchingMatches] = useState(false);
   const [leadMatches, setLeadMatches] = useState<ScoredProperty[] | null>(null);
-  const [agentsList, setAgentsList] = useState<{ id: string; agent_name: string }[]>([]);
+  const [agentsList, setAgentsList] = useState<{ id: string; agent_name: string; role: string }[]>([]);
 
   useEffect(() => {
     const fetchAgents = async () => {
       const { data } = await supabase
         .from('user_profiles')
-        .select('id, agent_name')
-        .eq('role', 'agent');
+        .select('id, agent_name, role')
+        .in('role', ['admin', 'agent']);
       if (data) setAgentsList(data);
     };
     fetchAgents();
@@ -129,28 +128,22 @@ export const AdminLeadsCRM = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* Mine / All tab selector */}
-          <div className="flex bg-[#0A0A0A] border border-[#1F1F1F] p-0.5">
-            <button
-              onClick={() => setFilterAgent('mine')}
-              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
-                filterAgent === 'mine'
-                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
-                  : 'text-[#666] hover:text-[#FAF8F5]'
-              }`}
+          {/* Agent Selector Dropdown */}
+          <div className="flex items-center gap-2 bg-[#0A0A0A] border border-[#1F1F1F] px-4 py-2.5 rounded-sm">
+            <Filter className="w-4 h-4 text-[#C9A962]" />
+            <span className="font-primary text-xs text-[#666] uppercase tracking-wider font-bold">Filtrar por Agente:</span>
+            <select
+              value={selectedAgentId}
+              onChange={(e) => setSelectedAgentId(e.target.value)}
+              className="bg-transparent text-[#C9A962] font-primary text-xs uppercase tracking-wider font-bold outline-none cursor-pointer"
             >
-              Mis Leads
-            </button>
-            <button
-              onClick={() => setFilterAgent('all')}
-              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
-                filterAgent === 'all'
-                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
-                  : 'text-[#666] hover:text-[#FAF8F5]'
-              }`}
-            >
-              Todos
-            </button>
+              <option value="all">Todos los Leads</option>
+              {agentsList.map(a => (
+                <option key={a.id} value={a.id}>
+                  {a.agent_name} ({a.role === 'admin' ? 'Admin' : 'Agente'})
+                </option>
+              ))}
+            </select>
           </div>
 
           {captureLinks.map((link) => (
@@ -410,7 +403,7 @@ export const AdminLeadsCRM = () => {
                         <div>
                           <span className="block text-[#666666] text-xs mb-3">Perfil de Ocupantes</span>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {selectedLead.occupants.map((occ: any, i: number) => (
+                            {selectedLead.occupants.map((occ: { name?: string; age?: number | string; occupation?: string; income?: number | string }, i: number) => (
                               <div key={i} className="bg-[#151515] p-4 rounded border border-[#333333] shadow-sm">
                                 <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#333333]/50">
                                   <User className="w-4 h-4 text-[#C9A962]" />
@@ -452,8 +445,30 @@ export const AdminLeadsCRM = () => {
                       </h3>
                       <button
                         onClick={async () => {
+                          if (!selectedLead.search_profile) return;
                           setIsSearchingMatches(true);
-                          const matches = await searchPropertiesForBot(selectedLead.search_profile as any);
+                          const profile = selectedLead.search_profile;
+                          const searchParams = {
+                            operation: (profile.intent === 'alquilar' || profile.intent === 'comprar' || profile.intent === 'vender') 
+                              ? profile.intent as 'alquilar' | 'comprar' | 'vender'
+                              : 'alquilar' as const,
+                            min_price: profile.min_price,
+                            max_price: profile.max_price,
+                            min_bedrooms: profile.min_bedrooms,
+                            min_bathrooms: profile.min_bathrooms,
+                            zones: profile.preferred_zones,
+                            wants_terrace: profile.wants_terrace,
+                            wants_parking: profile.wants_parking,
+                            wants_pool: profile.wants_pool,
+                            wants_elevator: profile.wants_elevator,
+                            wants_furnished: profile.wants_furnished,
+                            wants_air_conditioning: profile.wants_air_conditioning,
+                            pets_needed: profile.pets_needed,
+                            wants_garden: profile.wants_garden,
+                            property_types: profile.property_types,
+                            keywords: profile.search_keywords,
+                          };
+                          const matches = await searchPropertiesForBot(searchParams);
                           setLeadMatches(matches);
                           setIsSearchingMatches(false);
                         }}
@@ -496,7 +511,7 @@ export const AdminLeadsCRM = () => {
                       Transcripción del Chat
                     </h3>
                     <div className="bg-[#151515] rounded-md p-4 space-y-4 font-primary text-sm max-h-60 overflow-y-auto">
-                      {selectedLead.chat_transcript.map((msg: any, i: number) => (
+                      {selectedLead.chat_transcript.map((msg: { role: string; content: string }, i: number) => (
                         <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                           <div className={`max-w-[80%] rounded-lg px-4 py-2 ${msg.role === 'user' ? 'bg-[#C9A962] text-[#0A0A0A]' : 'bg-[#1F1F1F] text-[#FAF8F5]'}`}>
                             <p className="text-xs font-bold mb-1 opacity-60 uppercase">{msg.role === 'user' ? 'Cliente' : 'Gelabot'}</p>

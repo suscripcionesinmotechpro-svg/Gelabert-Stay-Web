@@ -2,15 +2,25 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTenants } from '../../hooks/useTenants';
 import { useContracts } from '../../hooks/useContracts';
-import { useAuth } from '../../hooks/useAuth.tsx';
-import { Search, PlusCircle, Users, AlertTriangle, ChevronRight, Phone, Mail, Eye } from 'lucide-react';
+import { Search, PlusCircle, Users, AlertTriangle, ChevronRight, Phone, Mail, Eye, Filter } from 'lucide-react';
 import { CONTRACT_STATUS_COLORS, CONTRACT_STATUS_LABELS, daysUntilExpiry } from '../../types/tenant';
 import type { Contract } from '../../types/tenant';
+import { supabase } from '../../lib/supabase';
 
 export const AdminTenantsList = () => {
-  const { user } = useAuth();
-  const [filterAgent, setFilterAgent] = useState<'mine' | 'all'>('mine');
-  const agentId = filterAgent === 'mine' ? user?.id : undefined;
+  const [selectedAgentId, setSelectedAgentId] = useState<string>('all');
+  const [agents, setAgents] = useState<{ id: string; agent_name: string; role: string }[]>([]);
+
+  useEffect(() => {
+    supabase.from('user_profiles')
+      .select('id, agent_name, role')
+      .in('role', ['admin', 'agent'])
+      .then(({ data }) => {
+        if (data) setAgents(data);
+      });
+  }, []);
+
+  const agentId = selectedAgentId === 'all' ? undefined : selectedAgentId;
 
   const [inputValue, setInputValue] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -47,28 +57,22 @@ export const AdminTenantsList = () => {
           <p className="font-primary text-[#666] text-sm mt-1">Gestión de inquilinos y contratos de alquiler</p>
         </div>
         <div className="flex items-center gap-3">
-          {/* Mine / All tab selector */}
-          <div className="flex bg-[#0A0A0A] border border-[#1F1F1F] p-0.5">
-            <button
-              onClick={() => setFilterAgent('mine')}
-              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
-                filterAgent === 'mine'
-                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
-                  : 'text-[#666] hover:text-[#FAF8F5]'
-              }`}
+          {/* Agent Selector Dropdown */}
+          <div className="flex items-center gap-2 bg-[#0A0A0A] border border-[#1F1F1F] px-3 py-1.5 rounded-sm">
+            <Filter className="w-3.5 h-3.5 text-[#C9A962]" />
+            <span className="font-primary text-[10px] text-[#666] uppercase tracking-wider font-bold">Agente:</span>
+            <select
+              value={selectedAgentId}
+              onChange={(e) => setSelectedAgentId(e.target.value)}
+              className="bg-transparent text-[#C9A962] font-primary text-xs uppercase tracking-wider font-bold outline-none cursor-pointer"
             >
-              Mis Inquilinos
-            </button>
-            <button
-              onClick={() => setFilterAgent('all')}
-              className={`px-4 py-1.5 font-primary text-xs uppercase tracking-wider transition-all ${
-                filterAgent === 'all'
-                  ? 'bg-[#C9A962] text-[#0A0A0A] font-bold'
-                  : 'text-[#666] hover:text-[#FAF8F5]'
-              }`}
-            >
-              Todos
-            </button>
+              <option value="all">Todos los Inquilinos</option>
+              {agents.map(a => (
+                <option key={a.id} value={a.id}>
+                  {a.agent_name} ({a.role === 'admin' ? 'Admin' : 'Agente'})
+                </option>
+              ))}
+            </select>
           </div>
           <Link
             to="/admin/inquilinos/nuevo"
