@@ -201,7 +201,7 @@ const Nosotros = () => {
             {/* Quick-stats row */}
             <div className="grid grid-cols-3 gap-4 pt-2">
               {[
-                { value: '3+', label: t('nosotros.team.stat1', 'Años en el sector') },
+                { value: '5+', label: t('nosotros.team.stat1', 'Años de experiencia') },
                 { value: '100%', label: t('nosotros.team.stat2', 'Trato directo') },
                 { value: '360°', label: t('nosotros.team.stat3', 'Servicio integral') },
               ].map((stat, i) => (
