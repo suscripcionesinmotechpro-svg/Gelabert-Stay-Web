@@ -77,7 +77,7 @@
     "owners": "Propietarios",
     "investors": "Inversores",
     "blog": "Blog",
-    "about": "Nosotros",
+    "about": "Sobre Mí",
     "contact": "Contacto",
     "reviews": "Reseñas",
     "valuation": "Valoración",
@@ -379,58 +379,55 @@
   },
   "nosotros": {
     "seo": {
-      "title": "Quiénes Somos | Gelabert Homes Real Estate Málaga",
-      "description": "Conoce al equipo detrás de Gelabert Homes. Nuestra misión es transformar el sector inmobiliario en Málaga con transparencia, cercanía y profesionalidad."
+      "title": "Sobre Mí | Gelabert Homes Real Estate Málaga",
+      "description": "Conoce a José Carlos Delgado Gelabert, tu asesor inmobiliario independiente en Málaga. Un servicio boutique, cercano y de alta calidad para vender o alquilar tu casa."
     },
     "hero": {
-      "badge": "Nuestro Equipo",
-      "title": "Una visión compartida para transformar el sector inmobiliario en Málaga",
-      "subtitle": "En Gelabert Homes Real Estate creemos que el sector inmobiliario necesita una forma diferente de trabajar: más cercana, más transparente y más comprometida con las personas."
+      "badge": "Sobre Mí",
+      "title": "Asesoramiento inmobiliario independiente. El trato que tu hogar merece.",
+      "subtitle": "Creo que cada vivienda es única y merece una presentación extraordinaria. Te acompaño de forma directa y sin intermediarios."
     },
     "vision": {
-      "badge": "Nuestra Misión",
-      "title": "Aportar una visión moderna y humana al mercado malagueño",
-      "p1": "Nuestra misión nace de una realidad muy clara: Málaga atraviesa uno de los momentos inmobiliarios más importantes de su historia. La ciudad crece, atrae inversión, recibe nuevos residentes y se posiciona como uno de los destinos más deseados del sur de Europa.",
-      "p2": "Pero, al mismo tiempo, propietarios, inquilinos, compradores e inversores se enfrentan cada día a nuevos retos: falta de vivienda disponible, procesos cada vez más complejos, inseguridad en la gestión, falta de asesoramiento profesional y una necesidad real de soluciones eficaces.",
-      "p3": "Por eso nace Gelabert Homes Real Estate: para aportar una visión moderna, humana y profesional al mercado inmobiliario malagueño. Nuestro objetivo es acompañar a propietarios, inversores y clientes durante todo el proceso, ofreciendo un servicio basado en la confianza, la estrategia, la transparencia y el conocimiento real del mercado local.",
-      "context": "Evolución del sector"
+      "badge": "Mi Filosofía",
+      "title": "Una propiedad especial merece una gestión dedicada",
+      "p1": "Para mí, no existen propiedades pequeñas o grandes; existen proyectos a los que dedico toda mi atención. Al ser un asesor independiente, no gestiono cientos de pisos a la vez. Esto me permite implicarme personalmente en cada detalle.",
+      "p2": "Sé que vender o comprar una casa es una de las decisiones más importantes de tu vida. Por eso, mi objetivo no es solo cerrar transacciones, sino facilitarte el proceso, proteger tus intereses y asegurar que tu propiedad se presente al mercado con la máxima calidad.",
+      "p3": "No importa el tamaño o precio de tu hogar; mi compromiso es aplicarle una estrategia de marketing de alto estándar para conseguir el mejor resultado posible.",
+      "context": "Servicio Boutique"
     },
     "history": {
-      "badge": "Nuestra Historia",
-      "title": "Un encuentro, una idea común",
-      "p1": "La historia de Gelabert Homes nace de una ambición clara de su fundador, José Carlos Delgado Gelabert: crear una marca propia con unos cimientos sólidos y una misión disruptiva. Tras años en el sector, José Carlos ya había dado forma a la identidad y las bases de lo que hoy es Gelabert Homes, impulsado por el deseo de ayudar de forma real a las personas y transformar positivamente el mercado inmobiliario.",
-      "p2": "Con la marca ya proyectada, el siguiente paso era encontrar al compañero de viaje ideal; alguien que no solo tuviera experiencia, sino que compartiera su misma pasión y visión del sector. Fue entonces cuando, a través de una tercera persona que nos presentó, apareció Juan.",
-      "p3": "Desde ese primer encuentro, la sintonía fue total. Ambos comprendieron que la combinación de sus trayectorias era la pieza que faltaba para convertir esa visión original en una realidad capaz de aportar un valor excepcional al mercado de Málaga y la Costa del Sol."
+      "badge": "Mi Historia",
+      "title": "Pasión por el sector y compromiso real",
+      "p1": "Fundé Gelabert Homes con una idea muy clara: humanizar el sector inmobiliario y ofrecer un servicio impecable y cercano. Tras años de experiencia en el mercado de Málaga y la Costa del Sol, comprendí que la única forma de garantizar una excelencia real es eliminando los intermediarios y la burocracia corporativa.",
+      "p2": "Creo firmemente que la venta de un hogar requiere una atención igual de extraordinaria. Por eso, decidí crear una estructura flexible e independiente donde el cliente siempre trate directamente con el tomador de decisiones.",
+      "p3": ""
     },
     "team": {
-      "badge": "Liderazgo",
-      "title": "Los rostros detrás del proyecto",
+      "badge": "El Fundador",
+      "title": "Quién te acompaña en el camino",
       "jose": {
-        "bio": "Nacido en Cuba, José Carlos llegó a España con la visión de construir un futuro profesional basado en el esfuerzo y la constancia. Tras tres años en el sector inmobiliario malagueño, representa la parte estratégica y comercial de la empresa, comprometido con una gestión segura y rentable para los propietarios."
-      },
-      "juan": {
-        "bio": "Sevillano enamorado de Málaga, Juan Carlos aporta más de seis años de experiencia internacional (Reino Unido y Austria). Como Director de Ventas, ofrece una perspectiva amplia y estratégica, posicionando a la empresa para responder a los retos de clientes nacionales e internacionales."
+        "bio": "Nacido en Cuba, llegué a España con la visión de construir un futuro profesional basado en el esfuerzo, la constancia y la honestidad. Con una amplia experiencia en el sector inmobiliario malagueño, me encargo personalmente de dirigir la estrategia de venta de tu propiedad, defender tus intereses en la negociación y asegurar una transacción 100% segura y sin complicaciones."
       }
     },
     "values": {
-      "title": "Una misma dirección",
-      "p1": "Aunque nuestros caminos empezaron en lugares distintos, compartimos una misma forma de entender el sector inmobiliario: trabajar con seriedad, cercanía y compromiso real.",
-      "p2": "Nuestro equipo nace con la voluntad de sumar al mercado, profesionalizar los procesos y ofrecer una experiencia más segura, clara y humana.",
-      "closing": "Porque detrás de cada vivienda hay una historia, una decisión importante y una persona que necesita confianza.",
+      "title": "Mis Pilares",
+      "p1": "Entiendo el sector inmobiliario de una sola forma: trabajar con seriedad absoluta, transparencia radical y un compromiso real con las personas.",
+      "p2": "Al confiarme tu casa, no estás tratando con una marca multinacional fría; estás confiando en mí. And yo asumo esa responsabilidad personalmente.",
+      "closing": "Detrás de cada propiedad hay una historia y una persona que merece total tranquilidad.",
       "items": {
         "commitment": "Compromiso",
         "transparency": "Transparencia",
-        "excellence": "Excelencia",
-        "innovation": "Innovación"
+        "excellence": "Calidad",
+        "innovation": "Agilidad"
       }
     },
     "innovation": {
-      "badge": "Innovación",
-      "title": "Tecnología y Visión de Futuro",
-      "p1": "En Gelabert Homes entendemos que el mercado está evolucionando y volviéndose cada día más exigente. Creemos que la figura del agente inmobiliario tradicional que solo abre puertas está desapareciendo.",
-      "p2": "Nuestra visión está totalmente adaptada a las nuevas tecnologías. Utilizamos la Inteligencia Artificial como una herramienta fundamental para optimizar procesos y ofrecer un servicio de vanguardia. Solo aquellos que evolucionan y ven la tecnología como su mejor aliada podrán liderar el mercado del mañana.",
-      "ai_title": "Integración de IA",
-      "ai_subtitle": "Análisis Avanzado y Estrategia"
+      "badge": "Mi Red Boutique",
+      "title": "Estructura ágil, red experta",
+      "p1": "Trabajar con un consultor independiente no significa tener menos recursos; significa elegir únicamente a los mejores. Para ofrecerte un servicio integral 360°, coordino personalmente una red selecta de partners externos especializados en fotografía de arquitectura, producción de vídeo aéreo con drones, asesoramiento jurídico-fiscal y estilismo inmobiliario (Home Staging).",
+      "p2": "De esta manera, tu vivienda recibe una campaña de marketing de primer nivel y total respaldo legal, mientras tú mantienes la comodidad de tener a un único interlocutor directo de confianza para todo.",
+      "ai_title": "Marketing de Precisión",
+      "ai_subtitle": "Tecnología y Colaboración"
     }
   },
   "services": {

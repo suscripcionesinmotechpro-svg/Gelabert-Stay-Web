@@ -77,7 +77,7 @@
     "owners": "Owners",
     "investors": "Investors",
     "blog": "Blog",
-    "about": "About Us",
+    "about": "About Me",
     "contact": "Contact",
     "reviews": "Reviews",
     "valuation": "Valuation",
@@ -374,58 +374,55 @@
   },
   "nosotros": {
     "seo": {
-      "title": "About Us | Gelabert Homes Real Estate Malaga",
-      "description": "Meet the team behind Gelabert Homes. Our mission is to transform the real estate sector in Malaga with transparency, proximity, and professionalism."
+      "title": "About Me | Gelabert Homes Real Estate Malaga",
+      "description": "Meet José Carlos Delgado Gelabert, your independent real estate advisor in Malaga. A boutique, close, and high-quality service to sell or rent your home."
     },
     "hero": {
-      "badge": "Our Team",
-      "title": "A shared vision to transform the real estate sector in Malaga",
-      "subtitle": "At Gelabert Homes Real Estate, we believe the real estate sector needs a different way of working: closer, more transparent, and more committed to people."
+      "badge": "About Me",
+      "title": "Independent real estate advisory. The treatment your home deserves.",
+      "subtitle": "I believe that every home is unique and deserves an extraordinary presentation. I accompany you directly and without intermediaries."
     },
     "vision": {
-      "badge": "Our Mission",
-      "title": "Bringing a modern and humane vision to the Malaga market",
-      "p1": "Our mission stems from a very clear reality: Malaga is going through one of the most important real estate moments in its history. The city is growing, attracting investment, welcoming new residents, and positioning itself as one of the most desired destinations in Southern Europe.",
-      "p2": "But at the same time, owners, tenants, buyers, and investors face new challenges every day: lack of available housing, increasingly complex processes, insecurity in management, lack of professional advice, and a real need for effective solutions.",
-      "p3": "That's why Gelabert Homes Real Estate was born: to bring a modern, humane, and professional vision to the Malaga real estate market. Our goal is to accompany owners, investors, and clients throughout the process, offering a service based on trust, strategy, transparency, and real knowledge of the local market.",
-      "context": "Sector evolution"
+      "badge": "My Philosophy",
+      "title": "A special property deserves a dedicated management",
+      "p1": "For me, there are no small or large properties; there are projects to which I dedicate my full attention. As an independent advisor, I do not manage hundreds of apartments at the same time. This allows me to be personally involved in every detail.",
+      "p2": "I know that selling or buying a house is one of the most important decisions of your life. That is why my goal is not just to close transactions, but to facilitate the process, protect your interests, and ensure that your property is presented to the market with the highest quality.",
+      "p3": "No matter the size or price of your home; my commitment is to apply a high-standard marketing strategy to achieve the best possible result.",
+      "context": "Boutique Service"
     },
     "history": {
-      "badge": "Our History",
-      "title": "An encounter, a common idea",
-      "p1": "The story of Gelabert Homes was born from a clear ambition of its founder, José Carlos Delgado Gelabert: to create his own brand with solid foundations and a disruptive mission. After years in the sector, José Carlos had already shaped the identity and the bases of what Gelabert Homes is today, driven by the desire to truly help people and positively transform the real estate market.",
-      "p2": "With the brand already projected, the next step was to find the ideal traveling companion; someone who not only had experience, but shared his same passion and vision of the sector. It was then that, through a third person who introduced us, Juan appeared.",
-      "p3": "From that first meeting, the harmony was complete. Both understood that the combination of their trajectories was the missing piece to turn that original vision into a reality capable of providing exceptional value to the Malaga and Costa del Sol market."
+      "badge": "My History",
+      "title": "Passion for the sector and real commitment",
+      "p1": "I founded Gelabert Homes with a very clear idea: to humanize the real estate sector and offer an impeccable and close service. After years of experience in the Malaga and Costa del Sol market, I understood that the only way to guarantee real excellence is by eliminating intermediaries and corporate bureaucracy.",
+      "p2": "I firmly believe that selling a home requires equally extraordinary attention. Therefore, I decided to create a flexible and independent structure where the client always deals directly with the decision maker.",
+      "p3": ""
     },
     "team": {
-      "badge": "Leadership",
-      "title": "The faces behind the project",
+      "badge": "The Founder",
+      "title": "Who accompanies you on the way",
       "jose": {
-        "bio": "Born in Cuba, José Carlos arrived in Spain with a clear vision: to build a professional future based on effort, perseverance, and proximity to people. Over the last three years in the Malaga real estate sector, he represents the strategic and commercial side of the company, committed to secure and profitable management for owners."
-      },
-      "juan": {
-        "bio": "A Sevillian in love with Malaga, Juan Carlos brings more than six years of international real estate experience (United Kingdom and Austria). As Sales Director, he offers a broad and strategic perspective, positioning the company to respond to the challenges of both national and international clients."
+        "bio": "Born in Cuba, I arrived in Spain with the vision of building a professional future based on effort, perseverance, and honesty. With extensive experience in the Malaga real estate sector, I personally take care of directing the sales strategy of your property, defending your interests in the negotiation, and ensuring a 100% secure transaction without complications."
       }
     },
     "values": {
-      "title": "The same direction",
-      "p1": "Although our paths started in different places, we share the same way of understanding the real estate sector: working with seriousness, proximity, and real commitment.",
-      "p2": "Our team was born with the will to contribute to the market, professionalize processes, and offer a safer, clearer, and more humane experience.",
-      "closing": "Because behind every home there is a story, an important decision, and a person who needs trust.",
+      "title": "My Pillars",
+      "p1": "I understand the real estate sector in only one way: working with absolute seriousness, radical transparency, and a real commitment to people.",
+      "p2": "By trusting me with your home, you are not dealing with a cold multinational brand; you are trusting me. And I take that responsibility personally.",
+      "closing": "Behind every property there is a story and a person who deserves total peace of mind.",
       "items": {
         "commitment": "Commitment",
         "transparency": "Transparency",
-        "excellence": "Excellence",
-        "innovation": "Innovation"
+        "excellence": "Quality",
+        "innovation": "Agility"
       }
     },
     "innovation": {
-      "badge": "Innovation",
-      "title": "Technology & Future Vision",
-      "p1": "At Gelabert Homes, we understand that the market is evolving and becoming more demanding every day. We believe the traditional real estate agent who just opens doors is disappearing.",
-      "p2": "Our vision is fully adapted to new technologies. We use Artificial Intelligence as a fundamental tool to optimize processes and offer a cutting-edge service. Only those who evolve and see technology as their best ally will lead tomorrow's market.",
-      "ai_title": "AI Integration",
-      "ai_subtitle": "Advanced Analytics & Strategy"
+      "badge": "My Boutique Network",
+      "title": "Agile structure, expert network",
+      "p1": "Working with an independent consultant does not mean having fewer resources; it means choosing only the best. To offer you a comprehensive 360° service, I personally coordinate a select network of external partners specializing in architectural photography, aerial drone video production, legal-fiscal advice, and real estate styling (Home Staging).",
+      "p2": "In this way, your home receives a first-class marketing campaign and full legal backing, while you maintain the convenience of having a single direct trusted interlocutor for everything.",
+      "ai_title": "Precision Marketing",
+      "ai_subtitle": "Technology & Collaboration"
     }
   },
   "services": {

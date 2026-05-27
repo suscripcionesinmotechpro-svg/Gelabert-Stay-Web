@@ -2,8 +2,8 @@ import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { 
-  Users, Target, History, Rocket, 
-  Heart, Shield, Award, Sparkles 
+  Users, Target, History, Heart, Shield, Award, User, Zap,
+  Camera, Video, Scale, Palette
 } from 'lucide-react';
 
 const fadeUp = {
@@ -13,46 +13,12 @@ const fadeUp = {
   transition: { duration: 0.6, ease: [0.215, 0.61, 0.355, 1] as any },
 };
 
-const TeamMember = ({ name, role, bio, image, delay = 0 }: { 
-  name: string; 
-  role: string; 
-  bio: string; 
-  image: string;
-  delay?: number;
-}) => (
-  <motion.div
-    {...fadeUp}
-    transition={{ ...fadeUp.transition, delay }}
-    className="group relative cursor-pointer"
-  >
-    <div 
-      className="relative aspect-[4/5] overflow-hidden rounded-sm mb-6 border border-white/10 transition-colors duration-500 lg:group-hover:border-[#C9A962]/40 group-active:border-[#C9A962]/40"
-    >
-      <img 
-        src={image} 
-        alt={name}
-        className="w-full h-full object-cover transition-all duration-700 grayscale scale-100 lg:group-hover:grayscale-0 lg:group-hover:scale-110 group-active:grayscale-0 group-active:scale-110"
-      />
-      <div 
-        className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60 transition-opacity lg:group-hover:opacity-40 group-active:opacity-40" 
-      />
-    </div>
-    <div className="space-y-2">
-      <h3 
-        className="font-secondary text-2xl text-white transition-colors lg:group-hover:text-[#C9A962] group-active:text-[#C9A962]"
-      >
-        {name}
-      </h3>
-      <p className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.2em] font-bold">
-        {role}
-      </p>
-      <div className="w-8 h-px bg-[#C9A962]/40" />
-      <p className="font-primary text-white/50 text-sm leading-relaxed pt-2">
-        {bio}
-      </p>
-    </div>
-  </motion.div>
-);
+const partnerServices = [
+  { icon: Camera, label: 'Fotografía de Arquitectura' },
+  { icon: Video, label: 'Vídeo Aéreo (Drones)' },
+  { icon: Scale, label: 'Asesoramiento Jurídico-Fiscal' },
+  { icon: Palette, label: 'Home Staging' }
+];
 
 const Nosotros = () => {
   const { t } = useTranslation();
@@ -176,43 +142,93 @@ const Nosotros = () => {
 
       {/* Team Section */}
       <section id="team" className="py-24 md:py-32 px-6 max-w-7xl mx-auto scroll-mt-40">
-        <div className="text-center mb-20">
-          <motion.div {...fadeUp} className="flex flex-col items-center gap-4">
-            <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold">
-              {t('nosotros.team.badge')}
-            </span>
-            <h2 className="font-secondary text-4xl md:text-5xl text-white">
-              {t('nosotros.team.title')}
-            </h2>
-          </motion.div>
-        </div>
+        <motion.div {...fadeUp} className="flex flex-col items-center gap-4 text-center mb-20">
+          <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold">
+            {t('nosotros.team.badge')}
+          </span>
+          <h2 className="font-secondary text-4xl md:text-5xl text-white">
+            {t('nosotros.team.title')}
+          </h2>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-4xl mx-auto">
-          <TeamMember 
-            name="José Carlos Delgado Gelabert"
-            role="CEO & Founder"
-            bio={t('nosotros.team.jose.bio')}
-            image="/images/team/jose-carlos.jpg"
-            delay={0.1}
-          />
-          <TeamMember 
-            name="Juan Carlos Morente Sánchez"
-            role="Co-founder & Sales Director"
-            bio={t('nosotros.team.juan.bio')}
-            image="/images/team/juan-carlos.jpg"
-            delay={0.2}
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center max-w-5xl mx-auto">
+          {/* Portrait */}
+          <motion.div
+            {...fadeUp}
+            transition={{ ...fadeUp.transition, delay: 0.1 }}
+            className="group relative"
+          >
+            <div className="relative aspect-[4/5] overflow-hidden rounded-sm border border-white/10 transition-colors duration-500 group-hover:border-[#C9A962]/40">
+              <img
+                src="/images/team/jose-carlos.jpg"
+                alt="José Carlos Delgado Gelabert"
+                className="w-full h-full object-cover transition-all duration-700 grayscale scale-100 group-hover:grayscale-0 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent opacity-60 transition-opacity group-hover:opacity-30" />
+            </div>
+            {/* Golden corner accents */}
+            <div className="absolute -bottom-4 -left-4 w-24 h-24 border-b border-l border-[#C9A962]/40" />
+            <div className="absolute -top-4 -right-4 w-24 h-24 border-t border-r border-[#C9A962]/40" />
+            {/* Ambient glow */}
+            <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-[#C9A962]/8 blur-[100px] -z-10" />
+          </motion.div>
+
+          {/* Bio & Details */}
+          <motion.div
+            {...fadeUp}
+            transition={{ ...fadeUp.transition, delay: 0.25 }}
+            className="space-y-8"
+          >
+            {/* Name & role */}
+            <div>
+              <p className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.3em] font-bold mb-3">
+                {t('nosotros.team.badge')}
+              </p>
+              <h3 className="font-secondary text-3xl md:text-4xl text-white leading-tight mb-2">
+                José Carlos Delgado Gelabert
+              </h3>
+              <p className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.2em] font-bold">
+                CEO & Founder
+              </p>
+              <div className="w-12 h-px bg-[#C9A962]/50 mt-4" />
+            </div>
+
+            {/* Bio text */}
+            <p className="font-primary text-white/60 text-lg leading-relaxed font-light">
+              {t('nosotros.team.jose.bio')}
+            </p>
+
+            {/* Quick-stats row */}
+            <div className="grid grid-cols-3 gap-4 pt-2">
+              {[
+                { value: '3+', label: t('nosotros.team.stat1', 'Años en el sector') },
+                { value: '100%', label: t('nosotros.team.stat2', 'Trato directo') },
+                { value: '360°', label: t('nosotros.team.stat3', 'Servicio integral') },
+              ].map((stat, i) => (
+                <motion.div
+                  key={i}
+                  {...fadeUp}
+                  transition={{ ...fadeUp.transition, delay: 0.35 + i * 0.1 }}
+                  className="border border-white/10 rounded-sm p-4 text-center hover:border-[#C9A962]/30 transition-colors duration-300"
+                >
+                  <span className="font-secondary text-2xl text-[#C9A962] block">{stat.value}</span>
+                  <span className="font-primary text-[9px] text-white/40 uppercase tracking-widest">{stat.label}</span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Innovation Section */}
+
+      {/* Boutique Network Section */}
       <section id="innovation" className="bg-white/5 border-y border-white/5 py-24 md:py-32 px-6 overflow-hidden scroll-mt-32">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div {...fadeUp} className="relative z-10">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-full bg-[#C9A962]/10 flex items-center justify-center">
-                  <Rocket className="w-5 h-5 text-[#C9A962]" />
+                  <User className="w-5 h-5 text-[#C9A962]" />
                 </div>
                 <span className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.3em] font-bold">
                   {t('nosotros.innovation.badge')}
@@ -232,17 +248,25 @@ const Nosotros = () => {
               transition={{ ...fadeUp.transition, delay: 0.3 }}
               className="relative"
             >
-              <div className="aspect-video rounded-sm overflow-hidden border border-white/10 bg-[#0A0A0A] flex items-center justify-center group">
-                <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-110 transition-transform duration-1000" />
-                <div className="relative z-10 flex flex-col items-center text-center px-8">
-                  <div className="w-20 h-20 rounded-full bg-[#C9A962]/10 flex items-center justify-center mb-6 border border-[#C9A962]/20">
-                    <Sparkles className="w-8 h-8 text-[#C9A962] animate-pulse" />
-                  </div>
-                  <span className="font-secondary text-2xl text-white mb-2">{t('nosotros.innovation.ai_title')}</span>
-                  <p className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.2em]">{t('nosotros.innovation.ai_subtitle')}</p>
-                </div>
+              {/* Partner Services Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                {partnerServices.map((partner, i) => (
+                  <motion.div
+                    key={i}
+                    {...fadeUp}
+                    transition={{ ...fadeUp.transition, delay: 0.35 + i * 0.1 }}
+                    className="group border border-white/10 rounded-sm p-6 flex flex-col items-center text-center gap-4 hover:border-[#C9A962]/40 hover:bg-[#C9A962]/5 transition-all duration-500 cursor-default"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-[#C9A962]/10 flex items-center justify-center group-hover:bg-[#C9A962]/20 transition-colors duration-500">
+                      <partner.icon className="w-5 h-5 text-[#C9A962]" />
+                    </div>
+                    <span className="font-primary text-[10px] text-white/50 uppercase tracking-[0.15em] group-hover:text-white/80 transition-colors duration-300">
+                      {partner.label}
+                    </span>
+                  </motion.div>
+                ))}
               </div>
-              {/* Decorative elements */}
+              {/* Decorative corner lines */}
               <div className="absolute -top-6 -right-6 w-32 h-32 border-t border-r border-[#C9A962]/30" />
               <div className="absolute -bottom-6 -left-6 w-32 h-32 border-b border-l border-[#C9A962]/30" />
             </motion.div>
@@ -250,7 +274,7 @@ const Nosotros = () => {
         </div>
       </section>
 
-      {/* Values/Philosophy Section */}
+      {/* Values / Pillars Section */}
       <section id="values" className="relative py-32 md:py-40 bg-[#0A0A0A] overflow-hidden scroll-mt-32">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(201,169,98,0.15),transparent)]" />
@@ -258,7 +282,7 @@ const Nosotros = () => {
         
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <motion.div {...fadeUp}>
-            <Sparkles className="w-10 h-10 text-[#C9A962] mx-auto mb-8" />
+            <User className="w-10 h-10 text-[#C9A962] mx-auto mb-8" />
             <h2 className="font-secondary text-4xl md:text-6xl text-white mb-8">
               {t('nosotros.values.title')}
             </h2>
@@ -267,19 +291,19 @@ const Nosotros = () => {
               <p>{t('nosotros.values.p2')}</p>
             </div>
             <div className="pt-12">
-              <Rocket className="w-12 h-12 text-[#C9A962] mx-auto mb-6 animate-pulse" />
-              <p className="font-secondary text-2xl text-white italic">
-                "{t('nosotros.values.closing')}"
+              <div className="w-px h-16 bg-[#C9A962]/30 mx-auto mb-8" />
+              <p className="font-secondary text-2xl text-white/90 italic">
+                &ldquo;{t('nosotros.values.closing')}&rdquo;
               </p>
             </div>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-32">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-24">
             {[
               { icon: Heart, label: t('nosotros.values.items.commitment') },
               { icon: Shield, label: t('nosotros.values.items.transparency') },
               { icon: Award, label: t('nosotros.values.items.excellence') },
-              { icon: Sparkles, label: t('nosotros.values.items.innovation') }
+              { icon: Zap, label: t('nosotros.values.items.innovation') }
             ].map((value, i) => (
               <motion.div
                 key={i}
