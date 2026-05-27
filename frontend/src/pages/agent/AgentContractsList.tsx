@@ -4,7 +4,7 @@ import { useContracts } from '../../hooks/useContracts';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { 
   FileText, Search, Plus, MapPin, Calendar, 
-  User, CheckCircle2, XCircle, Clock
+  User, CheckCircle2, XCircle, Clock, Filter
 } from 'lucide-react';
 import { CONTRACT_STATUS_LABELS, CONTRACT_STATUS_COLORS } from '../../types/tenant';
 
@@ -14,15 +14,61 @@ export const AgentContractsList = () => {
   const { contracts, loading } = useContracts(undefined, user?.id);
   const [search, setSearch] = useState('');
 
+  // Time filters
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState<number | 'all'>('all');
+  const [selectedQuarter, setSelectedQuarter] = useState<number | 'all'>('all');
+  const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
+
+  const matchPeriod = (dateStr: string | null | undefined) => {
+    if (!dateStr) return false;
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return false;
+    
+    // Year check
+    if (selectedYear !== 'all' && date.getFullYear() !== selectedYear) {
+      return false;
+    }
+
+    // Month index: 0-11
+    const month = date.getMonth(); 
+    const monthNum = month + 1; // 1-12
+
+    // Quarter check
+    if (selectedQuarter !== 'all') {
+      const qMonths: Record<number, number[]> = {
+        1: [1, 2, 3],
+        2: [4, 5, 6],
+        3: [7, 8, 9],
+        4: [10, 11, 12]
+      };
+      if (!qMonths[selectedQuarter].includes(monthNum)) {
+        return false;
+      }
+    }
+
+    // Month check
+    if (selectedMonth !== 'all' && monthNum !== selectedMonth) {
+      return false;
+    }
+
+    return true;
+  };
+
   const filteredContracts = contracts.filter(c => {
     const tenantName = c.tenant ? `${c.tenant.first_name} ${c.tenant.last_name}` : '';
     const q = search.toLowerCase();
-    return (
+    const matchesSearch = 
       tenantName.toLowerCase().includes(q) ||
       (c.property_label || '').toLowerCase().includes(q) ||
       (c.address || '').toLowerCase().includes(q) ||
-      (c.landlord_name || '').toLowerCase().includes(q)
-    );
+      (c.landlord_name || '').toLowerCase().includes(q);
+
+    if (!matchesSearch) return false;
+
+    // Apply period filter (on start_date)
+    if (selectedYear === 'all' && selectedQuarter === 'all' && selectedMonth === 'all') return true;
+    return matchPeriod(c.start_date || c.created_at);
   });
 
   return (
@@ -45,8 +91,8 @@ export const AgentContractsList = () => {
       </div>
 
       {/* Toolbar */}
-      <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-4 flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
+      <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-4 flex flex-col md:flex-row gap-4 items-center">
+        <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#666]" />
           <input
             type="text"
@@ -55,6 +101,71 @@ export const AgentContractsList = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+        </div>
+
+        {/* Time Filters */}
+        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto border-t md:border-t-0 border-[#1F1F1F] pt-3 md:pt-0">
+          <div className="flex items-center gap-2 text-[#C9A962]">
+            <Filter className="w-4 h-4" />
+            <span className="font-primary text-xs uppercase tracking-wider font-bold">Periodo:</span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <span className="font-primary text-xs text-[#666]">Año:</span>
+            <select
+              value={selectedYear}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSelectedYear(val === 'all' ? 'all' : parseInt(val));
+              }}
+              className="h-9 bg-[#111] border border-[#1F1F1F] px-2 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962] cursor-pointer"
+            >
+              <option value="all">Todos</option>
+              {Array.from({ length: 4 }, (_, i) => currentYear - i).map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <span className="font-primary text-xs text-[#666]">Trimestre:</span>
+            <select
+              value={selectedQuarter}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSelectedQuarter(val === 'all' ? 'all' : parseInt(val));
+                if (val !== 'all') setSelectedMonth('all');
+              }}
+              className="h-9 bg-[#111] border border-[#1F1F1F] px-2 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962] cursor-pointer"
+            >
+              <option value="all">Todos</option>
+              <option value={1}>Q1</option>
+              <option value={2}>Q2</option>
+              <option value={3}>Q3</option>
+              <option value={4}>Q4</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <span className="font-primary text-xs text-[#666]">Mes:</span>
+            <select
+              value={selectedMonth}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSelectedMonth(val === 'all' ? 'all' : parseInt(val));
+                if (val !== 'all') setSelectedQuarter('all');
+              }}
+              className="h-9 bg-[#111] border border-[#1F1F1F] px-2 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962] cursor-pointer"
+            >
+              <option value="all">Todos</option>
+              {[
+                'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+              ].map((name, i) => (
+                <option key={i} value={i + 1}>{name}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import {
-  Users, Building2, Receipt, TrendingUp, Target, Clock, CheckCircle2, BarChart3, Filter
+  Users, Building2, Receipt, TrendingUp, Target, Clock, CheckCircle2, BarChart3, Filter, BookOpen, CalendarCheck
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -90,6 +90,14 @@ interface TenantData {
   agent_id: string | null;
 }
 
+interface BlogPostData {
+  id: string;
+  title: string;
+  status: string;
+  published_at: string | null;
+  created_at: string;
+}
+
 const emptyStats = (id: string, name: string, role: string): AgentStats => ({
   id,
   agent_name: name,
@@ -123,10 +131,11 @@ export const AdminAgentCRM = () => {
   const [rawInvoices, setRawInvoices] = useState<InvoiceData[]>([]);
   const [rawLeads, setRawLeads] = useState<LeadData[]>([]);
   const [rawTenants, setRawTenants] = useState<TenantData[]>([]);
+  const [rawBlogPosts, setRawBlogPosts] = useState<BlogPostData[]>([]);
 
   // Selected agent for detailed operations view
   const [detailAgentId, setDetailAgentId] = useState<string>('all');
-  const [detailTab, setDetailTab] = useState<'properties' | 'contracts' | 'invoices' | 'leads'>('properties');
+  const [detailTab, setDetailTab] = useState<'properties' | 'contracts' | 'invoices' | 'leads' | 'tenants' | 'reservations' | 'blog'>('properties');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -145,12 +154,13 @@ export const AdminAgentCRM = () => {
       setAgents(profiles);
 
       // 2. Fetch all raw tables
-      const [propsRes, contractsRes, invoicesRes, leadsRes, tenantsRes] = await Promise.all([
+      const [propsRes, contractsRes, invoicesRes, leadsRes, tenantsRes, blogRes] = await Promise.all([
         supabase.from('properties').select('id, title, reference, price, operation, status, commercial_status, created_at, agent_id'),
         supabase.from('contracts').select('id, start_date, end_date, property_label, monthly_rent, status, created_at, agent_id, tenant_id, tenant:tenants(first_name, last_name)'),
         supabase.from('invoices').select('id, invoice_number, client_name, amount, total_amount, type, status, invoice_date, created_at, agent_id'),
         supabase.from('leads_crm').select('id, name, email, phone, status, intent, created_at, agent_id'),
-        supabase.from('tenants').select('id, first_name, last_name, email, phone, created_at, agent_id')
+        supabase.from('tenants').select('id, first_name, last_name, email, phone, created_at, agent_id'),
+        supabase.from('blog_posts').select('id, title, status, published_at, created_at')
       ]);
 
       setRawProperties((propsRes.data as unknown as PropertyData[]) || []);
@@ -158,6 +168,7 @@ export const AdminAgentCRM = () => {
       setRawInvoices((invoicesRes.data as unknown as InvoiceData[]) || []);
       setRawLeads((leadsRes.data as unknown as LeadData[]) || []);
       setRawTenants((tenantsRes.data as unknown as TenantData[]) || []);
+      setRawBlogPosts((blogRes.data as unknown as BlogPostData[]) || []);
 
       setLoading(false);
     };
@@ -206,6 +217,12 @@ export const AdminAgentCRM = () => {
   const filteredInvoices = rawInvoices.filter(i => matchPeriod(i.invoice_date || i.created_at));
   const filteredLeads = rawLeads.filter(l => matchPeriod(l.created_at));
   const filteredTenants = rawTenants.filter(t => matchPeriod(t.created_at));
+  const filteredBlogPosts = rawBlogPosts.filter(b => matchPeriod(b.published_at || b.created_at));
+  // Reservations = upcoming active contracts within the selected period
+  const today = new Date().toISOString().split('T')[0];
+  const filteredReservations = rawContracts.filter(c =>
+    c.start_date != null && c.start_date > today && c.status === 'active' && matchPeriod(c.start_date)
+  );
 
   // Calculate statistics per agent + combined total
   const agentStatsList: AgentStats[] = agents.map(agent => {
@@ -275,6 +292,9 @@ export const AdminAgentCRM = () => {
     { key: 'Tasa de conversión', icon: <BarChart3 className="w-4 h-4 text-orange-400" />, getValue: (a: AgentStats) => `${conversionRate(a.leads_total, a.leads_converted)}%` },
     { key: 'Inquilinos registrados', icon: <Users className="w-4 h-4 text-[#C9A962]" />, getValue: (a: AgentStats) => a.tenants_total },
     { key: 'Contratos activos', icon: <Clock className="w-4 h-4 text-indigo-400" />, getValue: (a: AgentStats) => a.contracts_active },
+    // Office-wide rows (same value for everyone — reservations and blog have no agent_id)
+    { key: 'Reservas futuras (Oficina)', icon: <CalendarCheck className="w-4 h-4 text-cyan-400" />, getValue: (_a: AgentStats) => filteredReservations.length },
+    { key: 'Artículos de blog (Oficina)', icon: <BookOpen className="w-4 h-4 text-violet-400" />, getValue: (_a: AgentStats) => filteredBlogPosts.length },
   ];
 
   // For Detail Operations List
@@ -282,6 +302,10 @@ export const AdminAgentCRM = () => {
   const detailContracts = filteredContracts.filter(c => detailAgentId === 'all' || c.agent_id === detailAgentId);
   const detailInvoices = filteredInvoices.filter(i => detailAgentId === 'all' || i.agent_id === detailAgentId);
   const detailLeads = filteredLeads.filter(l => detailAgentId === 'all' || l.agent_id === detailAgentId);
+  const detailTenants = filteredTenants.filter(t => detailAgentId === 'all' || t.agent_id === detailAgentId);
+  const detailReservations = filteredReservations.filter(c => detailAgentId === 'all' || c.agent_id === detailAgentId);
+  // Blog has no agent_id — always show office-wide
+  const detailBlog = filteredBlogPosts;
 
   const MONTH_NAMES = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -468,12 +492,15 @@ export const AdminAgentCRM = () => {
             </div>
 
             {/* List tabs */}
-            <div className="flex border-b border-[#1F1F1F] bg-[#111] p-1 gap-1 self-start rounded-sm">
+            <div className="flex flex-wrap border-b border-[#1F1F1F] bg-[#111] p-1 gap-1 self-start rounded-sm">
               {([
                 { id: 'properties', label: 'Propiedades', count: detailProperties.length },
                 { id: 'contracts', label: 'Contratos', count: detailContracts.length },
                 { id: 'invoices', label: 'Facturas / Pagos', count: detailInvoices.length },
-                { id: 'leads', label: 'Leads', count: detailLeads.length }
+                { id: 'leads', label: 'Leads', count: detailLeads.length },
+                { id: 'tenants', label: 'Inquilinos', count: detailTenants.length },
+                { id: 'reservations', label: 'Reservas', count: detailReservations.length },
+                { id: 'blog', label: 'Blog', count: detailBlog.length },
               ] as const).map(tab => (
                 <button
                   key={tab.id}
@@ -650,6 +677,113 @@ export const AdminAgentCRM = () => {
                           </td>
                           <td className="px-4 py-3 text-right">
                             <Link to="/admin/leads" className="text-[#C9A962] hover:underline font-bold">Ver Leads →</Link>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {detailTab === 'tenants' && (
+                <table className="w-full text-left border-collapse min-w-[600px]">
+                  <thead>
+                    <tr className="border-b border-[#1F1F1F] bg-[#0E0E0E]">
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider">Inquilino</th>
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider">Email</th>
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider">Teléfono</th>
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider text-right">Fecha Registro</th>
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider text-right">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#1F1F1F] font-primary text-xs">
+                    {detailTenants.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="px-4 py-8 text-center text-[#444] italic">No se registraron inquilinos en este periodo</td>
+                      </tr>
+                    ) : (
+                      detailTenants.map(t => (
+                        <tr key={t.id} className="hover:bg-[#111] transition-colors">
+                          <td className="px-4 py-3 text-[#FAF8F5] font-semibold">{t.first_name} {t.last_name}</td>
+                          <td className="px-4 py-3 text-[#888]">{t.email || '—'}</td>
+                          <td className="px-4 py-3 text-[#888]">{t.phone || '—'}</td>
+                          <td className="px-4 py-3 text-right text-[#666]">{new Date(t.created_at).toLocaleDateString('es-ES')}</td>
+                          <td className="px-4 py-3 text-right">
+                            <Link to={`/admin/inquilinos/${t.id}`} className="text-[#C9A962] hover:underline font-bold">Ver →</Link>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {detailTab === 'reservations' && (
+                <table className="w-full text-left border-collapse min-w-[600px]">
+                  <thead>
+                    <tr className="border-b border-[#1F1F1F] bg-[#0E0E0E]">
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider">Inquilino</th>
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider">Propiedad</th>
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider">Inicio</th>
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider text-right">Renta</th>
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider text-right">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#1F1F1F] font-primary text-xs">
+                    {detailReservations.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="px-4 py-8 text-center text-[#444] italic">No hay reservas futuras en este periodo</td>
+                      </tr>
+                    ) : (
+                      detailReservations.map(c => (
+                        <tr key={c.id} className="hover:bg-[#111] transition-colors">
+                          <td className="px-4 py-3 text-[#FAF8F5] font-semibold">
+                            {c.tenant ? `${c.tenant.first_name} ${c.tenant.last_name}` : 'Sin nombre'}
+                          </td>
+                          <td className="px-4 py-3 text-[#888]">{c.property_label || 'Piso'}</td>
+                          <td className="px-4 py-3 text-[#4ADE80] font-bold">{c.start_date ? new Date(c.start_date).toLocaleDateString('es-ES') : 'S/F'}</td>
+                          <td className="px-4 py-3 text-right font-secondary font-bold text-[#C9A962]">{formatEur(c.monthly_rent || 0)}</td>
+                          <td className="px-4 py-3 text-right">
+                            <Link to={`/admin/contratos/${c.id}/editar`} className="text-[#C9A962] hover:underline font-bold">Editar →</Link>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {detailTab === 'blog' && (
+                <table className="w-full text-left border-collapse min-w-[600px]">
+                  <thead>
+                    <tr className="border-b border-[#1F1F1F] bg-[#0E0E0E]">
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider">Título</th>
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider text-center">Estado</th>
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider text-right">Publicado</th>
+                      <th className="px-4 py-3 font-primary text-[9px] text-[#666] uppercase tracking-wider text-right">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#1F1F1F] font-primary text-xs">
+                    {detailBlog.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-4 py-8 text-center text-[#444] italic">No se publicaron artículos en este periodo</td>
+                      </tr>
+                    ) : (
+                      detailBlog.map(b => (
+                        <tr key={b.id} className="hover:bg-[#111] transition-colors">
+                          <td className="px-4 py-3 text-[#FAF8F5] font-semibold max-w-xs truncate">{b.title}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span className={`px-2 py-0.5 rounded-full text-[8px] uppercase tracking-widest font-bold ${
+                              b.status === 'published' ? 'bg-green-400/10 text-green-400' : 'bg-yellow-400/10 text-yellow-400'
+                            }`}>
+                              {b.status === 'published' ? 'Publicado' : 'Borrador'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right text-[#666]">
+                            {b.published_at ? new Date(b.published_at).toLocaleDateString('es-ES') : '—'}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <Link to={`/admin/blog/${b.id}/editar`} className="text-[#C9A962] hover:underline font-bold">Editar →</Link>
                           </td>
                         </tr>
                       ))

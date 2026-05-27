@@ -9,20 +9,43 @@ import { COMMERCIAL_STATUS_COLORS, COMMERCIAL_STATUS_LABELS } from '../../types/
 import { supabase } from '../../lib/supabase';
 import { toast } from 'react-hot-toast';
 import { cn } from '../../lib/utils';
-import { ChevronDown, ChevronUp, PlusCircle, Users, RefreshCw, Calendar } from 'lucide-react';
+import { ChevronDown, ChevronUp, PlusCircle, Users, RefreshCw, Calendar, Filter } from 'lucide-react';
 
 const today = new Date().toISOString().split('T')[0];
 
-const PropertyRow = ({ property }: { property: Property }) => {
+interface PeriodFilter {
+  year: number | 'all';
+  quarter: number | 'all';
+  month: number | 'all';
+}
+
+function matchPeriod(dateStr: string | null | undefined, filter: PeriodFilter): boolean {
+  if (!dateStr) return false;
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return false;
+  if (filter.year !== 'all' && date.getFullYear() !== filter.year) return false;
+  const monthNum = date.getMonth() + 1;
+  if (filter.quarter !== 'all') {
+    const qMonths: Record<number, number[]> = { 1:[1,2,3], 2:[4,5,6], 3:[7,8,9], 4:[10,11,12] };
+    if (!qMonths[filter.quarter].includes(monthNum)) return false;
+  }
+  if (filter.month !== 'all' && monthNum !== filter.month) return false;
+  return true;
+}
+
+const PropertyRow = ({ property, periodFilter }: { property: Property; periodFilter: PeriodFilter }) => {
   const [expanded, setExpanded] = useState(false);
   const { contracts, loading: loadingContracts } = usePropertyContracts(property.id);
 
   const currentContracts = contracts.filter(
     c => c.start_date <= today && c.end_date >= today && c.status === 'active'
   );
-  const upcomingContracts = contracts
+  const allUpcomingContracts = contracts
     .filter(c => c.start_date > today && c.status === 'active')
     .sort((a, b) => a.start_date.localeCompare(b.start_date));
+  const upcomingContracts = (periodFilter.year === 'all' && periodFilter.quarter === 'all' && periodFilter.month === 'all')
+    ? allUpcomingContracts
+    : allUpcomingContracts.filter(c => matchPeriod(c.start_date, periodFilter));
   const past = contracts.filter(c => c.end_date < today);
 
   // Use the automated commercial_status from database
@@ -262,6 +285,13 @@ export const AgentReservations = () => {
   const { properties, loading, refetch } = useProperties(undefined, true, user?.id);
   const [search, setSearch] = useState('');
 
+  // Time filters
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState<number | 'all'>('all');
+  const [selectedQuarter, setSelectedQuarter] = useState<number | 'all'>('all');
+  const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
+  const periodFilter: PeriodFilter = { year: selectedYear, quarter: selectedQuarter, month: selectedMonth };
+
   const rental = properties.filter(p =>
     (p.operation === 'alquiler') &&
     (!search || p.title.toLowerCase().includes(search.toLowerCase()) || p.reference?.toLowerCase().includes(search.toLowerCase()) || p.city?.toLowerCase().includes(search.toLowerCase()))
@@ -313,8 +343,8 @@ export const AgentReservations = () => {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-4">
+      {/* Search + Period Filters */}
+      <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-4 flex flex-col gap-3">
         <input
           type="text"
           placeholder="Buscar propiedad por nombre o ciudad..."
@@ -322,6 +352,33 @@ export const AgentReservations = () => {
           onChange={e => setSearch(e.target.value)}
           className="w-full h-9 bg-[#161616] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]"
         />
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2 text-[#C9A962]">
+            <Filter className="w-4 h-4" />
+            <span className="font-primary text-xs uppercase tracking-wider font-bold">Filtrar Reservas por Periodo:</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="font-primary text-xs text-[#666]">Año:</span>
+            <select value={selectedYear} onChange={e => { const v = e.target.value; setSelectedYear(v === 'all' ? 'all' : parseInt(v)); }} className="h-8 bg-[#111] border border-[#1F1F1F] px-2 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962] cursor-pointer">
+              <option value="all">Todos</option>
+              {Array.from({ length: 4 }, (_, i) => currentYear - i).map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="font-primary text-xs text-[#666]">Trimestre:</span>
+            <select value={selectedQuarter} onChange={e => { const v = e.target.value; setSelectedQuarter(v === 'all' ? 'all' : parseInt(v)); if (v !== 'all') setSelectedMonth('all'); }} className="h-8 bg-[#111] border border-[#1F1F1F] px-2 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962] cursor-pointer">
+              <option value="all">Todos</option>
+              <option value={1}>Q1</option><option value={2}>Q2</option><option value={3}>Q3</option><option value={4}>Q4</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="font-primary text-xs text-[#666]">Mes:</span>
+            <select value={selectedMonth} onChange={e => { const v = e.target.value; setSelectedMonth(v === 'all' ? 'all' : parseInt(v)); if (v !== 'all') setSelectedQuarter('all'); }} className="h-8 bg-[#111] border border-[#1F1F1F] px-2 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962] cursor-pointer">
+              <option value="all">Todos</option>
+              {['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'].map((n,i) => <option key={i} value={i+1}>{n}</option>)}
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Legend */}
@@ -348,7 +405,7 @@ export const AgentReservations = () => {
               <span key={i} className="font-primary text-[10px] text-[#444444] uppercase tracking-wider">{h}</span>
             ))}
           </div>
-          {rental.map(p => <PropertyRow key={p.id} property={p} />)}
+          {rental.map(p => <PropertyRow key={p.id} property={p} periodFilter={periodFilter} />)}
         </div>
       )}
     </div>

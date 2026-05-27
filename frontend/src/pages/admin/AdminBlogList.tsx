@@ -1,14 +1,43 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useBlog } from '../../hooks/useBlog';
-import { Plus, Search, FileText, Globe, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Search, FileText, Globe, Pencil, Trash2, Filter } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 export const AdminBlogList = () => {
   const navigate = useNavigate();
   const { posts, loading, fetchPosts, deletePost } = useBlog();
 
+  // Search & time filters
+  const [search, setSearch] = useState('');
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState<number | 'all'>('all');
+  const [selectedQuarter, setSelectedQuarter] = useState<number | 'all'>('all');
+  const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
+
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
+
+  const matchPeriod = (dateStr: string | null | undefined) => {
+    if (!dateStr) return false;
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return false;
+    if (selectedYear !== 'all' && date.getFullYear() !== selectedYear) return false;
+    const monthNum = date.getMonth() + 1;
+    if (selectedQuarter !== 'all') {
+      const qMonths: Record<number, number[]> = { 1:[1,2,3], 2:[4,5,6], 3:[7,8,9], 4:[10,11,12] };
+      if (!qMonths[selectedQuarter].includes(monthNum)) return false;
+    }
+    if (selectedMonth !== 'all' && monthNum !== selectedMonth) return false;
+    return true;
+  };
+
+  const filteredPosts = posts.filter(post => {
+    const matchesSearch = !search || post.title.toLowerCase().includes(search.toLowerCase());
+    const matchesDate = (selectedYear === 'all' && selectedQuarter === 'all' && selectedMonth === 'all')
+      ? true
+      : matchPeriod(post.published_at || post.created_at);
+    return matchesSearch && matchesDate;
+  });
 
   const handleDelete = async (id: string) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar este artículo?')) {
@@ -35,14 +64,47 @@ export const AdminBlogList = () => {
       </div>
 
       <div className="bg-[#1A1A1A] border border-white/10 rounded-sm overflow-hidden">
-        <div className="p-4 border-b border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="relative w-full sm:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A3A3A3]" />
-            <input
-              type="text"
-              placeholder="Buscar por título..."
-              className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm pl-10 pr-4 py-2 text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none transition-colors"
-            />
+        <div className="p-4 border-b border-white/10 flex flex-col gap-3">
+          {/* Search row */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="relative w-full sm:w-96">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A3A3A3]" />
+              <input
+                type="text"
+                placeholder="Buscar por título..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full bg-[#0A0A0A] border border-white/10 rounded-sm pl-10 pr-4 py-2 text-[#FAF8F5] focus:border-[#C9A962] focus:outline-none transition-colors"
+              />
+            </div>
+          </div>
+          {/* Period filters row */}
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2 text-[#C9A962]">
+              <Filter className="w-4 h-4" />
+              <span className="font-primary text-xs uppercase tracking-wider font-bold">Periodo:</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="font-primary text-xs text-[#666]">Año:</span>
+              <select value={selectedYear} onChange={e => { const v = e.target.value; setSelectedYear(v === 'all' ? 'all' : parseInt(v)); }} className="h-8 bg-[#111] border border-white/10 px-2 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962] cursor-pointer rounded-sm">
+                <option value="all">Todos</option>
+                {Array.from({ length: 4 }, (_, i) => currentYear - i).map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="font-primary text-xs text-[#666]">Trimestre:</span>
+              <select value={selectedQuarter} onChange={e => { const v = e.target.value; setSelectedQuarter(v === 'all' ? 'all' : parseInt(v)); if (v !== 'all') setSelectedMonth('all'); }} className="h-8 bg-[#111] border border-white/10 px-2 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962] cursor-pointer rounded-sm">
+                <option value="all">Todos</option>
+                <option value={1}>Q1</option><option value={2}>Q2</option><option value={3}>Q3</option><option value={4}>Q4</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="font-primary text-xs text-[#666]">Mes:</span>
+              <select value={selectedMonth} onChange={e => { const v = e.target.value; setSelectedMonth(v === 'all' ? 'all' : parseInt(v)); if (v !== 'all') setSelectedQuarter('all'); }} className="h-8 bg-[#111] border border-white/10 px-2 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962] cursor-pointer rounded-sm">
+                <option value="all">Todos</option>
+                {['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'].map((n,i) => <option key={i} value={i+1}>{n}</option>)}
+              </select>
+            </div>
           </div>
         </div>
 
@@ -67,15 +129,15 @@ export const AdminBlogList = () => {
                     Cargando artículos...
                   </td>
                 </tr>
-              ) : posts.length === 0 ? (
+              ) : filteredPosts.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-8 text-center text-[#A3A3A3]">
                     <FileText className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                    No hay artículos todavía. Crea el primero.
+                    {posts.length === 0 ? 'No hay artículos todavía. Crea el primero.' : 'No hay artículos para el periodo seleccionado.'}
                   </td>
                 </tr>
               ) : (
-                posts.map((post: any) => (
+                filteredPosts.map((post: any) => (
                   <tr key={post.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-4">

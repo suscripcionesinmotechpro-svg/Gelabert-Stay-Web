@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTenants } from '../../hooks/useTenants';
 import { useContracts } from '../../hooks/useContracts';
 import { useAuth } from '../../hooks/useAuth.tsx';
-import { Search, PlusCircle, Users, AlertTriangle, ChevronRight, Phone, Mail, Eye } from 'lucide-react';
+import { Search, PlusCircle, Users, AlertTriangle, ChevronRight, Phone, Mail, Eye, Filter } from 'lucide-react';
 import { CONTRACT_STATUS_COLORS, CONTRACT_STATUS_LABELS, daysUntilExpiry } from '../../types/tenant';
 import type { Contract } from '../../types/tenant';
 
@@ -13,6 +13,12 @@ export const AgentTenantsList = () => {
   const [inputValue, setInputValue] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
+  // Time filters
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState<number | 'all'>('all');
+  const [selectedQuarter, setSelectedQuarter] = useState<number | 'all'>('all');
+  const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
+
   // Debounce: only trigger API search 350ms after user stops typing
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(inputValue), 350);
@@ -21,6 +27,46 @@ export const AgentTenantsList = () => {
 
   const { tenants, loading } = useTenants(debouncedSearch, agentId);
   const { contracts } = useContracts(undefined, agentId);
+
+  const matchPeriod = (dateStr: string | null | undefined) => {
+    if (!dateStr) return false;
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return false;
+    
+    // Year check
+    if (selectedYear !== 'all' && date.getFullYear() !== selectedYear) {
+      return false;
+    }
+
+    // Month index: 0-11
+    const month = date.getMonth(); 
+    const monthNum = month + 1; // 1-12
+
+    // Quarter check
+    if (selectedQuarter !== 'all') {
+      const qMonths: Record<number, number[]> = {
+        1: [1, 2, 3],
+        2: [4, 5, 6],
+        3: [7, 8, 9],
+        4: [10, 11, 12]
+      };
+      if (!qMonths[selectedQuarter].includes(monthNum)) {
+        return false;
+      }
+    }
+
+    // Month check
+    if (selectedMonth !== 'all' && monthNum !== selectedMonth) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const filteredTenants = tenants.filter(t => {
+    if (selectedYear === 'all' && selectedQuarter === 'all' && selectedMonth === 'all') return true;
+    return matchPeriod(t.created_at);
+  });
 
   // Map tenant_id → active contract
   const contractByTenant = contracts.reduce<Record<string, Contract>>((acc, c) => {
@@ -65,19 +111,89 @@ export const AgentTenantsList = () => {
         />
       </div>
 
+      {/* Time Filters */}
+      <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-4 flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2 text-[#C9A962]">
+          <Filter className="w-4 h-4" />
+          <span className="font-primary text-xs uppercase tracking-wider font-bold">Filtros Periodo:</span>
+        </div>
+
+        {/* Year Filter */}
+        <div className="flex items-center gap-2">
+          <span className="font-primary text-xs text-[#666]">Año:</span>
+          <select
+            value={selectedYear}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSelectedYear(val === 'all' ? 'all' : parseInt(val));
+            }}
+            className="h-9 bg-[#111] border border-[#1F1F1F] px-3 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962] cursor-pointer"
+          >
+            <option value="all">Todos</option>
+            {Array.from({ length: 4 }, (_, i) => currentYear - i).map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Quarter Filter */}
+        <div className="flex items-center gap-2">
+          <span className="font-primary text-xs text-[#666]">Trimestre:</span>
+          <select
+            value={selectedQuarter}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSelectedQuarter(val === 'all' ? 'all' : parseInt(val));
+              if (val !== 'all') setSelectedMonth('all'); // Clear specific month if quarter is selected
+            }}
+            className="h-9 bg-[#111] border border-[#1F1F1F] px-3 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962] cursor-pointer"
+          >
+            <option value="all">Todos</option>
+            <option value={1}>Q1 (Ene - Mar)</option>
+            <option value={2}>Q2 (Abr - Jun)</option>
+            <option value={3}>Q3 (Jul - Sep)</option>
+            <option value={4}>Q4 (Oct - Dic)</option>
+          </select>
+        </div>
+
+        {/* Month Filter */}
+        <div className="flex items-center gap-2">
+          <span className="font-primary text-xs text-[#666]">Mes:</span>
+          <select
+            value={selectedMonth}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSelectedMonth(val === 'all' ? 'all' : parseInt(val));
+              if (val !== 'all') setSelectedQuarter('all'); // Clear quarter if specific month is selected
+            }}
+            className="h-9 bg-[#111] border border-[#1F1F1F] px-3 font-primary text-xs text-[#FAF8F5] outline-none focus:border-[#C9A962] cursor-pointer"
+          >
+            <option value="all">Todos</option>
+            {[
+              'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+              'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ].map((name, i) => (
+              <option key={i} value={i + 1}>{name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       {/* Table */}
       <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <div className="w-6 h-6 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : tenants.length === 0 ? (
+        ) : filteredTenants.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3 text-[#444]">
             <Users className="w-10 h-10" />
             <p className="font-primary text-sm">
-              {debouncedSearch ? 'No se encontraron inquilinos' : 'Aún no hay inquilinos registrados'}
+              {debouncedSearch || selectedYear !== 'all' || selectedQuarter !== 'all' || selectedMonth !== 'all'
+                ? 'No se encontraron inquilinos'
+                : 'Aún no hay inquilinos registrados'}
             </p>
-            {!debouncedSearch && (
+            {!debouncedSearch && selectedYear === 'all' && selectedQuarter === 'all' && selectedMonth === 'all' && (
               <Link to="/agente/inquilinos/nuevo" className="text-[#C9A962] text-sm hover:underline">
                 Añadir el primero
               </Link>
@@ -85,7 +201,7 @@ export const AgentTenantsList = () => {
           </div>
         ) : (
           <div className="divide-y divide-[#1A1A1A]">
-            {tenants.map(t => {
+            {filteredTenants.map(t => {
               const contract = contractByTenant[t.id];
               const expiry = getExpiryBadge(contract);
 
