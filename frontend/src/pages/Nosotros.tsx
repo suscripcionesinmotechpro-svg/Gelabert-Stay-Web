@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +23,20 @@ const partnerServices = [
 
 const Nosotros = () => {
   const { t } = useTranslation();
+  const [isTapped, setIsTapped] = useState(false);
+  const photoRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (photoRef.current && !photoRef.current.contains(event.target as Node)) {
+        setIsTapped(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="w-full bg-[#050505] overflow-hidden">
@@ -154,17 +169,19 @@ const Nosotros = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center max-w-5xl mx-auto">
           {/* Portrait */}
           <motion.div
+            ref={photoRef}
             {...fadeUp}
             transition={{ ...fadeUp.transition, delay: 0.1 }}
-            className="group relative"
+            className="group relative cursor-pointer select-none"
+            onClick={() => setIsTapped(!isTapped)}
           >
-            <div className="relative aspect-[4/5] overflow-hidden rounded-sm border border-white/10 transition-colors duration-500 group-hover:border-[#C9A962]/40">
+            <div className={`relative aspect-[4/5] overflow-hidden rounded-sm border transition-colors duration-500 ${isTapped ? 'border-[#C9A962]/40' : 'border-white/10'} group-hover:border-[#C9A962]/40`}>
               <img
                 src="/images/team/jose-carlos.jpg"
                 alt="José Carlos Delgado Gelabert"
-                className="w-full h-full object-cover transition-all duration-700 grayscale scale-100 group-hover:grayscale-0 group-hover:scale-105"
+                className={`w-full h-full object-cover transition-all duration-700 ${isTapped ? 'grayscale-0 scale-105' : 'grayscale scale-100'} group-hover:grayscale-0 group-hover:scale-105`}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent opacity-60 transition-opacity group-hover:opacity-30" />
+              <div className={`absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent transition-opacity ${isTapped ? 'opacity-30' : 'opacity-60'} group-hover:opacity-30`} />
             </div>
             {/* Golden corner accents */}
             <div className="absolute -bottom-4 -left-4 w-24 h-24 border-b border-l border-[#C9A962]/40" />
