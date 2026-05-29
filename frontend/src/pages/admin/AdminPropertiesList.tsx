@@ -3,13 +3,14 @@ import { Link } from 'react-router-dom';
 import { useProperties, usePropertyMutations } from '../../hooks/useProperties';
 import type { Property, PropertyStatus, CommercialStatus } from '../../types/property';
 import { STATUS_LABELS, STATUS_COLORS, OPERATION_LABELS, COMMERCIAL_STATUS_LABELS, COMMERCIAL_STATUS_COLORS } from '../../types/property';
-import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid, FolderArchive, Loader2, Filter } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid, FolderArchive, Loader2, Filter, CloudLightning, CloudOff, Cloud, X, Link2, Link2Off, RefreshCw } from 'lucide-react';
 import { PropertyReference } from '../../components/PropertyReference';
 import { getOptimizedImage } from '../../utils/images';
 import { getCommunityShareMessage } from '../../utils/whatsapp';
 import { downloadPropertyImagesAsZip } from '../../utils/downloadPropertyImages';
 import { formatPropertyPrice } from '../../utils/textUtils';
 import { supabase } from '../../lib/supabase';
+import { toast } from 'react-hot-toast';
 
 const WhatsAppIcon = () => (
   <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -125,6 +126,21 @@ export const AdminPropertiesList = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [downloadingZip, setDownloadingZip] = useState<string | null>(null);
   const [downloadedZip, setDownloadedZip] = useState<string | null>(null);
+  const [idealistaLoading, setIdealistaLoading] = useState<string | null>(null);
+  const [idealistaStatuses, setIdealistaStatuses] = useState<Record<string, Property['idealista_status']>>({});
+
+  // ── Idealista Import Modal ──
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importSaving, setImportSaving] = useState(false);
+  type ImportMatch = {
+    idealista: { idealista_id: string; code: string; type: string; status: string; address: string; price: number | null };
+    crm: Pick<Property, 'id' | 'title' | 'reference' | 'idealista_id' | 'idealista_status' | 'property_type' | 'city' | 'price' | 'main_image'> | null;
+    auto_matched: boolean;
+  };
+  const [importMatches, setImportMatches] = useState<ImportMatch[]>([]);
+  const [crmProperties, setCrmProperties] = useState<Pick<Property, 'id' | 'title' | 'reference' | 'idealista_id' | 'idealista_status' | 'property_type' | 'city' | 'price' | 'main_image'>[]>([]);
+  const [manualSelections, setManualSelections] = useState<Record<string, string>>({});
 
   const handleDownloadZip = async (p: Property) => {
     setDownloadingZip(p.id);
@@ -171,6 +187,133 @@ export const AdminPropertiesList = () => {
     refetch();
   };
 
+  const handleIdealistaSync = async (p: Property) => {
+    const isPublished = (idealistaStatuses[p.id] ?? p.idealista_status) === 'published';
+    const action = isPublished ? 'deactivate' : 'publish';
+    const confirmMsg = isPublished
+      ? `¿Desactivar "${p.title}" en Idealista? El anuncio dejará de aparecer en el portal.`
+      : `¿Publicar "${p.title}" en Idealista?`;
+    if (!confirm(confirmMsg)) return;
+
+    setIdealistaLoading(p.id);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/idealista-sync`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ propertyId: p.id, action }),
+        }
+      );
+      const result = await res.json();
+      if (result.error) {
+        toast.error(`Idealista: ${result.error}`);
+        setIdealistaStatuses(prev => ({ ...prev, [p.id]: 'error' }));
+      } else {
+        const newStatus = action === 'publish' ? 'published' : 'not_published';
+        setIdealistaStatuses(prev => ({ ...prev, [p.id]: newStatus }));
+        toast.success(action === 'publish' ? '✅ Publicado en Idealista' : '☁️ Desactivado en Idealista');
+      }
+    } catch (err: any) {
+      toast.error(`Error de conexión: ${err.message}`);
+      setIdealistaStatuses(prev => ({ ...prev, [p.id]: 'error' }));
+    } finally {
+      setIdealistaLoading(null);
+    }
+  };
+
+  const getIdealistaStatus = (p: Property) => idealistaStatuses[p.id] ?? p.idealista_status ?? 'not_published';
+
+  const handleOpenImportModal = async () => {
+    setImportModalOpen(true);
+    setImportLoading(true);
+    setImportMatches([]);
+    setManualSelections({});
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/idealista-import`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ action: 'fetch' }),
+        }
+      );
+      const result = await res.json();
+      if (result.error) {
+        toast.error(`Error: ${result.error}`);
+        setImportModalOpen(false);
+      } else {
+        setImportMatches(result.matches || []);
+        setCrmProperties(result.crm_properties || []);
+      }
+    } catch (err: any) {
+      toast.error(`Error de conexión: ${err.message}`);
+      setImportModalOpen(false);
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
+  const handleSaveImport = async () => {
+    const mappings: { crm_id: string; idealista_id: string }[] = [];
+
+    importMatches.forEach((m, idx) => {
+      const manualCrmId = manualSelections[String(idx)];
+      const crmId = manualCrmId || m.crm?.id;
+      if (crmId && m.idealista.idealista_id) {
+        mappings.push({ crm_id: crmId, idealista_id: m.idealista.idealista_id });
+      }
+    });
+
+    if (mappings.length === 0) {
+      toast.error('No hay emparejamientos para guardar.');
+      return;
+    }
+
+    setImportSaving(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/idealista-import`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ action: 'save', mappings }),
+        }
+      );
+      const result = await res.json();
+      if (result.error) {
+        toast.error(`Error guardando: ${result.error}`);
+      } else {
+        toast.success(`✅ ${result.saved} propiedades vinculadas con Idealista`);
+        setImportModalOpen(false);
+        refetch();
+        // Update local statuses
+        mappings.forEach(m => {
+          setIdealistaStatuses(prev => ({ ...prev, [m.crm_id]: 'published' }));
+        });
+      }
+    } catch (err: any) {
+      toast.error(`Error: ${err.message}`);
+    } finally {
+      setImportSaving(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 max-w-7xl">
       {/* Header */}
@@ -185,7 +328,15 @@ export const AdminPropertiesList = () => {
             )}
           </p>
         </div>
-        <div className="flex items-center gap-3 self-start">
+        <div className="flex items-center gap-3 self-start flex-wrap">
+          <button
+            onClick={handleOpenImportModal}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#0D1F17] text-[#4ADE80] border border-[#4ADE80]/30 font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#4ADE80]/10 transition-colors"
+            title="Importar y vincular propiedades ya publicadas en Idealista"
+          >
+            <Link2 className="w-4 h-4" />
+            Vincular Idealista
+          </button>
           <Link
             to="/admin/propiedades/organizar"
             className="flex items-center gap-2 px-5 py-2.5 bg-[#161616] text-[#FAF8F5] border border-[#1F1F1F] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#1F1F1F] transition-colors"
@@ -285,7 +436,7 @@ export const AdminPropertiesList = () => {
       ) : (
         <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-x-auto">
           {/* Table header */}
-          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 px-4 py-3 border-b border-[#1F1F1F] min-w-[900px]">
+          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 px-4 py-3 border-b border-[#1F1F1F] min-w-[980px]">
             {[
               { key: 'property', label: 'Propiedad' },
               { key: 'operation', label: 'Operación' },
@@ -293,6 +444,7 @@ export const AdminPropertiesList = () => {
               { key: 'status', label: 'Estado' },
               { key: 'commercial', label: 'Comercial' },
               { key: 'featured', label: 'Destacada' },
+              { key: 'idealista', label: 'Idealista' },
               { key: 'actions', label: 'Acciones' }
             ].map(h => (
               <span key={h.key} className="font-primary text-xs text-[#444444] uppercase tracking-wider">{h.label}</span>
@@ -303,7 +455,7 @@ export const AdminPropertiesList = () => {
           {filtered.map(p => (
             <div
               key={p.id}
-              className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 px-4 py-4 border-b border-[#1F1F1F] items-center hover:bg-[#0F0F0F] transition-colors min-w-[900px]"
+              className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 px-4 py-4 border-b border-[#1F1F1F] items-center hover:bg-[#0F0F0F] transition-colors min-w-[980px]"
             >
               {/* Title + ref */}
               <div className="flex items-center gap-3 min-w-0">
@@ -348,6 +500,43 @@ export const AdminPropertiesList = () => {
               >
                 <Star className="w-4 h-4" fill={p.is_featured ? 'currentColor' : 'none'} />
               </button>
+
+              {/* Idealista sync */}
+              {(() => {
+                const ist = getIdealistaStatus(p);
+                const isLoading = idealistaLoading === p.id;
+                const isPublished = ist === 'published';
+                const isError = ist === 'error';
+                return (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => handleIdealistaSync(p)}
+                      disabled={isLoading}
+                      title={isPublished ? 'Publicado en Idealista — click para desactivar' : isError ? 'Error en Idealista — click para reintentar' : 'Publicar en Idealista'}
+                      className={`flex items-center gap-1 px-2 py-1 text-[10px] font-primary font-bold uppercase tracking-wider border transition-all disabled:opacity-50 ${
+                        isLoading
+                          ? 'text-[#C9A962] border-[#C9A962]/40 bg-[#C9A962]/5 cursor-wait'
+                          : isPublished
+                          ? 'text-[#4ADE80] border-[#4ADE80]/40 bg-[#4ADE80]/10 hover:bg-[#4ADE80]/20'
+                          : isError
+                          ? 'text-[#F87171] border-[#F87171]/40 bg-[#F87171]/10 hover:bg-[#F87171]/20'
+                          : 'text-[#555] border-[#2A2A2A] hover:text-[#C9A962] hover:border-[#C9A962]/40'
+                      }`}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : isPublished ? (
+                        <Cloud className="w-3 h-3" />
+                      ) : isError ? (
+                        <CloudOff className="w-3 h-3" />
+                      ) : (
+                        <CloudLightning className="w-3 h-3" />
+                      )}
+                      <span>{isLoading ? '...' : isPublished ? 'ON' : isError ? 'ERR' : 'OFF'}</span>
+                    </button>
+                  </div>
+                );
+              })()}
 
               {/* Actions */}
               <div className="flex items-center gap-2">
@@ -407,6 +596,177 @@ export const AdminPropertiesList = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* ── Idealista Import Modal ── */}
+      {importModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-[#0A0A0A] border border-[#1F1F1F] w-full max-w-4xl max-h-[90vh] flex flex-col">
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1F1F1F]">
+              <div className="flex items-center gap-3">
+                <Link2 className="w-5 h-5 text-[#4ADE80]" />
+                <div>
+                  <h2 className="font-secondary text-xl text-[#FAF8F5]">Vincular con Idealista</h2>
+                  <p className="font-primary text-xs text-[#666] mt-0.5">
+                    Importa el estado de tus propiedades ya publicadas en Idealista y vincula con el CRM.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setImportModalOpen(false)}
+                className="p-2 text-[#666] hover:text-[#FAF8F5] border border-transparent hover:border-[#1F1F1F] transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal body */}
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              {importLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-4">
+                  <Loader2 className="w-8 h-8 text-[#4ADE80] animate-spin" />
+                  <p className="font-primary text-[#666] text-sm">Consultando Idealista API...</p>
+                </div>
+              ) : importMatches.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <Link2Off className="w-10 h-10 text-[#333]" />
+                  <p className="font-primary text-[#666] text-sm">No se encontraron propiedades en Idealista.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {/* Column headers */}
+                  <div className="grid grid-cols-[1fr_auto_1fr] gap-4 px-3 py-2">
+                    <span className="font-primary text-[10px] text-[#444] uppercase tracking-wider">Idealista</span>
+                    <span className="font-primary text-[10px] text-[#444] uppercase tracking-wider text-center">Vinculación</span>
+                    <span className="font-primary text-[10px] text-[#444] uppercase tracking-wider">CRM</span>
+                  </div>
+
+                  {importMatches.map((m, idx) => {
+                    const selectedCrmId = manualSelections[String(idx)] ?? m.crm?.id ?? '';
+                    const selectedCrm = crmProperties.find(c => c.id === selectedCrmId) ?? m.crm;
+                    const isAutoMatched = m.auto_matched && !manualSelections[String(idx)];
+                    const alreadyLinked = !!m.crm?.idealista_id;
+
+                    return (
+                      <div
+                        key={m.idealista.idealista_id}
+                        className={`grid grid-cols-[1fr_auto_1fr] gap-4 items-center p-3 border transition-colors ${
+                          alreadyLinked
+                            ? 'border-[#4ADE80]/20 bg-[#4ADE80]/5'
+                            : isAutoMatched
+                            ? 'border-[#C9A962]/20 bg-[#C9A962]/5'
+                            : 'border-[#1F1F1F] bg-[#0F0F0F]'
+                        }`}
+                      >
+                        {/* Idealista property */}
+                        <div className="min-w-0">
+                          <p className="font-primary text-xs text-[#FAF8F5] font-bold truncate">{m.idealista.address}</p>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <span className="font-primary text-[10px] text-[#666] bg-[#1A1A1A] px-1.5 py-0.5 rounded-sm">{m.idealista.code}</span>
+                            <span className="font-primary text-[10px] text-[#666]">{m.idealista.type}</span>
+                            {m.idealista.price && (
+                              <span className="font-primary text-[10px] text-[#C9A962]">{m.idealista.price.toLocaleString('es-ES')} €</span>
+                            )}
+                            <span className={`font-primary text-[10px] font-bold px-1.5 py-0.5 rounded-sm ${
+                              m.idealista.status === 'activo' ? 'text-[#4ADE80] bg-[#4ADE80]/10' : 'text-[#888] bg-[#1A1A1A]'
+                            }`}>
+                              {m.idealista.status}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Arrow / status indicator */}
+                        <div className="flex flex-col items-center gap-1">
+                          {alreadyLinked ? (
+                            <Link2 className="w-4 h-4 text-[#4ADE80]" />
+                          ) : (
+                            <Link2Off className="w-4 h-4 text-[#444]" />
+                          )}
+                          {isAutoMatched && !alreadyLinked && (
+                            <span className="font-primary text-[8px] text-[#C9A962] uppercase tracking-wider">Auto</span>
+                          )}
+                        </div>
+
+                        {/* CRM selector */}
+                        <div className="min-w-0">
+                          {alreadyLinked ? (
+                            <div>
+                              <p className="font-primary text-xs text-[#4ADE80] font-bold truncate">{selectedCrm?.title ?? '—'}</p>
+                              <p className="font-primary text-[10px] text-[#666] mt-0.5">Ya vinculado</p>
+                            </div>
+                          ) : (
+                            <select
+                              value={selectedCrmId}
+                              onChange={e => setManualSelections(prev => ({ ...prev, [String(idx)]: e.target.value }))}
+                              className="w-full bg-[#161616] border border-[#2A2A2A] text-[#FAF8F5] font-primary text-xs px-2 py-1.5 outline-none focus:border-[#C9A962] transition-colors"
+                            >
+                              <option value="">— Sin vincular —</option>
+                              {crmProperties.map(c => (
+                                <option key={c.id} value={c.id}>
+                                  {c.title} {c.reference ? `[${c.reference}]` : ''}
+                                  {c.idealista_id ? ' ✓' : ''}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Modal footer */}
+            {!importLoading && importMatches.length > 0 && (
+              <div className="px-6 py-4 border-t border-[#1F1F1F] flex items-center justify-between gap-4">
+                <div className="font-primary text-xs text-[#666]">
+                  <span className="text-[#C9A962] font-bold">
+                    {importMatches.filter((m, idx) => {
+                      const id = manualSelections[String(idx)] ?? m.crm?.id;
+                      return !!id && !m.crm?.idealista_id;
+                    }).length}
+                  </span>
+                  {' '}nuevos vínculos a guardar
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleOpenImportModal}
+                    className="flex items-center gap-2 px-4 py-2 border border-[#1F1F1F] text-[#888] font-primary text-sm hover:border-[#333] hover:text-[#FAF8F5] transition-colors"
+                    title="Recargar datos de Idealista"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    Recargar
+                  </button>
+                  <button
+                    onClick={() => setImportModalOpen(false)}
+                    className="px-4 py-2 border border-[#1F1F1F] text-[#888] font-primary text-sm hover:border-[#333] hover:text-[#FAF8F5] transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleSaveImport}
+                    disabled={importSaving}
+                    className="flex items-center gap-2 px-5 py-2 bg-[#4ADE80] text-[#0A0A0A] font-primary font-bold text-sm hover:bg-[#22C55E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {importSaving ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        <Link2 className="w-3.5 h-3.5" />
+                        Guardar vínculos
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

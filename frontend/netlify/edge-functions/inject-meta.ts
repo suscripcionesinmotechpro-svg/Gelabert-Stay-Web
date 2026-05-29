@@ -80,13 +80,22 @@ export default async (request: Request, context: Context) => {
     }
 
     // 4. Supabase Query
+    const t = Date.now(); // cache-buster
     let dbData = null;
     let queryUrl = "";
 
     if (routeType === "propiedades") {
+      // Build possible reference variants (GEL-123, GEL123, etc.)
+      const possibleRefs = Array.from(new Set([
+        searchId,
+        searchId.toUpperCase(),
+        searchId.replace(/-/g, ""),
+        searchId.toUpperCase().replace(/-/g, ""),
+      ])).filter(Boolean);
+
       const orConditions = isUuid
         ? `reference.eq.${searchId},slug.eq.${searchId},id.eq.${searchId}`
-        : `reference.in.(${possibleRefs.join(",")}),slug.eq.${searchId},reference.ilike.${searchId},slug.ilike.${searchId}`;
+        : `slug.eq.${searchId},reference.ilike.${searchId},id.eq.${searchId}`;
       queryUrl = `${SUPABASE_URL}/rest/v1/properties?or=(${orConditions})&select=*&t=${t}`;
     } else {
       // Blog search by slug

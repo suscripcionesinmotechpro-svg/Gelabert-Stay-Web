@@ -1,9 +1,7 @@
 import { Context } from 'https://edge.netlify.com';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3?target=deno';
 
-const supabaseUrl = Netlify.env.get('VITE_SUPABASE_URL') || '';
-const supabaseKey = Netlify.env.get('VITE_SUPABASE_ANON_KEY') || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
+
 
 // Optimize Supabase Storage image for sitemap (used by Google Image Search)
 function getImageUrl(rawUrl: string): string {
@@ -17,6 +15,10 @@ function getImageUrl(rawUrl: string): string {
 
 export default async function handler(request: Request, context: Context) {
   try {
+    const supabaseUrl = Netlify.env.get('VITE_SUPABASE_URL') || '';
+    const supabaseKey = Netlify.env.get('VITE_SUPABASE_ANON_KEY') || '';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     // 1. Obtener todas las propiedades publicadas
     const { data: properties, error } = await supabase
       .from('properties')

@@ -154,6 +154,12 @@ export interface Property {
   is_featured: boolean;
   order_index: number | null;
   agent_id?: string | null;
+
+  // Integración de Idealista
+  idealista_id?: string | null;
+  idealista_status?: 'not_published' | 'pending' | 'published' | 'error';
+  idealista_error_log?: string | null;
+  idealista_last_sync?: string | null;
 }
 
 export type PropertyInsert = Omit<Property, 'id' | 'created_at' | 'updated_at' | 'reference' | 'slug'> & {
