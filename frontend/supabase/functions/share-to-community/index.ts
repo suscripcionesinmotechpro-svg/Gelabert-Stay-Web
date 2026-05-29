@@ -377,6 +377,13 @@ serve(async (req) => {
           facebook_error_log: fbResult.error,
         }).eq('id', pid)
       }
+    } else if (action === 'publish_facebook' || action === 'unpublish_facebook') {
+      fbResult = { postId: null, error: 'Credenciales de Facebook no configuradas en Supabase (FACEBOOK_PAGE_ID o FACEBOOK_PAGE_TOKEN vacíos).' }
+      await supabase.from('properties').update({
+        facebook_status: 'error',
+        facebook_last_sync: new Date().toISOString(),
+        facebook_error_log: fbResult.error,
+      }).eq('id', pid)
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -431,6 +438,13 @@ serve(async (req) => {
           }).eq('id', pid)
         }
       }
+    } else if (action === 'publish_instagram' || action === 'unpublish_instagram') {
+      igResult = { postId: null, error: 'Credenciales de Instagram no configuradas en Supabase (FACEBOOK_PAGE_TOKEN o INSTAGRAM_ACCOUNT_ID vacíos).' }
+      await supabase.from('properties').update({
+        instagram_status: 'error',
+        instagram_last_sync: new Date().toISOString(),
+        instagram_error_log: igResult.error,
+      }).eq('id', pid)
     }
 
     return new Response(JSON.stringify({

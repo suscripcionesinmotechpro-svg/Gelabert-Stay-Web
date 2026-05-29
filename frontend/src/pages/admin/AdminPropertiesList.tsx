@@ -281,9 +281,20 @@ export const AdminPropertiesList = () => {
         }
       );
       const result = await res.json();
+      
+      if (!res.ok || result.error) {
+        const errMsg = result.error || 'Error desconocido del servidor.';
+        toast.error(`${platformLabel}: ${errMsg}`);
+        setStatuses(prev => ({ ...prev, [p.id]: 'error' }));
+        return;
+      }
+
       const platformResult = result[platform];
       if (platformResult?.error) {
         toast.error(`${platformLabel}: ${platformResult.error}`);
+        setStatuses(prev => ({ ...prev, [p.id]: 'error' }));
+      } else if (!isPublished && !platformResult?.postId) {
+        toast.error(`${platformLabel}: No se pudo publicar. Verifique la configuración en Supabase.`);
         setStatuses(prev => ({ ...prev, [p.id]: 'error' }));
       } else {
         const newStatus = isPublished ? 'not_published' : 'published';
