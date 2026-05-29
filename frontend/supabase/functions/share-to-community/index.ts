@@ -16,44 +16,229 @@ const WATERMARK_CONFIG: Record<string, { label_es: string; label_en: string; col
 
 // ── Build copy text for Facebook/Instagram post ────────────────────────────────
 function buildPostCopy(prop: any, isEn: boolean): string {
-  const opMap: Record<string, string> = {
-    venta:    isEn ? '🏠 For Sale'   : '🏠 En Venta',
-    alquiler: isEn ? '🏠 For Rent'   : '🏠 En Alquiler',
-    traspaso: isEn ? '🏢 Transfer'   : '🏢 Traspaso',
+  const lines: string[] = []
+
+  // ── 1. HEADER: Property type + operation ─────────────────────────────────────
+  const typeEmojis: Record<string, string> = {
+    piso: '🏢', casa: '🏡', atico: '✨', loft: '🎨', estudio: '🏠',
+    local: '🏪', oficina: '💼', nave: '🏭', terreno: '🌳', negocio: '💰', otro: '🏠',
   }
-  const op = opMap[prop.operation] || '🏠'
-  const price = prop.price
-    ? new Intl.NumberFormat(isEn ? 'en-US' : 'es-ES', { style: 'currency', currency: prop.currency || 'EUR', maximumFractionDigits: 0 }).format(prop.price) + (prop.operation === 'alquiler' ? (isEn ? '/month' : '/mes') : '')
-    : null
+  const typeLabels: Record<string, { es: string; en: string }> = {
+    piso:    { es: 'Piso',            en: 'Apartment' },
+    casa:    { es: 'Casa',            en: 'House' },
+    atico:   { es: 'Ático',           en: 'Penthouse' },
+    loft:    { es: 'Loft',            en: 'Loft' },
+    estudio: { es: 'Estudio',         en: 'Studio' },
+    local:   { es: 'Local Comercial', en: 'Commercial Space' },
+    oficina: { es: 'Oficina',         en: 'Office' },
+    nave:    { es: 'Nave Industrial',  en: 'Industrial Unit' },
+    terreno: { es: 'Terreno',         en: 'Land Plot' },
+    negocio: { es: 'Negocio',         en: 'Business' },
+    otro:    { es: 'Inmueble',        en: 'Property' },
+  }
+  const opLabels: Record<string, { es: string; en: string }> = {
+    venta:    { es: 'En Venta',    en: 'For Sale' },
+    alquiler: { es: 'En Alquiler', en: 'For Rent' },
+    traspaso: { es: 'Traspaso',    en: 'Business Transfer' },
+  }
+  const rentTypeLabels: Record<string, string> = {
+    temporal:     '🗓️ Alquiler Temporal',
+    habitual:     '🏠 Alquiler Habitual',
+    vacacional:   '☀️ Alquiler Vacacional',
+    habitaciones: '🚪 Alquiler de Habitaciones',
+    otros:        '📋 Alquiler',
+  }
 
-  const features = [
-    prop.area_m2 ? `📐 ${prop.area_m2} m²` : null,
-    prop.bedrooms > 0 ? `🛏 ${prop.bedrooms} ${isEn ? 'bed.' : 'hab.'}` : null,
-    prop.bathrooms > 0 ? `🚿 ${prop.bathrooms} ${isEn ? 'bath.' : 'baños'}` : null,
-    prop.floor ? `🏢 ${isEn ? 'Floor' : 'Planta'} ${prop.floor}` : null,
-    prop.has_pool ? (isEn ? '🏊 Pool' : '🏊 Piscina') : null,
-    prop.sea_views ? (isEn ? '🌊 Sea Views' : '🌊 Vistas al mar') : null,
-    prop.has_parking ? (isEn ? '🅿 Parking' : '🅿 Parking') : null,
-  ].filter(Boolean).join('  ')
+  const emoji     = typeEmojis[prop.property_type] || '🏠'
+  const typeLabel = isEn
+    ? (typeLabels[prop.property_type]?.en || 'Property')
+    : (typeLabels[prop.property_type]?.es || 'Inmueble')
+  const opLabel = isEn
+    ? (opLabels[prop.operation]?.en || '')
+    : (opLabels[prop.operation]?.es || '')
 
+  lines.push(`${emoji} ${typeLabel}${opLabel ? ' — ' + opLabel : ''}`)
+  lines.push('')
+
+  // ── 2. TITLE ─────────────────────────────────────────────────────────────────
   const title = isEn ? (prop.title_en || prop.title) : prop.title
-  const zone = [prop.zone, prop.city].filter(Boolean).join(', ')
-  const link = `https://gelaberthomes.es${isEn ? '/en' : ''}/propiedades/${prop.reference || prop.slug || prop.id}`
+  if (title) lines.push(title)
 
-  return [
-    `${op} | ${isEn ? 'Gelabert Homes' : 'Gelabert Homes'}`,
-    ``,
-    title,
-    zone ? `📍 ${zone}` : null,
-    price ? `💰 ${price}` : null,
-    features || null,
-    ``,
-    `🔗 ${link}`,
-    ``,
-    isEn
-      ? `#RealEstate #Malaga #GelabertHomes #Property`
-      : `#Inmobiliaria #Málaga #GelabertHomes #Propiedad`,
-  ].filter(s => s !== null).join('\n')
+  // ── 3. LOCATION ──────────────────────────────────────────────────────────────
+  const locationParts = [prop.urbanization, prop.zone, prop.city].filter(Boolean)
+  if (locationParts.length > 0) lines.push(`📍 ${locationParts.join(', ')}`)
+
+  if (prop.orientation) {
+    const orientMap: Record<string, string> = {
+      norte: 'Norte ↑', sur: 'Sur ↓', este: 'Este →', oeste: 'Oeste ←',
+      noreste: 'Noreste ↗', noroeste: 'Noroeste ↖', sureste: 'Sureste ↘', suroeste: 'Suroeste ↙',
+    }
+    const orientLabel = orientMap[prop.orientation?.toLowerCase()] || prop.orientation
+    lines.push(`🧭 Orientación ${orientLabel}`)
+  }
+  lines.push('')
+
+  // ── 4. PRICE ─────────────────────────────────────────────────────────────────
+  const fmt = (n: number) =>
+    new Intl.NumberFormat('es-ES', { style: 'currency', currency: prop.currency || 'EUR', maximumFractionDigits: 0 }).format(n)
+
+  if (prop.price) {
+    let priceStr = fmt(prop.price)
+    if (prop.operation === 'alquiler') priceStr += '/mes'
+    if (prop.max_price && prop.max_price > prop.price) priceStr += ` – ${fmt(prop.max_price)}/mes`
+    lines.push(`💰 ${priceStr}`)
+
+    if (prop.operation === 'venta') {
+      const costs: string[] = []
+      if (prop.community_fees)     costs.push(`Comunidad: ${fmt(prop.community_fees)}/mes`)
+      if (prop.ibi)                costs.push(`IBI: ${fmt(prop.ibi)}/año`)
+      if (prop.parking_included)   costs.push('Parking incluido ✔️')
+      else if (prop.parking_price) costs.push(`Parking: ${fmt(prop.parking_price)}`)
+      if (costs.length > 0) lines.push(`   └ ${costs.join(' · ')}`)
+    }
+
+    if (prop.operation === 'alquiler') {
+      const rentCosts: string[] = []
+      if (prop.parking_included)   rentCosts.push('Parking incluido ✔️')
+      else if (prop.parking_price) rentCosts.push(`Parking: ${fmt(prop.parking_price)}/mes`)
+      if (rentCosts.length > 0) lines.push(`   └ ${rentCosts.join(' · ')}`)
+    }
+  }
+
+  // ── 5. KEY FEATURES (adapted per property type) ───────────────────────────────
+  const residential = ['piso', 'casa', 'atico', 'loft', 'estudio']
+  const commercial  = ['local', 'oficina', 'nave']
+  const feats: string[] = []
+
+  if (residential.includes(prop.property_type)) {
+    if (prop.area_m2)       feats.push(`📐 ${prop.area_m2} m²`)
+    if (prop.bedrooms > 0)  feats.push(`🛏 ${prop.bedrooms} ${isEn ? 'bed.' : 'hab.'}`)
+    if (prop.bathrooms > 0) feats.push(`🚿 ${prop.bathrooms} ${isEn ? 'bath.' : 'baños'}`)
+    if (prop.floor)         feats.push(`🏢 ${isEn ? 'Floor' : 'Planta'} ${prop.floor}`)
+    if (prop.has_elevator)  feats.push(`🛗 ${isEn ? 'Lift' : 'Ascensor'}`)
+    if (prop.is_furnished)  feats.push(`🛋 ${isEn ? 'Furnished' : 'Amueblado'}`)
+    if (prop.is_exterior)   feats.push(`🌤 Exterior`)
+    if (prop.has_terrace)   feats.push(`🌿 ${isEn ? 'Terrace' : 'Terraza'}`)
+    if (prop.has_balcony)   feats.push(`🪟 ${isEn ? 'Balcony' : 'Balcón'}`)
+  } else if (commercial.includes(prop.property_type)) {
+    if (prop.area_m2)   feats.push(`📐 ${prop.area_m2} m²`)
+    if (prop.floor)     feats.push(`🏢 ${isEn ? 'Floor' : 'Planta'} ${prop.floor}`)
+    if (prop.has_elevator) feats.push(`🛗 ${isEn ? 'Lift' : 'Ascensor'}`)
+    const state = prop.conservation_state || prop.property_condition
+    if (state)          feats.push(`✅ ${state}`)
+  } else if (prop.property_type === 'terreno') {
+    if (prop.area_m2)   feats.push(`📐 ${prop.area_m2} m²`)
+  } else if (prop.property_type === 'negocio') {
+    if (prop.area_m2)      feats.push(`📐 ${prop.area_m2} m²`)
+    if (prop.is_furnished) feats.push(`🛋 ${isEn ? 'Equipped' : 'Equipado'}`)
+  } else {
+    if (prop.area_m2)       feats.push(`📐 ${prop.area_m2} m²`)
+    if (prop.bedrooms > 0)  feats.push(`🛏 ${prop.bedrooms} ${isEn ? 'bed.' : 'hab.'}`)
+    if (prop.bathrooms > 0) feats.push(`🚿 ${prop.bathrooms} ${isEn ? 'bath.' : 'baños'}`)
+  }
+
+  if (feats.length > 0) {
+    lines.push('')
+    lines.push(feats.join('  ·  '))
+  }
+
+  // ── 6. PREMIUM AMENITIES ──────────────────────────────────────────────────────
+  const premiumFeats: string[] = []
+  if (prop.sea_views)        premiumFeats.push(`🌊 ${isEn ? 'Sea Views' : 'Vistas al mar'}`)
+  if (prop.has_pool)         premiumFeats.push(`🏊 ${isEn ? 'Pool' : 'Piscina'}`)
+  if (prop.garden)           premiumFeats.push(`🌳 ${isEn ? 'Garden' : 'Jardín'}`)
+  if (prop.has_patio)        premiumFeats.push(`🌺 Patio`)
+  if (prop.has_storage)      premiumFeats.push(`📦 ${isEn ? 'Storage room' : 'Trastero'}`)
+  if (prop.air_conditioning) premiumFeats.push(`❄️ A/C`)
+  if (prop.heating)          premiumFeats.push(`🔥 ${isEn ? 'Heating' : 'Calefacción'}`)
+  if (prop.has_fireplace)    premiumFeats.push(`🪵 ${isEn ? 'Fireplace' : 'Chimenea'}`)
+  if (prop.has_wardrobes)    premiumFeats.push(`🚪 ${isEn ? 'Built-in wardrobes' : 'Armarios empotrados'}`)
+  if (prop.pets_allowed)     premiumFeats.push(`🐾 ${isEn ? 'Pets allowed' : 'Se admiten mascotas'}`)
+
+  if (premiumFeats.length > 0) {
+    lines.push('')
+    lines.push(premiumFeats.join('  ·  '))
+  }
+
+  // ── 7. CURATED HIGHLIGHTS (from CRM) ─────────────────────────────────────────
+  const hiList = isEn ? (prop.highlights_en || prop.highlights) : prop.highlights
+  if (Array.isArray(hiList) && hiList.length > 0) {
+    lines.push('')
+    lines.push(isEn ? '✨ Key features:' : '✨ Puntos destacados:')
+    hiList.slice(0, 4).forEach((h: string) => lines.push(`  → ${h}`))
+  }
+
+  // ── 8. SHORT DESCRIPTION ──────────────────────────────────────────────────────
+  const shortDesc = isEn
+    ? (prop.short_description_en || prop.short_description)
+    : prop.short_description
+  if (shortDesc) {
+    lines.push('')
+    const desc = shortDesc.trim()
+    lines.push(desc.length > 220 ? desc.slice(0, 220).trimEnd() + '…' : desc)
+  }
+
+  // ── 9. RENT TYPE & AVAILABILITY ───────────────────────────────────────────────
+  if (prop.operation === 'alquiler' && !isEn) {
+    const rentInfo: string[] = []
+    if (prop.rent_type && rentTypeLabels[prop.rent_type]) rentInfo.push(rentTypeLabels[prop.rent_type])
+    if (prop.availability) rentInfo.push(`📅 Disponible: ${prop.availability}`)
+    if (rentInfo.length > 0) {
+      lines.push('')
+      lines.push(rentInfo.join('  ·  '))
+    }
+  }
+
+  // ── 10. ENERGY RATING (sale only) ────────────────────────────────────────────
+  if (prop.operation === 'venta' && prop.energy_rating &&
+      !['en tramite', 'en trámite', '-', ''].includes(prop.energy_rating.toLowerCase())) {
+    lines.push('')
+    lines.push(`⚡ ${isEn ? 'Energy rating' : 'Calificación energética'}: ${prop.energy_rating.toUpperCase()}`)
+  }
+
+  // ── 11. VIRTUAL TOUR ──────────────────────────────────────────────────────────
+  if (prop.virtual_tour_url) {
+    lines.push('')
+    lines.push(`🎥 ${isEn ? 'Virtual tour' : 'Tour virtual'}: ${prop.virtual_tour_url}`)
+  }
+
+  // ── 12. CALL TO ACTION ────────────────────────────────────────────────────────
+  const link = `https://gelaberthomes.es${isEn ? '/en' : ''}/propiedades/${prop.reference || prop.slug || prop.id}`
+  lines.push('')
+  lines.push(isEn ? `👉 Full listing: ${link}` : `👉 Ficha completa: ${link}`)
+  lines.push(isEn ? `📞 Contact us to book a viewing` : `📞 Llámanos o escríbenos para una visita`)
+
+  // ── 13. SMART HASHTAGS ────────────────────────────────────────────────────────
+  lines.push('')
+  const cityTag = prop.city ? `#${prop.city.replace(/\s+/g, '')}` : '#Málaga'
+  const zoneTag = prop.zone ? `#${prop.zone.replace(/[\s\-]+/g, '')}` : ''
+  const typeHashtags: Record<string, string> = {
+    piso: '#Piso', casa: '#Casa', atico: '#Atico', loft: '#Loft', estudio: '#Estudio',
+    local: '#LocalComercial', oficina: '#Oficina', nave: '#NaveIndustrial',
+    terreno: '#Terreno', negocio: '#Traspaso', otro: '#Inmueble',
+  }
+  const opHashtags: Record<string, string> = {
+    venta: '#EnVenta', alquiler: '#EnAlquiler', traspaso: '#Traspaso',
+  }
+  const specialTags: string[] = []
+  if (prop.sea_views) specialTags.push('#VistasAlMar')
+  if (prop.has_pool)  specialTags.push('#ConPiscina')
+  if (prop.operation === 'alquiler' && prop.rent_type === 'vacacional') specialTags.push('#AlquilerVacacional')
+  if (prop.operation === 'alquiler' && prop.rent_type === 'habitaciones') specialTags.push('#Habitaciones')
+
+  const hashtags = [
+    '#GelabertHomes', '#Inmobiliaria', '#RealEstate',
+    opHashtags[prop.operation] || '',
+    typeHashtags[prop.property_type] || '#Inmueble',
+    cityTag, zoneTag,
+    prop.operation === 'alquiler' ? '#AlquilerMalaga' : '#VentaMalaga',
+    '#PropiedadesMalaga',
+    ...specialTags,
+  ].filter(Boolean).join(' ')
+
+  lines.push(hashtags)
+
+  return lines.join('\n')
 }
 
 // ── Download image and add a diagonal watermark banner ────────────────────────
