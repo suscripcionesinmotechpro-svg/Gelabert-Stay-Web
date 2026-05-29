@@ -68,14 +68,16 @@ function buildPostCopy(prop: any, isEn: boolean): string {
   const locationParts = [prop.urbanization, prop.zone, prop.city].filter(Boolean)
   if (locationParts.length > 0) lines.push(`📍 ${locationParts.join(', ')}`)
 
-  if (prop.orientation) {
+
+  if (prop.orientation && typeof prop.orientation === 'string') {
     const orientMap: Record<string, string> = {
       norte: 'Norte ↑', sur: 'Sur ↓', este: 'Este →', oeste: 'Oeste ←',
       noreste: 'Noreste ↗', noroeste: 'Noroeste ↖', sureste: 'Sureste ↘', suroeste: 'Suroeste ↙',
     }
-    const orientLabel = orientMap[prop.orientation?.toLowerCase()] || prop.orientation
+    const orientLabel = orientMap[prop.orientation.toLowerCase()] || prop.orientation
     lines.push(`🧭 Orientación ${orientLabel}`)
   }
+
   lines.push('')
 
   // ── 4. PRICE ─────────────────────────────────────────────────────────────────
