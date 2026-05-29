@@ -268,11 +268,7 @@ serve(async (req) => {
 
     // ── Build image URL ───────────────────────────────────────────────────────
     const rawImage = prop.main_image || (prop.gallery && prop.gallery[0])
-    const cleanImageUrl = rawImage
-      ? (rawImage.includes('supabase.co') && rawImage.includes('/object/public/')
-        ? rawImage.split('?')[0].replace('/object/public/', '/render/image/public/') + '?width=1200&height=630&resize=contain&quality=80&format=jpeg'
-        : rawImage.split('?')[0])
-      : null
+    const cleanImageUrl = rawImage ? rawImage.split('?')[0] : null
 
     const propUrl = `https://gelaberthomes.es/propiedades/${prop.reference || prop.slug || prop.id}`
     const copy    = buildPostCopy(prop, false) // always Spanish for social posts
