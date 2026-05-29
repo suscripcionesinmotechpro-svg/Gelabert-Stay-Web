@@ -128,30 +128,13 @@ async function createWatermarkedImageBuffer(imageUrl: string, statusKey: string)
   }
 }
 
-// ── Upload image buffer to Facebook (as form data) ─────────────────────────────
-async function uploadImageToFacebook(pageId: string, pageToken: string, imageBuffer: Uint8Array, fileName: string): Promise<string | null> {
-  try {
-    const formData = new FormData()
-    formData.append('source', new Blob([imageBuffer], { type: 'image/jpeg' }), fileName)
-    formData.append('published', 'false') // unpublished media, to be used in post
-    formData.append('access_token', pageToken)
-
-    const res = await fetch(`https://graph.facebook.com/v20.0/${pageId}/photos`, {
-      method: 'POST',
-      body: formData,
-    })
-    const data = await res.json()
-    if (data.id) return data.id
-    console.error('FB photo upload error:', data)
-    return null
-  } catch (err) {
-    console.error('FB upload exception:', err)
-    return null
-  }
+interface MediaItem {
+  url: string;
+  type: 'IMAGE' | 'VIDEO';
 }
 
 // ── Publish a post to a Facebook Page ─────────────────────────────────────────
-async function publishToFacebook(pageId: string, pageToken: string, message: string, imageUrl: string | null, existingPostId: string | null): Promise<{ postId: string | null; error: string | null }> {
+async function publishToFacebook(pageId: string, pageToken: string, message: string, mediaItems: MediaItem[], existingPostId: string | null): Promise<{ postId: string | null; error: string | null }> {
   try {
     // Delete existing post first if we have one
     if (existingPostId) {
@@ -159,58 +142,178 @@ async function publishToFacebook(pageId: string, pageToken: string, message: str
         .catch(() => {}) // Ignore delete errors
     }
 
-    const body: Record<string, string> = {
-      message,
-      access_token: pageToken,
-    }
-    if (imageUrl) {
-      body.link = imageUrl // Use link preview which includes the og:image
+    // Facebook attached_media only supports photos.
+    const imageItems = mediaItems.filter(item => item.type === 'IMAGE')
+
+    if (imageItems.length === 0) {
+      return { postId: null, error: 'No images available for Facebook post' }
     }
 
-    const res = await fetch(`https://graph.facebook.com/v20.0/${pageId}/feed`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-    const data = await res.json()
-    if (data.id) return { postId: data.id, error: null }
-    return { postId: null, error: data.error?.message || 'Unknown FB error' }
+    if (imageItems.length === 1) {
+      const res = await fetch(`https://graph.facebook.com/v20.0/${pageId}/photos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: imageItems[0].url,
+          caption: message,
+          access_token: pageToken,
+        }),
+      })
+      const data = await res.json()
+      if (data.id) return { postId: data.id, error: null }
+      return { postId: null, error: data.error?.message || 'FB single photo error' }
+    } else {
+      // Step 1: Upload photos as unpublished
+      const photoIds: string[] = []
+      for (const item of imageItems) {
+        const res = await fetch(`https://graph.facebook.com/v20.0/${pageId}/photos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: item.url,
+            published: 'false',
+            access_token: pageToken,
+          }),
+        })
+        const data = await res.json()
+        if (data.id) {
+          photoIds.push(data.id)
+        } else {
+          console.error('FB photo upload error:', data)
+        }
+      }
+
+      if (photoIds.length === 0) {
+        return { postId: null, error: 'Could not upload any photos to Facebook' }
+      }
+
+      // Step 2: Publish the feed post with attached_media
+      const attachedMedia = photoIds.map(id => ({ media_fbid: id }))
+      const res = await fetch(`https://graph.facebook.com/v20.0/${pageId}/feed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message,
+          attached_media: attachedMedia,
+          access_token: pageToken,
+        }),
+      })
+      const data = await res.json()
+      if (data.id) return { postId: data.id, error: null }
+      return { postId: null, error: data.error?.message || 'FB feed attached_media error' }
+    }
   } catch (err: any) {
     return { postId: null, error: err.message }
   }
 }
 
 // ── Publish a post to Instagram (via Media Container + Publish) ────────────────
-async function publishToInstagram(igAccountId: string, pageToken: string, caption: string, imageUrl: string, existingPostId: string | null): Promise<{ postId: string | null; error: string | null }> {
+async function publishToInstagram(igAccountId: string, pageToken: string, caption: string, mediaItems: MediaItem[], existingPostId: string | null): Promise<{ postId: string | null; error: string | null }> {
   try {
-    // Step 1: Create media container
-    const containerRes = await fetch(`https://graph.facebook.com/v20.0/${igAccountId}/media`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        image_url: imageUrl,
+    if (mediaItems.length === 0) {
+      return { postId: null, error: 'No media items available for Instagram' }
+    }
+
+    if (mediaItems.length === 1) {
+      const item = mediaItems[0]
+      const body: Record<string, string> = {
         caption,
         access_token: pageToken,
-      }),
-    })
-    const container = await containerRes.json()
-    if (!container.id) return { postId: null, error: container.error?.message || 'IG container error' }
+      }
+      if (item.type === 'VIDEO') {
+        body.media_type = 'VIDEO'
+        body.video_url = item.url
+      } else {
+        body.image_url = item.url
+      }
 
-    // Wait 2 seconds for container processing
-    await new Promise(r => setTimeout(r, 2000))
+      const containerRes = await fetch(`https://graph.facebook.com/v20.0/${igAccountId}/media`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const container = await containerRes.json()
+      if (!container.id) return { postId: null, error: container.error?.message || 'IG container error' }
 
-    // Step 2: Publish container
-    const publishRes = await fetch(`https://graph.facebook.com/v20.0/${igAccountId}/media_publish`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        creation_id: container.id,
-        access_token: pageToken,
-      }),
-    })
-    const published = await publishRes.json()
-    if (published.id) return { postId: published.id, error: null }
-    return { postId: null, error: published.error?.message || 'IG publish error' }
+      await new Promise(r => setTimeout(r, item.type === 'VIDEO' ? 5000 : 2000))
+
+      const publishRes = await fetch(`https://graph.facebook.com/v20.0/${igAccountId}/media_publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          creation_id: container.id,
+          access_token: pageToken,
+        }),
+      })
+      const published = await publishRes.json()
+      if (published.id) return { postId: published.id, error: null }
+      return { postId: null, error: published.error?.message || 'IG publish error' }
+    } else {
+      // Step 1: Create a container for each item in the carousel
+      const childIds: string[] = []
+      for (const item of mediaItems) {
+        const body: Record<string, any> = {
+          is_carousel_item: true,
+          access_token: pageToken,
+        }
+        if (item.type === 'VIDEO') {
+          body.media_type = 'VIDEO'
+          body.video_url = item.url
+        } else {
+          body.image_url = item.url
+        }
+
+        const res = await fetch(`https://graph.facebook.com/v20.0/${igAccountId}/media`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+        const data = await res.json()
+        if (data.id) {
+          childIds.push(data.id)
+        } else {
+          console.error('IG carousel item container error:', data)
+        }
+      }
+
+      if (childIds.length === 0) {
+        return { postId: null, error: 'Could not create any carousel item containers' }
+      }
+
+      // Wait 5 seconds for processing of all carousel items
+      await new Promise(r => setTimeout(r, 5000))
+
+      // Step 2: Create the main carousel container
+      const res = await fetch(`https://graph.facebook.com/v20.0/${igAccountId}/media`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          media_type: 'CAROUSEL',
+          children: childIds.join(','),
+          caption,
+          access_token: pageToken,
+        })
+      })
+      const data = await res.json()
+      if (!data.id) {
+        return { postId: null, error: data.error?.message || 'IG main carousel container error' }
+      }
+
+      await new Promise(r => setTimeout(r, 3000))
+
+      // Step 3: Publish the carousel container
+      const publishRes = await fetch(`https://graph.facebook.com/v20.0/${igAccountId}/media_publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          creation_id: data.id,
+          access_token: pageToken,
+        }),
+      })
+      const published = await publishRes.json()
+      if (published.id) return { postId: published.id, error: null }
+      return { postId: null, error: published.error?.message || 'IG carousel publish error' }
+    }
   } catch (err: any) {
     return { postId: null, error: err.message }
   }
@@ -266,9 +369,65 @@ serve(async (req) => {
     const isStatusChange = type === 'UPDATE' && old_record &&
       old_record.commercial_status !== prop.commercial_status
 
-    // ── Build image URL ───────────────────────────────────────────────────────
+    // ── Build list of media items (photos + videos + floor plans) ─────────────
+    const mediaItems: MediaItem[] = []
+
+    // 1. Cover Image (main_image or first gallery image)
     const rawImage = prop.main_image || (prop.gallery && prop.gallery[0])
-    const cleanImageUrl = rawImage ? rawImage.split('?')[0] : null
+    let mainImageUrl = rawImage ? rawImage.split('?')[0] : null
+
+    // Determine if we need a watermark
+    const needsWatermark = prop.commercial_status && prop.commercial_status !== 'disponible'
+
+    if (needsWatermark && mainImageUrl && WATERMARK_CONFIG[prop.commercial_status]) {
+      // Try to create watermarked image
+      const wmBuffer = await createWatermarkedImageBuffer(mainImageUrl, prop.commercial_status)
+      if (wmBuffer) {
+        const wmFileName = `watermarks/${pid}_${prop.commercial_status}_${Date.now()}.jpg`
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('properties')
+          .upload(wmFileName, wmBuffer, { contentType: 'image/jpeg', upsert: true })
+        if (!uploadError && uploadData) {
+          const { data: urlData } = supabase.storage.from('properties').getPublicUrl(wmFileName)
+          mainImageUrl = urlData.publicUrl
+        }
+      }
+    }
+
+    if (mainImageUrl) {
+      mediaItems.push({ url: mainImageUrl, type: 'IMAGE' })
+    }
+
+    // 2. Video (if direct mp4) - placed immediately after the cover image as requested by the user
+    const rawVideo = prop.video_url
+    if (rawVideo && rawVideo.trim().startsWith('http') && rawVideo.toLowerCase().includes('.mp4')) {
+      mediaItems.push({ url: rawVideo.trim(), type: 'VIDEO' })
+    }
+
+    // 3. Gallery (excluding the first image if it was the main_image)
+    if (prop.gallery && Array.isArray(prop.gallery)) {
+      const firstGalleryImg = prop.gallery[0]
+      const galleryStartIdx = (firstGalleryImg === prop.main_image) ? 1 : 0
+      
+      for (let i = galleryStartIdx; i < prop.gallery.length; i++) {
+        const img = prop.gallery[i]
+        if (img && img.trim().startsWith('http')) {
+          mediaItems.push({ url: img.trim().split('?')[0], type: 'IMAGE' })
+        }
+      }
+    }
+
+    // 4. Floor Plans
+    if (prop.floor_plans && Array.isArray(prop.floor_plans)) {
+      for (const img of prop.floor_plans) {
+        if (img && img.trim().startsWith('http')) {
+          mediaItems.push({ url: img.trim().split('?')[0], type: 'IMAGE' })
+        }
+      }
+    }
+
+    // Limit to exactly 10 items (maximum allowed by Instagram Carousel)
+    const finalMediaItems = mediaItems.slice(0, 10)
 
     const propUrl = `https://gelaberthomes.es/propiedades/${prop.reference || prop.slug || prop.id}`
     const copy    = buildPostCopy(prop, false) // always Spanish for social posts
@@ -339,32 +498,18 @@ serve(async (req) => {
         }).eq('id', pid)
 
       } else if (action === 'publish_facebook' || (isStatusChange && prop.facebook_status === 'published')) {
-        // Determine if we need a watermark (status not 'disponible')
-        const needsWatermark = prop.commercial_status && prop.commercial_status !== 'disponible'
-        let finalImageUrl = cleanImageUrl
-
-        if (needsWatermark && cleanImageUrl && WATERMARK_CONFIG[prop.commercial_status]) {
-          // Try to create watermarked image
-          const wmBuffer = await createWatermarkedImageBuffer(cleanImageUrl, prop.commercial_status)
-          if (wmBuffer) {
-            // Upload watermarked image to Supabase Storage
-            const wmFileName = `watermarks/${pid}_${prop.commercial_status}_${Date.now()}.jpg`
-            const { data: uploadData, error: uploadError } = await supabase.storage
-              .from('properties')
-              .upload(wmFileName, wmBuffer, { contentType: 'image/jpeg', upsert: true })
-            if (!uploadError && uploadData) {
-              const { data: urlData } = supabase.storage.from('properties').getPublicUrl(wmFileName)
-              finalImageUrl = urlData.publicUrl
-            }
-          }
-        }
-
-        const existingPostId = prop.facebook_post_id || null
-        const postCopy = needsWatermark
+        let postCopy = needsWatermark
           ? `${WATERMARK_CONFIG[prop.commercial_status]?.label_es}: ${prop.title}\n\n${propUrl}`
           : copy
 
-        fbResult = await publishToFacebook(FB_PAGE_ID, FB_PAGE_TOKEN, postCopy, propUrl, existingPostId)
+        // If there is a video in the media items, append its direct link to the Facebook post message
+        // since Facebook attached_media does not support mixing photos and videos.
+        const fbVideo = finalMediaItems.find(item => item.type === 'VIDEO')
+        if (fbVideo) {
+          postCopy += `\n\n🎬 ¡Mira el vídeo aquí!: ${fbVideo.url}`
+        }
+
+        fbResult = await publishToFacebook(FB_PAGE_ID, FB_PAGE_TOKEN, postCopy, finalMediaItems, prop.facebook_post_id || null)
 
         await supabase.from('properties').update({
           facebook_status: fbResult.postId ? 'published' : 'error',
@@ -404,27 +549,10 @@ serve(async (req) => {
         }).eq('id', pid)
 
       } else if (action === 'publish_instagram' || (isStatusChange && prop.instagram_status === 'published')) {
-        if (!cleanImageUrl) {
-          igResult = { postId: null, error: 'No image available for Instagram post' }
+        if (finalMediaItems.length === 0) {
+          igResult = { postId: null, error: 'No images or videos available for Instagram post' }
         } else {
-          const needsWatermark = prop.commercial_status && prop.commercial_status !== 'disponible'
-          let finalIgImageUrl = cleanImageUrl
-
-          if (needsWatermark && WATERMARK_CONFIG[prop.commercial_status]) {
-            const wmBuffer = await createWatermarkedImageBuffer(cleanImageUrl, prop.commercial_status)
-            if (wmBuffer) {
-              const wmFileName = `watermarks/ig_${pid}_${prop.commercial_status}_${Date.now()}.jpg`
-              const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('properties')
-                .upload(wmFileName, wmBuffer, { contentType: 'image/jpeg', upsert: true })
-              if (!uploadError && uploadData) {
-                const { data: urlData } = supabase.storage.from('properties').getPublicUrl(wmFileName)
-                finalIgImageUrl = urlData.publicUrl
-              }
-            }
-          }
-
-          igResult = await publishToInstagram(IG_ACCOUNT_ID, FB_PAGE_TOKEN, copy, finalIgImageUrl, prop.instagram_post_id || null)
+          igResult = await publishToInstagram(IG_ACCOUNT_ID, FB_PAGE_TOKEN, copy, finalMediaItems, prop.instagram_post_id || null)
 
           await supabase.from('properties').update({
             instagram_status: igResult.postId ? 'published' : 'error',
