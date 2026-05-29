@@ -48,9 +48,6 @@ type Slide = {
 // Hero slideshow — Curated selection for maximum impact and performance
 const HERO_SLIDES: Slide[] = [
   { type: 'image', src: '/images/carousel/hero-gen-1.webp' },
-  { type: 'image', src: '/images/carousel/hero-gen-2.webp' },
-  { type: 'image', src: '/images/carousel/hero-gen-3.webp' },
-  { type: 'image', src: '/images/carousel/hero-gen-4.webp' },
   { type: 'image', src: '/images/carousel/hero-luxury-villa-1.webp' },
   { type: 'image', src: '/images/carousel/hero-new-image-1.webp' },
   { type: 'image', src: '/images/carousel/hero-new-image-2.webp' },
