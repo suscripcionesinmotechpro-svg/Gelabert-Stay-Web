@@ -4,13 +4,13 @@ const SUPABASE_URL = "https://aumqjpqngmhpbwytpets.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1bXFqcHFuZ21ocGJ3eXRwZXRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxODgyNjMsImV4cCI6MjA4ODc2NDI2M30.OHi4bRiyFUv2lBHu3wb1IKchj2qF6rZ354uhCQeeAlU";
 
 // Converts a Supabase Storage URL to use the render/image API for optimized previews.
-// Social scrapers (WhatsApp, etc.) work best with images < 300KB and well-defined dimensions.
+// Social scrapers (WhatsApp, Facebook, Instagram) work best with images < 300KB, 1200x630.
 function optimizeSupabaseImage(rawUrl: string): string {
   if (!rawUrl || !rawUrl.trim()) return "";
   // Only transform if it's a Supabase storage URL
   if (rawUrl.includes("supabase.co") && rawUrl.includes("/object/public/")) {
     const base = rawUrl.split("?")[0]; // strip existing query params
-    return base.replace("/object/public/", "/render/image/public/") + "?width=1200&height=630&resize=contain&quality=80";
+    return base.replace("/object/public/", "/render/image/public/") + "?width=1200&height=630&resize=contain&quality=80&format=jpeg";
   }
   // For non-Supabase images, return as-is (but strip any old cache params first)
   return rawUrl.split("?")[0];
@@ -85,14 +85,6 @@ export default async (request: Request, context: Context) => {
     let queryUrl = "";
 
     if (routeType === "propiedades") {
-      // Build possible reference variants (GEL-123, GEL123, etc.)
-      const possibleRefs = Array.from(new Set([
-        searchId,
-        searchId.toUpperCase(),
-        searchId.replace(/-/g, ""),
-        searchId.toUpperCase().replace(/-/g, ""),
-      ])).filter(Boolean);
-
       const orConditions = isUuid
         ? `reference.eq.${searchId},slug.eq.${searchId},id.eq.${searchId}`
         : `slug.eq.${searchId},reference.ilike.${searchId},id.eq.${searchId}`;
@@ -192,11 +184,18 @@ export default async (request: Request, context: Context) => {
         if (prop.bedrooms > 0) features.push(`${isEn ? "Bedrooms" : "Hab."} ${prop.bedrooms}`);
         if (prop.bathrooms > 0) features.push(`${isEn ? "Bath." : "Baños"} ${prop.bathrooms}`);
         if (prop.floor) features.push(`${isEn ? "Floor" : "Planta"} ${prop.floor}`);
+        if (prop.has_elevator) features.push(isEn ? "Elevator" : "Ascensor");
+        if (prop.has_pool) features.push(isEn ? "Pool" : "Piscina");
+        if (prop.sea_views) features.push(isEn ? "Sea Views" : "Vistas al mar");
 
         cleanDesc = features.join(" · ");
         if (!cleanDesc || cleanDesc.length < 5) {
           const rawShort = isEn ? prop.short_description_en : prop.short_description;
           if (rawShort) cleanDesc = stripHtml(rawShort).substring(0, 160);
+          else {
+            const rawLong = isEn ? prop.description_en : prop.description;
+            if (rawLong) cleanDesc = stripHtml(rawLong).substring(0, 160);
+          }
         }
 
         const rawImage = prop.main_image || (prop.gallery && prop.gallery[0]);
@@ -210,7 +209,29 @@ export default async (request: Request, context: Context) => {
           description: cleanDesc,
           image: previewImage,
           url: canonicalUrl,
-          offers: { "@type": "Offer", price: prop.price, priceCurrency: "EUR" }
+          identifier: prop.reference || prop.id,
+          offers: {
+            "@type": "Offer",
+            price: prop.price,
+            priceCurrency: prop.currency || "EUR",
+            availability: "https://schema.org/InStock"
+          },
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: prop.city,
+            addressRegion: "Andalucía",
+            addressCountry: "ES",
+            ...(prop.postal_code ? { postalCode: prop.postal_code } : {})
+          },
+          ...(prop.bedrooms > 0 ? { numberOfRooms: prop.bedrooms } : {}),
+          ...(prop.bathrooms > 0 ? { numberOfBathroomsTotal: prop.bathrooms } : {}),
+          ...(prop.area_m2 ? { floorSize: { "@type": "QuantitativeValue", value: prop.area_m2, unitCode: "MTK" } } : {}),
+          seller: {
+            "@type": "RealEstateAgent",
+            name: "Gelabert Homes Real Estate",
+            url: "https://gelaberthomes.es/",
+            telephone: "+34611898827"
+          }
         });
       } else {
         // ── Blog Injection ──
@@ -242,18 +263,29 @@ export default async (request: Request, context: Context) => {
         `<title>${cleanTitle} | Gelabert Homes</title>`,
         `<meta name="description" content="${cleanDesc}">`,
         `<link rel="canonical" href="${canonicalUrl}">`,
+        `<link rel="image_src" href="${previewImage}">`,
         `<meta property="og:type" content="website">`,
+        `<meta property="og:site_name" content="Gelabert Homes Real Estate">`,
         `<meta property="og:url" content="${canonicalUrl}">`,
         `<meta property="og:title" content="${cleanTitle} | Gelabert Homes">`,
         `<meta property="og:description" content="${cleanDesc}">`,
         `<meta property="og:image" content="${previewImage}">`,
         `<meta property="og:image:secure_url" content="${previewImage}">`,
+        `<meta property="og:image:width" content="1200">`,
+        `<meta property="og:image:height" content="630">`,
+        `<meta property="og:image:type" content="image/jpeg">`,
+        `<meta property="og:image:alt" content="${cleanTitle}">`,
         `<meta property="og:locale" content="${isEn ? "en_US" : "es_ES"}">`,
+        `<meta property="og:locale:alternate" content="${isEn ? "es_ES" : "en_US"}">`,
         `<meta name="twitter:card" content="summary_large_image">`,
+        `<meta name="twitter:site" content="@GelabertHomes">`,
         `<meta name="twitter:title" content="${cleanTitle} | Gelabert Homes">`,
         `<meta name="twitter:description" content="${cleanDesc}">`,
         `<meta name="twitter:image" content="${previewImage}">`,
-        `<link rel="image_src" href="${previewImage}">`,
+        `<meta name="twitter:image:alt" content="${cleanTitle}">`,
+        `<link rel="alternate" hrefLang="es" href="https://gelaberthomes.es${routeType === "propiedades" ? "/propiedades/" : "/blog/"}${identifier}">`,
+        `<link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/${routeType === "propiedades" ? "propiedades" : "blog"}/${identifier}">`,
+        `<link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es${routeType === "propiedades" ? "/propiedades/" : "/blog/"}${identifier}">`,
         ...jsonLds.map(ld => `<script type="application/ld+json">${JSON.stringify(ld)}</script>`)
       ];
 
@@ -262,8 +294,14 @@ export default async (request: Request, context: Context) => {
       html = html.replace(/<meta [^>]*property=["']og:[^"']*["'][^>]*>/gi, "");
       html = html.replace(/<meta [^>]*name=["']twitter:[^"']*["'][^>]*>/gi, "");
       html = html.replace(/<meta [^>]*name=["']description["'][^>]*>/gi, "");
-      html = html.replace(/<link [^>]*rel=["'](canonical|image_src)["'][^>]*>/gi, "");
+      html = html.replace(/<link [^>]*rel=["'](canonical|image_src|alternate)["'][^>]*>/gi, "");
       html = html.replace(/<script type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi, "");
+
+      // Update lang attribute
+      html = html.replace(/<html([^>]*)lang=["'][^"']*["']([^>]*)>/i, `<html$1lang="${isEn ? "en" : "es"}"$2>`);
+      if (!html.includes(" lang=")) {
+        html = html.replace(/<html/i, `<html lang="${isEn ? "en" : "es"}"`);
+      }
 
       html = html.replace(/<head>/i, `<head>\n    ${tags.join("\n    ")}`);
       xDebug += `|desc:${cleanDesc.slice(0, 20)}...`;
@@ -274,7 +312,7 @@ export default async (request: Request, context: Context) => {
         "content-type": "text/html; charset=UTF-8",
         "x-meta-injected": dbData ? "true" : "false",
         "x-debug": xDebug,
-        "cache-control": "public, max-age=0, must-revalidate",
+        "cache-control": "public, max-age=60, stale-while-revalidate=300",
       },
     });
   } catch (err) {

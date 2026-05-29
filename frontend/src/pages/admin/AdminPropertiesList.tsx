@@ -4,6 +4,19 @@ import { useProperties, usePropertyMutations } from '../../hooks/useProperties';
 import type { Property, PropertyStatus, CommercialStatus } from '../../types/property';
 import { STATUS_LABELS, STATUS_COLORS, OPERATION_LABELS, COMMERCIAL_STATUS_LABELS, COMMERCIAL_STATUS_COLORS } from '../../types/property';
 import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid, FolderArchive, Loader2, Filter, CloudLightning, CloudOff, Cloud, X, Link2, Link2Off, RefreshCw } from 'lucide-react';
+
+// Facebook & Instagram icons (SVG inline)
+const FacebookIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+);
+
+const InstagramIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+  </svg>
+);
 import { PropertyReference } from '../../components/PropertyReference';
 import { getOptimizedImage } from '../../utils/images';
 import { getCommunityShareMessage } from '../../utils/whatsapp';
@@ -128,6 +141,10 @@ export const AdminPropertiesList = () => {
   const [downloadedZip, setDownloadedZip] = useState<string | null>(null);
   const [idealistaLoading, setIdealistaLoading] = useState<string | null>(null);
   const [idealistaStatuses, setIdealistaStatuses] = useState<Record<string, Property['idealista_status']>>({});
+  const [facebookLoading, setFacebookLoading] = useState<string | null>(null);
+  const [facebookStatuses, setFacebookStatuses] = useState<Record<string, Property['facebook_status']>>({});
+  const [instagramLoading, setInstagramLoading] = useState<string | null>(null);
+  const [instagramStatuses, setInstagramStatuses] = useState<Record<string, Property['instagram_status']>>({});
 
   // ── Idealista Import Modal ──
   const [importModalOpen, setImportModalOpen] = useState(false);
@@ -227,7 +244,62 @@ export const AdminPropertiesList = () => {
     }
   };
 
-  const getIdealistaStatus = (p: Property) => idealistaStatuses[p.id] ?? p.idealista_status ?? 'not_published';
+  const getIdealistaStatus  = (p: Property) => idealistaStatuses[p.id]  ?? p.idealista_status  ?? 'not_published';
+  const getFacebookStatus   = (p: Property) => facebookStatuses[p.id]   ?? p.facebook_status   ?? 'not_published';
+  const getInstagramStatus  = (p: Property) => instagramStatuses[p.id]  ?? p.instagram_status  ?? 'not_published';
+
+  const handleSocialSync = async (
+    p: Property,
+    platform: 'facebook' | 'instagram',
+    currentStatus: Property['facebook_status'],
+    setLoading: (id: string | null) => void,
+    setStatuses: React.Dispatch<React.SetStateAction<Record<string, any>>>
+  ) => {
+    const isPublished = currentStatus === 'published';
+    const action = isPublished
+      ? `unpublish_${platform}`
+      : `publish_${platform}`;
+    const platformLabel = platform === 'facebook' ? 'Facebook' : 'Instagram';
+    const confirmMsg = isPublished
+      ? `¿Desactivar "${p.title}" en ${platformLabel}?`
+      : `¿Publicar "${p.title}" en ${platformLabel}?`;
+    if (!confirm(confirmMsg)) return;
+
+    setLoading(p.id);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/share-to-community`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ propertyId: p.id, action, trigger: 'manual' }),
+        }
+      );
+      const result = await res.json();
+      const platformResult = result[platform];
+      if (platformResult?.error) {
+        toast.error(`${platformLabel}: ${platformResult.error}`);
+        setStatuses(prev => ({ ...prev, [p.id]: 'error' }));
+      } else {
+        const newStatus = isPublished ? 'not_published' : 'published';
+        setStatuses(prev => ({ ...prev, [p.id]: newStatus }));
+        toast.success(isPublished ? `☁️ Desactivado en ${platformLabel}` : `✅ Publicado en ${platformLabel}`);
+      }
+    } catch (err: any) {
+      toast.error(`Error de conexión: ${err.message}`);
+      setStatuses(prev => ({ ...prev, [p.id]: 'error' }));
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const handleFacebookSync  = (p: Property) => handleSocialSync(p, 'facebook',  getFacebookStatus(p),  setFacebookLoading,  setFacebookStatuses);
+  const handleInstagramSync = (p: Property) => handleSocialSync(p, 'instagram', getInstagramStatus(p), setInstagramLoading, setInstagramStatuses);
 
   const handleOpenImportModal = async () => {
     setImportModalOpen(true);
@@ -436,15 +508,17 @@ export const AdminPropertiesList = () => {
       ) : (
         <div className="bg-[#0A0A0A] border border-[#1F1F1F] overflow-x-auto">
           {/* Table header */}
-          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 px-4 py-3 border-b border-[#1F1F1F] min-w-[980px]">
+          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_auto] gap-3 px-4 py-3 border-b border-[#1F1F1F] min-w-[1140px]">
             {[
               { key: 'property', label: 'Propiedad' },
               { key: 'operation', label: 'Operación' },
               { key: 'price', label: 'Precio' },
               { key: 'status', label: 'Estado' },
               { key: 'commercial', label: 'Comercial' },
-              { key: 'featured', label: 'Destacada' },
+              { key: 'featured', label: 'Dest.' },
               { key: 'idealista', label: 'Idealista' },
+              { key: 'facebook', label: 'Facebook' },
+              { key: 'instagram', label: 'Instagram' },
               { key: 'actions', label: 'Acciones' }
             ].map(h => (
               <span key={h.key} className="font-primary text-xs text-[#444444] uppercase tracking-wider">{h.label}</span>
@@ -455,7 +529,7 @@ export const AdminPropertiesList = () => {
           {filtered.map(p => (
             <div
               key={p.id}
-              className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 px-4 py-4 border-b border-[#1F1F1F] items-center hover:bg-[#0F0F0F] transition-colors min-w-[980px]"
+              className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_auto] gap-3 px-4 py-4 border-b border-[#1F1F1F] items-center hover:bg-[#0F0F0F] transition-colors min-w-[1140px]"
             >
               {/* Title + ref */}
               <div className="flex items-center gap-3 min-w-0">
@@ -532,6 +606,68 @@ export const AdminPropertiesList = () => {
                       ) : (
                         <CloudLightning className="w-3 h-3" />
                       )}
+                      <span>{isLoading ? '...' : isPublished ? 'ON' : isError ? 'ERR' : 'OFF'}</span>
+                    </button>
+                  </div>
+                );
+              })()}
+
+              {/* Facebook sync */}
+              {(() => {
+                const fst = getFacebookStatus(p);
+                const isLoading = facebookLoading === p.id;
+                const isPublished = fst === 'published';
+                const isError = fst === 'error';
+                return (
+                  <div className="flex items-center">
+                    <button
+                      onClick={() => handleFacebookSync(p)}
+                      disabled={isLoading}
+                      title={isPublished ? 'Publicado en Facebook — click para desactivar' : isError ? 'Error en Facebook — click para reintentar' : 'Publicar en Facebook'}
+                      className={`flex items-center gap-1 px-2 py-1 text-[10px] font-primary font-bold uppercase tracking-wider border transition-all disabled:opacity-50 ${
+                        isLoading
+                          ? 'text-[#1877F2] border-[#1877F2]/40 bg-[#1877F2]/5 cursor-wait'
+                          : isPublished
+                          ? 'text-[#1877F2] border-[#1877F2]/40 bg-[#1877F2]/10 hover:bg-[#1877F2]/20'
+                          : isError
+                          ? 'text-[#F87171] border-[#F87171]/40 bg-[#F87171]/10 hover:bg-[#F87171]/20'
+                          : 'text-[#555] border-[#2A2A2A] hover:text-[#1877F2] hover:border-[#1877F2]/40'
+                      }`}
+                    >
+                      {isLoading
+                        ? <Loader2 className="w-3 h-3 animate-spin" />
+                        : <FacebookIcon className="w-3 h-3" />}
+                      <span>{isLoading ? '...' : isPublished ? 'ON' : isError ? 'ERR' : 'OFF'}</span>
+                    </button>
+                  </div>
+                );
+              })()}
+
+              {/* Instagram sync */}
+              {(() => {
+                const ist = getInstagramStatus(p);
+                const isLoading = instagramLoading === p.id;
+                const isPublished = ist === 'published';
+                const isError = ist === 'error';
+                return (
+                  <div className="flex items-center">
+                    <button
+                      onClick={() => handleInstagramSync(p)}
+                      disabled={isLoading}
+                      title={isPublished ? 'Publicado en Instagram — click para desactivar' : isError ? 'Error en Instagram — click para reintentar' : 'Publicar en Instagram'}
+                      className={`flex items-center gap-1 px-2 py-1 text-[10px] font-primary font-bold uppercase tracking-wider border transition-all disabled:opacity-50 ${
+                        isLoading
+                          ? 'text-[#E1306C] border-[#E1306C]/40 bg-[#E1306C]/5 cursor-wait'
+                          : isPublished
+                          ? 'text-[#E1306C] border-[#E1306C]/40 bg-[#E1306C]/10 hover:bg-[#E1306C]/20'
+                          : isError
+                          ? 'text-[#F87171] border-[#F87171]/40 bg-[#F87171]/10 hover:bg-[#F87171]/20'
+                          : 'text-[#555] border-[#2A2A2A] hover:text-[#E1306C] hover:border-[#E1306C]/40'
+                      }`}
+                    >
+                      {isLoading
+                        ? <Loader2 className="w-3 h-3 animate-spin" />
+                        : <InstagramIcon className="w-3 h-3" />}
                       <span>{isLoading ? '...' : isPublished ? 'ON' : isError ? 'ERR' : 'OFF'}</span>
                     </button>
                   </div>

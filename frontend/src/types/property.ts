@@ -160,6 +160,21 @@ export interface Property {
   idealista_status?: 'not_published' | 'pending' | 'published' | 'error';
   idealista_error_log?: string | null;
   idealista_last_sync?: string | null;
+
+  // Integración de Facebook
+  facebook_post_id?: string | null;
+  facebook_status?: 'not_published' | 'pending' | 'published' | 'error';
+  facebook_error_log?: string | null;
+  facebook_last_sync?: string | null;
+
+  // Integración de Instagram
+  instagram_post_id?: string | null;
+  instagram_status?: 'not_published' | 'pending' | 'published' | 'error';
+  instagram_error_log?: string | null;
+  instagram_last_sync?: string | null;
+
+  // Identificador único para redes sociales (anti-duplicados)
+  social_unique_id?: string | null;
 }
 
 export type PropertyInsert = Omit<Property, 'id' | 'created_at' | 'updated_at' | 'reference' | 'slug'> & {
