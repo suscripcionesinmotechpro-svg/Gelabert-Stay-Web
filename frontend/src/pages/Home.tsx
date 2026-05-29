@@ -49,7 +49,6 @@ type Slide = {
 const HERO_SLIDES: Slide[] = [
   { type: 'image', src: '/images/carousel/hero-gen-1.webp' },
   { type: 'image', src: '/images/carousel/hero-luxury-villa-1.webp' },
-  { type: 'image', src: '/images/carousel/hero-new-image-1.webp' },
   { type: 'image', src: '/images/carousel/hero-new-image-2.webp' },
   { type: 'image', src: '/images/carousel/hero-poster.webp' },
   { type: 'image', src: '/images/carousel/generated-1773179473489.webp' },
