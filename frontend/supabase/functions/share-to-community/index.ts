@@ -317,6 +317,8 @@ async function createWatermarkedImageBuffer(imageUrl: string, statusKey: string)
     console.error('Watermark error:', err)
     return null
   }
+}
+
 // ── Download image and add an elegant gold-striped label watermark tag ───────
 async function createLabeledImageBuffer(imageUrl: string, label: string): Promise<Uint8Array | null> {
   try {
