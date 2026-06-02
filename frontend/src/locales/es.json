@@ -265,6 +265,11 @@
     "footer_cta": {
       "subtitle_suffix": " te espera"
     },
+    "accreditations": {
+      "title": "ALIANZA TECNOLÓGICA Y RED GLOBAL DE COMPRADORES",
+      "huspy_tag": "Partner Oficial · Big Data, Financiación 360° y Acceso a Inversores Internacionales",
+      "devante_tag": "Dirección de Empresas Inmobiliarias · Garantía de Asesoramiento de Élite"
+    },
     "cta_title": "Tu próximo hogar",
     "services": {
       "title": "Nuestros Servicios",
@@ -407,6 +412,13 @@
       "title": "Quién te acompaña en el camino",
       "jose": {
         "bio": "Nacido en Cuba, llegué a España con la visión de construir un futuro profesional basado en el esfuerzo, la constancia y la honestidad. Con más de 5 años de experiencia en el sector inmobiliario malagueño, me encargo personalmente de dirigir la estrategia de venta de tu propiedad, defender tus intereses en la negociación y asegurar una transacción 100% segura y sin complicaciones."
+      },
+      "credentials": {
+        "title": "Acreditación y Alianza Estratégica",
+        "devante_title": "Doble Titulación Ejecutiva Superior",
+        "devante_desc": "Cursando el Curso Superior de Dirección de Empresas Inmobiliarias en Devante. Preparación de élite enfocada en la gestión estratégica de activos y derecho inmobiliario.",
+        "huspy_title": "Colaborador Autorizado · By Huspy",
+        "huspy_desc": "Como colaborador oficial de Huspy, conectamos tu propiedad con una de las plataformas proptech líderes a nivel internacional. Esta alianza estratégica dota a Gelabert Homes de una potente red global de compradores y capital extranjero procedentes de centros de inversión clave. Mediante herramientas avanzadas de analítica de datos y Big Data, optimizamos la fijación de precios y aceleramos la venta. Además, incorporamos un ecosistema digital de gestión hipotecaria integral que compara más de 20 bancos en tiempo récord, asegurando la solvencia de los compradores y agilizando la firma final sin retrasos burocráticos."
       }
     },
     "values": {

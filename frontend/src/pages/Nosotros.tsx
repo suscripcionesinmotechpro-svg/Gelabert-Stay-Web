@@ -233,6 +233,61 @@ const Nosotros = () => {
                 </motion.div>
               ))}
             </div>
+
+            {/* Credentials & Strategic Alliances */}
+            <div className="mt-8 pt-6 border-t border-white/5 space-y-4">
+              <p className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.2em] font-bold">
+                {t('nosotros.team.credentials.title')}
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Devante card */}
+                <motion.div
+                  {...fadeUp}
+                  transition={{ ...fadeUp.transition, delay: 0.45 }}
+                  className="border border-white/10 rounded-sm p-5 flex flex-col gap-3 hover:border-[#C9A962]/40 hover:bg-[#C9A962]/5 transition-all duration-300"
+                >
+                  <div className="h-6 flex items-start">
+                    <img 
+                      src="/images/brand/devante-logo.svg" 
+                      alt="Devante Business School" 
+                      className="h-full w-auto object-contain grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-300"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-primary text-[11px] text-white font-bold uppercase tracking-wider">
+                      {t('nosotros.team.credentials.devante_title')}
+                    </h4>
+                    <p className="font-primary text-[11px] text-white/50 leading-relaxed font-light">
+                      {t('nosotros.team.credentials.devante_desc')}
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* Huspy card */}
+                <motion.div
+                  {...fadeUp}
+                  transition={{ ...fadeUp.transition, delay: 0.55 }}
+                  className="border border-white/10 rounded-sm p-5 flex flex-col gap-3 hover:border-[#C9A962]/40 hover:bg-[#C9A962]/5 transition-all duration-300"
+                >
+                  <div className="h-6 flex items-start">
+                    <img 
+                      src="/images/brand/huspy-logo.svg" 
+                      alt="Huspy Authorized Partner" 
+                      className="h-full w-auto object-contain grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-300"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-primary text-[11px] text-white font-bold uppercase tracking-wider">
+                      {t('nosotros.team.credentials.huspy_title')}
+                    </h4>
+                    <p className="font-primary text-[11px] text-white/50 leading-relaxed font-light">
+                      {t('nosotros.team.credentials.huspy_desc')}
+                    </p>
+                  </div>
+                </motion.div>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>

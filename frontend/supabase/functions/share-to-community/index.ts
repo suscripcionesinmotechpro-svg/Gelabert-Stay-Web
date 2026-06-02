@@ -935,8 +935,8 @@ ${text}`
       }
     }
 
-    // Limit for Instagram Carousel (maximum 10 allowed)
-    const finalIgMediaItems = mediaItems.slice(0, 10)
+    // Limit for Instagram Carousel (maximum 10 allowed, images only to avoid strict API video errors)
+    const finalIgMediaItems = mediaItems.filter(item => item.type === 'IMAGE').slice(0, 10)
 
     // Limit for Facebook (higher limit, maximum 30 allowed)
     const finalFbMediaItems = mediaItems.slice(0, 30)
@@ -1064,7 +1064,13 @@ ${text}`
         if (finalIgMediaItems.length === 0) {
           igResult = { postId: null, error: 'No images or videos available for Instagram post' }
         } else {
-          igResult = await publishToInstagram(IG_ACCOUNT_ID, FB_PAGE_TOKEN, customCopyIg || copy, finalIgMediaItems, prop.instagram_post_id || null)
+          let igCopy = customCopyIg || copy
+          const igVideo = mediaItems.find(item => item.type === 'VIDEO')
+          if (igVideo) {
+            igCopy += `\n\n🎬 ¡Mira el vídeo aquí!: ${igVideo.url}`
+          }
+
+          igResult = await publishToInstagram(IG_ACCOUNT_ID, FB_PAGE_TOKEN, igCopy, finalIgMediaItems, prop.instagram_post_id || null)
 
           await supabase.from('properties').update({
             instagram_status: igResult.postId ? 'published' : 'error',

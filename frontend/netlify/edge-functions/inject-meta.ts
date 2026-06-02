@@ -85,9 +85,17 @@ export default async (request: Request, context: Context) => {
     let queryUrl = "";
 
     if (routeType === "propiedades") {
+      // Build possible reference variants (GEL-123, GEL123, etc.)
+      const possibleRefs = Array.from(new Set([
+        searchId,
+        searchId.toUpperCase(),
+        searchId.replace(/-/g, ""),
+        searchId.toUpperCase().replace(/-/g, ""),
+      ])).filter(Boolean);
+
       const orConditions = isUuid
         ? `reference.eq.${searchId},slug.eq.${searchId},id.eq.${searchId}`
-        : `slug.eq.${searchId},reference.ilike.${searchId},id.eq.${searchId}`;
+        : `reference.in.(${possibleRefs.join(",")}),slug.eq.${searchId},reference.ilike.${searchId},id.eq.${searchId}`;
       queryUrl = `${SUPABASE_URL}/rest/v1/properties?or=(${orConditions})&select=*&t=${t}`;
     } else {
       // Blog search by slug
@@ -188,15 +196,24 @@ export default async (request: Request, context: Context) => {
         if (prop.has_pool) features.push(isEn ? "Pool" : "Piscina");
         if (prop.sea_views) features.push(isEn ? "Sea Views" : "Vistas al mar");
 
-        cleanDesc = features.join(" · ");
-        if (!cleanDesc || cleanDesc.length < 5) {
-          const rawShort = isEn ? prop.short_description_en : prop.short_description;
-          if (rawShort) cleanDesc = stripHtml(rawShort).substring(0, 160);
-          else {
-            const rawLong = isEn ? prop.description_en : prop.description;
-            if (rawLong) cleanDesc = stripHtml(rawLong).substring(0, 160);
-          }
+        const rawShort = isEn
+          ? prop.short_description_en || prop.meta_description_en
+          : prop.short_description || prop.meta_description;
+        
+        const rawLong = isEn ? prop.description_en : prop.description;
+        
+        let descriptionBody = "";
+        if (rawShort) {
+          descriptionBody = stripHtml(rawShort);
+        } else if (rawLong) {
+          descriptionBody = stripHtml(rawLong).substring(0, 160);
         }
+
+        let description = features.join(" · ");
+        if (descriptionBody) {
+          description += ` | ${descriptionBody}`;
+        }
+        cleanDesc = description.trim() || cleanTitle;
 
         const rawImage = prop.main_image || (prop.gallery && prop.gallery[0]);
         previewImage = rawImage ? optimizeSupabaseImage(rawImage) : "https://gelaberthomes.es/logo-meta-v3.png";

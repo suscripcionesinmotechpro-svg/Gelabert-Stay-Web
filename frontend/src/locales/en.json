@@ -261,6 +261,11 @@
     "footer_cta": {
       "subtitle_suffix": " is waiting for you"
     },
+    "accreditations": {
+      "title": "TECHNOLOGICAL ALLIANCE AND GLOBAL BUYER NETWORK",
+      "huspy_tag": "Official Partner · Big Data, 360° Financing & Access to International Investors",
+      "devante_tag": "Real Estate Executive Management · Guaranteed Elite Advisory"
+    },
     "cta_title": "Your next home",
     "services": {
       "title": "Our Services",
@@ -402,6 +407,13 @@
       "title": "Who accompanies you on the way",
       "jose": {
         "bio": "Born in Cuba, I arrived in Spain with the vision of building a professional future based on effort, perseverance, and honesty. With more than 5 years of experience in the Malaga real estate sector, I personally take care of directing the sales strategy of your property, defending your interests in the negotiation, and ensuring a 100% secure transaction without complications."
+      },
+      "credentials": {
+        "title": "Accreditation & Strategic Alliance",
+        "devante_title": "Real Estate Executive Management Degree",
+        "devante_desc": "Enrolled in the Higher Degree of Real Estate Management at Devante. Elite preparation focused on strategic asset management and real estate law.",
+        "huspy_title": "Authorized Partner · By Huspy",
+        "huspy_desc": "As an official Huspy partner, we connect your property with one of the world's leading proptech platforms. This strategic alliance equips Gelabert Homes with a powerful global network of active international buyers and foreign capital from key investment hubs. Utilizing advanced data analytics and Big Data, we optimize pricing and accelerate sales. Furthermore, we integrate a comprehensive digital mortgage ecosystem that compares over 20 financial institutions in record time, guaranteeing buyer solvency and expediting the final signing with zero bureaucratic delays."
       }
     },
     "values": {
