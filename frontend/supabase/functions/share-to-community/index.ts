@@ -317,6 +317,58 @@ async function createWatermarkedImageBuffer(imageUrl: string, statusKey: string)
     console.error('Watermark error:', err)
     return null
   }
+// ── Download image and add an elegant gold-striped label watermark tag ───────
+async function createLabeledImageBuffer(imageUrl: string, label: string): Promise<Uint8Array | null> {
+  try {
+    const { Image } = await import('https://deno.land/x/imagescript@1.2.15/mod.ts')
+    
+    // Download the source image
+    const res = await fetch(imageUrl)
+    if (!res.ok) return null
+    const buf = new Uint8Array(await res.arrayBuffer())
+    
+    const img = await Image.decode(buf)
+    
+    // OG resolution standard (1200x630)
+    const targetW = 1200
+    const targetH = 630
+    const resized = img.resize(targetW, targetH)
+    
+    // Rectangular badge at bottom-left corner with left gold stripe
+    const normalizedLabel = label.toUpperCase().trim()
+    const badgeW = Math.round(normalizedLabel.length * 20) + 50
+    const badgeH = 54
+    const paddingX = 30
+    const paddingY = targetH - badgeH - 35 // 35px from bottom
+    
+    const darkBg = Image.rgbaToColor(10, 10, 10, 205) // elegant dark grey semi-transparent
+    const goldColor = Image.rgbaToColor(201, 169, 98, 255) // #C9A962 gold
+    
+    // Draw badge background
+    for (let y = paddingY; y < paddingY + badgeH; y++) {
+      for (let x = paddingX; x < paddingX + badgeW; x++) {
+        if (x < paddingX + 6) { // 6px wide gold left border stripe
+          resized.setPixelAt(x + 1, y + 1, goldColor)
+        } else {
+          resized.setPixelAt(x + 1, y + 1, darkBg)
+        }
+      }
+    }
+    
+    // Draw text inside badge
+    const fontSize = 21
+    await resized.drawText(normalizedLabel, {
+      x: paddingX + 22,
+      y: paddingY + Math.round(badgeH / 2 - fontSize / 2),
+      size: fontSize,
+      color: Image.rgbaToColor(255, 255, 255, 255),
+    }).catch(() => {})
+    
+    return await resized.encode(1) // JPEG
+  } catch (err) {
+    console.error('Labeling watermark error:', err)
+    return null
+  }
 }
 
 interface MediaItem {
@@ -658,7 +710,86 @@ ${text}`
       mediaItems.push({ url: rawVideo.trim(), type: 'VIDEO' })
     }
 
-    // 3. Gallery (excluding the first image if it was the main_image)
+    // 3. Room rental specific processing:
+    // If it's a flat rented by rooms (or a room property), we collect photos from rooms and common areas, watermarking them with their labels.
+    if (prop.is_room_rental === true || prop.property_type === 'habitacion') {
+      console.log(`[Media Sync] Property is a room rental. Processing room and common areas photos...`);
+      
+      // A. Rooms Photos (from prop.rooms)
+      if (prop.rooms && Array.isArray(prop.rooms)) {
+        for (const room of prop.rooms) {
+          // Take the first image of the room
+          const roomImg = room.images && room.images[0];
+          if (roomImg && roomImg.trim().startsWith('http')) {
+            const rawRoomUrl = roomImg.trim().split('?')[0];
+            const label = room.name || 'Habitación';
+            
+            console.log(`[Media Sync] Applying label watermark to room photo: "${label}"`);
+            const labeledBuffer = await createLabeledImageBuffer(rawRoomUrl, label);
+            if (labeledBuffer) {
+              const fileName = `labeled_images/${pid}_room_${room.id}_${Date.now()}.jpg`;
+              const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('properties')
+                .upload(fileName, labeledBuffer, { contentType: 'image/jpeg', upsert: true });
+                
+              if (!uploadError && uploadData) {
+                const { data: urlData } = supabase.storage.from('properties').getPublicUrl(fileName);
+                mediaItems.push({ url: urlData.publicUrl, type: 'IMAGE' });
+              } else {
+                // Fallback to raw if upload fails
+                mediaItems.push({ url: rawRoomUrl, type: 'IMAGE' });
+              }
+            } else {
+              mediaItems.push({ url: rawRoomUrl, type: 'IMAGE' });
+            }
+          }
+        }
+      }
+
+      // B. Common Areas Photos (from prop.common_areas)
+      if (prop.common_areas && Array.isArray(prop.common_areas)) {
+        for (const area of prop.common_areas) {
+          // Take up to 2 images per common area to ensure variety
+          const areaImages = area.images && Array.isArray(area.images) ? area.images.slice(0, 2) : [];
+          for (let i = 0; i < areaImages.length; i++) {
+            const areaImg = areaImages[i];
+            if (areaImg && areaImg.trim().startsWith('http')) {
+              const rawAreaUrl = areaImg.trim().split('?')[0];
+              
+              // Construct an elegant label like "ZONA COMÚN: COCINA" or "ZONA COMÚN"
+              let label = 'Zona Común';
+              if (area.type) {
+                const typeLabel = area.type.toUpperCase();
+                label = `ZONA COMÚN: ${typeLabel}`;
+              }
+              if (area.name) {
+                label = `Z. COMÚN: ${area.name}`;
+              }
+              
+              console.log(`[Media Sync] Applying label watermark to common area photo: "${label}"`);
+              const labeledBuffer = await createLabeledImageBuffer(rawAreaUrl, label);
+              if (labeledBuffer) {
+                const fileName = `labeled_images/${pid}_area_${area.id}_${i}_${Date.now()}.jpg`;
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                  .from('properties')
+                  .upload(fileName, labeledBuffer, { contentType: 'image/jpeg', upsert: true });
+                  
+                if (!uploadError && uploadData) {
+                  const { data: urlData } = supabase.storage.from('properties').getPublicUrl(fileName);
+                  mediaItems.push({ url: urlData.publicUrl, type: 'IMAGE' });
+                } else {
+                  mediaItems.push({ url: rawAreaUrl, type: 'IMAGE' });
+                }
+              } else {
+                mediaItems.push({ url: rawAreaUrl, type: 'IMAGE' });
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 4. Standard Gallery Photos (for regular properties, OR as a fallback for rooms if we have extra space under 10 limit)
     if (prop.gallery && Array.isArray(prop.gallery)) {
       const firstGalleryImg = prop.gallery[0]
       const galleryStartIdx = (firstGalleryImg === prop.main_image) ? 1 : 0
@@ -666,16 +797,23 @@ ${text}`
       for (let i = galleryStartIdx; i < prop.gallery.length; i++) {
         const img = prop.gallery[i]
         if (img && img.trim().startsWith('http')) {
-          mediaItems.push({ url: img.trim().split('?')[0], type: 'IMAGE' })
+          const rawUrl = img.trim().split('?')[0];
+          // Avoid duplicate URLs if we already added it via room/common areas processing
+          if (!mediaItems.some(item => item.url.includes(rawUrl) || rawUrl.includes(item.url))) {
+            mediaItems.push({ url: rawUrl, type: 'IMAGE' })
+          }
         }
       }
     }
 
-    // 4. Floor Plans
+    // 5. Floor Plans
     if (prop.floor_plans && Array.isArray(prop.floor_plans)) {
       for (const img of prop.floor_plans) {
         if (img && img.trim().startsWith('http')) {
-          mediaItems.push({ url: img.trim().split('?')[0], type: 'IMAGE' })
+          const rawUrl = img.trim().split('?')[0];
+          if (!mediaItems.some(item => item.url.includes(rawUrl) || rawUrl.includes(item.url))) {
+            mediaItems.push({ url: rawUrl, type: 'IMAGE' })
+          }
         }
       }
     }
