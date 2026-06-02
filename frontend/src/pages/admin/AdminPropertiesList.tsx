@@ -395,6 +395,26 @@ export const AdminPropertiesList = () => {
     (p.gallery || []).forEach(img => {
       if (img && !allImgs.includes(img)) allImgs.push(img);
     });
+    // Add rooms images for room rental properties
+    if (p.is_room_rental && p.rooms && Array.isArray(p.rooms)) {
+      p.rooms.forEach(room => {
+        if (room.images && Array.isArray(room.images)) {
+          room.images.forEach(img => {
+            if (img && !allImgs.includes(img)) allImgs.push(img);
+          });
+        }
+      });
+    }
+    // Add common areas images
+    if (p.common_areas && Array.isArray(p.common_areas)) {
+      p.common_areas.forEach(area => {
+        if (area.images && Array.isArray(area.images)) {
+          area.images.forEach(img => {
+            if (img && !allImgs.includes(img)) allImgs.push(img);
+          });
+        }
+      });
+    }
     // Pre-select images based on target platforms (Instagram -> 10, Facebook -> 30)
     const initialLimit = preselectedPlatform === 'instagram' ? 10 : 30;
     setSocialSelectedImages(allImgs.slice(0, initialLimit));
@@ -1357,6 +1377,26 @@ export const AdminPropertiesList = () => {
                 (prop.gallery || []).forEach(img => {
                   if (img && !allImgs.includes(img)) allImgs.push(img);
                 });
+                // Add rooms images for room rental properties
+                if (prop.is_room_rental && prop.rooms && Array.isArray(prop.rooms)) {
+                  prop.rooms.forEach(room => {
+                    if (room.images && Array.isArray(room.images)) {
+                      room.images.forEach(img => {
+                        if (img && !allImgs.includes(img)) allImgs.push(img);
+                      });
+                    }
+                  });
+                }
+                // Add common areas images
+                if (prop.common_areas && Array.isArray(prop.common_areas)) {
+                  prop.common_areas.forEach(area => {
+                    if (area.images && Array.isArray(area.images)) {
+                      area.images.forEach(img => {
+                        if (img && !allImgs.includes(img)) allImgs.push(img);
+                      });
+                    }
+                  });
+                }
                 if (allImgs.length === 0) return null;
                 return (
                   <div className="flex flex-col gap-3">
@@ -1579,7 +1619,7 @@ export const AdminPropertiesList = () => {
                             if (checked) {
                               setSocialSelectedImages(prev => {
                                 if (prev.length > 10) {
-                                  toast.warning('Instagram tiene un límite de 10 imágenes. Se ha ajustado la selección.');
+                                  toast('Instagram tiene un límite de 10 imágenes. Se ha ajustado la selección.', { icon: '⚠️' });
                                   return prev.slice(0, 10);
                                 }
                                 return prev;

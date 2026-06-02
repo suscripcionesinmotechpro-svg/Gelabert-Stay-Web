@@ -72,12 +72,12 @@
   </url>
   <url>
     <loc>https://gelaberthomes.es/propiedades/GEL-102-01</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-102-01</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -108,6 +108,16 @@
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-126</loc>
     <lastmod>2026-05-29</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/propiedades/GEL-134</loc>
+    <lastmod>2026-06-02</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/en/propiedades/GEL-134</loc>
+    <lastmod>2026-06-02</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -152,22 +162,22 @@
   </url>
   <url>
     <loc>https://gelaberthomes.es/propiedades/GEL-117</loc>
-    <lastmod>2026-06-01</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-117</loc>
-    <lastmod>2026-06-01</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/propiedades/GEL-136</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-136</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -257,16 +267,6 @@
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-125-01</loc>
-    <lastmod>2026-05-29</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://gelaberthomes.es/propiedades/GEL-134</loc>
-    <lastmod>2026-05-29</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://gelaberthomes.es/en/propiedades/GEL-134</loc>
     <lastmod>2026-05-29</lastmod>
     <priority>0.6</priority>
   </url>
