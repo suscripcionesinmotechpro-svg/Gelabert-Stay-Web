@@ -372,15 +372,16 @@ serve(async (req) => {
       }
 
       // Conservation state
+      // Valid values for Spain: "good", "toRestore", "newConstruction"
+      // ("fullyReformed" is NOT allowed for Spain)
       if (property.conservation_state) {
         const cons = property.conservation_state.toLowerCase().trim();
-        if (cons.includes("buen") || cons.includes("bueno") || cons.includes("entrar")) {
-          mappedFeatures.conservation = "good";
-        } else if (cons.includes("refor") || cons.includes("nuevo")) {
-          mappedFeatures.conservation = "fullyReformed";
+        if (cons.includes("obra nueva") || cons.includes("estrenar") || cons.includes("construcción") || cons.includes("construccion")) {
+          mappedFeatures.conservation = "newConstruction";
         } else if (cons.includes("reformar") || cons.includes("ruina")) {
           mappedFeatures.conservation = "toRestore";
         } else {
+          // "Reformado", "Buen estado", etc. → good
           mappedFeatures.conservation = "good";
         }
       } else {
