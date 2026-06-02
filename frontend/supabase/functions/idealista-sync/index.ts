@@ -7,6 +7,44 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Helper function to handle fetch retries on Rate Limit (429) or Server Errors (5xx)
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  retries = 3,
+  delayMs = 2000
+): Promise<Response> {
+  let lastError: any;
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      if (response.status === 429) {
+        console.warn(`[Retry] Rate limit (429) hit on ${url}. Attempt ${i + 1}/${retries}. Waiting ${delayMs}ms before retrying...`);
+        await delay(delayMs);
+        delayMs *= 2; // exponential backoff
+        continue;
+      }
+      if (response.status >= 500 && response.status <= 599) {
+        console.warn(`[Retry] Server error (${response.status}) on ${url}. Attempt ${i + 1}/${retries}. Waiting ${delayMs}ms before retrying...`);
+        await delay(delayMs);
+        delayMs *= 2;
+        continue;
+      }
+      return response;
+    } catch (err) {
+      console.warn(`[Retry] Network error on ${url}: ${err}. Attempt ${i + 1}/${retries}. Waiting ${delayMs}ms...`);
+      lastError = err;
+      await delay(delayMs);
+      delayMs *= 2;
+    }
+  }
+  
+  console.error(`[Retry] Out of retries for ${url}. Making final attempt.`);
+  return fetch(url, options);
+}
+
 // Interface for Idealista OAuth2 token response
 interface IdealistaToken {
   access_token: string;
@@ -24,7 +62,7 @@ async function getIdealistaToken(clientId: string, clientSecret: string, baseUrl
   const tokenUrl = `${baseUrl}/oauth/token`;
   console.log(`[OAuth] Requesting token from: ${tokenUrl}`);
   
-  const response = await fetch(tokenUrl, {
+  const response = await fetchWithRetry(tokenUrl, {
     method: "POST",
     headers: {
       "Authorization": `Basic ${authB64}`,
@@ -55,7 +93,7 @@ async function getIdealistaContactId(accessToken: string, feedKey: string, baseU
   };
 
   try {
-    const response = await fetch(contactsUrl, { headers });
+    const response = await fetchWithRetry(contactsUrl, { headers });
     if (response.ok) {
       const data = await response.json();
       // Search for our primary contact info@gelaberthomes.es
@@ -66,6 +104,8 @@ async function getIdealistaContactId(accessToken: string, feedKey: string, baseU
         console.log(`[Contact] Found existing contact ID: ${existing.contactId}`);
         return Number(existing.contactId);
       }
+    } else {
+      console.warn(`[Contact] Non-ok response fetching contacts list: ${response.status}`);
     }
   } catch (err) {
     console.warn("[Contact] Error fetching contacts list:", err);
@@ -83,7 +123,7 @@ async function getIdealistaContactId(accessToken: string, feedKey: string, baseU
     primaryPhoneNumber: "611898827"
   };
 
-  const response = await fetch(createUrl, {
+  const response = await fetchWithRetry(createUrl, {
     method: "POST",
     headers,
     body: JSON.stringify(contactPayload)
@@ -278,7 +318,7 @@ async function syncPropertyImages(
     images: mappedImages
   };
 
-  const response = await fetch(imagesUrl, {
+  const response = await fetchWithRetry(imagesUrl, {
     method: "PUT",
     headers,
     body: JSON.stringify(payload)
@@ -353,9 +393,10 @@ serve(async (req) => {
       
       // Get OAuth Token
       const accessToken = await getIdealistaToken(clientId, clientSecret, baseUrl);
+      await delay(500); // Proactive delay to avoid rate limiting
       
       const deactivateUrl = `${baseUrl}/v1/properties/${property.idealista_id}/deactivate`;
-      const response = await fetch(deactivateUrl, {
+      const response = await fetchWithRetry(deactivateUrl, {
         method: "POST",
         headers: {
           "feedKey": feedKey,
@@ -626,12 +667,13 @@ serve(async (req) => {
     let publishedOk = false;
 
     // Call Idealista API
+    await delay(500); // Proactive delay before publication request
     if (idealistaResponseId) {
       // UPDATE
       const updateUrl = `${baseUrl}/v1/properties/${idealistaResponseId}`;
       console.log(`[Publish] Sending PUT update to: ${updateUrl}`);
       
-      const response = await fetch(updateUrl, {
+      const response = await fetchWithRetry(updateUrl, {
         method: "PUT",
         headers: {
           "feedKey": feedKey,
@@ -651,6 +693,7 @@ serve(async (req) => {
         console.warn(`[Publish Warning] PUT update returned ${response.status}: ${errText}. Attempting POST instead...`);
         // Fallback to POST if PUT fails (e.g. if listing was removed on their end)
         idealistaResponseId = null;
+        await delay(500); // Short delay before fallback creation request
       }
     }
 
@@ -659,7 +702,7 @@ serve(async (req) => {
       const createUrl = `${baseUrl}/v1/properties`;
       console.log(`[Publish] Sending POST create to: ${createUrl}`);
       
-      const response = await fetch(createUrl, {
+      const response = await fetchWithRetry(createUrl, {
         method: "POST",
         headers: {
           "feedKey": feedKey,
@@ -758,6 +801,8 @@ serve(async (req) => {
 
       if (imagesToUpload.length > 0) {
         try {
+          console.log(`[Publish] Waiting 1000ms before starting image synchronization...`);
+          await delay(1000); // Proactive delay to prevent rate limit spikes
           await syncPropertyImages(accessToken, feedKey, idealistaResponseId, imagesToUpload, baseUrl);
         } catch (imgErr) {
           console.warn("[Publish Warning] Images synchronization failed but property was published:", imgErr);

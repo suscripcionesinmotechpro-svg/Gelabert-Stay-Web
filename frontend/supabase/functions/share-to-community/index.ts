@@ -568,6 +568,27 @@ async function publishToFacebook(pageId: string, pageToken: string, message: str
   }
 }
 
+// ── Poll an IG media container until status is FINISHED or ERROR ────────────────
+async function pollUntilReady(containerId: string, accessToken: string, maxWaitSec: number): Promise<string | null> {
+  const maxIterations = Math.ceil(maxWaitSec / 3)
+  for (let i = 0; i < maxIterations; i++) {
+    // Wait 3 seconds between each poll
+    await new Promise(r => setTimeout(r, 3000))
+    const res = await fetch(
+      `https://graph.facebook.com/v20.0/${containerId}?fields=status_code,status&access_token=${accessToken}`
+    )
+    const data = await res.json()
+    const status = data.status_code || data.status
+    console.log(`[IG Poll] container=${containerId} status=${status} attempt=${i + 1}/${maxIterations}`)
+    if (status === 'FINISHED') return null                        // ready to publish
+    if (status === 'ERROR' || status === 'EXPIRED') {
+      return data.status || `Container ${status} before publish`  // failed
+    }
+    // IN_PROGRESS or null → keep waiting
+  }
+  return `IG container not ready after ${maxWaitSec}s`
+}
+
 // ── Publish a post to Instagram (via Media Container + Publish) ────────────────
 async function publishToInstagram(igAccountId: string, pageToken: string, caption: string, mediaItems: MediaItem[], existingPostId: string | null): Promise<{ postId: string | null; error: string | null }> {
   try {
@@ -596,7 +617,9 @@ async function publishToInstagram(igAccountId: string, pageToken: string, captio
       const container = await containerRes.json()
       if (!container.id) return { postId: null, error: container.error?.message || 'IG container error' }
 
-      await new Promise(r => setTimeout(r, item.type === 'VIDEO' ? 5000 : 2000))
+      // Poll until container is FINISHED before publishing
+      const pollErr = await pollUntilReady(container.id, pageToken, item.type === 'VIDEO' ? 90 : 30)
+      if (pollErr) return { postId: null, error: pollErr }
 
       const publishRes = await fetch(`https://graph.facebook.com/v20.0/${igAccountId}/media_publish`, {
         method: 'POST',
@@ -610,7 +633,7 @@ async function publishToInstagram(igAccountId: string, pageToken: string, captio
       if (published.id) return { postId: published.id, error: null }
       return { postId: null, error: published.error?.message || 'IG publish error' }
     } else {
-      // Step 1: Create a container for each item in the carousel
+      // Step 1: Create a container for each item in the carousel and poll each one
       const childIds: string[] = []
       for (const item of mediaItems) {
         const body: Record<string, any> = {
@@ -631,6 +654,12 @@ async function publishToInstagram(igAccountId: string, pageToken: string, captio
         })
         const data = await res.json()
         if (data.id) {
+          // Poll each child container individually until it's FINISHED
+          const pollErr = await pollUntilReady(data.id, pageToken, item.type === 'VIDEO' ? 90 : 30)
+          if (pollErr) {
+            console.error(`IG carousel child polling failed (skipping item): ${pollErr}`)
+            continue // skip this item but continue with others
+          }
           childIds.push(data.id)
         } else {
           console.error('IG carousel item container error:', data)
