@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useProperties, usePropertyMutations } from '../../hooks/useProperties';
 import type { Property, PropertyStatus, CommercialStatus } from '../../types/property';
 import { STATUS_LABELS, STATUS_COLORS, OPERATION_LABELS, COMMERCIAL_STATUS_LABELS, COMMERCIAL_STATUS_COLORS } from '../../types/property';
-import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid, FolderArchive, Loader2, Filter, CloudLightning, CloudOff, Cloud, X, Link2, Link2Off, RefreshCw, Sparkles, Share2, GripVertical, Images } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid, FolderArchive, Loader2, Filter, CloudLightning, CloudOff, Cloud, X, Link2, Link2Off, RefreshCw, Sparkles, Share2, GripVertical, Images, Video } from 'lucide-react';
 
 // Facebook & Instagram icons (SVG inline)
 const FacebookIcon = ({ className }: { className?: string }) => (
@@ -374,6 +374,8 @@ export const AdminPropertiesList = () => {
   const [socialTone, setSocialTone] = useState<'premium' | 'emocional' | 'moderno'>('premium');
   // Image selection & ordering for social publish
   const [socialSelectedImages, setSocialSelectedImages] = useState<string[]>([]);
+  const [socialIncludeVideo, setSocialIncludeVideo] = useState(false);
+  const [socialVideoUrl, setSocialVideoUrl] = useState('');
   const dragImageIdx = useRef<number | null>(null);
   const dragOverImageIdx = useRef<number | null>(null);
 
@@ -419,6 +421,11 @@ export const AdminPropertiesList = () => {
     const initialLimit = preselectedPlatform === 'instagram' ? 10 : 30;
     setSocialSelectedImages(allImgs.slice(0, initialLimit));
 
+    // Video settings
+    const hasVideo = !!p.video_url && p.video_url.trim().startsWith('http') && p.video_url.toLowerCase().includes('.mp4');
+    setSocialIncludeVideo(hasVideo);
+    setSocialVideoUrl(p.video_url || '');
+
     setSocialModalOpen(true);
   };
 
@@ -453,7 +460,7 @@ export const AdminPropertiesList = () => {
         if (prev.length === 1) return prev;
         return prev.filter(u => u !== url);
       }
-      const maxLimit = socialPlatforms.instagram ? 10 : 30;
+      const maxLimit = socialPlatforms.facebook ? 30 : 10;
       if (prev.length >= maxLimit) {
         toast.error(`Máximo ${maxLimit} imágenes por publicación.`);
         return prev;
@@ -500,6 +507,8 @@ export const AdminPropertiesList = () => {
               customCopyFb: socialCopyFb,
               customCopyIg: socialCopyIg,
               selectedImages: socialSelectedImages,
+              includeVideo: socialIncludeVideo,
+              customVideoUrl: socialVideoUrl,
             }),
           }
         );
@@ -1405,12 +1414,12 @@ export const AdminPropertiesList = () => {
                         <Images className="w-4 h-4 text-[#C9A962]" />
                         <span className="font-primary text-xs font-bold text-[#FAF8F5] uppercase tracking-wider">Imágenes de la Publicación</span>
                         <span className="font-primary text-xs text-[#AAA] bg-[#1A1A1A] px-2 py-0.5 rounded-full">
-                          {socialSelectedImages.length} seleccionada{socialSelectedImages.length !== 1 ? 's' : ''} · máx. {socialPlatforms.instagram ? 10 : 30}
+                          {socialSelectedImages.length} seleccionada{socialSelectedImages.length !== 1 ? 's' : ''} · máx. {socialPlatforms.facebook ? 30 : 10}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => setSocialSelectedImages(allImgs.slice(0, socialPlatforms.instagram ? 10 : 30))}
+                          onClick={() => setSocialSelectedImages(allImgs.slice(0, socialPlatforms.facebook ? 30 : 10))}
                           disabled={socialPublishing}
                           className="font-primary text-xs text-[#AAA] hover:text-[#C9A962] uppercase tracking-wider transition-colors disabled:opacity-50"
                         >Seleccionar todas</button>
@@ -1426,6 +1435,15 @@ export const AdminPropertiesList = () => {
                     <p className="font-primary text-xs text-[#999] leading-relaxed">
                       ☝️ Haz clic para seleccionar / deseleccionar. Arrastra las imágenes <strong className="text-[#CCC]">seleccionadas</strong> para cambiar el orden. La primera imagen será la portada del carrusel.
                     </p>
+
+                    {socialPlatforms.instagram && socialSelectedImages.length > 10 && (
+                      <div className="bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] px-3 py-2 rounded-sm text-xs font-primary leading-normal flex items-start gap-2">
+                        <span className="mt-0.5 shrink-0">⚠️</span>
+                        <span>
+                          <strong>Nota para Instagram:</strong> Has seleccionado {socialSelectedImages.length} imágenes. Como Instagram solo admite un máximo de 10 imágenes en publicaciones carrusel, **solo se publicará el primer bloque de 10 imágenes** (las numeradas del 1 al 10 en tu orden de publicación). Facebook sí incluirá las {socialSelectedImages.length} imágenes completas.
+                        </span>
+                      </div>
+                    )}
 
                     {/* All available images – click to toggle */}
                     <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-sm p-3">
@@ -1508,6 +1526,73 @@ export const AdminPropertiesList = () => {
                   </div>
                 );
               })()}
+
+              {/* ── Video Section ── */}
+              <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-sm p-4 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Video className="w-4 h-4 text-[#C9A962]" />
+                    <span className="font-primary text-xs font-bold text-[#FAF8F5] uppercase tracking-wider">Vídeo de la Publicación</span>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={socialIncludeVideo}
+                      onChange={(e) => setSocialIncludeVideo(e.target.checked)}
+                      disabled={socialPublishing}
+                      className="w-3.5 h-3.5 rounded-sm border-[#2A2A2A] bg-[#161616] accent-[#C9A962] cursor-pointer"
+                    />
+                    <span className="font-primary text-xs text-[#AAA] group-hover:text-[#FAF8F5] transition-colors font-bold">
+                      Incluir vídeo en el anuncio
+                    </span>
+                  </label>
+                </div>
+
+                {socialIncludeVideo && (
+                  <div className="grid grid-cols-1 md:grid-cols-[2fr_1.2fr] gap-4 items-start">
+                    <div className="flex flex-col gap-2">
+                      <label className="font-primary text-xs text-[#888] uppercase tracking-wider font-bold">
+                        Enlace directo del vídeo (.mp4)
+                      </label>
+                      <input
+                        type="text"
+                        value={socialVideoUrl}
+                        onChange={(e) => setSocialVideoUrl(e.target.value)}
+                        placeholder="https://ejemplo.com/video.mp4"
+                        disabled={socialPublishing}
+                        className="w-full bg-[#161616] border border-[#2A2A2A] p-2 text-xs font-primary text-[#FAF8F5] outline-none focus:border-[#C9A962] transition-colors rounded-sm placeholder:text-[#444]"
+                      />
+                      <p className="font-primary text-[11px] text-[#666] leading-normal">
+                        ☝️ Meta requiere un enlace público directo a un archivo de vídeo. Debe empezar con <code className="text-[#888]">http/https</code> y terminar en <code className="text-[#888]">.mp4</code>.
+                      </p>
+                      {socialVideoUrl && !socialVideoUrl.toLowerCase().includes('.mp4') && (
+                        <p className="text-[#C9A962] font-primary text-[11px] font-bold">
+                          ⚠️ La URL no parece terminar en .mp4. La publicación podría fallar en Facebook/Instagram.
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="bg-[#161616] border border-[#2A2A2A] rounded-sm p-2 flex flex-col gap-2 items-center justify-center min-h-[100px] w-full">
+                      {socialVideoUrl && socialVideoUrl.toLowerCase().includes('.mp4') ? (
+                        <div className="w-full aspect-video bg-black rounded-sm overflow-hidden flex items-center justify-center border border-[#1A1A1A]">
+                          <video
+                            src={socialVideoUrl}
+                            controls
+                            muted
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="text-center py-4 px-2">
+                          <p className="font-primary text-[11px] text-[#555] italic">
+                            Introduce una URL de vídeo .mp4 válida para previsualizarlo aquí.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* ── Copy + Platforms row ── */}
               <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-6">
@@ -1599,7 +1684,14 @@ export const AdminPropertiesList = () => {
                         <input
                           type="checkbox"
                           checked={socialPlatforms.facebook}
-                          onChange={(e) => setSocialPlatforms(prev => ({ ...prev, facebook: e.target.checked }))}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setSocialPlatforms(prev => ({ ...prev, facebook: checked }));
+                            if (!checked && socialPlatforms.instagram && socialSelectedImages.length > 10) {
+                              toast('Instagram tiene un límite de 10 imágenes. Se ha ajustado la selección.', { icon: '⚠️' });
+                              setSocialSelectedImages(prev => prev.slice(0, 10));
+                            }
+                          }}
                           disabled={socialPublishing}
                           className="w-4 h-4 rounded-sm border-[#2A2A2A] bg-[#161616] accent-[#1877F2] cursor-pointer"
                         />
@@ -1616,14 +1708,9 @@ export const AdminPropertiesList = () => {
                           onChange={(e) => {
                             const checked = e.target.checked;
                             setSocialPlatforms(prev => ({ ...prev, instagram: checked }));
-                            if (checked) {
-                              setSocialSelectedImages(prev => {
-                                if (prev.length > 10) {
-                                  toast('Instagram tiene un límite de 10 imágenes. Se ha ajustado la selección.', { icon: '⚠️' });
-                                  return prev.slice(0, 10);
-                                }
-                                return prev;
-                              });
+                            if (checked && !socialPlatforms.facebook && socialSelectedImages.length > 10) {
+                              toast('Instagram tiene un límite de 10 imágenes. Se ha ajustado la selección.', { icon: '⚠️' });
+                              setSocialSelectedImages(prev => prev.slice(0, 10));
                             }
                           }}
                           disabled={socialPublishing}

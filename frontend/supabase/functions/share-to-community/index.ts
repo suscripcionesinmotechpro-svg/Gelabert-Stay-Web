@@ -702,6 +702,8 @@ serve(async (req) => {
       customCopyFb, // Optional customized copy for Facebook
       customCopyIg, // Optional customized copy for Instagram
       selectedImages, // Optional: ordered array of image URLs chosen manually by the user in the modal
+      includeVideo,   // Optional: boolean to include/exclude video (manual shares)
+      customVideoUrl, // Optional: custom video URL (manual shares)
     } = payload
 
     if (action === 'enhance_copy') {
@@ -810,8 +812,9 @@ ${text}`
         
         // Video (if direct mp4) - placed immediately after the cover image as requested by the user
         if (i === 0) {
-          const rawVideo = prop.video_url
-          if (rawVideo && rawVideo.trim().startsWith('http') && rawVideo.toLowerCase().includes('.mp4')) {
+          const useVideo = trigger === 'manual' ? (includeVideo !== false) : true;
+          const rawVideo = trigger === 'manual' ? (customVideoUrl || prop.video_url) : prop.video_url;
+          if (useVideo && rawVideo && rawVideo.trim().startsWith('http') && rawVideo.toLowerCase().includes('.mp4')) {
             mediaItems.push({ url: rawVideo.trim(), type: 'VIDEO' })
           }
         }
@@ -825,8 +828,9 @@ ${text}`
       }
 
       // 2. Video (if direct mp4) - placed immediately after the cover image as requested by the user
-      const rawVideo = prop.video_url
-      if (rawVideo && rawVideo.trim().startsWith('http') && rawVideo.toLowerCase().includes('.mp4')) {
+      const useVideo = trigger === 'manual' ? (includeVideo !== false) : true;
+      const rawVideo = trigger === 'manual' ? (customVideoUrl || prop.video_url) : prop.video_url;
+      if (useVideo && rawVideo && rawVideo.trim().startsWith('http') && rawVideo.toLowerCase().includes('.mp4')) {
         mediaItems.push({ url: rawVideo.trim(), type: 'VIDEO' })
       }
 
