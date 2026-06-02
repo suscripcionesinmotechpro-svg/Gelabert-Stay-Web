@@ -788,9 +788,11 @@ ${text}`
             const roomImages = Array.isArray(room.images) ? room.images : [];
             if (roomImages.length === 0) continue;
 
-            // Etiqueta: nombre de habitación o "HAB. N"
+            // Etiqueta: nombre de habitación o "HAB. N" + precio si existe
             const roomNumber = roomIdx + 1;
-            const roomLabel = (room.name && room.name.trim()) ? room.name.trim() : `HAB. ${roomNumber}`;
+            const roomName = (room.name && room.name.trim()) ? room.name.trim() : `HAB. ${roomNumber}`;
+            const priceStr = room.price ? ` · ${Math.round(room.price)}€/mes` : '';
+            const roomLabel = `${roomName}${priceStr}`;
 
             // Coge TODAS las fotos de la habitación con su etiqueta
             for (const roomImg of roomImages) {
