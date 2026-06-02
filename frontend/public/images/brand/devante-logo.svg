@@ -1,29 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 80" width="100%" height="100%">
-  <!-- Definition of gradients for golden look (can be controlled via CSS color/grayscale too) -->
-  <defs>
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#C9A962" />
-      <stop offset="100%" stop-color="#FAF8F5" />
-    </linearGradient>
-  </defs>
-  
-  <!-- Crest/Shield icon -->
+  <!-- Crest/Shield icon - Gold fill/stroke -->
   <g transform="translate(15, 10)">
-    <!-- Outer thin border of shield -->
-    <path d="M 0 5 L 0 25 C 0 45, 15 55, 25 60 C 35 55, 50 45, 50 25 L 50 5 Z" fill="none" stroke="currentColor" stroke-width="2" />
-    <!-- Inner design - Open Book / Laurel element -->
-    <path d="M 12 25 L 25 32 L 38 25 M 25 32 L 25 48" fill="none" stroke="currentColor" stroke-width="1.5" />
-    <!-- Classical horizontal line -->
-    <line x1="12" y1="18" x2="38" y2="18" stroke="currentColor" stroke-width="1.5" />
-    <!-- Tiny decorative star -->
-    <polygon points="25,12 27,16 31,16 28,19 29,23 25,21 21,23 22,19 19,16 23,16" fill="currentColor" />
+    <!-- Outer gold border -->
+    <path d="M 0 5 L 0 25 C 0 45, 15 55, 25 60 C 35 55, 50 45, 50 25 L 50 5 Z" fill="none" stroke="#C9A962" stroke-width="2.5" />
+    <!-- Inner book layout - gold -->
+    <path d="M 12 25 L 25 32 L 38 25 M 25 32 L 25 48" fill="none" stroke="#C9A962" stroke-width="2" />
+    <line x1="12" y1="18" x2="38" y2="18" stroke="#C9A962" stroke-width="2" />
+    <!-- Golden Star -->
+    <polygon points="25,10 27,14 31,14 28,17 29,21 25,19 21,21 22,17 19,14 23,14" fill="#C9A962" />
   </g>
   
   <!-- Typography -->
-  <g transform="translate(85, 48)" fill="currentColor">
-    <!-- Main text "DEVANTE" -->
-    <text font-family="'Playfair Display', 'Didot', 'Georgia', serif" font-size="28" font-weight="600" letter-spacing="0.2em">DEVANTE</text>
-    <!-- Subtitle "BUSINESS SCHOOL" -->
-    <text font-family="'Manrope', 'Helvetica', 'Arial', sans-serif" font-size="10" font-weight="700" letter-spacing="0.4em" y="18" opacity="0.6">BUSINESS SCHOOL</text>
+  <g transform="translate(85, 48)">
+    <!-- Main text "DEVANTE" in Ivory White -->
+    <text font-family="'Playfair Display', 'Didot', 'Georgia', serif" font-size="28" font-weight="700" letter-spacing="0.2em" fill="#FAF8F5">DEVANTE</text>
+    <!-- Subtitle "BUSINESS SCHOOL" in Rich Gold -->
+    <text font-family="'Manrope', 'Helvetica', 'Arial', sans-serif" font-size="10" font-weight="800" letter-spacing="0.4em" y="18" fill="#C9A962">BUSINESS SCHOOL</text>
   </g>
 </svg>

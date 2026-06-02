@@ -425,60 +425,64 @@ export const Home = () => {
       </div>
 
       {/* Accreditations & Partnerships Band */}
-      <section className="w-full bg-[#050505] py-14 border-y border-white/5 relative z-10 overflow-hidden">
-        <div className="max-w-[1440px] mx-auto px-6 md:px-14 flex flex-col items-center gap-8">
+      <section className="w-full bg-[#050505] py-20 md:py-24 border-y border-white/5 relative z-10 overflow-hidden">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-14 flex flex-col items-center gap-10">
           <motion.p
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.6 }}
-            className="font-primary text-[10px] md:text-[11px] text-[#C9A962] uppercase tracking-[0.25em] font-bold text-center"
+            className="font-primary text-xs md:text-sm text-[#C9A962] uppercase tracking-[0.3em] font-extrabold text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
           >
             {t('home.accreditations.title')}
           </motion.p>
 
-          <div className="w-full flex flex-col md:flex-row items-center justify-center gap-12 md:gap-24 lg:gap-32 pt-2">
+          <div className="w-full flex flex-col lg:flex-row items-stretch justify-center gap-8 lg:gap-12 max-w-6xl mt-4">
             {/* Devante Logo and Tag */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="flex flex-col items-center gap-3 text-center max-w-sm"
+              className="flex-1 flex flex-col items-center gap-6 text-center p-8 md:p-10 rounded-lg bg-gradient-to-b from-white/[0.03] to-white/[0.01] border border-white/5 hover:border-[#C9A962]/40 hover:bg-[#C9A962]/[0.02] transition-all duration-500 backdrop-blur-md relative group"
             >
-              <div className="h-10 md:h-12 flex items-center justify-center text-white/50 hover:text-white transition-colors duration-300">
+              <div className="absolute inset-0 bg-gradient-to-b from-[#C9A962]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
+              <div className="h-12 md:h-14 flex items-center justify-center relative z-10">
                 <img 
                   src="/images/brand/devante-logo.svg" 
                   alt="Devante Business School" 
-                  className="h-full w-auto max-w-[220px] object-contain grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-300"
+                  className="h-full w-auto max-w-[240px] object-contain opacity-95 group-hover:opacity-100 group-hover:scale-102 transition-all duration-500"
                 />
               </div>
-              <span className="font-primary text-xs text-white/40 max-w-[260px] leading-relaxed pt-1">
+              <p className="font-primary text-sm md:text-base text-zinc-300 leading-relaxed max-w-[420px] font-light relative z-10">
                 {t('home.accreditations.devante_tag')}
-              </span>
+              </p>
             </motion.div>
 
-            {/* Separator for large screens */}
-            <div className="hidden md:block w-px h-12 bg-white/5" />
+            {/* Separator (visible on desktop only) */}
+            <div className="hidden lg:flex items-center justify-center">
+              <div className="w-[1px] h-32 bg-gradient-to-b from-transparent via-[#C9A962]/20 to-transparent" />
+            </div>
 
             {/* Huspy Logo and Tag */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.25 }}
-              className="flex flex-col items-center gap-3 text-center max-w-sm"
+              className="flex-1 flex flex-col items-center gap-6 text-center p-8 md:p-10 rounded-lg bg-gradient-to-b from-white/[0.03] to-white/[0.01] border border-white/5 hover:border-[#C9A962]/40 hover:bg-[#C9A962]/[0.02] transition-all duration-500 backdrop-blur-md relative group"
             >
-              <div className="h-10 md:h-12 flex items-center justify-center text-white/50 hover:text-white transition-colors duration-300">
+              <div className="absolute inset-0 bg-gradient-to-b from-[#C9A962]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
+              <div className="h-12 md:h-14 flex items-center justify-center relative z-10">
                 <img 
                   src="/images/brand/huspy-logo.svg" 
                   alt="Huspy Authorized Partner" 
-                  className="h-full w-auto max-w-[200px] object-contain grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-300"
+                  className="h-full w-auto max-w-[220px] object-contain opacity-95 group-hover:opacity-100 group-hover:scale-102 transition-all duration-500"
                 />
               </div>
-              <span className="font-primary text-xs text-white/40 max-w-[260px] leading-relaxed pt-1">
+              <p className="font-primary text-sm md:text-base text-zinc-300 leading-relaxed max-w-[420px] font-light relative z-10">
                 {t('home.accreditations.huspy_tag')}
-              </span>
+              </p>
             </motion.div>
           </div>
         </div>

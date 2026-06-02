@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -498,6 +498,28 @@ interface MediaItem {
   type: 'IMAGE' | 'VIDEO';
 }
 
+// ── Publish a video to a Facebook Page via /videos endpoint ───────────────────
+async function publishVideoToFacebook(pageId: string, pageToken: string, message: string, videoUrl: string): Promise<{ postId: string | null; error: string | null }> {
+  try {
+    console.log(`[FB Video] Uploading video to Facebook page: ${videoUrl}`)
+    const res = await fetch(`https://graph.facebook.com/v20.0/${pageId}/videos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        file_url: videoUrl,
+        description: message,
+        access_token: pageToken,
+      }),
+    })
+    const data = await res.json()
+    console.log('[FB Video] Response:', JSON.stringify(data))
+    if (data.id) return { postId: data.id, error: null }
+    return { postId: null, error: data.error?.message || 'FB video upload error' }
+  } catch (err: any) {
+    return { postId: null, error: err.message }
+  }
+}
+
 // ── Publish a post to a Facebook Page ─────────────────────────────────────────
 async function publishToFacebook(pageId: string, pageToken: string, message: string, mediaItems: MediaItem[], existingPostId: string | null): Promise<{ postId: string | null; error: string | null }> {
   try {
@@ -507,7 +529,7 @@ async function publishToFacebook(pageId: string, pageToken: string, message: str
         .catch(() => {}) // Ignore delete errors
     }
 
-    // Facebook attached_media only supports photos.
+    // Facebook attached_media only supports photos — videos must be published separately
     const imageItems = mediaItems.filter(item => item.type === 'IMAGE')
 
     if (imageItems.length === 0) {
@@ -935,10 +957,11 @@ ${text}`
       }
     }
 
-    // Limit for Instagram Carousel (maximum 10 allowed, images only to avoid strict API video errors)
+    // Instagram carousel: images only (max 10). The video URL is appended as text in the caption.
+    const videoItem = mediaItems.find(item => item.type === 'VIDEO')
     const finalIgMediaItems = mediaItems.filter(item => item.type === 'IMAGE').slice(0, 10)
 
-    // Limit for Facebook (higher limit, maximum 30 allowed)
+    // Facebook: images only for the photo post (video published separately via /videos endpoint)
     const finalFbMediaItems = mediaItems.slice(0, 30)
 
     const propUrl = `https://gelaberthomes.es/propiedades/${prop.reference || prop.slug || prop.id}`
@@ -1014,14 +1037,26 @@ ${text}`
           ? `${WATERMARK_CONFIG[prop.commercial_status]?.label_es}: ${prop.title}\n\n${propUrl}`
           : copy)
 
-        // If there is a video in the media items, append its direct link to the Facebook post message
-        // since Facebook attached_media does not support mixing photos and videos.
-        const fbVideo = finalFbMediaItems.find(item => item.type === 'VIDEO')
-        if (fbVideo) {
-          postCopy += `\n\n🎬 ¡Mira el vídeo aquí!: ${fbVideo.url}`
+        // Append video URL to the Facebook post copy so followers can find it
+        // (Facebook API does not support mixing photos+videos in attached_media)
+        const fbVideoItem = finalFbMediaItems.find(item => item.type === 'VIDEO')
+        if (fbVideoItem) {
+          postCopy += `\n\n🎬 ¡Mira el vídeo aquí!: ${fbVideoItem.url}`
         }
 
+        // Step A: Publish photo post (images only in attached_media)
         fbResult = await publishToFacebook(FB_PAGE_ID, FB_PAGE_TOKEN, postCopy, finalFbMediaItems, prop.facebook_post_id || null)
+
+        // Step B: Also publish the video as a separate Facebook video post
+        if (fbVideoItem) {
+          console.log('[FB Video] Publishing video separately to Facebook...')
+          const videoResult = await publishVideoToFacebook(FB_PAGE_ID, FB_PAGE_TOKEN, postCopy, fbVideoItem.url)
+          if (videoResult.error) {
+            console.error('[FB Video] Video post failed:', videoResult.error)
+          } else {
+            console.log('[FB Video] Video published successfully. Post ID:', videoResult.postId)
+          }
+        }
 
         await supabase.from('properties').update({
           facebook_status: fbResult.postId ? 'published' : 'error',
@@ -1066,7 +1101,8 @@ ${text}`
         } else {
           let igCopy = customCopyIg || copy
           const igVideo = mediaItems.find(item => item.type === 'VIDEO')
-          if (igVideo) {
+          const shouldIncludeVideoInIgCaption = trigger === 'manual' ? (includeVideo === true) : !!igVideo
+          if (igVideo && shouldIncludeVideoInIgCaption) {
             igCopy += `\n\n🎬 ¡Mira el vídeo aquí!: ${igVideo.url}`
           }
 
