@@ -1404,7 +1404,7 @@ export const AdminPropertiesList = () => {
                       <div className="flex items-center gap-2">
                         <Images className="w-4 h-4 text-[#C9A962]" />
                         <span className="font-primary text-xs font-bold text-[#FAF8F5] uppercase tracking-wider">Imágenes de la Publicación</span>
-                        <span className="font-primary text-[10px] text-[#666] bg-[#1A1A1A] px-2 py-0.5 rounded-full">
+                        <span className="font-primary text-xs text-[#AAA] bg-[#1A1A1A] px-2 py-0.5 rounded-full">
                           {socialSelectedImages.length} seleccionada{socialSelectedImages.length !== 1 ? 's' : ''} · máx. {socialPlatforms.instagram ? 10 : 30}
                         </span>
                       </div>
@@ -1412,24 +1412,24 @@ export const AdminPropertiesList = () => {
                         <button
                           onClick={() => setSocialSelectedImages(allImgs.slice(0, socialPlatforms.instagram ? 10 : 30))}
                           disabled={socialPublishing}
-                          className="font-primary text-[10px] text-[#888] hover:text-[#C9A962] uppercase tracking-wider transition-colors disabled:opacity-50"
+                          className="font-primary text-xs text-[#AAA] hover:text-[#C9A962] uppercase tracking-wider transition-colors disabled:opacity-50"
                         >Seleccionar todas</button>
-                        <span className="text-[#333]">/</span>
+                        <span className="text-[#555]">/</span>
                         <button
                           onClick={() => setSocialSelectedImages(socialSelectedImages.length > 0 ? [socialSelectedImages[0]] : [])}
                           disabled={socialPublishing}
-                          className="font-primary text-[10px] text-[#888] hover:text-[#C9A962] uppercase tracking-wider transition-colors disabled:opacity-50"
+                          className="font-primary text-xs text-[#AAA] hover:text-[#C9A962] uppercase tracking-wider transition-colors disabled:opacity-50"
                         >Solo portada</button>
                       </div>
                     </div>
 
-                    <p className="font-primary text-[10px] text-[#555] leading-relaxed">
-                      ☝️ Haz clic para seleccionar / deseleccionar. Arrastra las imágenes <strong className="text-[#888]">seleccionadas</strong> para cambiar el orden. La primera imagen será la portada del carrusel.
+                    <p className="font-primary text-xs text-[#999] leading-relaxed">
+                      ☝️ Haz clic para seleccionar / deseleccionar. Arrastra las imágenes <strong className="text-[#CCC]">seleccionadas</strong> para cambiar el orden. La primera imagen será la portada del carrusel.
                     </p>
 
                     {/* All available images – click to toggle */}
                     <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-sm p-3">
-                      <p className="font-primary text-[9px] text-[#444] uppercase tracking-wider font-bold mb-2">Todas las fotos disponibles — clic para incluir/excluir</p>
+                      <p className="font-primary text-xs text-[#888] uppercase tracking-wider font-bold mb-2">Todas las fotos disponibles — clic para incluir/excluir</p>
                       <div className="flex flex-wrap gap-2">
                         {allImgs.map((img) => {
                           const selIdx = socialSelectedImages.indexOf(img);
@@ -1454,7 +1454,7 @@ export const AdminPropertiesList = () => {
                               )}
                               {!isSelected && (
                                 <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <span className="bg-black/60 text-white text-[9px] font-bold px-1 py-0.5 rounded">+ Añadir</span>
+                                  <span className="bg-black/70 text-white text-xs font-bold px-1.5 py-0.5 rounded">+ Añadir</span>
                                 </span>
                               )}
                             </button>
@@ -1466,7 +1466,7 @@ export const AdminPropertiesList = () => {
                     {/* Selected images – drag to reorder */}
                     {socialSelectedImages.length > 0 && (
                       <div className="bg-[#0F0F0F] border border-[#C9A962]/20 rounded-sm p-3">
-                        <p className="font-primary text-[9px] text-[#C9A962] uppercase tracking-wider font-bold mb-2">Orden de publicación — arrastra para reordenar</p>
+                        <p className="font-primary text-xs text-[#C9A962] uppercase tracking-wider font-bold mb-2">Orden de publicación — arrastra para reordenar</p>
                         <div className="flex flex-wrap gap-2">
                           {socialSelectedImages.map((img, idx) => (
                             <div
@@ -1498,7 +1498,7 @@ export const AdminPropertiesList = () => {
                                 <X className="w-2.5 h-2.5" />
                               </button>
                               {idx === 0 && (
-                                <span className="absolute bottom-0.5 left-0.5 bg-[#C9A962] text-[#0A0A0A] text-[7px] font-bold px-1 py-0 rounded uppercase leading-4 pointer-events-none">Portada</span>
+                                <span className="absolute bottom-0.5 left-0.5 bg-[#C9A962] text-[#0A0A0A] text-[9px] font-bold px-1 py-0.5 rounded uppercase leading-4 pointer-events-none">Portada</span>
                               )}
                             </div>
                           ))}
@@ -1542,7 +1542,7 @@ export const AdminPropertiesList = () => {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="font-primary text-[10px] text-[#666] font-bold uppercase tracking-wider">
+                    <span className="font-primary text-xs text-[#AAA] font-bold uppercase tracking-wider">
                       Personalizar texto para {activePlatformTab === 'facebook' ? 'Facebook' : 'Instagram'}
                     </span>
                     
@@ -1551,7 +1551,7 @@ export const AdminPropertiesList = () => {
                       <select
                         value={socialTone}
                         onChange={(e: any) => setSocialTone(e.target.value)}
-                        className="bg-[#161616] border border-[#2A2A2A] text-[#FAF8F5] font-primary text-[10px] uppercase tracking-wider font-bold px-2 py-1 outline-none focus:border-[#C9A962] cursor-pointer"
+                        className="bg-[#161616] border border-[#2A2A2A] text-[#FAF8F5] font-primary text-xs uppercase tracking-wider font-bold px-2 py-1 outline-none focus:border-[#C9A962] cursor-pointer"
                       >
                         <option value="premium">✨ Premium y Elegante</option>
                         <option value="emocional">❤️ Emocional y Cercano</option>
@@ -1560,7 +1560,7 @@ export const AdminPropertiesList = () => {
                       <button
                         onClick={handleSocialEnhanceCopy}
                         disabled={socialEnhanceLoading || socialPublishing}
-                        className="flex items-center gap-1.5 px-3 py-1 bg-[#C9A962]/10 border border-[#C9A962]/30 text-[#C9A962] font-primary font-bold text-[10px] uppercase tracking-wider hover:bg-[#C9A962]/20 transition-all disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-3 py-1 bg-[#C9A962]/10 border border-[#C9A962]/30 text-[#C9A962] font-primary font-bold text-xs uppercase tracking-wider hover:bg-[#C9A962]/20 transition-all disabled:opacity-50"
                         title="Utiliza Inteligencia Artificial para mejorar este texto"
                       >
                         {socialEnhanceLoading ? (
@@ -1592,7 +1592,7 @@ export const AdminPropertiesList = () => {
                 {/* Preview and Platforms (Right) */}
                 <div className="flex flex-col gap-6 bg-[#0F0F0F] border border-[#1F1F1F] p-5 rounded-sm">
                   <div>
-                    <span className="font-primary text-xs text-[#666] font-bold uppercase tracking-wider block mb-3">Plataformas de Publicación</span>
+                    <span className="font-primary text-xs text-[#AAA] font-bold uppercase tracking-wider block mb-3">Plataformas de Publicación</span>
                     
                     <div className="flex flex-col gap-3">
                       <label className="flex items-center gap-3 cursor-pointer group">
@@ -1638,7 +1638,7 @@ export const AdminPropertiesList = () => {
                   </div>
 
                   <div className="border-t border-[#1F1F1F] pt-4">
-                    <span className="font-primary text-xs text-[#666] font-bold uppercase tracking-wider block mb-3">Compartir en Redes Personales</span>
+                    <span className="font-primary text-xs text-[#AAA] font-bold uppercase tracking-wider block mb-3">Compartir en Redes Personales</span>
                     
                     <button
                       onClick={() => {
@@ -1650,14 +1650,14 @@ export const AdminPropertiesList = () => {
                       <FacebookIcon className="w-3.5 h-3.5" />
                       Perfil Personal de Facebook (Manual)
                     </button>
-                    <p className="font-primary text-[10px] text-[#444] mt-2 leading-normal">
+                    <p className="font-primary text-xs text-[#888] mt-2 leading-normal">
                       * Meta no permite la publicación automatizada en perfiles personales mediante su API desde 2018. Utiliza este botón para compartirlo de forma manual en tu biografía.
                     </p>
                   </div>
 
                   {/* Card Preview */}
                   <div className="border-t border-[#1F1F1F] pt-4 mt-auto">
-                    <span className="font-primary text-xs text-[#666] font-bold uppercase tracking-wider block mb-3">Previsualización del Anuncio</span>
+                    <span className="font-primary text-xs text-[#AAA] font-bold uppercase tracking-wider block mb-3">Previsualización del Anuncio</span>
                     
                     <div className="bg-[#161616] border border-[#1F1F1F] rounded-sm overflow-hidden flex gap-3 p-3">
                       <div className="w-16 h-16 shrink-0 bg-[#0A0A0A] overflow-hidden border border-[#2A2A2A] rounded-sm">
@@ -1681,7 +1681,7 @@ export const AdminPropertiesList = () => {
                       </div>
                       <div className="min-w-0 flex flex-col justify-center">
                         <p className="font-primary text-[#FAF8F5] text-xs font-bold truncate leading-tight">{socialProperty.title}</p>
-                        <p className="font-primary text-[#666] text-[10px] mt-1 uppercase tracking-wider font-bold">
+                        <p className="font-primary text-[#AAA] text-xs mt-1 uppercase tracking-wider font-bold">
                           {socialProperty.reference || socialProperty.id.slice(0, 8)} · {socialProperty.city}
                         </p>
                         <p className="font-secondary text-[#C9A962] text-xs font-bold mt-1.5">
