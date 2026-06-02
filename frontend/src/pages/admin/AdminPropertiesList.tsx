@@ -185,11 +185,15 @@ function buildSocialCopy(prop: Property): string {
   if (prop.operation === 'alquiler') {
     const rentInfo: string[] = [];
     if (prop.rent_type && rentTypeLabels[prop.rent_type]) rentInfo.push(rentTypeLabels[prop.rent_type]);
-    if (prop.availability) rentInfo.push(`📅 Disponible: ${prop.availability}`);
     if (rentInfo.length > 0) {
       lines.push('');
       lines.push(rentInfo.join('  ·  '));
     }
+  }
+
+  if (prop.availability) {
+    lines.push('');
+    lines.push(`📅 Disponibilidad: ${prop.availability}`);
   }
 
   if (prop.operation === 'venta' && prop.energy_rating &&
@@ -362,7 +366,9 @@ export const AdminPropertiesList = () => {
   const [socialModalOpen, setSocialModalOpen] = useState(false);
   const [socialProperty, setSocialProperty] = useState<Property | null>(null);
   const [socialPlatforms, setSocialPlatforms] = useState<{ facebook: boolean; instagram: boolean }>({ facebook: true, instagram: true });
-  const [socialCopy, setSocialCopy] = useState('');
+  const [socialCopyFb, setSocialCopyFb] = useState('');
+  const [socialCopyIg, setSocialCopyIg] = useState('');
+  const [activePlatformTab, setActivePlatformTab] = useState<'facebook' | 'instagram'>('facebook');
   const [socialEnhanceLoading, setSocialEnhanceLoading] = useState(false);
   const [socialPublishing, setSocialPublishing] = useState(false);
   const [socialTone, setSocialTone] = useState<'premium' | 'emocional' | 'moderno'>('premium');
@@ -373,7 +379,11 @@ export const AdminPropertiesList = () => {
       facebook: preselectedPlatform === 'facebook',
       instagram: preselectedPlatform === 'instagram',
     });
-    setSocialCopy(buildSocialCopy(p));
+    setActivePlatformTab(preselectedPlatform);
+    
+    const baseCopy = buildSocialCopy(p);
+    setSocialCopyFb(baseCopy);
+    setSocialCopyIg(baseCopy);
     setSocialModalOpen(true);
   };
 
@@ -412,7 +422,8 @@ export const AdminPropertiesList = () => {
               propertyId: socialProperty.id,
               action: `publish_${platform}`,
               trigger: 'manual',
-              customCopy: socialCopy,
+              customCopyFb: socialCopyFb,
+              customCopyIg: socialCopyIg,
             }),
           }
         );
@@ -449,6 +460,7 @@ export const AdminPropertiesList = () => {
     setSocialEnhanceLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      const currentText = activePlatformTab === 'facebook' ? socialCopyFb : socialCopyIg;
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/share-to-community`,
         {
@@ -460,8 +472,9 @@ export const AdminPropertiesList = () => {
           },
           body: JSON.stringify({
             action: 'enhance_copy',
-            text: socialCopy,
+            text: currentText,
             tone: socialTone,
+            platform: activePlatformTab,
           }),
         }
       );
@@ -470,8 +483,12 @@ export const AdminPropertiesList = () => {
       if (!res.ok || result.error) {
         toast.error(`Error de IA: ${result.error || 'No se pudo optimizar el texto.'}`);
       } else {
-        setSocialCopy(result.enhancedText);
-        toast.success('✨ Texto optimizado con IA');
+        if (activePlatformTab === 'facebook') {
+          setSocialCopyFb(result.enhancedText);
+        } else {
+          setSocialCopyIg(result.enhancedText);
+        }
+        toast.success(`✨ Texto de ${activePlatformTab === 'facebook' ? 'Facebook' : 'Instagram'} optimizado con IA`);
       }
     } catch (err: any) {
       toast.error(`Error al conectar con la IA: ${err.message}`);
@@ -1278,8 +1295,38 @@ export const AdminPropertiesList = () => {
             <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-6">
               {/* Copy Area (Left) */}
               <div className="flex flex-col gap-4">
+                {/* Platform Tabs */}
+                <div className="flex border-b border-[#1F1F1F]">
+                  <button
+                    onClick={() => setActivePlatformTab('facebook')}
+                    disabled={socialPublishing}
+                    className={`flex items-center gap-2 px-4 py-2 text-xs font-primary font-bold uppercase tracking-wider transition-all border-b-2 ${
+                      activePlatformTab === 'facebook'
+                        ? 'text-[#1877F2] border-[#1877F2]'
+                        : 'text-[#666] border-transparent hover:text-[#FAF8F5]'
+                    }`}
+                  >
+                    <FacebookIcon className="w-3.5 h-3.5" />
+                    Borrador Facebook
+                  </button>
+                  <button
+                    onClick={() => setActivePlatformTab('instagram')}
+                    disabled={socialPublishing}
+                    className={`flex items-center gap-2 px-4 py-2 text-xs font-primary font-bold uppercase tracking-wider transition-all border-b-2 ${
+                      activePlatformTab === 'instagram'
+                        ? 'text-[#E1306C] border-[#E1306C]'
+                        : 'text-[#666] border-transparent hover:text-[#FAF8F5]'
+                    }`}
+                  >
+                    <InstagramIcon className="w-3.5 h-3.5" />
+                    Borrador Instagram
+                  </button>
+                </div>
+
                 <div className="flex items-center justify-between">
-                  <span className="font-primary text-xs text-[#C9A962] font-bold uppercase tracking-wider">Texto de la Publicación</span>
+                  <span className="font-primary text-[10px] text-[#666] font-bold uppercase tracking-wider">
+                    Personalizar texto para {activePlatformTab === 'facebook' ? 'Facebook' : 'Instagram'}
+                  </span>
                   
                   {/* AI Options */}
                   <div className="flex items-center gap-2">
@@ -1309,8 +1356,14 @@ export const AdminPropertiesList = () => {
                 </div>
 
                 <textarea
-                  value={socialCopy}
-                  onChange={(e) => setSocialCopy(e.target.value)}
+                  value={activePlatformTab === 'facebook' ? socialCopyFb : socialCopyIg}
+                  onChange={(e) => {
+                    if (activePlatformTab === 'facebook') {
+                      setSocialCopyFb(e.target.value);
+                    } else {
+                      setSocialCopyIg(e.target.value);
+                    }
+                  }}
                   disabled={socialPublishing}
                   rows={14}
                   className="w-full bg-[#161616] border border-[#1F1F1F] p-4 text-sm font-primary text-[#FAF8F5] leading-relaxed resize-none outline-none focus:border-[#C9A962] transition-colors rounded-sm placeholder:text-[#444] text-[13px]"

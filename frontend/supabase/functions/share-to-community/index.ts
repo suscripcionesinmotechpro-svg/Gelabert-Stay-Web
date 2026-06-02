@@ -184,11 +184,15 @@ function buildPostCopy(prop: any, isEn: boolean): string {
   if (prop.operation === 'alquiler' && !isEn) {
     const rentInfo: string[] = []
     if (prop.rent_type && rentTypeLabels[prop.rent_type]) rentInfo.push(rentTypeLabels[prop.rent_type])
-    if (prop.availability) rentInfo.push(`📅 Disponible: ${prop.availability}`)
     if (rentInfo.length > 0) {
       lines.push('')
       lines.push(rentInfo.join('  ·  '))
     }
+  }
+
+  if (prop.availability) {
+    lines.push('')
+    lines.push(`📅 Disponibilidad: ${prop.availability}`)
   }
 
   // ── 10. ENERGY RATING (sale only) ────────────────────────────────────────────
@@ -525,10 +529,12 @@ serve(async (req) => {
       old_record,   // from DB trigger: previous record
       type,         // INSERT | UPDATE (from DB trigger)
       customCopy,   // Optional user-customized/AI-enhanced text for post copy
+      customCopyFb, // Optional customized copy for Facebook
+      customCopyIg, // Optional customized copy for Instagram
     } = payload
 
     if (action === 'enhance_copy') {
-      const { text, tone } = payload
+      const { text, tone, platform } = payload
       const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')
       if (!OPENAI_API_KEY) {
         return new Response(JSON.stringify({ error: 'Falta la API Key de OpenAI en la configuración de Supabase.' }), {
@@ -538,13 +544,14 @@ serve(async (req) => {
       }
 
       const prompt = `Eres un copywriter inmobiliario premium de élite para Gelabert Homes.
-Tu tarea es tomar la siguiente descripción técnica de una propiedad y reescribirla para hacerla extremadamente atractiva, persuasiva y elegante para publicar en redes sociales (Facebook e Instagram).
+Tu tarea es tomar la siguiente descripción técnica de una propiedad y reescribirla para hacerla extremadamente atractiva, persuasiva y elegante para publicar en ${platform === 'instagram' ? 'Instagram (más visual, dinámico, con hashtags, invitando a ver el enlace en la bio)' : 'Facebook (más estructurado, formal y descriptivo)'}.
 
 REGLAS DE FORMATO:
 - Usa un tono ${tone || 'premium y sofisticado'}.
 - Utiliza emojis estratégicos para hacer la lectura fluida y visualmente atractiva (sin saturar).
 - Mantén toda la información verídica intacta (precio, características, ubicación).
 - Asegúrate de que el enlace final de la propiedad permanezca inalterado al final de la publicación.
+${platform === 'instagram' ? '- Añade una indicación clara que invite a los usuarios a pinchar en el enlace de nuestra biografía de Instagram (@gelaberthomes) para ver todos los detalles.' : ''}
 - Añade hashtags elegantes e inmobiliarios al final del post.
 - Conserva el idioma español.
 
@@ -741,7 +748,7 @@ ${text}`
         }).eq('id', pid)
 
       } else if (action === 'publish_facebook' || (isStatusChange && prop.facebook_status === 'published')) {
-        let postCopy = customCopy || (needsWatermark
+        let postCopy = customCopyFb || customCopy || (needsWatermark
           ? `${WATERMARK_CONFIG[prop.commercial_status]?.label_es}: ${prop.title}\n\n${propUrl}`
           : copy)
 
@@ -795,7 +802,7 @@ ${text}`
         if (finalMediaItems.length === 0) {
           igResult = { postId: null, error: 'No images or videos available for Instagram post' }
         } else {
-          igResult = await publishToInstagram(IG_ACCOUNT_ID, FB_PAGE_TOKEN, copy, finalMediaItems, prop.instagram_post_id || null)
+          igResult = await publishToInstagram(IG_ACCOUNT_ID, FB_PAGE_TOKEN, customCopyIg || copy, finalMediaItems, prop.instagram_post_id || null)
 
           await supabase.from('properties').update({
             instagram_status: igResult.postId ? 'published' : 'error',
