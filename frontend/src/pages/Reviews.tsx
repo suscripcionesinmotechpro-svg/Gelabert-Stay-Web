@@ -20,7 +20,7 @@ const AvatarFallback = ({ name }: { name: string }) => {
   const color = colors[name.charCodeAt(0) % colors.length];
   return (
     <div
-      className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
       style={{ backgroundColor: color }}
     >
       {initials}
@@ -38,20 +38,21 @@ export const Reviews = () => {
   const total = data?.total ?? 0;
 
   return (
-    <div className="min-h-[80vh] flex flex-col items-center justify-center py-20 bg-mesh overflow-hidden relative">
-      {/* Decorative background */}
-      <div className="absolute top-1/4 left-0 w-[500px] h-[500px] bg-[#C9A962]/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-[#C9A962]/3 rounded-full blur-[100px] pointer-events-none" />
+    <div className="min-h-[80vh] flex flex-col items-center justify-center py-16 sm:py-20 bg-mesh overflow-hidden relative">
+      {/* Decorative blurs */}
+      <div className="absolute top-1/4 left-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-[#C9A962]/5 rounded-full blur-[100px] sm:blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-0 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] bg-[#C9A962]/3 rounded-full blur-[80px] sm:blur-[100px] pointer-events-none" />
 
+      {/* Heading */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-4 mb-8 relative z-10"
+        className="text-center space-y-3 mb-6 sm:mb-8 relative z-10 px-6"
       >
-        <h1 className="text-4xl md:text-6xl font-secondary text-gradient-gold">
+        <h1 className="text-3xl sm:text-4xl md:text-6xl font-secondary text-gradient-gold">
           {t('reviews.title', 'Nuestros Clientes')}
         </h1>
-        <p className="text-[#FAF8F5]/60 max-w-xl mx-auto font-light tracking-wide px-6">
+        <p className="text-[#FAF8F5]/60 max-w-md sm:max-w-xl mx-auto font-light tracking-wide text-sm sm:text-base">
           {t('reviews.subtitle', 'La satisfacción de nuestros clientes es nuestra mayor recompensa. Descubre por qué confían en Gelabert Homes.')}
         </p>
       </motion.div>
@@ -61,7 +62,8 @@ export const Reviews = () => {
       {/* Full Reviews Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10">
+          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -70,25 +72,33 @@ export const Reviews = () => {
               className="absolute inset-0 bg-[#0A0A0A]/95 backdrop-blur-sm"
             />
 
+            {/* Sheet on mobile (slides from bottom), centered modal on sm+ */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl max-h-[85vh] bg-[#161616] border border-[#C9A962]/20 rounded-3xl overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)]"
+              initial={{ opacity: 0, y: '100%' }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: '100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="relative w-full sm:max-w-2xl sm:mx-4 bg-[#161616] border-t sm:border border-[#C9A962]/20 rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-[0_-16px_64px_-12px_rgba(0,0,0,0.8)] sm:shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)]"
+              style={{ maxHeight: '90dvh' }}
             >
+              {/* Drag handle (mobile only) */}
+              <div className="flex justify-center pt-3 pb-1 sm:hidden">
+                <div className="w-10 h-1 rounded-full bg-[#FAF8F5]/20" />
+              </div>
+
               {/* Modal Header */}
-              <div className="sticky top-0 z-10 bg-[#161616] px-8 py-5 border-b border-[#C9A962]/10 flex items-center justify-between">
+              <div className="sticky top-0 z-10 bg-[#161616] px-5 sm:px-8 py-4 sm:py-5 border-b border-[#C9A962]/10 flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <GoogleLogo size={16} />
-                    <h3 className="text-base font-secondary text-[#C9A962]">
+                    <GoogleLogo size={15} />
+                    <h3 className="text-sm sm:text-base font-secondary text-[#C9A962]">
                       {t('reviews.allReviews', 'Todas las reseñas')}
                     </h3>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex">
                       {[1, 2, 3, 4, 5].map((s) => (
-                        <Star key={s} size={10} fill="#C9A962" className="text-[#C9A962]" />
+                        <Star key={s} size={9} fill="#C9A962" className="text-[#C9A962]" />
                       ))}
                     </div>
                     <span className="text-[10px] text-[#FAF8F5]/40 uppercase tracking-widest">
@@ -99,13 +109,14 @@ export const Reviews = () => {
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="p-2 rounded-full hover:bg-white/5 text-[#FAF8F5]/60 transition-colors"
+                  aria-label="Cerrar"
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               </div>
 
               {/* Modal Content */}
-              <div className="overflow-y-auto p-6 space-y-4 scrollbar-hide" style={{ maxHeight: 'calc(85vh - 100px)' }}>
+              <div className="overflow-y-auto p-4 sm:p-6 space-y-3" style={{ maxHeight: 'calc(90dvh - 90px)' }}>
                 {loading ? (
                   <div className="flex justify-center items-center py-20 text-[#C9A962]/60">
                     <Loader2 size={28} className="animate-spin" />
@@ -118,23 +129,23 @@ export const Reviews = () => {
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: idx * 0.04 }}
-                      className="p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-[#C9A962]/20 transition-all"
+                      className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-[#C9A962]/20 transition-all"
                     >
-                      <div className="flex items-start gap-4">
+                      <div className="flex items-start gap-3 sm:gap-4">
                         {review.avatar ? (
                           <img
                             src={review.avatar}
                             alt={review.author}
-                            className="w-12 h-12 rounded-full flex-shrink-0 object-cover"
+                            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex-shrink-0 object-cover"
                             onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                           />
                         ) : (
                           <AvatarFallback name={review.author} />
                         )}
                         <div className="flex-1 min-w-0 space-y-1.5">
-                          <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-start justify-between gap-2">
                             <h4 className="text-sm font-semibold text-[#FAF8F5] truncate">{review.author}</h4>
-                            <span className="text-[10px] text-[#FAF8F5]/40 uppercase whitespace-nowrap flex-shrink-0">{review.date}</span>
+                            <span className="text-[10px] text-[#FAF8F5]/40 uppercase whitespace-nowrap flex-shrink-0 pt-0.5">{review.date}</span>
                           </div>
                           <div className="flex gap-0.5">
                             {Array.from({ length: 5 }).map((_, i) => (
@@ -147,7 +158,7 @@ export const Reviews = () => {
                             ))}
                           </div>
                           {review.text ? (
-                            <p className="text-sm text-[#FAF8F5]/70 leading-relaxed font-light">
+                            <p className="text-xs sm:text-sm text-[#FAF8F5]/70 leading-relaxed font-light">
                               {review.text}
                             </p>
                           ) : (
@@ -159,8 +170,8 @@ export const Reviews = () => {
                   ))
                 )}
 
-                {/* Footer CTA */}
-                <div className="pt-4 flex justify-center">
+                {/* CTA footer */}
+                <div className="pt-4 flex justify-center pb-2">
                   <a
                     href="https://g.page/r/gelabert-homes/review"
                     target="_blank"
@@ -183,12 +194,12 @@ export const Reviews = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="mt-12 flex flex-col items-center space-y-3"
+          className="mt-8 sm:mt-12 flex flex-col items-center space-y-2"
         >
           <div className="flex items-center gap-2">
             <GoogleLogo size={14} />
-            <span className="text-xs text-[#FAF8F5]/40 uppercase tracking-widest font-medium">
-                {t('reviews.satisfiedClients', { count: total })}
+            <span className="text-[11px] text-[#FAF8F5]/40 uppercase tracking-widest font-medium">
+              {t('reviews.satisfiedClients', { count: total })}
             </span>
           </div>
         </motion.div>

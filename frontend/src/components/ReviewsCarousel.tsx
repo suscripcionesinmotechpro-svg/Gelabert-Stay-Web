@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, ChevronLeft, ChevronRight, MessageSquare, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,7 @@ const AvatarFallback = ({ name }: { name: string }) => {
   const color = colors[name.charCodeAt(0) % colors.length];
   return (
     <div
-      className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-[#C9A962]/30"
+      className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white font-bold text-base sm:text-lg border-2 border-[#C9A962]/30 flex-shrink-0"
       style={{ backgroundColor: color }}
     >
       {initials}
@@ -33,6 +33,10 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+
+  // Touch / swipe support
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   const reviews = data?.reviews ?? [];
 
@@ -48,7 +52,6 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
     setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
   }, [reviews.length]);
 
-  // Reset index when reviews load
   useEffect(() => {
     setCurrentIndex(0);
   }, [reviews.length]);
@@ -59,11 +62,22 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
     return () => clearInterval(timer);
   }, [nextReview, isPaused, reviews.length]);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    const diff = (touchStartX.current ?? 0) - (touchEndX.current ?? 0);
+    if (Math.abs(diff) > 40) {
+      diff > 0 ? nextReview() : prevReview();
+    }
+  };
+
   const variants = {
     enter: (dir: number) => ({
-      x: dir > 0 ? 800 : -800,
+      x: dir > 0 ? '100%' : '-100%',
       opacity: 0,
-      scale: 0.95,
+      scale: 0.96,
     }),
     center: {
       zIndex: 1,
@@ -73,9 +87,9 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
     },
     exit: (dir: number) => ({
       zIndex: 0,
-      x: dir < 0 ? 800 : -800,
+      x: dir < 0 ? '100%' : '-100%',
       opacity: 0,
-      scale: 0.95,
+      scale: 0.96,
     }),
   };
 
@@ -85,27 +99,27 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
 
   return (
     <div
-      className="relative w-full max-w-4xl mx-auto px-4 py-12 overflow-hidden"
+      className="relative w-full max-w-3xl mx-auto px-4 sm:px-6 pb-10 overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Header with Google branding */}
-      <div className="flex flex-col items-center mb-12 space-y-4">
+      {/* Header: Google branding + score */}
+      <div className="flex flex-col items-center mb-8 sm:mb-12 space-y-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg overflow-hidden">
-            <GoogleLogo size={22} />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center shadow-lg overflow-hidden">
+            <GoogleLogo size={20} />
           </div>
-          <h2 className="text-2xl md:text-3xl font-secondary text-gradient-gold tracking-tight">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-secondary text-gradient-gold tracking-tight">
             Google Reviews
           </h2>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex">
             {[1, 2, 3, 4, 5].map((s) => (
-              <Star key={s} size={18} fill="#C9A962" className="text-[#C9A962]" />
+              <Star key={s} size={16} fill="#C9A962" className="text-[#C9A962]" />
             ))}
           </div>
-          <span className="text-sm text-[#FAF8F5]/60 font-medium">
+          <span className="text-xs sm:text-sm text-[#FAF8F5]/60 font-medium">
             {loading
               ? '...'
               : `${rating.toFixed(1)} / 5.0${total > 0 ? ` · ${total} reseñas` : ''}`
@@ -114,15 +128,19 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
         </div>
       </div>
 
-      {/* Carousel */}
-      <div className="relative h-[300px] md:h-[260px] flex items-center justify-center">
+      {/* Carousel container — no fixed height, content drives the size */}
+      <div
+        className="relative overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {loading ? (
-          <div className="flex flex-col items-center gap-4 text-[#C9A962]/60">
+          <div className="flex flex-col items-center gap-4 py-16 text-[#C9A962]/60">
             <Loader2 size={32} className="animate-spin" />
             <span className="text-sm">Cargando reseñas...</span>
           </div>
         ) : review ? (
-          <AnimatePresence initial={false} custom={direction}>
+          <AnimatePresence initial={false} custom={direction} mode="wait">
             <motion.div
               key={currentIndex}
               custom={direction}
@@ -131,22 +149,23 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
               animate="center"
               exit="exit"
               transition={{
-                x: { type: 'spring', stiffness: 300, damping: 30 },
-                opacity: { duration: 0.3 },
+                x: { type: 'spring', stiffness: 260, damping: 28 },
+                opacity: { duration: 0.25 },
               }}
-              className="absolute w-full"
+              className="w-full"
             >
-              <div className="glass-deep p-8 md:p-12 rounded-2xl border border-[#C9A962]/20 relative group overflow-hidden">
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#C9A962]/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="glass-deep p-6 sm:p-8 md:p-12 rounded-2xl border border-[#C9A962]/20 relative overflow-hidden">
+                {/* Decorative blur */}
+                <div className="absolute -top-10 -right-10 w-36 h-36 bg-[#C9A962]/5 rounded-full blur-3xl pointer-events-none" />
 
-                <div className="flex flex-col items-center text-center space-y-5">
+                <div className="flex flex-col items-center text-center space-y-4">
                   {/* Avatar */}
                   <div className="relative flex-shrink-0">
                     {review.avatar ? (
                       <img
                         src={review.avatar}
                         alt={review.author}
-                        className="w-16 h-16 rounded-full border-2 border-[#C9A962]/30 object-cover"
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-[#C9A962]/30 object-cover"
                         onError={(e) => {
                           (e.currentTarget as HTMLImageElement).style.display = 'none';
                         }}
@@ -154,8 +173,8 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
                     ) : (
                       <AvatarFallback name={review.author} />
                     )}
-                    <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-md">
-                      <GoogleLogo size={12} />
+                    <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-[3px] shadow-md">
+                      <GoogleLogo size={11} />
                     </div>
                   </div>
 
@@ -164,7 +183,7 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
-                        size={14}
+                        size={13}
                         fill={i < review.rating ? '#C9A962' : 'transparent'}
                         className={i < review.rating ? 'text-[#C9A962]' : 'text-[#C9A962]/30'}
                       />
@@ -172,15 +191,15 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
                   </div>
 
                   {/* Review text */}
-                  <div className="space-y-3 max-w-2xl">
-                    <p className="text-base md:text-lg text-[#FAF8F5]/90 italic font-light leading-relaxed">
+                  <div className="space-y-3 w-full max-w-xl">
+                    <p className="text-sm sm:text-base md:text-lg text-[#FAF8F5]/90 italic font-light leading-relaxed">
                       "{review.text}"
                     </p>
-                    <div className="space-y-0.5">
-                      <h4 className="text-[#C9A962] font-semibold tracking-wider uppercase text-xs">
+                    <div className="space-y-0.5 pt-1">
+                      <h4 className="text-[#C9A962] font-semibold tracking-wider uppercase text-[11px] sm:text-xs">
                         {review.author}
                       </h4>
-                      <p className="text-[#FAF8F5]/40 text-[10px] uppercase tracking-[0.2em]">
+                      <p className="text-[#FAF8F5]/40 text-[9px] sm:text-[10px] uppercase tracking-[0.2em]">
                         {review.date}
                       </p>
                     </div>
@@ -195,34 +214,35 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
       {/* Controls */}
       {!loading && reviews.length > 1 && (
         <>
-          <div className="flex items-center justify-center gap-8 mt-8">
+          {/* Nav buttons + CTA */}
+          <div className="flex items-center justify-center gap-4 sm:gap-8 mt-6 sm:mt-8 flex-wrap">
             <button
               onClick={prevReview}
-              className="p-3 rounded-full border border-[#C9A962]/20 text-[#C9A962] hover:bg-[#C9A962]/10 transition-all hover:scale-110 active:scale-95"
+              className="p-2.5 sm:p-3 rounded-full border border-[#C9A962]/20 text-[#C9A962] hover:bg-[#C9A962]/10 transition-all hover:scale-110 active:scale-95"
               aria-label="Anterior reseña"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={18} />
             </button>
 
             <button
               onClick={onExpand}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#C9A962] to-[#D4B673] text-[#0A0A0A] font-primary text-xs uppercase tracking-widest font-bold hover:shadow-[0_0_20px_rgba(201,169,98,0.4)] transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+              className="flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-full bg-gradient-to-r from-[#C9A962] to-[#D4B673] text-[#0A0A0A] font-primary text-[11px] sm:text-xs uppercase tracking-widest font-bold hover:shadow-[0_0_20px_rgba(201,169,98,0.4)] transition-all transform hover:-translate-y-0.5 active:translate-y-0"
             >
-              <MessageSquare size={14} />
-              {t('reviews.viewAll', 'Ver todas las reseñas')}
+              <MessageSquare size={13} />
+              {t('reviews.viewAll', 'Ver todas')}
             </button>
 
             <button
               onClick={nextReview}
-              className="p-3 rounded-full border border-[#C9A962]/20 text-[#C9A962] hover:bg-[#C9A962]/10 transition-all hover:scale-110 active:scale-95"
+              className="p-2.5 sm:p-3 rounded-full border border-[#C9A962]/20 text-[#C9A962] hover:bg-[#C9A962]/10 transition-all hover:scale-110 active:scale-95"
               aria-label="Siguiente reseña"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={18} />
             </button>
           </div>
 
           {/* Progress dots */}
-          <div className="flex justify-center gap-2 mt-6">
+          <div className="flex justify-center gap-1.5 mt-5">
             {reviews.map((_, idx) => (
               <button
                 key={idx}
@@ -231,7 +251,7 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
                   setCurrentIndex(idx);
                 }}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
-                  idx === currentIndex ? 'w-8 bg-[#C9A962]' : 'w-1.5 bg-[#C9A962]/20 hover:bg-[#C9A962]/40'
+                  idx === currentIndex ? 'w-7 bg-[#C9A962]' : 'w-1.5 bg-[#C9A962]/20 hover:bg-[#C9A962]/40'
                 }`}
                 aria-label={`Ir a reseña ${idx + 1}`}
               />
