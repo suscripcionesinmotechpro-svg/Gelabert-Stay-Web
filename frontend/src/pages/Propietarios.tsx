@@ -252,6 +252,48 @@ export const Propietarios = () => {
             </div>
             
           </div>
+
+          {/* Alianzas y Certificaciones de Confianza */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="mt-16 pt-12 border-t border-white/5 flex flex-col items-center gap-8"
+          >
+            <span className="font-primary text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold text-center">
+              {t('owners_page.why.alliances_title')}
+            </span>
+            <div className="w-full flex flex-col md:flex-row items-stretch justify-center gap-8 max-w-5xl">
+              {/* Davante Badge */}
+              <div className="flex-1 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left p-6 rounded-md bg-[#0C0C0C] border border-white/5 hover:border-[#C9A962]/20 hover:bg-[#C9A962]/5 transition-all duration-300 w-full min-h-[120px]">
+                <div className="h-14 px-7 rounded-full bg-white flex items-center justify-center shrink-0 shadow-md">
+                  <img 
+                    src="/images/brand/devante-logo.svg" 
+                    alt="Davante Business School" 
+                    className="h-6 w-auto max-w-[150px] object-contain"
+                  />
+                </div>
+                <p className="font-primary text-xs text-white/50 leading-relaxed font-light">
+                  {t('owners_page.why.devante_text')}
+                </p>
+              </div>
+
+              {/* Huspy Badge */}
+              <div className="flex-1 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left p-6 rounded-md bg-[#0C0C0C] border border-white/5 hover:border-[#C9A962]/20 hover:bg-[#C9A962]/5 transition-all duration-300 w-full min-h-[120px]">
+                <div className="h-14 px-7 rounded-full bg-white flex items-center justify-center shrink-0 shadow-md">
+                  <img 
+                    src="/images/brand/huspy-logo.svg" 
+                    alt="Huspy" 
+                    className="h-6 w-auto max-w-[140px] object-contain"
+                  />
+                </div>
+                <p className="font-primary text-xs text-white/50 leading-relaxed font-light">
+                  {t('owners_page.why.huspy_text')}
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
