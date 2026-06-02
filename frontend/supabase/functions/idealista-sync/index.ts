@@ -100,6 +100,154 @@ async function getIdealistaContactId(accessToken: string, feedKey: string, baseU
   return Number(result.contactId);
 }
 
+// ── Watermark helper functions for Idealista ──
+async function createLabeledImageBuffer(imageUrl: string, label: string): Promise<Uint8Array | null> {
+  try {
+    const { Image } = await import('https://deno.land/x/imagescript@1.2.15/mod.ts')
+    
+    // Download the source image
+    const res = await fetch(imageUrl)
+    if (!res.ok) return null
+    const buf = new Uint8Array(await res.arrayBuffer())
+    
+    const img = await Image.decode(buf)
+    
+    // OG resolution standard (1200x630)
+    const targetW = 1200
+    const targetH = 630
+    const resized = img.resize(targetW, targetH)
+    
+    // Rectangular badge at bottom-left corner with high-contrast borders
+    const normalizedLabel = label.toUpperCase().trim()
+    const fontSize = 22
+
+    // Calculate precise badge width based on character widths to look perfectly balanced
+    let textWidth = 0
+    for (const char of normalizedLabel) {
+      if (['I', '1', '.', ' ', '·', '-', '/'].includes(char)) {
+        textWidth += fontSize * 0.38
+      } else if (['M', 'W', 'O', 'Q', '0', '€'].includes(char)) {
+        textWidth += fontSize * 0.82
+      } else {
+        textWidth += fontSize * 0.62
+      }
+    }
+
+    const badgeW = Math.round(textWidth) + 32 // 16px padding on each side
+    const badgeH = 50
+    const paddingX = 30
+    const paddingY = targetH - badgeH - 30 // 30px from bottom of the image
+    
+    const blackColor = Image.rgbaToColor(0, 0, 0, 255) // solid black for background
+    const whiteColor = Image.rgbaToColor(255, 255, 255, 255) // solid white for text and border
+    
+    // Draw badge background (solid black) with a 2px solid white border for maximum contrast
+    for (let y = paddingY; y < paddingY + badgeH; y++) {
+      for (let x = paddingX; x < paddingX + badgeW; x++) {
+        const isBorder = (y < paddingY + 2) || (y >= paddingY + badgeH - 2) || 
+                         (x < paddingX + 2) || (x >= paddingX + badgeW - 2)
+        if (isBorder) {
+          resized.setPixelAt(x + 1, y + 1, whiteColor)
+        } else {
+          resized.setPixelAt(x + 1, y + 1, blackColor)
+        }
+      }
+    }
+    
+    // Draw text inside badge (with 1px horizontal offset to simulate a bold font)
+    const textX = paddingX + 16
+    const textY = paddingY + Math.round(badgeH / 2 - fontSize / 2)
+
+    await resized.drawText(normalizedLabel, {
+      x: textX,
+      y: textY,
+      size: fontSize,
+      color: whiteColor,
+    }).catch(() => {})
+
+    await resized.drawText(normalizedLabel, {
+      x: textX + 1,
+      y: textY,
+      size: fontSize,
+      color: whiteColor,
+    }).catch(() => {})
+    
+    return await resized.encode(1) // JPEG
+  } catch (err) {
+    console.error('Labeling watermark error:', err)
+    return null
+  }
+}
+
+function getLabelForImage(prop: any, imageUrl: string): { label: string | null } {
+  const cleanUrl = imageUrl.trim().split('?')[0];
+
+  // 1. Check if it's a room image
+  if (prop.rooms && Array.isArray(prop.rooms)) {
+    for (let roomIdx = 0; roomIdx < prop.rooms.length; roomIdx++) {
+      const room = prop.rooms[roomIdx];
+      const roomImages = Array.isArray(room.images) ? room.images : [];
+      if (roomImages.some((img: string) => img && img.trim().split('?')[0] === cleanUrl)) {
+        const roomNumber = roomIdx + 1;
+        const roomLabel = (room.name && room.name.trim()) ? room.name.trim() : `HAB. ${roomNumber}`;
+        const priceLabel = room.price ? ` - ${Math.round(room.price)}€` : '';
+        return { label: `${roomLabel}${priceLabel}` };
+      }
+    }
+  }
+
+  // 2. Check if it's a common area image
+  if (prop.common_areas && Array.isArray(prop.common_areas)) {
+    for (const area of prop.common_areas) {
+      const areaImages = Array.isArray(area.images) ? area.images : [];
+      if (areaImages.some((img: string) => img && img.trim().split('?')[0] === cleanUrl)) {
+        let label = 'ZONA COMÚN';
+        if (area.name && area.name.trim()) {
+          label = `Z. COMÚN: ${area.name.trim()}`;
+        } else if (area.type) {
+          label = `ZONA COMÚN: ${area.type.toUpperCase()}`;
+        }
+        return { label };
+      }
+    }
+  }
+
+  // 3. Check if property itself is of type 'habitacion' (individual room)
+  if (prop.property_type === 'habitacion') {
+    const priceLabel = prop.price ? ` - ${Math.round(prop.price)}€` : '';
+    return { label: `HABITACIÓN${priceLabel}` };
+  }
+
+  return { label: null };
+}
+
+async function processAndWatermarkImage(
+  prop: any,
+  pid: string,
+  supabase: any,
+  imageUrl: string
+): Promise<string> {
+  const cleanUrl = imageUrl.trim().split('?')[0];
+
+  const labelInfo = getLabelForImage(prop, cleanUrl);
+  if (labelInfo && labelInfo.label) {
+    console.log(`[Media Sync] Applying corner label "${labelInfo.label}" to: ${cleanUrl}`);
+    const labeledBuffer = await createLabeledImageBuffer(cleanUrl, labelInfo.label);
+    if (labeledBuffer) {
+      const labelFileName = `labeled_images/${pid}_lbl_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('properties')
+        .upload(labelFileName, labeledBuffer, { contentType: 'image/jpeg', upsert: true });
+      if (!uploadError && uploadData) {
+        const { data: urlData } = supabase.storage.from('properties').getPublicUrl(labelFileName);
+        return urlData.publicUrl;
+      }
+    }
+  }
+
+  return cleanUrl;
+}
+
 // ── SYNCHRONIZE IMAGES ────────────────────────────────────────────────────────
 async function syncPropertyImages(
   accessToken: string,
@@ -536,9 +684,76 @@ serve(async (req) => {
     // Sync images if publication succeeded
     if (publishedOk && idealistaResponseId) {
       const imagesToUpload: string[] = [];
-      if (property.main_image) imagesToUpload.push(property.main_image);
+
+      // 1. Cover Image (main_image or first gallery image)
+      const rawImage = property.main_image || (property.gallery && property.gallery[0]);
+      if (rawImage) {
+        const processedCover = await processAndWatermarkImage(property, propertyId, supabase, rawImage);
+        imagesToUpload.push(processedCover);
+      }
+
+      // 2. Room rental specific processing:
+      if (property.is_room_rental === true || property.property_type === 'habitacion') {
+        // A. Habitaciones (solo para pisos por habitaciones)
+        if (property.is_room_rental === true && property.rooms && Array.isArray(property.rooms) && property.rooms.length > 0) {
+          for (let roomIdx = 0; roomIdx < property.rooms.length; roomIdx++) {
+            const room = property.rooms[roomIdx];
+            const roomImages = Array.isArray(room.images) ? room.images : [];
+            for (const roomImg of roomImages) {
+              if (!roomImg || !roomImg.trim().startsWith('http')) continue;
+              const cleanRoomUrl = roomImg.trim().split('?')[0];
+              if (imagesToUpload.some(url => url.includes(cleanRoomUrl) || cleanRoomUrl.includes(url))) continue;
+
+              const processedRoomUrl = await processAndWatermarkImage(property, propertyId, supabase, roomImg);
+              imagesToUpload.push(processedRoomUrl);
+            }
+          }
+        }
+
+        // B. Zonas comunes
+        if (property.common_areas && Array.isArray(property.common_areas)) {
+          for (const area of property.common_areas) {
+            const areaImages = Array.isArray(area.images) ? area.images.slice(0, 2) : [];
+            for (const areaImg of areaImages) {
+              if (!areaImg || !areaImg.trim().startsWith('http')) continue;
+              const cleanAreaUrl = areaImg.trim().split('?')[0];
+              if (imagesToUpload.some(url => url.includes(cleanAreaUrl) || cleanAreaUrl.includes(url))) continue;
+
+              const processedAreaUrl = await processAndWatermarkImage(property, propertyId, supabase, areaImg);
+              imagesToUpload.push(processedAreaUrl);
+            }
+          }
+        }
+      }
+
+      // 3. Standard Gallery Photos (for regular properties, OR fallback for room properties)
       if (property.gallery && Array.isArray(property.gallery)) {
-        imagesToUpload.push(...property.gallery);
+        const firstGalleryImg = property.gallery[0]
+        const galleryStartIdx = (firstGalleryImg === property.main_image) ? 1 : 0
+        
+        for (let i = galleryStartIdx; i < property.gallery.length; i++) {
+          const img = property.gallery[i];
+          if (img && img.trim().startsWith('http')) {
+            const rawUrl = img.trim().split('?')[0];
+            if (!imagesToUpload.some(url => url.includes(rawUrl) || rawUrl.includes(url))) {
+              const processedUrl = await processAndWatermarkImage(property, propertyId, supabase, img);
+              imagesToUpload.push(processedUrl);
+            }
+          }
+        }
+      }
+
+      // 4. Floor Plans
+      if (property.floor_plans && Array.isArray(property.floor_plans)) {
+        for (const img of property.floor_plans) {
+          if (img && img.trim().startsWith('http')) {
+            const rawUrl = img.trim().split('?')[0];
+            if (!imagesToUpload.some(url => url.includes(rawUrl) || rawUrl.includes(url))) {
+              const processedUrl = await processAndWatermarkImage(property, propertyId, supabase, img);
+              imagesToUpload.push(processedUrl);
+            }
+          }
+        }
       }
 
       if (imagesToUpload.length > 0) {
