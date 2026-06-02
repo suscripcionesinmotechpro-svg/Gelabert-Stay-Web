@@ -546,6 +546,10 @@ serve(async (req) => {
       const prompt = `Eres un copywriter inmobiliario premium de élite para Gelabert Homes.
 Tu tarea es tomar la siguiente descripción técnica de una propiedad y reescribirla para hacerla extremadamente atractiva, persuasiva y elegante para publicar en ${platform === 'instagram' ? 'Instagram (más visual, dinámico, con hashtags, invitando a ver el enlace en la bio)' : 'Facebook (más estructurado, formal y descriptivo)'}.
 
+💥 REGLA DE ORO CRÍTICA Y ABSOLUTA (¡SÍGUELA SIEMPRE!):
+- ¡NO TE INVENTES NINGÚN TIPO DE INFORMACIÓN! Queda terminantemente prohibido inventar servicios, calidades, comodidades, ubicaciones, distancias a puntos de interés, características físicas o cualquier otro dato que no esté explícitamente detallado en el texto original.
+- Coge y extrae toda la información real de la propiedad provista, reestructurándola con elegancia, pero no añadas nada que sea fruto de la suposición o invención.
+
 REGLAS DE FORMATO:
 - Usa un tono ${tone || 'premium y sofisticado'}.
 - Utiliza emojis estratégicos para hacer la lectura fluida y visualmente atractiva (sin saturar).
