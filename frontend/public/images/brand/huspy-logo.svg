@@ -1,18 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 80" width="100%" height="100%">
-  <!-- Icon: Modern house contour with golden accents -->
-  <g transform="translate(15, 12)">
-    <!-- House outer contour - Ivory White -->
-    <path d="M 5 35 L 25 15 L 45 35 L 45 52 A 4 4 0 0 1 41 56 L 9 56 A 4 4 0 0 1 5 52 Z" fill="none" stroke="#FAF8F5" stroke-width="3" stroke-linejoin="round" />
-    <!-- Dynamic inner tech circle and top line - Gold -->
-    <circle cx="25" cy="38" r="7" fill="#C9A962" />
-    <path d="M 25 24 L 25 31" fill="none" stroke="#C9A962" stroke-width="2" />
-  </g>
-  
-  <!-- Typography -->
-  <g transform="translate(80, 52)">
-    <!-- Main text "huspy" in Ivory White -->
-    <text font-family="'Manrope', 'Comfortaa', 'Helvetica', sans-serif" font-size="36" font-weight="800" letter-spacing="0.05em" fill="#FAF8F5">huspy</text>
-    <!-- Subtitle "AUTHORIZED PARTNER" in Rich Gold -->
-    <text font-family="'Manrope', 'Helvetica', 'Arial', sans-serif" font-size="9" font-weight="800" letter-spacing="0.32em" y="16" fill="#C9A962">AUTHORIZED PARTNER</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" width="100%" height="100%">
+  <!-- Huspy Wordmark in Ivory White and Gold accents -->
+  <g transform="translate(10, 54)">
+    <text font-family="'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif" font-size="52" font-weight="900" letter-spacing="-0.04em" fill="#FAF8F5">Huspy</text>
+    <!-- Small TM trademark in luxury gold -->
+    <text font-family="'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif" font-size="12" font-weight="700" x="164" y="-32" fill="#C9A962">TM</text>
   </g>
 </svg>
