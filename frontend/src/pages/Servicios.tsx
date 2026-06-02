@@ -61,7 +61,7 @@ const ServiceCard = ({
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none bg-[radial-gradient(600px_circle_at_var(--mouse-x)_var(--mouse-y),rgba(201,169,98,0.15),transparent)] z-20" />
 
       {/* Image Background */}
-      <div className="absolute inset-0 z-0 bg-[#050505]">
+      <div className="absolute inset-0 z-0 bg-[#121212]">
         <img
           src={image}
           alt={title}
@@ -69,7 +69,7 @@ const ServiceCard = ({
             isInCart ? 'scale-110 brightness-[0.3]' : 'brightness-[0.45] group-hover:scale-105 group-hover:brightness-[0.55]'
           }`}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/60 to-transparent opacity-90" />
       </div>
 
       {/* Selected overlay */}
@@ -242,7 +242,7 @@ export const Servicios = () => {
   ];
 
   return (
-    <div className="w-full bg-[#050505] overflow-hidden" ref={containerRef}>
+    <div className="w-full bg-[#121212] overflow-hidden" ref={containerRef}>
       <Helmet>
         <title>{t('services.seo.title')}</title>
         <meta name="description" content={t('services.seo.description')} />
@@ -273,7 +273,7 @@ export const Servicios = () => {
             className="w-full h-full bg-cover bg-center brightness-[0.55] saturate-[1.2]"
             style={{ backgroundImage: `url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop')` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/20 to-[#050505]/85" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#121212]/20 to-[#121212]/85" />
         </motion.div>
 
         <div className="relative z-10 px-6 max-w-7xl mx-auto text-center">
@@ -383,13 +383,13 @@ export const Servicios = () => {
           className="relative rounded-3xl overflow-hidden group min-h-[480px] flex flex-col lg:flex-row"
         >
           {/* Image */}
-          <div className="absolute inset-0 z-0 bg-[#050505]">
+          <div className="absolute inset-0 z-0 bg-[#121212]">
             <img
               src="https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=2070&auto=format&fit=crop"
               className="w-full h-full object-cover brightness-[0.4] group-hover:brightness-[0.55] group-hover:scale-105 transition-all duration-[1.5s]"
               alt={t('services.tenants.title')}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/90 via-[#050505]/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#121212]/90 via-[#121212]/60 to-transparent" />
           </div>
 
           {/* Selected overlay */}
@@ -471,7 +471,7 @@ export const Servicios = () => {
               key={i} 
               {...fadeUp} 
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="group bg-[#050505] p-10 flex flex-col gap-6 hover:bg-[#0A0A0A] transition-colors"
+              className="group bg-[#121212] p-10 flex flex-col gap-6 hover:bg-[#0A0A0A] transition-colors"
             >
               <div className="w-12 h-12 flex items-center justify-center bg-black border border-white/5 group-hover:border-[#C9A962]/40 transition-all duration-300">
                 {item.icon}
@@ -499,7 +499,7 @@ export const Servicios = () => {
             className="w-full h-full object-cover opacity-65 brightness-[0.85] saturate-[1.25] scale-105"
             alt=""
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-[#050505]/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#121212]/80 via-transparent to-[#121212]/80" />
         </div>
         
         <div className="absolute inset-0 bg-[#C9A962]/[0.05] mix-blend-overlay z-[1]" />

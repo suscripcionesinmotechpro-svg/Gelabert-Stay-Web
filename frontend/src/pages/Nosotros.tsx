@@ -39,7 +39,7 @@ const Nosotros = () => {
   }, []);
 
   return (
-    <div className="w-full bg-[#050505] overflow-hidden">
+    <div className="w-full bg-[#121212] overflow-hidden">
       <Helmet>
         <title>{t('nosotros.seo.title')}</title>
         <meta name="description" content={t('nosotros.seo.description')} />
@@ -52,7 +52,7 @@ const Nosotros = () => {
             className="w-full h-full bg-cover bg-center brightness-[0.4] saturate-[1.2]"
             style={{ backgroundImage: `url('https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=2000&auto=format&fit=crop')` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/20 to-[#050505]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#121212]/20 to-[#121212]" />
         </div>
 
         <div className="relative z-10 px-6 max-w-7xl mx-auto text-center">
@@ -181,7 +181,7 @@ const Nosotros = () => {
                 alt="José Carlos Delgado Gelabert"
                 className={`w-full h-full object-cover transition-all duration-700 ${isTapped ? 'grayscale-0 scale-105' : 'grayscale scale-100'} group-hover:grayscale-0 group-hover:scale-105`}
               />
-              <div className={`absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent transition-opacity ${isTapped ? 'opacity-30' : 'opacity-60'} group-hover:opacity-30`} />
+              <div className={`absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/20 to-transparent transition-opacity ${isTapped ? 'opacity-30' : 'opacity-60'} group-hover:opacity-30`} />
             </div>
             {/* Golden corner accents */}
             <div className="absolute -bottom-4 -left-4 w-24 h-24 border-b border-l border-[#C9A962]/40" />
@@ -253,14 +253,15 @@ const Nosotros = () => {
               transition={{ ...fadeUp.transition, delay: 0.45 }}
               className="border border-white/10 rounded-md p-6 sm:p-8 flex flex-col sm:flex-row items-start gap-6 bg-white/[0.01] hover:border-[#C9A962]/40 hover:bg-[#C9A962]/[0.02] transition-all duration-500 backdrop-blur-sm relative group"
             >
-              <div className="h-9 flex items-start shrink-0">
+              {/* Circular White Badge for Logo */}
+              <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-md shrink-0 transition-transform duration-300 group-hover:scale-103 relative z-10 p-3">
                 <img 
                   src="/images/brand/devante-logo.svg" 
-                  alt="Devante Business School" 
-                  className="h-full w-auto object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300"
+                  alt="Davante Business School" 
+                  className="w-full h-auto max-h-[85%] object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 relative z-10">
                 <h4 className="font-primary text-xs md:text-sm text-zinc-100 font-bold uppercase tracking-wider group-hover:text-[#C9A962] transition-colors duration-300">
                   {t('nosotros.team.credentials.devante_title')}
                 </h4>
@@ -276,14 +277,15 @@ const Nosotros = () => {
               transition={{ ...fadeUp.transition, delay: 0.55 }}
               className="border border-white/10 rounded-md p-6 sm:p-8 flex flex-col sm:flex-row items-start gap-6 bg-white/[0.01] hover:border-[#C9A962]/40 hover:bg-[#C9A962]/[0.02] transition-all duration-500 backdrop-blur-sm relative group"
             >
-              <div className="h-9 flex items-start shrink-0">
+              {/* Circular White Badge for Logo */}
+              <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-md shrink-0 transition-transform duration-300 group-hover:scale-103 relative z-10 p-3">
                 <img 
                   src="/images/brand/huspy-logo.svg" 
                   alt="Huspy Authorized Partner" 
-                  className="h-full w-auto object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300"
+                  className="w-full h-auto max-h-[85%] object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 relative z-10">
                 <h4 className="font-primary text-xs md:text-sm text-zinc-100 font-bold uppercase tracking-wider group-hover:text-[#C9A962] transition-colors duration-300">
                   {t('nosotros.team.credentials.huspy_title')}
                 </h4>

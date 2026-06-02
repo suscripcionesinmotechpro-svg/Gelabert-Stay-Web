@@ -169,7 +169,7 @@ export const Propiedades = () => {
   }, [isInCompare, removeFromCompare, canAdd, addToCompare]);
 
   return (
-    <div className="w-full bg-[#050505] min-h-screen">
+    <div className="w-full bg-[#121212] min-h-screen">
       <Helmet>
         <title>{t('seo.properties_title')} | Gelabert Homes Real Estate</title>
         <meta name="description" content={t('seo.properties_description')} />
@@ -230,7 +230,7 @@ export const Propiedades = () => {
             className="w-full h-full bg-cover bg-center brightness-[0.7] saturate-[1.25] transform scale-105 transition-transform duration-1000 ease-in-out"
             style={{ backgroundImage: `url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop')` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/20 via-[#050505]/50 to-[#050505]/95" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/20 via-[#121212]/50 to-[#121212]" />
         </div>
 
         <div className="relative z-10 w-full px-6 md:px-14 flex flex-col gap-6">
@@ -267,7 +267,7 @@ export const Propiedades = () => {
       </section>
 
       {/* Panel de Filtros Sticky */}
-      <section className="sticky top-24 z-30 w-full px-6 md:px-14 py-4 md:py-6 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 shadow-2xl">
+      <section className="sticky top-24 z-30 w-full px-6 md:px-14 py-4 md:py-6 bg-[#121212]/80 backdrop-blur-xl border-b border-white/5 shadow-2xl">
         <div className="max-w-7xl mx-auto flex flex-col gap-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {/* Buscador Global */}

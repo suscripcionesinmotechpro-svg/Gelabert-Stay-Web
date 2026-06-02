@@ -22,7 +22,7 @@ export const Contacto = () => {
   });
 
   return (
-    <div className="w-full min-h-screen flex flex-col lg:flex-row bg-[#050505] relative overflow-hidden">
+    <div className="w-full min-h-screen flex flex-col lg:flex-row bg-[#121212] relative overflow-hidden">
       <Helmet>
         <title>{t('contact_page.seo.title')}</title>
         <meta name="description" content={t('contact_page.seo.description')} />
@@ -89,7 +89,7 @@ export const Contacto = () => {
           className="w-full h-full object-cover opacity-70 brightness-[1.0] saturate-[1.4] contrast-[1.1] scale-105"
           alt=""
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/90 via-[#050505]/40 to-[#050505]/70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#121212]/90 via-[#121212]/40 to-[#121212]/70" />
       </div>
 
       {/* Background Mesh */}

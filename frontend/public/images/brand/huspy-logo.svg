@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" width="100%" height="100%">
-  <!-- Huspy Wordmark in Ivory White and Gold accents -->
+  <!-- Huspy Wordmark in Original Black -->
   <g transform="translate(10, 54)">
-    <text font-family="'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif" font-size="52" font-weight="900" letter-spacing="-0.04em" fill="#FAF8F5">Huspy</text>
-    <!-- Small TM trademark in luxury gold -->
-    <text font-family="'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif" font-size="12" font-weight="700" x="164" y="-32" fill="#C9A962">TM</text>
+    <text font-family="'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif" font-size="52" font-weight="900" letter-spacing="-0.04em" fill="#000000">Huspy</text>
+    <!-- Small TM trademark in original black -->
+    <text font-family="'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif" font-size="12" font-weight="700" x="164" y="-32" fill="#000000">TM</text>
   </g>
 </svg>

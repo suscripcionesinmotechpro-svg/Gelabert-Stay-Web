@@ -425,7 +425,7 @@ export const Home = () => {
       </div>
 
       {/* Accreditations & Partnerships Band */}
-      <section className="w-full bg-[#0A0A0A] py-20 md:py-24 border-y border-white/5 relative z-10 overflow-hidden">
+      <section className="w-full bg-[#121212] py-20 md:py-24 border-y border-white/5 relative z-10 overflow-hidden">
         <div className="max-w-[1440px] mx-auto px-6 md:px-14 flex flex-col items-center gap-10">
           <motion.p
             initial={{ opacity: 0, y: 15 }}
@@ -447,13 +447,16 @@ export const Home = () => {
               className="flex-1 flex flex-col items-center gap-6 text-center p-8 md:p-10 rounded-lg bg-gradient-to-b from-white/[0.03] to-white/[0.01] border border-white/5 hover:border-[#C9A962]/40 hover:bg-[#C9A962]/[0.02] transition-all duration-500 backdrop-blur-md relative group"
             >
               <div className="absolute inset-0 bg-gradient-to-b from-[#C9A962]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
-              <div className="h-12 md:h-14 flex items-center justify-center relative z-10">
+              
+              {/* Circular White Badge for Logo */}
+              <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center shadow-xl border border-zinc-100 relative z-10 transition-all duration-500 group-hover:scale-105 p-4 shrink-0">
                 <img 
                   src="/images/brand/devante-logo.svg" 
-                  alt="Devante Business School" 
-                  className="h-full w-auto max-w-[240px] object-contain opacity-95 group-hover:opacity-100 group-hover:scale-102 transition-all duration-500"
+                  alt="Davante Business School" 
+                  className="w-full h-auto max-h-[85%] object-contain opacity-95 group-hover:opacity-100 transition-all duration-500"
                 />
               </div>
+              
               <p className="font-primary text-sm md:text-base text-zinc-300 leading-relaxed max-w-[420px] font-light relative z-10">
                 {t('home.accreditations.devante_tag')}
               </p>
@@ -473,13 +476,16 @@ export const Home = () => {
               className="flex-1 flex flex-col items-center gap-6 text-center p-8 md:p-10 rounded-lg bg-gradient-to-b from-white/[0.03] to-white/[0.01] border border-white/5 hover:border-[#C9A962]/40 hover:bg-[#C9A962]/[0.02] transition-all duration-500 backdrop-blur-md relative group"
             >
               <div className="absolute inset-0 bg-gradient-to-b from-[#C9A962]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
-              <div className="h-12 md:h-14 flex items-center justify-center relative z-10">
+              
+              {/* Circular White Badge for Logo */}
+              <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center shadow-xl border border-zinc-100 relative z-10 transition-all duration-500 group-hover:scale-105 p-4 shrink-0">
                 <img 
                   src="/images/brand/huspy-logo.svg" 
                   alt="Huspy Authorized Partner" 
-                  className="h-full w-auto max-w-[220px] object-contain opacity-95 group-hover:opacity-100 group-hover:scale-102 transition-all duration-500"
+                  className="w-full h-auto max-h-[85%] object-contain opacity-95 group-hover:opacity-100 transition-all duration-500"
                 />
               </div>
+              
               <p className="font-primary text-sm md:text-base text-zinc-300 leading-relaxed max-w-[420px] font-light relative z-10">
                 {t('home.accreditations.huspy_tag')}
               </p>

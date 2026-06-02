@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 80" width="100%" height="100%">
-  <!-- Stylized Chevron Ribbon Icon in Gold -->
-  <path d="M 12 18 L 27 18 L 50 40 L 27 62 L 12 62 L 35 40 Z" fill="#C9A962" />
+  <!-- Stylized Chevron Ribbon Icon in Original Royal Blue -->
+  <path d="M 12 18 L 27 18 L 50 40 L 27 62 L 12 62 L 35 40 Z" fill="#0044CC" />
   
-  <!-- Davante Typography in Ivory White -->
+  <!-- Davante Typography in Original Royal Blue -->
   <g transform="translate(68, 53)">
-    <text font-family="'Inter', 'Montserrat', 'Manrope', 'Helvetica Neue', sans-serif" font-size="44" font-weight="700" letter-spacing="-0.02em" fill="#FAF8F5">Davante</text>
+    <text font-family="'Inter', 'Montserrat', 'Manrope', 'Helvetica Neue', sans-serif" font-size="44" font-weight="700" letter-spacing="-0.02em" fill="#0044CC">Davante</text>
   </g>
 </svg>

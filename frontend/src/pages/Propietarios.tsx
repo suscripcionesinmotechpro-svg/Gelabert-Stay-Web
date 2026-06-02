@@ -38,7 +38,7 @@ export const Propietarios = () => {
   });
 
   return (
-    <div className="w-full bg-[#050505] flex flex-col relative overflow-x-hidden">
+    <div className="w-full bg-[#121212] flex flex-col relative overflow-x-hidden">
       <Helmet>
         <title>{t('owners_page.seo.title')}</title>
         <meta name="description" content={t('owners_page.seo.description')} />
@@ -64,7 +64,7 @@ export const Propietarios = () => {
             className="w-full h-full object-cover opacity-80 brightness-[0.95] saturate-[1.3] contrast-[1.05] scale-105"
             alt=""
           />
-          <div className="absolute inset-0 bg-gradient-to-l from-[#050505]/90 via-[#050505]/40 to-[#050505]/65" />
+          <div className="absolute inset-0 bg-gradient-to-l from-[#121212]/90 via-[#121212]/40 to-[#121212]/65" />
         </div>
 
         {/* Background Mesh */}
@@ -175,7 +175,7 @@ export const Propietarios = () => {
       </div>
 
       {/* SECTION 1: Why Choose Gelabert Homes & Objective Section */}
-      <section id="why-choose" className="w-full bg-[#050505] py-12 md:py-16 relative z-10 border-t border-white/5">
+      <section id="why-choose" className="w-full bg-[#121212] py-12 md:py-16 relative z-10 border-t border-white/5">
         <div className="max-w-[1440px] mx-auto px-6 md:px-14">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-stretch">
             
@@ -256,7 +256,7 @@ export const Propietarios = () => {
       </section>
 
       {/* SECTION 2: 6 Strategic Pillars Section */}
-      <section id="strategic-pillars" className="w-full bg-[#050505] py-12 md:py-16 relative z-10 border-t border-white/5">
+      <section id="strategic-pillars" className="w-full bg-[#121212] py-12 md:py-16 relative z-10 border-t border-white/5">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#C9A962]/3 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
         <div className="max-w-[1440px] mx-auto px-6 md:px-14">
           <motion.div 
@@ -324,7 +324,7 @@ export const Propietarios = () => {
       </section>
 
       {/* SECTION 3: Marketing & Technology Section */}
-      <section id="marketing-tech" className="w-full bg-[#050505] py-12 md:py-16 relative z-10 border-t border-white/5">
+      <section id="marketing-tech" className="w-full bg-[#121212] py-12 md:py-16 relative z-10 border-t border-white/5">
         <div className="max-w-[1440px] mx-auto px-6 md:px-14">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
@@ -660,7 +660,7 @@ export const Propietarios = () => {
       </section>
 
       {/* SECTION 5: Call to Action Banner (Valuation) */}
-      <section className="w-full py-12 md:py-16 bg-[#050505] relative z-10 border-t border-white/5 overflow-hidden">
+      <section className="w-full py-12 md:py-16 bg-[#121212] relative z-10 border-t border-white/5 overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#C9A962]/5 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
         
         <div className="max-w-[1440px] mx-auto px-6 md:px-14">
