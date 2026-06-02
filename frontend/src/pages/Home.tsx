@@ -247,9 +247,9 @@ export const Home = () => {
         </script>
       </Helmet>
       {/* Hero Section */}
-      <div className="relative w-full min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden bg-black py-24 md:py-32">
-      {/* Hero Cinematic Slideshow — 3 imágenes únicas + vídeo, rotación cada 6s */}
-      <div className="absolute inset-0 z-0 bg-[#080808]">
+      <div className="relative w-full min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden bg-[#0A0A0A] py-24 md:py-32">
+        {/* Background Image / Overlay */}
+        <div className="absolute inset-0 z-0 bg-[#0A0A0A]">
         {/* Mixed media slides */}
         {HERO_SLIDES.map((slide, i) => {
           const isLoaded = loadedIndices.includes(i);
@@ -425,7 +425,7 @@ export const Home = () => {
       </div>
 
       {/* Accreditations & Partnerships Band */}
-      <section className="w-full bg-[#050505] py-20 md:py-24 border-y border-white/5 relative z-10 overflow-hidden">
+      <section className="w-full bg-[#0A0A0A] py-20 md:py-24 border-y border-white/5 relative z-10 overflow-hidden">
         <div className="max-w-[1440px] mx-auto px-6 md:px-14 flex flex-col items-center gap-10">
           <motion.p
             initial={{ opacity: 0, y: 15 }}
@@ -543,7 +543,7 @@ export const Home = () => {
       </section>
 
       {/* Owners Block */}
-      <section className="w-full px-6 md:px-14 py-24 bg-[#0F0F0F] flex flex-col lg:flex-row gap-12 lg:gap-20 items-center overflow-hidden">
+      <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] flex flex-col lg:flex-row gap-12 lg:gap-20 items-center overflow-hidden">
         <motion.div 
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -592,8 +592,8 @@ export const Home = () => {
             alt=""
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/80 via-[#050505]/40 to-[#0A0A0A]/80" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/40 via-transparent to-[#050505]/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/80 via-[#0A0A0A]/40 to-[#0A0A0A]/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/40 via-transparent to-[#0A0A0A]/40" />
         </div>
         {/* Línea dorada decorativa */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C9A962]/40 to-transparent" />
@@ -650,13 +650,13 @@ export const Home = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.15 }}
-              className="flex flex-col gap-4 p-8 border border-[#1F1F1F] text-center items-center bg-[#0F0F0F] hover:border-[#C9A962] hover:bg-[#141414] transition-colors group"
+              className="flex flex-col gap-4 p-8 border border-[#1C1C1C] text-center items-center bg-[#141414] hover:border-[#C9A962]/40 hover:bg-[#1C1C1C] transition-colors group rounded-sm"
             >
               <div className="transform group-hover:-translate-y-2 transition-transform duration-300">
                 <HomeIcon className="w-8 h-8 text-[#C9A962]" />
               </div>
               <h3 className="font-primary text-lg text-[#FAF8F5] font-bold">{feat.title}</h3>
-              <p className="font-primary text-[#888888] text-sm">{feat.desc}</p>
+              <p className="font-primary text-zinc-300 text-sm leading-relaxed">{feat.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -667,7 +667,7 @@ export const Home = () => {
       </section>
 
       {/* Featured Properties Staggered List */}
-      <section className="w-full px-6 md:px-14 py-24 bg-[#0F0F0F] flex flex-col gap-12">
+      <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] flex flex-col gap-12">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -741,7 +741,7 @@ export const Home = () => {
             alt=""
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0F0F0F]/80 via-[#0A0A0A]/40 to-[#0F0F0F]/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/85 via-[#0A0A0A]/40 to-[#0A0A0A]/85" />
         </div>
         <div className="relative z-10 flex flex-col gap-12">
           <motion.div
@@ -802,14 +802,14 @@ export const Home = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.12 }}
-              className="flex flex-col gap-5 p-8 border border-[#1F1F1F] bg-[#0F0F0F] hover:border-[#C9A962]/30 transition-colors group"
+              className="flex flex-col gap-5 p-8 border border-[#1C1C1C] bg-[#141414] hover:border-[#C9A962]/30 transition-colors group rounded-sm"
             >
               {/* Stars */}
               <div className="flex gap-0.5">
                 {[1,2,3,4,5].map(star => <Star key={star} className="w-3.5 h-3.5 fill-[#C9A962] text-[#C9A962]" />)}
               </div>
               {/* Quote */}
-              <p className="font-primary text-[#888888] text-sm italic leading-relaxed flex-1">&ldquo;{test.text}&rdquo;</p>
+              <p className="font-primary text-zinc-300 text-sm italic leading-relaxed flex-1">&ldquo;{test.text}&rdquo;</p>
               {/* Author */}
               <div className="flex items-center gap-3 pt-4 border-t border-[#1F1F1F]">
                 {/* Avatar with initials */}

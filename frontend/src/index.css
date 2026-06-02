@@ -5,17 +5,17 @@
   --font-secondary: 'Playfair Display', serif;
 }
 :root {
-  --background: #0F0F0F;
+  --background: #0A0A0A;
   --foreground: #FAF8F5;
   --primary: #C9A962;
   --primary-hover: #D4B673;
-  --secondary: #161616;
-  --border: #1F1F1F;
-  --muted: #DFDFE6;
+  --secondary: #141414;
+  --border: #1C1C1C;
+  --muted: #A1A1AA;
   
-  --bg-page: #0F0F0F;
-  --bg-card: #161616;
-  --bg-sidebar: #0A0A0A;
+  --bg-page: #0A0A0A;
+  --bg-card: #141414;
+  --bg-sidebar: #050505;
   
   --gold: #C9A962;
   --gold-tint-10: rgba(201, 169, 98, 0.1);
@@ -23,8 +23,8 @@
   --gold-tint-40: rgba(201, 169, 98, 0.4);
   
   --text-primary: #FAF8F5;
-  --text-secondary: #DFDFE6;
-  --text-tertiary: #B0B0BA;
+  --text-secondary: #A1A1AA;
+  --text-tertiary: #71717A;
   --text-on-gold: #0A0A0A;
   
   --success: #4ADE80;
@@ -50,46 +50,38 @@
     line-height: 1.75 !important;
   }
 
-  /* Accessible overrides for standard small font sizes */
-  .text-xs,
-  .text-\[10px\],
-  .text-\[11px\],
-  .text-\[12px\] {
-    font-size: 0.85rem !important; /* Bump up tiny text sizes to a minimum of 13.6px for accessibility */
-  }
-
   /* Universal high-contrast opacity overrides for semi-transparent text */
   .text-white\/30 {
-    color: rgba(250, 248, 245, 0.72) !important; /* Increase from 30% to 72% opacity */
+    color: rgba(250, 248, 245, 0.5) !important; /* Increase from 30% to 50% opacity for better subtext contrast */
   }
 
   .text-white\/40 {
-    color: rgba(250, 248, 245, 0.78) !important; /* Increase from 40% to 78% opacity */
+    color: rgba(250, 248, 245, 0.62) !important; /* Increase from 40% to 62% opacity */
   }
 
   .text-white\/50 {
-    color: rgba(250, 248, 245, 0.82) !important; /* Increase from 50% to 82% opacity */
+    color: rgba(250, 248, 245, 0.72) !important; /* Increase from 50% to 72% opacity */
   }
 
   .text-white\/60 {
-    color: rgba(250, 248, 245, 0.88) !important; /* Increase from 60% to 88% opacity */
+    color: rgba(250, 248, 245, 0.82) !important; /* Increase from 60% to 82% opacity */
   }
 
   .text-white\/70 {
-    color: rgba(250, 248, 245, 0.92) !important; /* Increase from 70% to 92% opacity */
+    color: rgba(250, 248, 245, 0.9) !important; /* Increase from 70% to 90% opacity */
   }
 
   /* Universal high-contrast overrides for standard tailwind muted gray texts */
   .text-zinc-500,
   .text-neutral-500,
   .text-gray-500 {
-    color: #DFDFE6 !important; /* High contrast bright silver instead of dark gray */
+    color: #A1A1AA !important; /* Zinc-400 - High contrast readable gray instead of dark gray */
   }
 
   .text-zinc-400,
   .text-neutral-400,
   .text-gray-400 {
-    color: #FAF8F5 !important; /* Off-white instead of standard mid gray */
+    color: #D4D4D8 !important; /* Zinc-300 - High contrast bright silver instead of standard mid gray */
   }
 
   /* Mejora global de renderizado de imágenes y vídeos */

@@ -233,63 +233,67 @@ const Nosotros = () => {
                 </motion.div>
               ))}
             </div>
-
-            {/* Credentials & Strategic Alliances */}
-            <div className="mt-10 pt-8 border-t border-white/5 space-y-6">
-              <p className="font-primary text-xs md:text-sm text-[#C9A962] uppercase tracking-[0.25em] font-extrabold">
-                {t('nosotros.team.credentials.title')}
-              </p>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Devante card */}
-                <motion.div
-                  {...fadeUp}
-                  transition={{ ...fadeUp.transition, delay: 0.45 }}
-                  className="border border-white/10 rounded-md p-6 sm:p-7 flex flex-col gap-5 bg-white/[0.01] hover:border-[#C9A962]/40 hover:bg-[#C9A962]/[0.02] transition-all duration-500 backdrop-blur-sm relative group"
-                >
-                  <div className="h-8 md:h-9 flex items-start">
-                    <img 
-                      src="/images/brand/devante-logo.svg" 
-                      alt="Devante Business School" 
-                      className="h-full w-auto object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-primary text-xs md:text-sm text-zinc-100 font-bold uppercase tracking-wider group-hover:text-[#C9A962] transition-colors duration-300">
-                      {t('nosotros.team.credentials.devante_title')}
-                    </h4>
-                    <p className="font-primary text-xs md:text-sm text-zinc-300 leading-relaxed font-light">
-                      {t('nosotros.team.credentials.devante_desc')}
-                    </p>
-                  </div>
-                </motion.div>
- 
-                {/* Huspy card */}
-                <motion.div
-                  {...fadeUp}
-                  transition={{ ...fadeUp.transition, delay: 0.55 }}
-                  className="border border-white/10 rounded-md p-6 sm:p-7 flex flex-col gap-5 bg-white/[0.01] hover:border-[#C9A962]/40 hover:bg-[#C9A962]/[0.02] transition-all duration-500 backdrop-blur-sm relative group"
-                >
-                  <div className="h-8 md:h-9 flex items-start">
-                    <img 
-                      src="/images/brand/huspy-logo.svg" 
-                      alt="Huspy Authorized Partner" 
-                      className="h-full w-auto object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-primary text-xs md:text-sm text-zinc-100 font-bold uppercase tracking-wider group-hover:text-[#C9A962] transition-colors duration-300">
-                      {t('nosotros.team.credentials.huspy_title')}
-                    </h4>
-                    <p className="font-primary text-xs md:text-sm text-zinc-300 leading-relaxed font-light">
-                      {t('nosotros.team.credentials.huspy_desc')}
-                    </p>
-                  </div>
-                </motion.div>
-              </div>
-            </div>
           </motion.div>
         </div>
+
+        {/* Credentials & Strategic Alliances (Spans full width under portrait and bio) */}
+        <motion.div
+          {...fadeUp}
+          transition={{ ...fadeUp.transition, delay: 0.4 }}
+          className="max-w-5xl mx-auto mt-16 pt-12 border-t border-white/5 space-y-8"
+        >
+          <p className="font-primary text-xs md:text-sm text-[#C9A962] uppercase tracking-[0.25em] font-extrabold text-center lg:text-left">
+            {t('nosotros.team.credentials.title')}
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Devante card */}
+            <motion.div
+              {...fadeUp}
+              transition={{ ...fadeUp.transition, delay: 0.45 }}
+              className="border border-white/10 rounded-md p-6 sm:p-8 flex flex-col sm:flex-row items-start gap-6 bg-white/[0.01] hover:border-[#C9A962]/40 hover:bg-[#C9A962]/[0.02] transition-all duration-500 backdrop-blur-sm relative group"
+            >
+              <div className="h-9 flex items-start shrink-0">
+                <img 
+                  src="/images/brand/devante-logo.svg" 
+                  alt="Devante Business School" 
+                  className="h-full w-auto object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300"
+                />
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-primary text-xs md:text-sm text-zinc-100 font-bold uppercase tracking-wider group-hover:text-[#C9A962] transition-colors duration-300">
+                  {t('nosotros.team.credentials.devante_title')}
+                </h4>
+                <p className="font-primary text-xs md:text-sm text-zinc-300 leading-relaxed font-light">
+                  {t('nosotros.team.credentials.devante_desc')}
+                </p>
+              </div>
+            </motion.div>
+ 
+            {/* Huspy card */}
+            <motion.div
+              {...fadeUp}
+              transition={{ ...fadeUp.transition, delay: 0.55 }}
+              className="border border-white/10 rounded-md p-6 sm:p-8 flex flex-col sm:flex-row items-start gap-6 bg-white/[0.01] hover:border-[#C9A962]/40 hover:bg-[#C9A962]/[0.02] transition-all duration-500 backdrop-blur-sm relative group"
+            >
+              <div className="h-9 flex items-start shrink-0">
+                <img 
+                  src="/images/brand/huspy-logo.svg" 
+                  alt="Huspy Authorized Partner" 
+                  className="h-full w-auto object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300"
+                />
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-primary text-xs md:text-sm text-zinc-100 font-bold uppercase tracking-wider group-hover:text-[#C9A962] transition-colors duration-300">
+                  {t('nosotros.team.credentials.huspy_title')}
+                </h4>
+                <p className="font-primary text-xs md:text-sm text-zinc-300 leading-relaxed font-light">
+                  {t('nosotros.team.credentials.huspy_desc')}
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
       </section>
 
 
