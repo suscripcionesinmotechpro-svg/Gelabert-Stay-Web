@@ -16,5 +16,13 @@
   function = "inject-meta"
 
 [[edge_functions]]
+  path = "/blog/*"
+  function = "inject-meta"
+
+[[edge_functions]]
+  path = "/en/blog/*"
+  function = "inject-meta"
+
+[[edge_functions]]
   path = "/sitemap.xml"
   function = "sitemap"

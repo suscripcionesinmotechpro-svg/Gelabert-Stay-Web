@@ -5,16 +5,18 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 // Converts a Supabase Storage URL to use the render/image API for optimized previews.
 // Social scrapers (WhatsApp, Facebook, Instagram) work best with images < 300KB, 1200x630.
+// IMPORTANT: Keep query string minimal — WhatsApp bot sometimes fails on long/complex URLs.
 function optimizeSupabaseImage(rawUrl: string): string {
   if (!rawUrl || !rawUrl.trim()) return "";
+  const clean = rawUrl.split("?")[0].split("#")[0].trim();
   // Only transform if it's a Supabase storage URL
-  if (rawUrl.includes("supabase.co") && rawUrl.includes("/object/public/")) {
-    const base = rawUrl.split("?")[0]; // strip existing query params
-    return base.replace("/object/public/", "/render/image/public/") + "?width=1200&height=630&resize=contain&quality=80&format=jpeg";
+  if (clean.includes("supabase.co") && clean.includes("/object/public/")) {
+    return clean.replace("/object/public/", "/render/image/public/") + "?width=1200&height=630&resize=cover&quality=75&format=jpeg";
   }
-  // For non-Supabase images, return as-is (but strip any old cache params first)
-  return rawUrl.split("?")[0];
+  // For non-Supabase images (e.g. external CDN), return as-is without query params
+  return clean;
 }
+
 
 function stripHtml(html: string): string {
   if (!html) return "";
