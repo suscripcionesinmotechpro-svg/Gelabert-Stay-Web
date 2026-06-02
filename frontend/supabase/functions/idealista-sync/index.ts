@@ -272,14 +272,13 @@ serve(async (req) => {
     else if (property.property_type === "local" || property.property_type === "negocio" || property.property_type === "nave") mappedType = "commercial";
     else if (property.property_type === "terreno") mappedType = "land";
     else if (property.property_type === "habitacion") mappedType = "room";
-    else if (property.property_type === "estudio" || property.property_type === "loft") mappedType = "studio";
 
-    // Idealista rule: flat/house must have at least 1 room.
-    // If bedrooms is 0 and type is flat, treat it as a studio.
     const bedroomCount = property.bedrooms ?? 0;
-    if ((mappedType === "flat" || mappedType === "house") && bedroomCount === 0) {
-      mappedType = "studio";
-      console.log(`[Publish] Property has 0 bedrooms with type '${property.property_type}' — mapped to 'studio' to comply with Idealista validation.`);
+    // En Idealista el tipo "studio" no es un tipo de propiedad válido por sí mismo; se publica como "flat" (piso) con la marca studio: true
+    const isStudio = property.property_type === "estudio" || property.property_type === "loft" || (mappedType === "flat" && bedroomCount === 0);
+    
+    if (isStudio) {
+      mappedType = "flat";
     }
 
     // Mapeo de la dirección
@@ -332,19 +331,17 @@ serve(async (req) => {
 
     // Mapeo de características (Typology features)
     const mappedFeatures: any = {};
-    if (mappedType === "studio") {
-      // Studios don't have a rooms field — only area and bathrooms
-      mappedFeatures.areaConstructed = property.area_m2 ? Math.round(property.area_m2) : 30;
-      mappedFeatures.bathroomNumber = property.bathrooms || 1;
-      mappedFeatures.conditionedAir = property.air_conditioning ?? false;
-      mappedFeatures.liftAvailable = property.has_elevator ?? false;
-      if (property.operation === "alquiler") {
-        mappedFeatures.equipment = property.is_furnished ? "equipped_kitchen_and_furnished" : "not_equipped";
-      }
-    } else if (mappedType === "flat" || mappedType === "house") {
+    if (mappedType === "flat" || mappedType === "house") {
       mappedFeatures.areaConstructed = property.area_m2 ? Math.round(property.area_m2) : 50;
       mappedFeatures.bathroomNumber = property.bathrooms || 1;
-      mappedFeatures.rooms = Math.max(1, bedroomCount); // Minimum 1 room for flat/house
+      
+      if (isStudio) {
+        mappedFeatures.studio = true;
+        mappedFeatures.rooms = 0; // Idealista permite 0 habitaciones en estudios
+      } else {
+        mappedFeatures.rooms = Math.max(1, bedroomCount); // Mínimo 1 para pisos y casas estándar
+      }
+
       mappedFeatures.liftAvailable = property.has_elevator ?? false;
       mappedFeatures.pool = property.has_pool ?? false;
       mappedFeatures.terrace = property.has_terrace ?? false;
@@ -353,6 +350,11 @@ serve(async (req) => {
       mappedFeatures.storage = property.has_storage ?? false;
       mappedFeatures.wardrobes = property.has_wardrobes ?? false;
       mappedFeatures.conditionedAir = property.air_conditioning ?? false;
+
+      // La clasificación de Chalet es obligatoria para el tipo house
+      if (mappedType === "house") {
+        mappedFeatures.classificationChalet = "ch"; // por defecto chalet independiente
+      }
 
       // Energy certification mapping
       const rating = property.energy_rating ? property.energy_rating.toUpperCase().trim() : "exempt";
@@ -405,6 +407,12 @@ serve(async (req) => {
       mappedFeatures.conditionedAir = property.air_conditioning ?? false;
       mappedFeatures.bathroomNumber = property.bathrooms || 1;
       mappedFeatures.smokeExtraction = property.smoke_extraction ?? false;
+      
+      // La clasificación de comercial es obligatoria en Idealista
+      mappedFeatures.classificationCommercial = property.property_type === "nave" ? "warehouse" : "premises";
+    } else if (mappedType === "land") {
+      // Las parcelas requieren areaPlot obligatorio en Idealista
+      mappedFeatures.areaPlot = property.area_m2 ? Math.round(property.area_m2) : 100;
     } else if (mappedType === "room") {
       mappedFeatures.roomAreaConstructed = property.area_m2 ? Math.round(property.area_m2) : 12;
       mappedFeatures.internetAvailable = property.air_conditioning ?? true; // fallback
@@ -413,6 +421,16 @@ serve(async (req) => {
       mappedFeatures.smokingAllowed = true;
       mappedFeatures.couplesAllowed = false;
       mappedFeatures.roomType = "shared_flat";
+      
+      // availableFrom es obligatorio para habitaciones en Idealista
+      let availDate = new Date().toISOString().split('T')[0];
+      if (property.availability) {
+        const parsed = Date.parse(property.availability);
+        if (!isNaN(parsed)) {
+          availDate = new Date(parsed).toISOString().split('T')[0];
+        }
+      }
+      mappedFeatures.availableFrom = availDate;
     }
 
     // Mapeo de descripciones
