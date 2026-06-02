@@ -94,15 +94,19 @@ function buildPostCopy(prop: any, isEn: boolean): string {
       const costs: string[] = []
       if (prop.community_fees)     costs.push(`Comunidad: ${fmt(prop.community_fees)}/mes`)
       if (prop.ibi)                costs.push(`IBI: ${fmt(prop.ibi)}/año`)
-      if (prop.parking_included)   costs.push('Parking incluido ✔️')
-      else if (prop.parking_price) costs.push(`Parking: ${fmt(prop.parking_price)}`)
+      if (prop.has_parking) {
+        if (prop.parking_included)   costs.push('Parking incluido ✔️')
+        else if (prop.parking_price) costs.push(`Parking: ${fmt(prop.parking_price)}`)
+      }
       if (costs.length > 0) lines.push(`   └ ${costs.join(' · ')}`)
     }
 
     if (prop.operation === 'alquiler') {
       const rentCosts: string[] = []
-      if (prop.parking_included)   rentCosts.push('Parking incluido ✔️')
-      else if (prop.parking_price) rentCosts.push(`Parking: ${fmt(prop.parking_price)}/mes`)
+      if (prop.has_parking) {
+        if (prop.parking_included)   rentCosts.push('Parking incluido ✔️')
+        else if (prop.parking_price) rentCosts.push(`Parking: ${fmt(prop.parking_price)}/mes`)
+      }
       if (rentCosts.length > 0) lines.push(`   └ ${rentCosts.join(' · ')}`)
     }
   }
