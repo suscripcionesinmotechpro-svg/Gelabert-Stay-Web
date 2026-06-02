@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useProperties, usePropertyMutations } from '../../hooks/useProperties';
 import type { Property, PropertyStatus, CommercialStatus } from '../../types/property';
 import { STATUS_LABELS, STATUS_COLORS, OPERATION_LABELS, COMMERCIAL_STATUS_LABELS, COMMERCIAL_STATUS_COLORS } from '../../types/property';
-import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid, FolderArchive, Loader2, Filter, CloudLightning, CloudOff, Cloud, X, Link2, Link2Off, RefreshCw } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid, FolderArchive, Loader2, Filter, CloudLightning, CloudOff, Cloud, X, Link2, Link2Off, RefreshCw, Sparkles, Share2 } from 'lucide-react';
 
 // Facebook & Instagram icons (SVG inline)
 const FacebookIcon = ({ className }: { className?: string }) => (
@@ -30,6 +30,218 @@ const WhatsAppIcon = () => (
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
   </svg>
 );
+
+function buildSocialCopy(prop: Property): string {
+  const lines: string[] = [];
+
+  const typeEmojis: Record<string, string> = {
+    piso: '🏢', casa: '🏡', atico: '✨', loft: '🎨', estudio: '🏠',
+    local: '🏪', oficina: '💼', nave: '🏭', terreno: '🌳', negocio: '💰', otro: '🏠',
+  };
+  const typeLabels: Record<string, string> = {
+    piso: 'Piso',
+    casa: 'Casa',
+    atico: 'Ático',
+    loft: 'Loft',
+    estudio: 'Estudio',
+    local: 'Local Comercial',
+    oficina: 'Oficina',
+    nave: 'Nave Industrial',
+    terreno: 'Terreno',
+    negocio: 'Negocio',
+    otro: 'Inmueble',
+  };
+  const opLabels: Record<string, string> = {
+    venta: 'En Venta',
+    alquiler: 'En Alquiler',
+    traspaso: 'Traspaso',
+  };
+  const rentTypeLabels: Record<string, string> = {
+    temporal: '🗓️ Alquiler Temporal',
+    habitual: '🏠 Alquiler Habitual',
+    vacacional: '☀️ Alquiler Vacacional',
+    habitaciones: '🚪 Alquiler de Habitaciones',
+    otros: '📋 Alquiler',
+  };
+
+  const emoji = typeEmojis[prop.property_type] || '🏠';
+  const typeLabel = typeLabels[prop.property_type] || 'Inmueble';
+  const opLabel = opLabels[prop.operation] || '';
+
+  lines.push(`${emoji} ${typeLabel}${opLabel ? ' — ' + opLabel : ''}`);
+  lines.push('');
+
+  const title = prop.title;
+  if (title) lines.push(title);
+
+  const locationParts = [prop.urbanization, prop.zone, prop.city].filter(Boolean);
+  if (locationParts.length > 0) lines.push(`📍 ${locationParts.join(', ')}`);
+
+  if (prop.orientation && Array.isArray(prop.orientation) && prop.orientation.length > 0) {
+    const orientMap: Record<string, string> = {
+      norte: 'Norte ↑', sur: 'Sur ↓', este: 'Este →', oeste: 'Oeste ←',
+      noreste: 'Noreste ↗', noroeste: 'Noroeste ↖', sureste: 'Sureste ↘', suroeste: 'Suroeste ↙',
+    };
+    const oVal = prop.orientation[0]?.toLowerCase();
+    const orientLabel = orientMap[oVal] || prop.orientation[0];
+    lines.push(`🧭 Orientación ${orientLabel}`);
+  }
+
+  lines.push('');
+
+  const fmt = (n: number) =>
+    new Intl.NumberFormat('es-ES', { style: 'currency', currency: prop.currency || 'EUR', maximumFractionDigits: 0 }).format(n);
+
+  if (prop.price) {
+    let priceStr = fmt(prop.price);
+    if (prop.operation === 'alquiler') priceStr += '/mes';
+    if (prop.max_price && prop.max_price > prop.price) priceStr += ` – ${fmt(prop.max_price)}/mes`;
+    lines.push(`💰 ${priceStr}`);
+
+    if (prop.operation === 'venta') {
+      const costs: string[] = [];
+      if (prop.community_fees) costs.push(`Comunidad: ${fmt(prop.community_fees)}/mes`);
+      if (prop.ibi) costs.push(`IBI: ${fmt(prop.ibi)}/año`);
+      if (prop.parking_included) costs.push('Parking incluido ✔️');
+      else if (prop.parking_price) costs.push(`Parking: ${fmt(prop.parking_price)}`);
+      if (costs.length > 0) lines.push(`   └ ${costs.join(' · ')}`);
+    }
+
+    if (prop.operation === 'alquiler') {
+      const rentCosts: string[] = [];
+      if (prop.parking_included) rentCosts.push('Parking incluido ✔️');
+      else if (prop.parking_price) rentCosts.push(`Parking: ${fmt(prop.parking_price)}/mes`);
+      if (rentCosts.length > 0) lines.push(`   └ ${rentCosts.join(' · ')}`);
+    }
+  }
+
+  const residential = ['piso', 'casa', 'atico', 'loft', 'estudio'];
+  const commercial = ['local', 'oficina', 'nave'];
+  const feats: string[] = [];
+
+  if (residential.includes(prop.property_type)) {
+    if (prop.area_m2) feats.push(`📐 ${prop.area_m2} m²`);
+    if (prop.bedrooms > 0) feats.push(`🛏 ${prop.bedrooms} hab.`);
+    if (prop.bathrooms > 0) feats.push(`🚿 ${prop.bathrooms} baños`);
+    if (prop.floor) feats.push(`🏢 Planta ${prop.floor}`);
+    if (prop.has_elevator) feats.push(`🛗 Ascensor`);
+    if (prop.is_furnished) feats.push(`🛋 Amueblado`);
+    if (prop.is_exterior) feats.push(`🌤 Exterior`);
+    if (prop.has_terrace) feats.push(`🌿 Terraza`);
+    if (prop.has_balcony) feats.push(`🪟 Balcón`);
+  } else if (commercial.includes(prop.property_type)) {
+    if (prop.area_m2) feats.push(`📐 ${prop.area_m2} m²`);
+    if (prop.floor) feats.push(`🏢 Planta ${prop.floor}`);
+    if (prop.has_elevator) feats.push(`🛗 Ascensor`);
+    const state = prop.conservation_state || prop.property_condition;
+    if (state) feats.push(`✅ ${state}`);
+  } else if (prop.property_type === 'terreno') {
+    if (prop.area_m2) feats.push(`📐 ${prop.area_m2} m²`);
+  } else if (prop.property_type === 'negocio') {
+    if (prop.area_m2) feats.push(`📐 ${prop.area_m2} m²`);
+    if (prop.is_furnished) feats.push(`🛋 Equipado`);
+  } else {
+    if (prop.area_m2) feats.push(`📐 ${prop.area_m2} m²`);
+    if (prop.bedrooms > 0) feats.push(`🛏 ${prop.bedrooms} hab.`);
+    if (prop.bathrooms > 0) feats.push(`🚿 ${prop.bathrooms} baños`);
+  }
+
+  if (feats.length > 0) {
+    lines.push('');
+    lines.push(feats.join('  ·  '));
+  }
+
+  const premiumFeats: string[] = [];
+  if (prop.sea_views) premiumFeats.push(`🌊 Vistas al mar`);
+  if (prop.has_pool) premiumFeats.push(`🏊 Piscina`);
+  if (prop.garden) premiumFeats.push(`🌳 Jardín`);
+  if (prop.has_patio) premiumFeats.push(`🌺 Patio`);
+  if (prop.has_storage) premiumFeats.push(`📦 Trastero`);
+  if (prop.air_conditioning) premiumFeats.push(`❄️ A/C`);
+  if (prop.heating) premiumFeats.push(`🔥 Calefacción`);
+  if (prop.has_fireplace) premiumFeats.push(`🪵 Chimenea`);
+  if (prop.has_wardrobes) premiumFeats.push(`🚪 Armarios empotrados`);
+  if (prop.pets_allowed) premiumFeats.push(`🐾 Se admiten mascotas`);
+
+  if (premiumFeats.length > 0) {
+    lines.push('');
+    lines.push(premiumFeats.join('  ·  '));
+  }
+
+  const hiList = prop.highlights;
+  if (Array.isArray(hiList) && hiList.length > 0) {
+    lines.push('');
+    lines.push('✨ Puntos destacados:');
+    hiList.slice(0, 4).forEach((h: string) => lines.push(`  → ${h}`));
+  }
+
+  const shortDesc = prop.short_description;
+  if (shortDesc) {
+    lines.push('');
+    const desc = shortDesc.trim();
+    lines.push(desc.length > 220 ? desc.slice(0, 220).trimEnd() + '…' : desc);
+  }
+
+  if (prop.operation === 'alquiler') {
+    const rentInfo: string[] = [];
+    if (prop.rent_type && rentTypeLabels[prop.rent_type]) rentInfo.push(rentTypeLabels[prop.rent_type]);
+    if (prop.availability) rentInfo.push(`📅 Disponible: ${prop.availability}`);
+    if (rentInfo.length > 0) {
+      lines.push('');
+      lines.push(rentInfo.join('  ·  '));
+    }
+  }
+
+  if (prop.operation === 'venta' && prop.energy_rating &&
+      !['en tramite', 'en trámite', '-', ''].includes(prop.energy_rating.toLowerCase())) {
+    lines.push('');
+    lines.push(`⚡ Calificación energética: ${prop.energy_rating.toUpperCase()}`);
+  }
+
+  if (prop.virtual_tour_url) {
+    lines.push('');
+    lines.push(`🎥 Tour virtual: ${prop.virtual_tour_url}`);
+  }
+
+  const link = `https://gelaberthomes.es/propiedades/${prop.reference || prop.slug || prop.id}`;
+  lines.push('');
+  lines.push(`👉 Ficha completa: ${link}`);
+  lines.push(`📞 Llámanos o escríbenos para una visita`);
+
+  lines.push('');
+  const cityTag = prop.city ? `#${prop.city.replace(/\s+/g, '')}` : '#Málaga';
+  const zoneTag = prop.zone ? `#${prop.zone.replace(/[\s\-]+/g, '')}` : '';
+  const typeHashtags: Record<string, string> = {
+    piso: '#Piso', casa: '#Casa', atico: '#Atico', loft: '#Loft', estudio: '#Estudio',
+    local: '#LocalComercial', oficina: '#Oficina', nave: '#NaveIndustrial',
+    terreno: '#Terreno', negocio: '#Traspaso', otro: '#Inmueble',
+  };
+  const opHashtags: Record<string, string> = {
+    venta: '#EnVenta', alquiler: '#EnAlquiler', traspaso: '#Traspaso',
+  };
+  const specialTags: string[] = [];
+  if (prop.sea_views) specialTags.push('#VistasAlMar');
+  if (prop.has_pool) specialTags.push('#ConPiscina');
+  if (prop.operation === 'alquiler' && prop.rent_type === 'vacacional') specialTags.push('#AlquilerVacacional');
+  if (prop.operation === 'alquiler' && prop.rent_type === 'habitaciones') specialTags.push('#Habitaciones');
+
+  const hashtags = [
+    '#GelabertHomes', '#Inmobiliaria', '#RealEstate',
+    opHashtags[prop.operation] || '',
+    typeHashtags[prop.property_type] || '#Inmueble',
+    cityTag, zoneTag,
+    prop.operation === 'alquiler' ? '#AlquilerMalaga' : '#VentaMalaga',
+    '#PropiedadesMalaga',
+    ...specialTags,
+  ].filter(Boolean).join(' ');
+
+  const resultHashtags = hashtags.trim();
+  if (resultHashtags) {
+    lines.push(resultHashtags);
+  }
+
+  return lines.join('\n');
+}
 
 const StatusDropdown = ({ property, onStatusChange }: { property: Property; onStatusChange: () => void }) => {
   const [open, setOpen] = useState(false);
@@ -145,6 +357,128 @@ export const AdminPropertiesList = () => {
   const [facebookStatuses, setFacebookStatuses] = useState<Record<string, Property['facebook_status']>>({});
   const [instagramLoading, setInstagramLoading] = useState<string | null>(null);
   const [instagramStatuses, setInstagramStatuses] = useState<Record<string, Property['instagram_status']>>({});
+
+  // ── Social Publish Modal ──
+  const [socialModalOpen, setSocialModalOpen] = useState(false);
+  const [socialProperty, setSocialProperty] = useState<Property | null>(null);
+  const [socialPlatforms, setSocialPlatforms] = useState<{ facebook: boolean; instagram: boolean }>({ facebook: true, instagram: true });
+  const [socialCopy, setSocialCopy] = useState('');
+  const [socialEnhanceLoading, setSocialEnhanceLoading] = useState(false);
+  const [socialPublishing, setSocialPublishing] = useState(false);
+  const [socialTone, setSocialTone] = useState<'premium' | 'emocional' | 'moderno'>('premium');
+
+  const handleOpenSocialModal = (p: Property, preselectedPlatform: 'facebook' | 'instagram') => {
+    setSocialProperty(p);
+    setSocialPlatforms({
+      facebook: preselectedPlatform === 'facebook',
+      instagram: preselectedPlatform === 'instagram',
+    });
+    setSocialCopy(buildSocialCopy(p));
+    setSocialModalOpen(true);
+  };
+
+  const handleSocialPublish = async () => {
+    if (!socialProperty) return;
+    if (!socialPlatforms.facebook && !socialPlatforms.instagram) {
+      toast.error('Selecciona al menos una red social.');
+      return;
+    }
+
+    setSocialPublishing(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const platformsToPublish: ('facebook' | 'instagram')[] = [];
+      if (socialPlatforms.facebook) platformsToPublish.push('facebook');
+      if (socialPlatforms.instagram) platformsToPublish.push('instagram');
+
+      for (const platform of platformsToPublish) {
+        const platformLabel = platform === 'facebook' ? 'Facebook' : 'Instagram';
+        const setPlatformLoading = platform === 'facebook' ? setFacebookLoading : setInstagramLoading;
+        const setPlatformStatuses = platform === 'facebook' ? setFacebookStatuses : setInstagramStatuses;
+
+        setPlatformLoading(socialProperty.id);
+        
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/share-to-community`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session?.access_token}`,
+              'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            },
+            body: JSON.stringify({
+              propertyId: socialProperty.id,
+              action: `publish_${platform}`,
+              trigger: 'manual',
+              customCopy: socialCopy,
+            }),
+          }
+        );
+
+        const result = await res.json();
+        setPlatformLoading(null);
+
+        if (!res.ok || result.error) {
+          const errMsg = result.error || 'Error desconocido del servidor.';
+          toast.error(`${platformLabel}: ${errMsg}`);
+          setPlatformStatuses(prev => ({ ...prev, [socialProperty.id]: 'error' }));
+        } else {
+          const platformResult = result[platform];
+          if (platformResult?.error) {
+            toast.error(`${platformLabel}: ${platformResult.error}`);
+            setPlatformStatuses(prev => ({ ...prev, [socialProperty.id]: 'error' }));
+          } else {
+            setPlatformStatuses(prev => ({ ...prev, [socialProperty.id]: 'published' }));
+            toast.success(`✅ Publicado en ${platformLabel}`);
+          }
+        }
+      }
+      setSocialModalOpen(false);
+      refetch();
+    } catch (err: any) {
+      toast.error(`Error de conexión: ${err.message}`);
+    } finally {
+      setSocialPublishing(false);
+    }
+  };
+
+  const handleSocialEnhanceCopy = async () => {
+    if (!socialProperty) return;
+    setSocialEnhanceLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/share-to-community`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({
+            action: 'enhance_copy',
+            text: socialCopy,
+            tone: socialTone,
+          }),
+        }
+      );
+
+      const result = await res.json();
+      if (!res.ok || result.error) {
+        toast.error(`Error de IA: ${result.error || 'No se pudo optimizar el texto.'}`);
+      } else {
+        setSocialCopy(result.enhancedText);
+        toast.success('✨ Texto optimizado con IA');
+      }
+    } catch (err: any) {
+      toast.error(`Error al conectar con la IA: ${err.message}`);
+    } finally {
+      setSocialEnhanceLoading(false);
+    }
+  };
 
   // ── Idealista Import Modal ──
   const [importModalOpen, setImportModalOpen] = useState(false);
@@ -632,7 +966,7 @@ export const AdminPropertiesList = () => {
                 return (
                   <div className="flex items-center">
                     <button
-                      onClick={() => handleFacebookSync(p)}
+                      onClick={() => isPublished ? handleFacebookSync(p) : handleOpenSocialModal(p, 'facebook')}
                       disabled={isLoading}
                       title={isPublished ? 'Publicado en Facebook — click para desactivar' : isError ? 'Error en Facebook — click para reintentar' : 'Publicar en Facebook'}
                       className={`flex items-center gap-1 px-2 py-1 text-[10px] font-primary font-bold uppercase tracking-wider border transition-all disabled:opacity-50 ${
@@ -663,7 +997,7 @@ export const AdminPropertiesList = () => {
                 return (
                   <div className="flex items-center">
                     <button
-                      onClick={() => handleInstagramSync(p)}
+                      onClick={() => isPublished ? handleInstagramSync(p) : handleOpenSocialModal(p, 'instagram')}
                       disabled={isLoading}
                       title={isPublished ? 'Publicado en Instagram — click para desactivar' : isError ? 'Error en Instagram — click para reintentar' : 'Publicar en Instagram'}
                       className={`flex items-center gap-1 px-2 py-1 text-[10px] font-primary font-bold uppercase tracking-wider border transition-all disabled:opacity-50 ${
@@ -913,6 +1247,190 @@ export const AdminPropertiesList = () => {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Social Publish Modal ── */}
+      {socialModalOpen && socialProperty && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-[#0A0A0A] border border-[#1F1F1F] w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl rounded-sm overflow-hidden animate-in fade-in zoom-in-95 duration-255">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1F1F1F]">
+              <div className="flex items-center gap-3">
+                <Share2 className="w-5 h-5 text-[#C9A962]" />
+                <div>
+                  <h2 className="font-secondary text-xl text-[#FAF8F5]">Publicar en Redes Sociales</h2>
+                  <p className="font-primary text-xs text-[#666] mt-0.5">
+                    Previsualiza y edita el anuncio antes de lanzarlo. ¡Optimízalo con Inteligencia Artificial!
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSocialModalOpen(false)}
+                className="p-2 text-[#666] hover:text-[#FAF8F5] border border-transparent hover:border-[#1F1F1F] transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-6">
+              {/* Copy Area (Left) */}
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <span className="font-primary text-xs text-[#C9A962] font-bold uppercase tracking-wider">Texto de la Publicación</span>
+                  
+                  {/* AI Options */}
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={socialTone}
+                      onChange={(e: any) => setSocialTone(e.target.value)}
+                      className="bg-[#161616] border border-[#2A2A2A] text-[#FAF8F5] font-primary text-[10px] uppercase tracking-wider font-bold px-2 py-1 outline-none focus:border-[#C9A962] cursor-pointer"
+                    >
+                      <option value="premium">✨ Premium y Elegante</option>
+                      <option value="emocional">❤️ Emocional y Cercano</option>
+                      <option value="moderno">⚡ Moderno y Dinámico</option>
+                    </select>
+                    <button
+                      onClick={handleSocialEnhanceCopy}
+                      disabled={socialEnhanceLoading || socialPublishing}
+                      className="flex items-center gap-1.5 px-3 py-1 bg-[#C9A962]/10 border border-[#C9A962]/30 text-[#C9A962] font-primary font-bold text-[10px] uppercase tracking-wider hover:bg-[#C9A962]/20 transition-all disabled:opacity-50"
+                      title="Utiliza Inteligencia Artificial para mejorar este texto"
+                    >
+                      {socialEnhanceLoading ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-3 h-3 animate-pulse text-[#C9A962]" />
+                      )}
+                      <span>{socialEnhanceLoading ? 'Mejorando...' : 'Optimizar con IA'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <textarea
+                  value={socialCopy}
+                  onChange={(e) => setSocialCopy(e.target.value)}
+                  disabled={socialPublishing}
+                  rows={14}
+                  className="w-full bg-[#161616] border border-[#1F1F1F] p-4 text-sm font-primary text-[#FAF8F5] leading-relaxed resize-none outline-none focus:border-[#C9A962] transition-colors rounded-sm placeholder:text-[#444] text-[13px]"
+                  placeholder="Escribe la descripción del anuncio..."
+                />
+              </div>
+
+              {/* Preview and Platforms (Right) */}
+              <div className="flex flex-col gap-6 bg-[#0F0F0F] border border-[#1F1F1F] p-5 rounded-sm">
+                <div>
+                  <span className="font-primary text-xs text-[#666] font-bold uppercase tracking-wider block mb-3">Plataformas de Publicación</span>
+                  
+                  <div className="flex flex-col gap-3">
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={socialPlatforms.facebook}
+                        onChange={(e) => setSocialPlatforms(prev => ({ ...prev, facebook: e.target.checked }))}
+                        disabled={socialPublishing}
+                        className="w-4 h-4 rounded-sm border-[#2A2A2A] bg-[#161616] accent-[#1877F2] cursor-pointer"
+                      />
+                      <FacebookIcon className={`w-4 h-4 transition-colors ${socialPlatforms.facebook ? 'text-[#1877F2]' : 'text-[#444] group-hover:text-[#888]'}`} />
+                      <span className={`font-primary text-xs font-bold transition-colors ${socialPlatforms.facebook ? 'text-[#FAF8F5]' : 'text-[#666] group-hover:text-[#FAF8F5]'}`}>
+                        Página Oficial de Facebook
+                      </span>
+                    </label>
+
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={socialPlatforms.instagram}
+                        onChange={(e) => setSocialPlatforms(prev => ({ ...prev, instagram: e.target.checked }))}
+                        disabled={socialPublishing}
+                        className="w-4 h-4 rounded-sm border-[#2A2A2A] bg-[#161616] accent-[#E1306C] cursor-pointer"
+                      />
+                      <InstagramIcon className={`w-4 h-4 transition-colors ${socialPlatforms.instagram ? 'text-[#E1306C]' : 'text-[#444] group-hover:text-[#888]'}`} />
+                      <span className={`font-primary text-xs font-bold transition-colors ${socialPlatforms.instagram ? 'text-[#FAF8F5]' : 'text-[#666] group-hover:text-[#FAF8F5]'}`}>
+                        Instagram Business Account
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="border-t border-[#1F1F1F] pt-4">
+                  <span className="font-primary text-xs text-[#666] font-bold uppercase tracking-wider block mb-3">Compartir en Redes Personales</span>
+                  
+                  <button
+                    onClick={() => {
+                      const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://gelaberthomes.es/propiedades/' + (socialProperty.reference || socialProperty.slug || socialProperty.id))}`;
+                      window.open(shareUrl, '_blank');
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-2 border border-[#1877F2]/30 hover:border-[#1877F2]/60 hover:bg-[#1877F2]/5 text-[#1877F2] font-primary font-bold text-xs uppercase tracking-wider transition-colors"
+                  >
+                    <FacebookIcon className="w-3.5 h-3.5" />
+                    Perfil Personal de Facebook (Manual)
+                  </button>
+                  <p className="font-primary text-[10px] text-[#444] mt-2 leading-normal">
+                    * Meta no permite la publicación automatizada en perfiles personales mediante su API desde 2018. Utiliza este botón para compartirlo de forma manual en tu biografía.
+                  </p>
+                </div>
+
+                {/* Card Preview */}
+                <div className="border-t border-[#1F1F1F] pt-4 mt-auto">
+                  <span className="font-primary text-xs text-[#666] font-bold uppercase tracking-wider block mb-3">Previsualización del Anuncio</span>
+                  
+                  <div className="bg-[#161616] border border-[#1F1F1F] rounded-sm overflow-hidden flex gap-3 p-3">
+                    <div className="w-16 h-16 shrink-0 bg-[#0A0A0A] overflow-hidden border border-[#2A2A2A] rounded-sm">
+                      {socialProperty.main_image ? (
+                        <img
+                          src={getOptimizedImage(socialProperty.main_image, { width: 100, height: 100, format: 'webp' })}
+                          alt={socialProperty.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[#333]">
+                          <Eye className="w-4 h-4" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex flex-col justify-center">
+                      <p className="font-primary text-[#FAF8F5] text-xs font-bold truncate leading-tight">{socialProperty.title}</p>
+                      <p className="font-primary text-[#666] text-[10px] mt-1 uppercase tracking-wider font-bold">
+                        {socialProperty.reference || socialProperty.id.slice(0, 8)} · {socialProperty.city}
+                      </p>
+                      <p className="font-secondary text-[#C9A962] text-xs font-bold mt-1.5">
+                        {formatPropertyPrice(socialProperty.price, socialProperty.price_type, socialProperty.max_price, socialProperty.currency, 'es')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-[#1F1F1F] flex items-center justify-end gap-3">
+              <button
+                onClick={() => setSocialModalOpen(false)}
+                disabled={socialPublishing}
+                className="px-5 py-2 border border-[#1F1F1F] text-[#888] font-primary text-sm hover:border-[#333] hover:text-[#FAF8F5] transition-colors disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSocialPublish}
+                disabled={socialPublishing || socialEnhanceLoading}
+                className="flex items-center gap-2 px-6 py-2 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm hover:bg-[#D4B673] transition-all disabled:opacity-50 disabled:cursor-wait"
+              >
+                {socialPublishing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Publicando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-4 h-4" />
+                    <span>Publicar Ahora</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

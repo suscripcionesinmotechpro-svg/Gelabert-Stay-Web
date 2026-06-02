@@ -524,7 +524,63 @@ serve(async (req) => {
       record,       // from DB trigger: the updated property record
       old_record,   // from DB trigger: previous record
       type,         // INSERT | UPDATE (from DB trigger)
+      customCopy,   // Optional user-customized/AI-enhanced text for post copy
     } = payload
+
+    if (action === 'enhance_copy') {
+      const { text, tone } = payload
+      const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')
+      if (!OPENAI_API_KEY) {
+        return new Response(JSON.stringify({ error: 'Falta la API Key de OpenAI en la configuración de Supabase.' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        })
+      }
+
+      const prompt = `Eres un copywriter inmobiliario premium de élite para Gelabert Homes.
+Tu tarea es tomar la siguiente descripción técnica de una propiedad y reescribirla para hacerla extremadamente atractiva, persuasiva y elegante para publicar en redes sociales (Facebook e Instagram).
+
+REGLAS DE FORMATO:
+- Usa un tono ${tone || 'premium y sofisticado'}.
+- Utiliza emojis estratégicos para hacer la lectura fluida y visualmente atractiva (sin saturar).
+- Mantén toda la información verídica intacta (precio, características, ubicación).
+- Asegúrate de que el enlace final de la propiedad permanezca inalterado al final de la publicación.
+- Añade hashtags elegantes e inmobiliarios al final del post.
+- Conserva el idioma español.
+
+TEXTO A OPTIMIZAR:
+${text}`
+
+      const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: 'Eres un copywriter inmobiliario de lujo para Gelabert Homes.' },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.7,
+        })
+      })
+
+      const aiData = await openAIResponse.json()
+      if (aiData.error) {
+        return new Response(JSON.stringify({ error: aiData.error.message || 'Error en OpenAI API' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        })
+      }
+      const enhancedText = aiData.choices?.[0]?.message?.content || text
+
+      return new Response(JSON.stringify({ success: true, enhancedText }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200
+      })
+    }
 
     // ── Resolve property ──────────────────────────────────────────────────────
     let prop: any = record
@@ -617,7 +673,7 @@ serve(async (req) => {
     const finalMediaItems = mediaItems.slice(0, 10)
 
     const propUrl = `https://gelaberthomes.es/propiedades/${prop.reference || prop.slug || prop.id}`
-    const copy    = buildPostCopy(prop, false) // always Spanish for social posts
+    const copy    = customCopy || buildPostCopy(prop, false) // always Spanish for social posts
 
     // ──────────────────────────────────────────────────────────────────────────
     // DISCORD + TELEGRAM (existing functionality, preserved)
@@ -685,9 +741,9 @@ serve(async (req) => {
         }).eq('id', pid)
 
       } else if (action === 'publish_facebook' || (isStatusChange && prop.facebook_status === 'published')) {
-        let postCopy = needsWatermark
+        let postCopy = customCopy || (needsWatermark
           ? `${WATERMARK_CONFIG[prop.commercial_status]?.label_es}: ${prop.title}\n\n${propUrl}`
-          : copy
+          : copy)
 
         // If there is a video in the media items, append its direct link to the Facebook post message
         // since Facebook attached_media does not support mixing photos and videos.

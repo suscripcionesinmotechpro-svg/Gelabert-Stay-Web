@@ -53,16 +53,21 @@ serve(async (req) => {
     if (action === "fetch") {
       const accessToken = await getIdealistaToken(clientId, clientSecret, baseUrl);
 
-      // Paginate through all properties
       const allProperties: any[] = [];
       let page = 1;
       const pageSize = 100;
 
+      const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
       while (true) {
+        if (page > 1) {
+          await delay(500); // 500ms delay between pages to prevent rate limits
+        }
+
         const url = `${baseUrl}/v1/properties?page=${page}&size=${pageSize}`;
         console.log(`[Import] Fetching page ${page} from ${url}`);
 
-        const res = await fetch(url, {
+        let res = await fetch(url, {
           headers: {
             "feedKey": feedKey,
             "Authorization": `Bearer ${accessToken}`,
@@ -70,11 +75,33 @@ serve(async (req) => {
           },
         });
 
+        // Retry once on 429 Rate Limit
+        if (res.status === 429) {
+          console.warn(`[Import] Rate limit hit on page ${page}. Waiting 2000ms before retrying once...`);
+          await delay(2000);
+          res = await fetch(url, {
+            headers: {
+              "feedKey": feedKey,
+              "Authorization": `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+        }
+
         if (!res.ok) {
           const errText = await res.text();
           console.error(`[Import] Error fetching page ${page}: ${errText}`);
           // If it's a 404 or empty, stop paginating
           if (res.status === 404 || res.status === 400) break;
+          
+          if (res.status === 429) {
+            console.warn(`[Import] Rate limit hit again on page ${page}. Stop paginating and returning fetched data.`);
+            if (allProperties.length > 0) {
+              break;
+            } else {
+              throw new Error("El servidor de Idealista está temporalmente saturado (Límite de peticiones superado). Por favor, inténtalo de nuevo en unos segundos.");
+            }
+          }
           throw new Error(`Idealista API error (page ${page}): ${errText}`);
         }
 
