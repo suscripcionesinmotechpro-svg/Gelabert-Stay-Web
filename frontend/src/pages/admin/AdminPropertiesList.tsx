@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useProperties, usePropertyMutations } from '../../hooks/useProperties';
 import type { Property, PropertyStatus, CommercialStatus } from '../../types/property';
 import { STATUS_LABELS, STATUS_COLORS, OPERATION_LABELS, COMMERCIAL_STATUS_LABELS, COMMERCIAL_STATUS_COLORS } from '../../types/property';
-import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid, FolderArchive, Loader2, Filter, CloudLightning, CloudOff, Cloud, X, Link2, Link2Off, RefreshCw, Sparkles, Share2 } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Star, Eye, EyeOff, ChevronDown, CheckCheck, LayoutGrid, FolderArchive, Loader2, Filter, CloudLightning, CloudOff, Cloud, X, Link2, Link2Off, RefreshCw, Sparkles, Share2, GripVertical, Images } from 'lucide-react';
 
 // Facebook & Instagram icons (SVG inline)
 const FacebookIcon = ({ className }: { className?: string }) => (
@@ -372,6 +372,10 @@ export const AdminPropertiesList = () => {
   const [socialEnhanceLoading, setSocialEnhanceLoading] = useState(false);
   const [socialPublishing, setSocialPublishing] = useState(false);
   const [socialTone, setSocialTone] = useState<'premium' | 'emocional' | 'moderno'>('premium');
+  // Image selection & ordering for social publish
+  const [socialSelectedImages, setSocialSelectedImages] = useState<string[]>([]);
+  const dragImageIdx = useRef<number | null>(null);
+  const dragOverImageIdx = useRef<number | null>(null);
 
   const handleOpenSocialModal = (p: Property, preselectedPlatform: 'facebook' | 'instagram') => {
     setSocialProperty(p);
@@ -384,7 +388,58 @@ export const AdminPropertiesList = () => {
     const baseCopy = buildSocialCopy(p);
     setSocialCopyFb(baseCopy);
     setSocialCopyIg(baseCopy);
+
+    // Build the initial image list: main_image first, then gallery (deduplicated)
+    const allImgs: string[] = [];
+    if (p.main_image) allImgs.push(p.main_image);
+    (p.gallery || []).forEach(img => {
+      if (img && !allImgs.includes(img)) allImgs.push(img);
+    });
+    // Pre-select images based on target platforms (Instagram -> 10, Facebook -> 30)
+    const initialLimit = preselectedPlatform === 'instagram' ? 10 : 30;
+    setSocialSelectedImages(allImgs.slice(0, initialLimit));
+
     setSocialModalOpen(true);
+  };
+
+  // ── Image drag-and-drop helpers ──
+  const handleImageDragStart = (idx: number) => {
+    dragImageIdx.current = idx;
+  };
+  const handleImageDragEnter = (idx: number) => {
+    dragOverImageIdx.current = idx;
+  };
+  const handleImageDragEnd = () => {
+    const from = dragImageIdx.current;
+    const to = dragOverImageIdx.current;
+    if (from === null || to === null || from === to) {
+      dragImageIdx.current = null;
+      dragOverImageIdx.current = null;
+      return;
+    }
+    setSocialSelectedImages(prev => {
+      const arr = [...prev];
+      const [moved] = arr.splice(from, 1);
+      arr.splice(to, 0, moved);
+      return arr;
+    });
+    dragImageIdx.current = null;
+    dragOverImageIdx.current = null;
+  };
+  const toggleSocialImage = (url: string) => {
+    setSocialSelectedImages(prev => {
+      if (prev.includes(url)) {
+        // Must keep at least 1 image
+        if (prev.length === 1) return prev;
+        return prev.filter(u => u !== url);
+      }
+      const maxLimit = socialPlatforms.instagram ? 10 : 30;
+      if (prev.length >= maxLimit) {
+        toast.error(`Máximo ${maxLimit} imágenes por publicación.`);
+        return prev;
+      }
+      return [...prev, url];
+    });
   };
 
   const handleSocialPublish = async () => {
@@ -424,6 +479,7 @@ export const AdminPropertiesList = () => {
               trigger: 'manual',
               customCopyFb: socialCopyFb,
               customCopyIg: socialCopyIg,
+              selectedImages: socialSelectedImages,
             }),
           }
         );
@@ -1292,165 +1348,311 @@ export const AdminPropertiesList = () => {
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-6">
-              {/* Copy Area (Left) */}
-              <div className="flex flex-col gap-4">
-                {/* Platform Tabs */}
-                <div className="flex border-b border-[#1F1F1F]">
-                  <button
-                    onClick={() => setActivePlatformTab('facebook')}
-                    disabled={socialPublishing}
-                    className={`flex items-center gap-2 px-4 py-2 text-xs font-primary font-bold uppercase tracking-wider transition-all border-b-2 ${
-                      activePlatformTab === 'facebook'
-                        ? 'text-[#1877F2] border-[#1877F2]'
-                        : 'text-[#666] border-transparent hover:text-[#FAF8F5]'
-                    }`}
-                  >
-                    <FacebookIcon className="w-3.5 h-3.5" />
-                    Borrador Facebook
-                  </button>
-                  <button
-                    onClick={() => setActivePlatformTab('instagram')}
-                    disabled={socialPublishing}
-                    className={`flex items-center gap-2 px-4 py-2 text-xs font-primary font-bold uppercase tracking-wider transition-all border-b-2 ${
-                      activePlatformTab === 'instagram'
-                        ? 'text-[#E1306C] border-[#E1306C]'
-                        : 'text-[#666] border-transparent hover:text-[#FAF8F5]'
-                    }`}
-                  >
-                    <InstagramIcon className="w-3.5 h-3.5" />
-                    Borrador Instagram
-                  </button>
-                </div>
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+              {/* ── Image Selector ── */}
+              {(() => {
+                const prop = socialProperty!;
+                const allImgs: string[] = [];
+                if (prop.main_image) allImgs.push(prop.main_image);
+                (prop.gallery || []).forEach(img => {
+                  if (img && !allImgs.includes(img)) allImgs.push(img);
+                });
+                if (allImgs.length === 0) return null;
+                return (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Images className="w-4 h-4 text-[#C9A962]" />
+                        <span className="font-primary text-xs font-bold text-[#FAF8F5] uppercase tracking-wider">Imágenes de la Publicación</span>
+                        <span className="font-primary text-[10px] text-[#666] bg-[#1A1A1A] px-2 py-0.5 rounded-full">
+                          {socialSelectedImages.length} seleccionada{socialSelectedImages.length !== 1 ? 's' : ''} · máx. {socialPlatforms.instagram ? 10 : 30}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setSocialSelectedImages(allImgs.slice(0, socialPlatforms.instagram ? 10 : 30))}
+                          disabled={socialPublishing}
+                          className="font-primary text-[10px] text-[#888] hover:text-[#C9A962] uppercase tracking-wider transition-colors disabled:opacity-50"
+                        >Seleccionar todas</button>
+                        <span className="text-[#333]">/</span>
+                        <button
+                          onClick={() => setSocialSelectedImages(socialSelectedImages.length > 0 ? [socialSelectedImages[0]] : [])}
+                          disabled={socialPublishing}
+                          className="font-primary text-[10px] text-[#888] hover:text-[#C9A962] uppercase tracking-wider transition-colors disabled:opacity-50"
+                        >Solo portada</button>
+                      </div>
+                    </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="font-primary text-[10px] text-[#666] font-bold uppercase tracking-wider">
-                    Personalizar texto para {activePlatformTab === 'facebook' ? 'Facebook' : 'Instagram'}
-                  </span>
-                  
-                  {/* AI Options */}
-                  <div className="flex items-center gap-2">
-                    <select
-                      value={socialTone}
-                      onChange={(e: any) => setSocialTone(e.target.value)}
-                      className="bg-[#161616] border border-[#2A2A2A] text-[#FAF8F5] font-primary text-[10px] uppercase tracking-wider font-bold px-2 py-1 outline-none focus:border-[#C9A962] cursor-pointer"
-                    >
-                      <option value="premium">✨ Premium y Elegante</option>
-                      <option value="emocional">❤️ Emocional y Cercano</option>
-                      <option value="moderno">⚡ Moderno y Dinámico</option>
-                    </select>
+                    <p className="font-primary text-[10px] text-[#555] leading-relaxed">
+                      ☝️ Haz clic para seleccionar / deseleccionar. Arrastra las imágenes <strong className="text-[#888]">seleccionadas</strong> para cambiar el orden. La primera imagen será la portada del carrusel.
+                    </p>
+
+                    {/* All available images – click to toggle */}
+                    <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-sm p-3">
+                      <p className="font-primary text-[9px] text-[#444] uppercase tracking-wider font-bold mb-2">Todas las fotos disponibles — clic para incluir/excluir</p>
+                      <div className="flex flex-wrap gap-2">
+                        {allImgs.map((img) => {
+                          const selIdx = socialSelectedImages.indexOf(img);
+                          const isSelected = selIdx !== -1;
+                          return (
+                            <button
+                              key={img}
+                              onClick={() => !socialPublishing && toggleSocialImage(img)}
+                              disabled={socialPublishing}
+                              title={isSelected ? `Posición ${selIdx + 1} · clic para quitar` : 'Clic para añadir'}
+                              className={`relative w-16 h-16 shrink-0 overflow-hidden border-2 rounded-sm transition-all group ${
+                                isSelected
+                                  ? 'border-[#C9A962] opacity-100'
+                                  : 'border-[#2A2A2A] opacity-50 hover:opacity-75 hover:border-[#444]'
+                              }`}
+                            >
+                              <img src={img} alt="" className="w-full h-full object-cover" />
+                              {isSelected && (
+                                <span className="absolute top-0.5 left-0.5 w-4 h-4 bg-[#C9A962] text-[#0A0A0A] text-[9px] font-bold flex items-center justify-center rounded-sm shadow">
+                                  {selIdx + 1}
+                                </span>
+                              )}
+                              {!isSelected && (
+                                <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <span className="bg-black/60 text-white text-[9px] font-bold px-1 py-0.5 rounded">+ Añadir</span>
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Selected images – drag to reorder */}
+                    {socialSelectedImages.length > 0 && (
+                      <div className="bg-[#0F0F0F] border border-[#C9A962]/20 rounded-sm p-3">
+                        <p className="font-primary text-[9px] text-[#C9A962] uppercase tracking-wider font-bold mb-2">Orden de publicación — arrastra para reordenar</p>
+                        <div className="flex flex-wrap gap-2">
+                          {socialSelectedImages.map((img, idx) => (
+                            <div
+                              key={img}
+                              draggable
+                              onDragStart={() => handleImageDragStart(idx)}
+                              onDragEnter={() => handleImageDragEnter(idx)}
+                              onDragEnd={handleImageDragEnd}
+                              onDragOver={(e) => e.preventDefault()}
+                              className="relative w-20 h-20 shrink-0 overflow-hidden border-2 border-[#C9A962]/50 rounded-sm cursor-grab active:cursor-grabbing group hover:border-[#C9A962] transition-all select-none"
+                              title="Arrastra para reordenar"
+                            >
+                              <img src={img} alt="" className="w-full h-full object-cover pointer-events-none" />
+                              {/* Position badge */}
+                              <span className="absolute top-0.5 left-0.5 w-5 h-5 bg-[#C9A962] text-[#0A0A0A] text-[10px] font-bold flex items-center justify-center rounded-sm shadow pointer-events-none">
+                                {idx + 1}
+                              </span>
+                              {/* Drag handle hint */}
+                              <span className="absolute bottom-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                <GripVertical className="w-3 h-3 text-white drop-shadow" />
+                              </span>
+                              {/* Remove button */}
+                              <button
+                                onClick={(e) => { e.stopPropagation(); if (!socialPublishing) toggleSocialImage(img); }}
+                                disabled={socialPublishing || socialSelectedImages.length === 1}
+                                className="absolute top-0.5 right-0.5 w-4 h-4 bg-black/70 text-white flex items-center justify-center rounded-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                                title="Quitar imagen"
+                              >
+                                <X className="w-2.5 h-2.5" />
+                              </button>
+                              {idx === 0 && (
+                                <span className="absolute bottom-0.5 left-0.5 bg-[#C9A962] text-[#0A0A0A] text-[7px] font-bold px-1 py-0 rounded uppercase leading-4 pointer-events-none">Portada</span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* ── Copy + Platforms row ── */}
+              <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-6">
+                {/* Copy Area (Left) */}
+                <div className="flex flex-col gap-4">
+                  {/* Platform Tabs */}
+                  <div className="flex border-b border-[#1F1F1F]">
                     <button
-                      onClick={handleSocialEnhanceCopy}
-                      disabled={socialEnhanceLoading || socialPublishing}
-                      className="flex items-center gap-1.5 px-3 py-1 bg-[#C9A962]/10 border border-[#C9A962]/30 text-[#C9A962] font-primary font-bold text-[10px] uppercase tracking-wider hover:bg-[#C9A962]/20 transition-all disabled:opacity-50"
-                      title="Utiliza Inteligencia Artificial para mejorar este texto"
+                      onClick={() => setActivePlatformTab('facebook')}
+                      disabled={socialPublishing}
+                      className={`flex items-center gap-2 px-4 py-2 text-xs font-primary font-bold uppercase tracking-wider transition-all border-b-2 ${
+                        activePlatformTab === 'facebook'
+                          ? 'text-[#1877F2] border-[#1877F2]'
+                          : 'text-[#666] border-transparent hover:text-[#FAF8F5]'
+                      }`}
                     >
-                      {socialEnhanceLoading ? (
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                      ) : (
-                        <Sparkles className="w-3 h-3 animate-pulse text-[#C9A962]" />
-                      )}
-                      <span>{socialEnhanceLoading ? 'Mejorando...' : 'Optimizar con IA'}</span>
+                      <FacebookIcon className="w-3.5 h-3.5" />
+                      Borrador Facebook
+                    </button>
+                    <button
+                      onClick={() => setActivePlatformTab('instagram')}
+                      disabled={socialPublishing}
+                      className={`flex items-center gap-2 px-4 py-2 text-xs font-primary font-bold uppercase tracking-wider transition-all border-b-2 ${
+                        activePlatformTab === 'instagram'
+                          ? 'text-[#E1306C] border-[#E1306C]'
+                          : 'text-[#666] border-transparent hover:text-[#FAF8F5]'
+                      }`}
+                    >
+                      <InstagramIcon className="w-3.5 h-3.5" />
+                      Borrador Instagram
                     </button>
                   </div>
-                </div>
 
-                <textarea
-                  value={activePlatformTab === 'facebook' ? socialCopyFb : socialCopyIg}
-                  onChange={(e) => {
-                    if (activePlatformTab === 'facebook') {
-                      setSocialCopyFb(e.target.value);
-                    } else {
-                      setSocialCopyIg(e.target.value);
-                    }
-                  }}
-                  disabled={socialPublishing}
-                  rows={14}
-                  className="w-full bg-[#161616] border border-[#1F1F1F] p-4 text-sm font-primary text-[#FAF8F5] leading-relaxed resize-none outline-none focus:border-[#C9A962] transition-colors rounded-sm placeholder:text-[#444] text-[13px]"
-                  placeholder="Escribe la descripción del anuncio..."
-                />
-              </div>
-
-              {/* Preview and Platforms (Right) */}
-              <div className="flex flex-col gap-6 bg-[#0F0F0F] border border-[#1F1F1F] p-5 rounded-sm">
-                <div>
-                  <span className="font-primary text-xs text-[#666] font-bold uppercase tracking-wider block mb-3">Plataformas de Publicación</span>
-                  
-                  <div className="flex flex-col gap-3">
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={socialPlatforms.facebook}
-                        onChange={(e) => setSocialPlatforms(prev => ({ ...prev, facebook: e.target.checked }))}
-                        disabled={socialPublishing}
-                        className="w-4 h-4 rounded-sm border-[#2A2A2A] bg-[#161616] accent-[#1877F2] cursor-pointer"
-                      />
-                      <FacebookIcon className={`w-4 h-4 transition-colors ${socialPlatforms.facebook ? 'text-[#1877F2]' : 'text-[#444] group-hover:text-[#888]'}`} />
-                      <span className={`font-primary text-xs font-bold transition-colors ${socialPlatforms.facebook ? 'text-[#FAF8F5]' : 'text-[#666] group-hover:text-[#FAF8F5]'}`}>
-                        Página Oficial de Facebook
-                      </span>
-                    </label>
-
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={socialPlatforms.instagram}
-                        onChange={(e) => setSocialPlatforms(prev => ({ ...prev, instagram: e.target.checked }))}
-                        disabled={socialPublishing}
-                        className="w-4 h-4 rounded-sm border-[#2A2A2A] bg-[#161616] accent-[#E1306C] cursor-pointer"
-                      />
-                      <InstagramIcon className={`w-4 h-4 transition-colors ${socialPlatforms.instagram ? 'text-[#E1306C]' : 'text-[#444] group-hover:text-[#888]'}`} />
-                      <span className={`font-primary text-xs font-bold transition-colors ${socialPlatforms.instagram ? 'text-[#FAF8F5]' : 'text-[#666] group-hover:text-[#FAF8F5]'}`}>
-                        Instagram Business Account
-                      </span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="border-t border-[#1F1F1F] pt-4">
-                  <span className="font-primary text-xs text-[#666] font-bold uppercase tracking-wider block mb-3">Compartir en Redes Personales</span>
-                  
-                  <button
-                    onClick={() => {
-                      const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://gelaberthomes.es/propiedades/' + (socialProperty.reference || socialProperty.slug || socialProperty.id))}`;
-                      window.open(shareUrl, '_blank');
-                    }}
-                    className="w-full flex items-center justify-center gap-2 py-2 border border-[#1877F2]/30 hover:border-[#1877F2]/60 hover:bg-[#1877F2]/5 text-[#1877F2] font-primary font-bold text-xs uppercase tracking-wider transition-colors"
-                  >
-                    <FacebookIcon className="w-3.5 h-3.5" />
-                    Perfil Personal de Facebook (Manual)
-                  </button>
-                  <p className="font-primary text-[10px] text-[#444] mt-2 leading-normal">
-                    * Meta no permite la publicación automatizada en perfiles personales mediante su API desde 2018. Utiliza este botón para compartirlo de forma manual en tu biografía.
-                  </p>
-                </div>
-
-                {/* Card Preview */}
-                <div className="border-t border-[#1F1F1F] pt-4 mt-auto">
-                  <span className="font-primary text-xs text-[#666] font-bold uppercase tracking-wider block mb-3">Previsualización del Anuncio</span>
-                  
-                  <div className="bg-[#161616] border border-[#1F1F1F] rounded-sm overflow-hidden flex gap-3 p-3">
-                    <div className="w-16 h-16 shrink-0 bg-[#0A0A0A] overflow-hidden border border-[#2A2A2A] rounded-sm">
-                      {socialProperty.main_image ? (
-                        <img
-                          src={getOptimizedImage(socialProperty.main_image, { width: 100, height: 100, format: 'webp' })}
-                          alt={socialProperty.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[#333]">
-                          <Eye className="w-4 h-4" />
-                        </div>
-                      )}
+                  <div className="flex items-center justify-between">
+                    <span className="font-primary text-[10px] text-[#666] font-bold uppercase tracking-wider">
+                      Personalizar texto para {activePlatformTab === 'facebook' ? 'Facebook' : 'Instagram'}
+                    </span>
+                    
+                    {/* AI Options */}
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={socialTone}
+                        onChange={(e: any) => setSocialTone(e.target.value)}
+                        className="bg-[#161616] border border-[#2A2A2A] text-[#FAF8F5] font-primary text-[10px] uppercase tracking-wider font-bold px-2 py-1 outline-none focus:border-[#C9A962] cursor-pointer"
+                      >
+                        <option value="premium">✨ Premium y Elegante</option>
+                        <option value="emocional">❤️ Emocional y Cercano</option>
+                        <option value="moderno">⚡ Moderno y Dinámico</option>
+                      </select>
+                      <button
+                        onClick={handleSocialEnhanceCopy}
+                        disabled={socialEnhanceLoading || socialPublishing}
+                        className="flex items-center gap-1.5 px-3 py-1 bg-[#C9A962]/10 border border-[#C9A962]/30 text-[#C9A962] font-primary font-bold text-[10px] uppercase tracking-wider hover:bg-[#C9A962]/20 transition-all disabled:opacity-50"
+                        title="Utiliza Inteligencia Artificial para mejorar este texto"
+                      >
+                        {socialEnhanceLoading ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-3 h-3 animate-pulse text-[#C9A962]" />
+                        )}
+                        <span>{socialEnhanceLoading ? 'Mejorando...' : 'Optimizar con IA'}</span>
+                      </button>
                     </div>
-                    <div className="min-w-0 flex flex-col justify-center">
-                      <p className="font-primary text-[#FAF8F5] text-xs font-bold truncate leading-tight">{socialProperty.title}</p>
-                      <p className="font-primary text-[#666] text-[10px] mt-1 uppercase tracking-wider font-bold">
-                        {socialProperty.reference || socialProperty.id.slice(0, 8)} · {socialProperty.city}
-                      </p>
-                      <p className="font-secondary text-[#C9A962] text-xs font-bold mt-1.5">
-                        {formatPropertyPrice(socialProperty.price, socialProperty.price_type, socialProperty.max_price, socialProperty.currency, 'es')}
-                      </p>
+                  </div>
+
+                  <textarea
+                    value={activePlatformTab === 'facebook' ? socialCopyFb : socialCopyIg}
+                    onChange={(e) => {
+                      if (activePlatformTab === 'facebook') {
+                        setSocialCopyFb(e.target.value);
+                      } else {
+                        setSocialCopyIg(e.target.value);
+                      }
+                    }}
+                    disabled={socialPublishing}
+                    rows={14}
+                    className="w-full bg-[#161616] border border-[#1F1F1F] p-4 text-sm font-primary text-[#FAF8F5] leading-relaxed resize-none outline-none focus:border-[#C9A962] transition-colors rounded-sm placeholder:text-[#444] text-[13px]"
+                    placeholder="Escribe la descripción del anuncio..."
+                  />
+                </div>
+
+                {/* Preview and Platforms (Right) */}
+                <div className="flex flex-col gap-6 bg-[#0F0F0F] border border-[#1F1F1F] p-5 rounded-sm">
+                  <div>
+                    <span className="font-primary text-xs text-[#666] font-bold uppercase tracking-wider block mb-3">Plataformas de Publicación</span>
+                    
+                    <div className="flex flex-col gap-3">
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked={socialPlatforms.facebook}
+                          onChange={(e) => setSocialPlatforms(prev => ({ ...prev, facebook: e.target.checked }))}
+                          disabled={socialPublishing}
+                          className="w-4 h-4 rounded-sm border-[#2A2A2A] bg-[#161616] accent-[#1877F2] cursor-pointer"
+                        />
+                        <FacebookIcon className={`w-4 h-4 transition-colors ${socialPlatforms.facebook ? 'text-[#1877F2]' : 'text-[#444] group-hover:text-[#888]'}`} />
+                        <span className={`font-primary text-xs font-bold transition-colors ${socialPlatforms.facebook ? 'text-[#FAF8F5]' : 'text-[#666] group-hover:text-[#FAF8F5]'}`}>
+                          Página Oficial de Facebook
+                        </span>
+                      </label>
+
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked={socialPlatforms.instagram}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setSocialPlatforms(prev => ({ ...prev, instagram: checked }));
+                            if (checked) {
+                              setSocialSelectedImages(prev => {
+                                if (prev.length > 10) {
+                                  toast.warning('Instagram tiene un límite de 10 imágenes. Se ha ajustado la selección.');
+                                  return prev.slice(0, 10);
+                                }
+                                return prev;
+                              });
+                            }
+                          }}
+                          disabled={socialPublishing}
+                          className="w-4 h-4 rounded-sm border-[#2A2A2A] bg-[#161616] accent-[#E1306C] cursor-pointer"
+                        />
+                        <InstagramIcon className={`w-4 h-4 transition-colors ${socialPlatforms.instagram ? 'text-[#E1306C]' : 'text-[#444] group-hover:text-[#888]'}`} />
+                        <span className={`font-primary text-xs font-bold transition-colors ${socialPlatforms.instagram ? 'text-[#FAF8F5]' : 'text-[#666] group-hover:text-[#FAF8F5]'}`}>
+                          Instagram Business Account
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[#1F1F1F] pt-4">
+                    <span className="font-primary text-xs text-[#666] font-bold uppercase tracking-wider block mb-3">Compartir en Redes Personales</span>
+                    
+                    <button
+                      onClick={() => {
+                        const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://gelaberthomes.es/propiedades/' + (socialProperty.reference || socialProperty.slug || socialProperty.id))}`;
+                        window.open(shareUrl, '_blank');
+                      }}
+                      className="w-full flex items-center justify-center gap-2 py-2 border border-[#1877F2]/30 hover:border-[#1877F2]/60 hover:bg-[#1877F2]/5 text-[#1877F2] font-primary font-bold text-xs uppercase tracking-wider transition-colors"
+                    >
+                      <FacebookIcon className="w-3.5 h-3.5" />
+                      Perfil Personal de Facebook (Manual)
+                    </button>
+                    <p className="font-primary text-[10px] text-[#444] mt-2 leading-normal">
+                      * Meta no permite la publicación automatizada en perfiles personales mediante su API desde 2018. Utiliza este botón para compartirlo de forma manual en tu biografía.
+                    </p>
+                  </div>
+
+                  {/* Card Preview */}
+                  <div className="border-t border-[#1F1F1F] pt-4 mt-auto">
+                    <span className="font-primary text-xs text-[#666] font-bold uppercase tracking-wider block mb-3">Previsualización del Anuncio</span>
+                    
+                    <div className="bg-[#161616] border border-[#1F1F1F] rounded-sm overflow-hidden flex gap-3 p-3">
+                      <div className="w-16 h-16 shrink-0 bg-[#0A0A0A] overflow-hidden border border-[#2A2A2A] rounded-sm">
+                        {socialSelectedImages[0] ? (
+                          <img
+                            src={getOptimizedImage(socialSelectedImages[0], { width: 100, height: 100, format: 'webp' })}
+                            alt={socialProperty.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : socialProperty.main_image ? (
+                          <img
+                            src={getOptimizedImage(socialProperty.main_image, { width: 100, height: 100, format: 'webp' })}
+                            alt={socialProperty.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[#333]">
+                            <Eye className="w-4 h-4" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex flex-col justify-center">
+                        <p className="font-primary text-[#FAF8F5] text-xs font-bold truncate leading-tight">{socialProperty.title}</p>
+                        <p className="font-primary text-[#666] text-[10px] mt-1 uppercase tracking-wider font-bold">
+                          {socialProperty.reference || socialProperty.id.slice(0, 8)} · {socialProperty.city}
+                        </p>
+                        <p className="font-secondary text-[#C9A962] text-xs font-bold mt-1.5">
+                          {formatPropertyPrice(socialProperty.price, socialProperty.price_type, socialProperty.max_price, socialProperty.currency, 'es')}
+                        </p>
+                        {socialSelectedImages.length > 1 && (
+                          <p className="font-primary text-[9px] text-[#555] mt-1">
+                            +{socialSelectedImages.length - 1} foto{socialSelectedImages.length > 2 ? 's' : ''} más
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

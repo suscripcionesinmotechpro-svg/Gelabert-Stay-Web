@@ -336,34 +336,59 @@ async function createLabeledImageBuffer(imageUrl: string, label: string): Promis
     const targetH = 630
     const resized = img.resize(targetW, targetH)
     
-    // Rectangular badge at bottom-left corner with left gold stripe
+    // Rectangular badge at bottom-left corner with high-contrast borders
     const normalizedLabel = label.toUpperCase().trim()
-    const badgeW = Math.round(normalizedLabel.length * 20) + 50
-    const badgeH = 54
+    const fontSize = 22
+
+    // Calculate precise badge width based on character widths to look perfectly balanced
+    let textWidth = 0
+    for (const char of normalizedLabel) {
+      if (['I', '1', '.', ' ', '·', '-', '/'].includes(char)) {
+        textWidth += fontSize * 0.38
+      } else if (['M', 'W', 'O', 'Q', '0', '€'].includes(char)) {
+        textWidth += fontSize * 0.82
+      } else {
+        textWidth += fontSize * 0.62
+      }
+    }
+
+    const badgeW = Math.round(textWidth) + 32 // 16px padding on each side
+    const badgeH = 50
     const paddingX = 30
-    const paddingY = targetH - badgeH - 35 // 35px from bottom
+    const paddingY = targetH - badgeH - 30 // 30px from bottom of the image
     
-    const darkBg = Image.rgbaToColor(10, 10, 10, 205) // elegant dark grey semi-transparent
-    const goldColor = Image.rgbaToColor(201, 169, 98, 255) // #C9A962 gold
+    const blackColor = Image.rgbaToColor(0, 0, 0, 255) // solid black for background
+    const whiteColor = Image.rgbaToColor(255, 255, 255, 255) // solid white for text and border
     
-    // Draw badge background
+    // Draw badge background (solid black) with a 2px solid white border for maximum contrast
     for (let y = paddingY; y < paddingY + badgeH; y++) {
       for (let x = paddingX; x < paddingX + badgeW; x++) {
-        if (x < paddingX + 6) { // 6px wide gold left border stripe
-          resized.setPixelAt(x + 1, y + 1, goldColor)
+        const isBorder = (y < paddingY + 2) || (y >= paddingY + badgeH - 2) || 
+                         (x < paddingX + 2) || (x >= paddingX + badgeW - 2)
+        if (isBorder) {
+          resized.setPixelAt(x + 1, y + 1, whiteColor)
         } else {
-          resized.setPixelAt(x + 1, y + 1, darkBg)
+          resized.setPixelAt(x + 1, y + 1, blackColor)
         }
       }
     }
     
-    // Draw text inside badge
-    const fontSize = 21
+    // Draw text inside badge (with 1px horizontal offset to simulate a bold font)
+    const textX = paddingX + 16
+    const textY = paddingY + Math.round(badgeH / 2 - fontSize / 2)
+
     await resized.drawText(normalizedLabel, {
-      x: paddingX + 22,
-      y: paddingY + Math.round(badgeH / 2 - fontSize / 2),
+      x: textX,
+      y: textY,
       size: fontSize,
-      color: Image.rgbaToColor(255, 255, 255, 255),
+      color: whiteColor,
+    }).catch(() => {})
+
+    await resized.drawText(normalizedLabel, {
+      x: textX + 1,
+      y: textY,
+      size: fontSize,
+      color: whiteColor,
     }).catch(() => {})
     
     return await resized.encode(1) // JPEG
@@ -585,6 +610,7 @@ serve(async (req) => {
       customCopy,   // Optional user-customized/AI-enhanced text for post copy
       customCopyFb, // Optional customized copy for Facebook
       customCopyIg, // Optional customized copy for Instagram
+      selectedImages, // Optional: ordered array of image URLs chosen manually by the user in the modal
     } = payload
 
     if (action === 'enhance_copy') {
@@ -680,153 +706,191 @@ ${text}`
     // ── Build list of media items (photos + videos + floor plans) ─────────────
     const mediaItems: MediaItem[] = []
 
-    // 1. Cover Image (main_image or first gallery image)
-    const rawImage = prop.main_image || (prop.gallery && prop.gallery[0])
-    let mainImageUrl = rawImage ? rawImage.split('?')[0] : null
-
-    // Determine if we need a watermark
     const needsWatermark = prop.commercial_status && prop.commercial_status !== 'disponible'
 
-    if (needsWatermark && mainImageUrl && WATERMARK_CONFIG[prop.commercial_status]) {
-      // Try to create watermarked image
-      const wmBuffer = await createWatermarkedImageBuffer(mainImageUrl, prop.commercial_status)
-      if (wmBuffer) {
-        const wmFileName = `watermarks/${pid}_${prop.commercial_status}_${Date.now()}.jpg`
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('properties')
-          .upload(wmFileName, wmBuffer, { contentType: 'image/jpeg', upsert: true })
-        if (!uploadError && uploadData) {
-          const { data: urlData } = supabase.storage.from('properties').getPublicUrl(wmFileName)
-          mainImageUrl = urlData.publicUrl
+    if (selectedImages && Array.isArray(selectedImages) && selectedImages.length > 0) {
+      console.log(`[Media Sync] Using manually selected images (${selectedImages.length}):`, selectedImages)
+      let coverUrl = selectedImages[0]
+      if (needsWatermark && coverUrl && WATERMARK_CONFIG[prop.commercial_status]) {
+        // Try to create watermarked image
+        const wmBuffer = await createWatermarkedImageBuffer(coverUrl, prop.commercial_status)
+        if (wmBuffer) {
+          const wmFileName = `watermarks/${pid}_${prop.commercial_status}_${Date.now()}.jpg`
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('properties')
+            .upload(wmFileName, wmBuffer, { contentType: 'image/jpeg', upsert: true })
+          if (!uploadError && uploadData) {
+            const { data: urlData } = supabase.storage.from('properties').getPublicUrl(wmFileName)
+            coverUrl = urlData.publicUrl
+          }
         }
       }
-    }
 
-    if (mainImageUrl) {
-      mediaItems.push({ url: mainImageUrl, type: 'IMAGE' })
-    }
+      if (coverUrl) {
+        mediaItems.push({ url: coverUrl, type: 'IMAGE' })
+      }
 
-    // 2. Video (if direct mp4) - placed immediately after the cover image as requested by the user
-    const rawVideo = prop.video_url
-    if (rawVideo && rawVideo.trim().startsWith('http') && rawVideo.toLowerCase().includes('.mp4')) {
-      mediaItems.push({ url: rawVideo.trim(), type: 'VIDEO' })
-    }
+      // 2. Video (if direct mp4) - placed immediately after the cover image as requested by the user
+      const rawVideo = prop.video_url
+      if (rawVideo && rawVideo.trim().startsWith('http') && rawVideo.toLowerCase().includes('.mp4')) {
+        mediaItems.push({ url: rawVideo.trim(), type: 'VIDEO' })
+      }
 
-    // 3. Room rental specific processing:
-    // - is_room_rental === true (piso por habitaciones): Todas las fotos de CADA habitación con etiqueta "HAB. N",
-    //   más fotos de zonas comunes con su etiqueta.
-    // - property_type === 'habitacion' (habitación individual): Sus fotos ya se cogen en la sección 4 (gallery),
-    //   aquí solo añadimos las zonas comunes si las tiene.
-    if (prop.is_room_rental === true || prop.property_type === 'habitacion') {
-      console.log(`[Media Sync] Property is a room rental. Processing room and common area photos...`);
+      // Remaining selected images
+      for (let i = 1; i < selectedImages.length; i++) {
+        const img = selectedImages[i]
+        if (img && img.trim().startsWith('http')) {
+          mediaItems.push({ url: img.trim(), type: 'IMAGE' })
+        }
+      }
+    } else {
+      // 1. Cover Image (main_image or first gallery image)
+      const rawImage = prop.main_image || (prop.gallery && prop.gallery[0])
+      let mainImageUrl = rawImage ? rawImage.split('?')[0] : null
 
-      // A. Habitaciones (solo para pisos por habitaciones, no para habitaciones individuales)
-      if (prop.is_room_rental === true && prop.rooms && Array.isArray(prop.rooms) && prop.rooms.length > 0) {
-        for (let roomIdx = 0; roomIdx < prop.rooms.length; roomIdx++) {
-          const room = prop.rooms[roomIdx];
-          const roomImages = Array.isArray(room.images) ? room.images : [];
-          if (roomImages.length === 0) continue;
+      if (needsWatermark && mainImageUrl && WATERMARK_CONFIG[prop.commercial_status]) {
+        // Try to create watermarked image
+        const wmBuffer = await createWatermarkedImageBuffer(mainImageUrl, prop.commercial_status)
+        if (wmBuffer) {
+          const wmFileName = `watermarks/${pid}_${prop.commercial_status}_${Date.now()}.jpg`
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('properties')
+            .upload(wmFileName, wmBuffer, { contentType: 'image/jpeg', upsert: true })
+          if (!uploadError && uploadData) {
+            const { data: urlData } = supabase.storage.from('properties').getPublicUrl(wmFileName)
+            mainImageUrl = urlData.publicUrl
+          }
+        }
+      }
 
-          // Etiqueta: nombre de habitación o "HAB. N"
-          const roomNumber = roomIdx + 1;
-          const roomLabel = (room.name && room.name.trim()) ? room.name.trim() : `HAB. ${roomNumber}`;
+      if (mainImageUrl) {
+        mediaItems.push({ url: mainImageUrl, type: 'IMAGE' })
+      }
 
-          // Coge TODAS las fotos de la habitación con su etiqueta
-          for (const roomImg of roomImages) {
-            if (!roomImg || !roomImg.trim().startsWith('http')) continue;
-            const rawRoomUrl = roomImg.trim().split('?')[0];
-            console.log(`[Media Sync] Applying room label "${roomLabel}" to: ${rawRoomUrl}`);
+      // 2. Video (if direct mp4) - placed immediately after the cover image as requested by the user
+      const rawVideo = prop.video_url
+      if (rawVideo && rawVideo.trim().startsWith('http') && rawVideo.toLowerCase().includes('.mp4')) {
+        mediaItems.push({ url: rawVideo.trim(), type: 'VIDEO' })
+      }
 
-            const labeledBuffer = await createLabeledImageBuffer(rawRoomUrl, roomLabel);
-            if (labeledBuffer) {
-              const fileName = `labeled_images/${pid}_room_${roomIdx}_${Date.now()}.jpg`;
-              const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('properties')
-                .upload(fileName, labeledBuffer, { contentType: 'image/jpeg', upsert: true });
-              if (!uploadError && uploadData) {
-                const { data: urlData } = supabase.storage.from('properties').getPublicUrl(fileName);
-                mediaItems.push({ url: urlData.publicUrl, type: 'IMAGE' });
+      // 3. Room rental specific processing:
+      // - is_room_rental === true (piso por habitaciones): Todas las fotos de CADA habitación con etiqueta "HAB. N",
+      //   más fotos de zonas comunes con su etiqueta.
+      // - property_type === 'habitacion' (habitación individual): Sus fotos ya se cogen en la sección 4 (gallery),
+      //   aquí solo añadimos las zonas comunes si las tiene.
+      if (prop.is_room_rental === true || prop.property_type === 'habitacion') {
+        console.log(`[Media Sync] Property is a room rental. Processing room and common area photos...`);
+
+        // A. Habitaciones (solo para pisos por habitaciones, no para habitaciones individuales)
+        if (prop.is_room_rental === true && prop.rooms && Array.isArray(prop.rooms) && prop.rooms.length > 0) {
+          for (let roomIdx = 0; roomIdx < prop.rooms.length; roomIdx++) {
+            const room = prop.rooms[roomIdx];
+            const roomImages = Array.isArray(room.images) ? room.images : [];
+            if (roomImages.length === 0) continue;
+
+            // Etiqueta: nombre de habitación o "HAB. N"
+            const roomNumber = roomIdx + 1;
+            const roomLabel = (room.name && room.name.trim()) ? room.name.trim() : `HAB. ${roomNumber}`;
+
+            // Coge TODAS las fotos de la habitación con su etiqueta
+            for (const roomImg of roomImages) {
+              if (!roomImg || !roomImg.trim().startsWith('http')) continue;
+              const rawRoomUrl = roomImg.trim().split('?')[0];
+              console.log(`[Media Sync] Applying room label "${roomLabel}" to: ${rawRoomUrl}`);
+
+              const labeledBuffer = await createLabeledImageBuffer(rawRoomUrl, roomLabel);
+              if (labeledBuffer) {
+                const fileName = `labeled_images/${pid}_room_${roomIdx}_${Date.now()}.jpg`;
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                  .from('properties')
+                  .upload(fileName, labeledBuffer, { contentType: 'image/jpeg', upsert: true });
+                if (!uploadError && uploadData) {
+                  const { data: urlData } = supabase.storage.from('properties').getPublicUrl(fileName);
+                  mediaItems.push({ url: urlData.publicUrl, type: 'IMAGE' });
+                } else {
+                  mediaItems.push({ url: rawRoomUrl, type: 'IMAGE' }); // fallback sin etiqueta
+                }
               } else {
                 mediaItems.push({ url: rawRoomUrl, type: 'IMAGE' }); // fallback sin etiqueta
               }
-            } else {
-              mediaItems.push({ url: rawRoomUrl, type: 'IMAGE' }); // fallback sin etiqueta
             }
           }
         }
-      }
 
-      // B. Zonas comunes (aplica tanto a is_room_rental como a habitacion individual)
-      if (prop.common_areas && Array.isArray(prop.common_areas)) {
-        for (const area of prop.common_areas) {
-          // Hasta 2 fotos por zona común
-          const areaImages = Array.isArray(area.images) ? area.images.slice(0, 2) : [];
-          for (let i = 0; i < areaImages.length; i++) {
-            const areaImg = areaImages[i];
-            if (!areaImg || !areaImg.trim().startsWith('http')) continue;
-            const rawAreaUrl = areaImg.trim().split('?')[0];
+        // B. Zonas comunes (aplica tanto a is_room_rental como a habitacion individual)
+        if (prop.common_areas && Array.isArray(prop.common_areas)) {
+          for (const area of prop.common_areas) {
+            // Hasta 2 fotos por zona común
+            const areaImages = Array.isArray(area.images) ? area.images.slice(0, 2) : [];
+            for (let i = 0; i < areaImages.length; i++) {
+              const areaImg = areaImages[i];
+              if (!areaImg || !areaImg.trim().startsWith('http')) continue;
+              const rawAreaUrl = areaImg.trim().split('?')[0];
 
-            // Construir etiqueta: nombre propio > tipo > genérico
-            let label = 'Zona Común';
-            if (area.name && area.name.trim()) {
-              label = `Z. COMÚN: ${area.name.trim()}`;
-            } else if (area.type) {
-              label = `ZONA COMÚN: ${area.type.toUpperCase()}`;
-            }
+              // Construir etiqueta: nombre propio > tipo > genérico
+              let label = 'Zona Común';
+              if (area.name && area.name.trim()) {
+                label = `Z. COMÚN: ${area.name.trim()}`;
+              } else if (area.type) {
+                label = `ZONA COMÚN: ${area.type.toUpperCase()}`;
+              }
 
-            console.log(`[Media Sync] Applying common area label "${label}" to: ${rawAreaUrl}`);
-            const labeledBuffer = await createLabeledImageBuffer(rawAreaUrl, label);
-            if (labeledBuffer) {
-              const fileName = `labeled_images/${pid}_area_${area.id}_${i}_${Date.now()}.jpg`;
-              const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('properties')
-                .upload(fileName, labeledBuffer, { contentType: 'image/jpeg', upsert: true });
-              if (!uploadError && uploadData) {
-                const { data: urlData } = supabase.storage.from('properties').getPublicUrl(fileName);
-                mediaItems.push({ url: urlData.publicUrl, type: 'IMAGE' });
+              console.log(`[Media Sync] Applying common area label "${label}" to: ${rawAreaUrl}`);
+              const labeledBuffer = await createLabeledImageBuffer(rawAreaUrl, label);
+              if (labeledBuffer) {
+                const fileName = `labeled_images/${pid}_area_${area.id}_${i}_${Date.now()}.jpg`;
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                  .from('properties')
+                  .upload(fileName, labeledBuffer, { contentType: 'image/jpeg', upsert: true });
+                if (!uploadError && uploadData) {
+                  const { data: urlData } = supabase.storage.from('properties').getPublicUrl(fileName);
+                  mediaItems.push({ url: urlData.publicUrl, type: 'IMAGE' });
+                } else {
+                  mediaItems.push({ url: rawAreaUrl, type: 'IMAGE' }); // fallback sin etiqueta
+                }
               } else {
                 mediaItems.push({ url: rawAreaUrl, type: 'IMAGE' }); // fallback sin etiqueta
               }
-            } else {
-              mediaItems.push({ url: rawAreaUrl, type: 'IMAGE' }); // fallback sin etiqueta
+            }
+          }
+        }
+      }
+
+      // 4. Standard Gallery Photos (for regular properties, OR as a fallback for rooms if we have extra space under 10 limit)
+      if (prop.gallery && Array.isArray(prop.gallery)) {
+        const firstGalleryImg = prop.gallery[0]
+        const galleryStartIdx = (firstGalleryImg === prop.main_image) ? 1 : 0
+        
+        for (let i = galleryStartIdx; i < prop.gallery.length; i++) {
+          const img = prop.gallery[i]
+          if (img && img.trim().startsWith('http')) {
+            const rawUrl = img.trim().split('?')[0];
+            // Avoid duplicate URLs if we already added it via room/common areas processing
+            if (!mediaItems.some(item => item.url.includes(rawUrl) || rawUrl.includes(item.url))) {
+              mediaItems.push({ url: rawUrl, type: 'IMAGE' })
+            }
+          }
+        }
+      }
+
+      // 5. Floor Plans
+      if (prop.floor_plans && Array.isArray(prop.floor_plans)) {
+        for (const img of prop.floor_plans) {
+          if (img && img.trim().startsWith('http')) {
+            const rawUrl = img.trim().split('?')[0];
+            if (!mediaItems.some(item => item.url.includes(rawUrl) || rawUrl.includes(item.url))) {
+              mediaItems.push({ url: rawUrl, type: 'IMAGE' })
             }
           }
         }
       }
     }
 
+    // Limit for Instagram Carousel (maximum 10 allowed)
+    const finalIgMediaItems = mediaItems.slice(0, 10)
 
-    // 4. Standard Gallery Photos (for regular properties, OR as a fallback for rooms if we have extra space under 10 limit)
-    if (prop.gallery && Array.isArray(prop.gallery)) {
-      const firstGalleryImg = prop.gallery[0]
-      const galleryStartIdx = (firstGalleryImg === prop.main_image) ? 1 : 0
-      
-      for (let i = galleryStartIdx; i < prop.gallery.length; i++) {
-        const img = prop.gallery[i]
-        if (img && img.trim().startsWith('http')) {
-          const rawUrl = img.trim().split('?')[0];
-          // Avoid duplicate URLs if we already added it via room/common areas processing
-          if (!mediaItems.some(item => item.url.includes(rawUrl) || rawUrl.includes(item.url))) {
-            mediaItems.push({ url: rawUrl, type: 'IMAGE' })
-          }
-        }
-      }
-    }
-
-    // 5. Floor Plans
-    if (prop.floor_plans && Array.isArray(prop.floor_plans)) {
-      for (const img of prop.floor_plans) {
-        if (img && img.trim().startsWith('http')) {
-          const rawUrl = img.trim().split('?')[0];
-          if (!mediaItems.some(item => item.url.includes(rawUrl) || rawUrl.includes(item.url))) {
-            mediaItems.push({ url: rawUrl, type: 'IMAGE' })
-          }
-        }
-      }
-    }
-
-    // Limit to exactly 10 items (maximum allowed by Instagram Carousel)
-    const finalMediaItems = mediaItems.slice(0, 10)
+    // Limit for Facebook (higher limit, maximum 30 allowed)
+    const finalFbMediaItems = mediaItems.slice(0, 30)
 
     const propUrl = `https://gelaberthomes.es/propiedades/${prop.reference || prop.slug || prop.id}`
     const copy    = customCopy || buildPostCopy(prop, false) // always Spanish for social posts
@@ -903,12 +967,12 @@ ${text}`
 
         // If there is a video in the media items, append its direct link to the Facebook post message
         // since Facebook attached_media does not support mixing photos and videos.
-        const fbVideo = finalMediaItems.find(item => item.type === 'VIDEO')
+        const fbVideo = finalFbMediaItems.find(item => item.type === 'VIDEO')
         if (fbVideo) {
           postCopy += `\n\n🎬 ¡Mira el vídeo aquí!: ${fbVideo.url}`
         }
 
-        fbResult = await publishToFacebook(FB_PAGE_ID, FB_PAGE_TOKEN, postCopy, finalMediaItems, prop.facebook_post_id || null)
+        fbResult = await publishToFacebook(FB_PAGE_ID, FB_PAGE_TOKEN, postCopy, finalFbMediaItems, prop.facebook_post_id || null)
 
         await supabase.from('properties').update({
           facebook_status: fbResult.postId ? 'published' : 'error',
@@ -948,10 +1012,10 @@ ${text}`
         }).eq('id', pid)
 
       } else if (action === 'publish_instagram' || (isStatusChange && prop.instagram_status === 'published')) {
-        if (finalMediaItems.length === 0) {
+        if (finalIgMediaItems.length === 0) {
           igResult = { postId: null, error: 'No images or videos available for Instagram post' }
         } else {
-          igResult = await publishToInstagram(IG_ACCOUNT_ID, FB_PAGE_TOKEN, customCopyIg || copy, finalMediaItems, prop.instagram_post_id || null)
+          igResult = await publishToInstagram(IG_ACCOUNT_ID, FB_PAGE_TOKEN, customCopyIg || copy, finalIgMediaItems, prop.instagram_post_id || null)
 
           await supabase.from('properties').update({
             instagram_status: igResult.postId ? 'published' : 'error',
