@@ -272,6 +272,15 @@ serve(async (req) => {
     else if (property.property_type === "local" || property.property_type === "negocio" || property.property_type === "nave") mappedType = "commercial";
     else if (property.property_type === "terreno") mappedType = "land";
     else if (property.property_type === "habitacion") mappedType = "room";
+    else if (property.property_type === "estudio" || property.property_type === "loft") mappedType = "studio";
+
+    // Idealista rule: flat/house must have at least 1 room.
+    // If bedrooms is 0 and type is flat, treat it as a studio.
+    const bedroomCount = property.bedrooms ?? 0;
+    if ((mappedType === "flat" || mappedType === "house") && bedroomCount === 0) {
+      mappedType = "studio";
+      console.log(`[Publish] Property has 0 bedrooms with type '${property.property_type}' — mapped to 'studio' to comply with Idealista validation.`);
+    }
 
     // Mapeo de la dirección
     const streetStr = property.address || "Calle Desconocida";
@@ -323,10 +332,19 @@ serve(async (req) => {
 
     // Mapeo de características (Typology features)
     const mappedFeatures: any = {};
-    if (mappedType === "flat" || mappedType === "house") {
+    if (mappedType === "studio") {
+      // Studios don't have a rooms field — only area and bathrooms
+      mappedFeatures.areaConstructed = property.area_m2 ? Math.round(property.area_m2) : 30;
+      mappedFeatures.bathroomNumber = property.bathrooms || 1;
+      mappedFeatures.conditionedAir = property.air_conditioning ?? false;
+      mappedFeatures.liftAvailable = property.has_elevator ?? false;
+      if (property.operation === "alquiler") {
+        mappedFeatures.equipment = property.is_furnished ? "equipped_kitchen_and_furnished" : "not_equipped";
+      }
+    } else if (mappedType === "flat" || mappedType === "house") {
       mappedFeatures.areaConstructed = property.area_m2 ? Math.round(property.area_m2) : 50;
       mappedFeatures.bathroomNumber = property.bathrooms || 1;
-      mappedFeatures.rooms = property.bedrooms || 0;
+      mappedFeatures.rooms = Math.max(1, bedroomCount); // Minimum 1 room for flat/house
       mappedFeatures.liftAvailable = property.has_elevator ?? false;
       mappedFeatures.pool = property.has_pool ?? false;
       mappedFeatures.terrace = property.has_terrace ?? false;
