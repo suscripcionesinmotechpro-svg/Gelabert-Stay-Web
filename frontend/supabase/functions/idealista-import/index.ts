@@ -170,7 +170,7 @@ serve(async (req) => {
     // ── ACTION: SAVE (persist the confirmed matches to DB) ─────────────────
     if (action === "save") {
       const { mappings } = body as {
-        mappings: Array<{ crm_id: string; idealista_id: string }>;
+        mappings: Array<{ crm_id: string; idealista_id: string; status?: string }>;
       };
 
       if (!mappings || !Array.isArray(mappings) || mappings.length === 0) {
@@ -185,11 +185,15 @@ serve(async (req) => {
 
       for (const mapping of mappings) {
         if (!mapping.crm_id || !mapping.idealista_id) continue;
+        
+        const normStatus = String(mapping.status || "").toLowerCase().trim();
+        const isActive = normStatus === "active" || normStatus === "published" || normStatus === "activa" || normStatus === "activo";
+
         const { error } = await supabase
           .from("properties")
           .update({
             idealista_id: mapping.idealista_id,
-            idealista_status: "published",
+            idealista_status: isActive ? "published" : "not_published",
             idealista_last_sync: new Date().toISOString(),
           })
           .eq("id", mapping.crm_id);

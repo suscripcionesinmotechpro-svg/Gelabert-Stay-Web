@@ -784,13 +784,17 @@ export const AdminPropertiesList = () => {
   };
 
   const handleSaveImport = async () => {
-    const mappings: { crm_id: string; idealista_id: string }[] = [];
+    const mappings: { crm_id: string; idealista_id: string; status?: string }[] = [];
 
     importMatches.forEach((m, idx) => {
       const manualCrmId = manualSelections[String(idx)];
       const crmId = manualCrmId || m.crm?.id;
       if (crmId && m.idealista.idealista_id) {
-        mappings.push({ crm_id: crmId, idealista_id: m.idealista.idealista_id });
+        mappings.push({ 
+          crm_id: crmId, 
+          idealista_id: m.idealista.idealista_id,
+          status: m.idealista.status
+        });
       }
     });
 
@@ -821,9 +825,11 @@ export const AdminPropertiesList = () => {
         toast.success(`✅ ${result.saved} propiedades vinculadas con Idealista`);
         setImportModalOpen(false);
         refetch();
-        // Update local statuses
+        // Update local statuses based on Idealista status
         mappings.forEach(m => {
-          setIdealistaStatuses(prev => ({ ...prev, [m.crm_id]: 'published' }));
+          const normStatus = String(m.status || "").toLowerCase().trim();
+          const isActive = normStatus === "active" || normStatus === "published" || normStatus === "activa" || normStatus === "activo";
+          setIdealistaStatuses(prev => ({ ...prev, [m.crm_id]: isActive ? 'published' : 'not_published' }));
         });
       }
     } catch (err: any) {
