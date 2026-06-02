@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Star, ExternalLink, Loader2 } from 'lucide-react';
+import { X, Star, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ReviewsCarousel } from '../components/ReviewsCarousel';
 import { useGoogleReviews } from '../hooks/useGoogleReviews';
@@ -170,18 +170,7 @@ export const Reviews = () => {
                   ))
                 )}
 
-                {/* CTA footer */}
-                <div className="pt-4 flex justify-center pb-2">
-                  <a
-                    href="https://g.page/r/gelabert-homes/review"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-xs text-[#C9A962] hover:underline transition-opacity hover:opacity-80"
-                  >
-                    {t('reviews.writeReview', 'Escribir una reseña en Google')}
-                    <ExternalLink size={12} />
-                  </a>
-                </div>
+
               </div>
             </motion.div>
           </div>
