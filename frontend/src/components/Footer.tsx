@@ -185,7 +185,7 @@ const GoogleFooterBadge = () => {
   return (
     <div className="relative z-10 border-t border-white/5 py-4 px-6 md:px-14 flex items-center justify-center">
       <a
-        href="https://www.google.com/maps/place/Gelabert+Homes+Real+Estate/@36.5236896,-4.6026549,15z"
+        href="https://www.google.es/maps/place/Gelabert+Homes+Real+Estate/@36.7183312,-4.5316685,12z/data=!3m1!4b1!4m6!3m5!1s0x4faf4ce7697fd7c1:0xd7eb17fc18c8dc7a!8m2!3d36.718222!4d-4.4492669!16s%2Fg%2F11z755b0v3"
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex items-center gap-3 px-4 py-2 bg-white/[0.02] border border-white/6 hover:border-[#C9A962]/25 hover:bg-white/[0.04] transition-all group rounded-sm"
