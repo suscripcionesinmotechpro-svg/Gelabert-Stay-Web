@@ -56,7 +56,7 @@ export const Layout = () => {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-7 font-primary text-[12px] tracking-widest uppercase">
+        <nav className="hidden md:flex items-center gap-5 lg:gap-7 font-primary text-[13.5px] tracking-widest uppercase font-semibold">
           {navLinks.map((link) => {
             const isActive = location.pathname === link.path;
             return (
@@ -91,7 +91,7 @@ export const Layout = () => {
           <Link
             to="/admin/login"
             className="relative ml-2 flex items-center gap-2 px-5 py-2 overflow-hidden group
-              border border-[#C9A962]/50 text-[#C9A962] text-[11px] tracking-[0.15em]
+              border border-[#C9A962]/50 text-[#C9A962] text-[12.5px] tracking-[0.15em] font-semibold
               hover:border-[#C9A962] transition-all duration-500
               shadow-[0_0_0px_rgba(201,169,98,0)] hover:shadow-[0_0_20px_rgba(201,169,98,0.25)]"
           >
