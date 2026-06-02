@@ -4,6 +4,8 @@ import { Star, ChevronLeft, ChevronRight, MessageSquare, Loader2 } from 'lucide-
 import { useTranslation } from 'react-i18next';
 import { useGoogleReviews } from '../hooks/useGoogleReviews';
 
+const AUTOPLAY_DURATION = 6000; // ms between slides
+
 const GoogleLogo = ({ size = 24 }: { size?: number }) => (
   <svg viewBox="0 0 24 24" width={size} height={size}>
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -33,64 +35,75 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   // Touch / swipe support
   const touchStartX = useRef<number | null>(null);
-  const touchEndX = useRef<number | null>(null);
+  const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const reviews = data?.reviews ?? [];
 
-  const nextReview = useCallback(() => {
+  const goToNext = useCallback(() => {
     if (reviews.length === 0) return;
     setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % reviews.length);
+    setProgress(0);
   }, [reviews.length]);
 
-  const prevReview = useCallback(() => {
+  const goToPrev = useCallback(() => {
     if (reviews.length === 0) return;
     setDirection(-1);
     setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+    setProgress(0);
   }, [reviews.length]);
 
+  const goToIndex = useCallback((idx: number) => {
+    setDirection(idx > currentIndex ? 1 : -1);
+    setCurrentIndex(idx);
+    setProgress(0);
+  }, [currentIndex]);
+
+  // Reset when reviews load
   useEffect(() => {
     setCurrentIndex(0);
+    setProgress(0);
   }, [reviews.length]);
 
+  // Autoplay
   useEffect(() => {
     if (isPaused || reviews.length === 0) return;
-    const timer = setInterval(nextReview, 6000);
+    const timer = setInterval(goToNext, AUTOPLAY_DURATION);
     return () => clearInterval(timer);
-  }, [nextReview, isPaused, reviews.length]);
+  }, [goToNext, isPaused, reviews.length]);
+
+  // Progress bar animation
+  useEffect(() => {
+    if (isPaused || reviews.length === 0) {
+      if (progressInterval.current) clearInterval(progressInterval.current);
+      return;
+    }
+    setProgress(0);
+    const step = 100 / (AUTOPLAY_DURATION / 50);
+    progressInterval.current = setInterval(() => {
+      setProgress((p) => Math.min(p + step, 100));
+    }, 50);
+    return () => {
+      if (progressInterval.current) clearInterval(progressInterval.current);
+    };
+  }, [currentIndex, isPaused, reviews.length]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
   const handleTouchEnd = (e: React.TouchEvent) => {
-    touchEndX.current = e.changedTouches[0].clientX;
-    const diff = (touchStartX.current ?? 0) - (touchEndX.current ?? 0);
-    if (Math.abs(diff) > 40) {
-      diff > 0 ? nextReview() : prevReview();
-    }
+    const diff = (touchStartX.current ?? 0) - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) diff > 0 ? goToNext() : goToPrev();
   };
 
   const variants = {
-    enter: (dir: number) => ({
-      x: dir > 0 ? '100%' : '-100%',
-      opacity: 0,
-      scale: 0.96,
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-      scale: 1,
-    },
-    exit: (dir: number) => ({
-      zIndex: 0,
-      x: dir < 0 ? '100%' : '-100%',
-      opacity: 0,
-      scale: 0.96,
-    }),
+    enter: (dir: number) => ({ x: dir > 0 ? '110%' : '-110%', opacity: 0, scale: 0.94 }),
+    center: { zIndex: 1, x: 0, opacity: 1, scale: 1 },
+    exit: (dir: number) => ({ zIndex: 0, x: dir < 0 ? '110%' : '-110%', opacity: 0, scale: 0.94 }),
   };
 
   const review = reviews[currentIndex];
@@ -99,12 +112,12 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
 
   return (
     <div
-      className="relative w-full max-w-3xl mx-auto px-4 sm:px-6 pb-10 overflow-hidden"
+      className="relative w-full max-w-3xl mx-auto px-4 sm:px-6 pb-10"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       {/* Header: Google branding + score */}
-      <div className="flex flex-col items-center mb-8 sm:mb-12 space-y-3">
+      <div className="flex flex-col items-center mb-8 sm:mb-10 space-y-3">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center shadow-lg overflow-hidden">
             <GoogleLogo size={20} />
@@ -120,144 +133,163 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
             ))}
           </div>
           <span className="text-xs sm:text-sm text-[#FAF8F5]/60 font-medium">
-            {loading
-              ? '...'
-              : `${rating.toFixed(1)} / 5.0${total > 0 ? ` · ${total} reseñas` : ''}`
-            }
+            {loading ? '...' : `${rating.toFixed(1)} / 5.0${total > 0 ? ` · ${total} reseñas` : ''}`}
           </span>
         </div>
       </div>
 
-      {/* Carousel container — no fixed height, content drives the size */}
-      <div
-        className="relative overflow-hidden"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        {loading ? (
-          <div className="flex flex-col items-center gap-4 py-16 text-[#C9A962]/60">
-            <Loader2 size={32} className="animate-spin" />
-            <span className="text-sm">Cargando reseñas...</span>
-          </div>
-        ) : review ? (
-          <AnimatePresence initial={false} custom={direction} mode="wait">
-            <motion.div
-              key={currentIndex}
-              custom={direction}
-              variants={variants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: 'spring', stiffness: 260, damping: 28 },
-                opacity: { duration: 0.25 },
-              }}
-              className="w-full"
-            >
-              <div className="glass-deep p-6 sm:p-8 md:p-12 rounded-2xl border border-[#C9A962]/20 relative overflow-hidden">
-                {/* Decorative blur */}
-                <div className="absolute -top-10 -right-10 w-36 h-36 bg-[#C9A962]/5 rounded-full blur-3xl pointer-events-none" />
+      {/* Carousel with side arrows */}
+      <div className="relative flex items-center gap-2 sm:gap-3">
 
-                <div className="flex flex-col items-center text-center space-y-4">
-                  {/* Avatar */}
-                  <div className="relative flex-shrink-0">
-                    {review.avatar ? (
-                      <img
-                        src={review.avatar}
-                        alt={review.author}
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-[#C9A962]/30 object-cover"
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <AvatarFallback name={review.author} />
-                    )}
-                    <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-[3px] shadow-md">
-                      <GoogleLogo size={11} />
+        {/* ← Left arrow */}
+        <button
+          onClick={goToPrev}
+          disabled={loading || reviews.length === 0}
+          className="flex-shrink-0 z-10 w-9 h-9 sm:w-11 sm:h-11 rounded-full border border-[#C9A962]/30 bg-[#161616]/80 backdrop-blur-sm text-[#C9A962] flex items-center justify-center
+            hover:bg-[#C9A962]/15 hover:border-[#C9A962]/60 hover:scale-110
+            active:scale-95 transition-all duration-200 shadow-lg
+            disabled:opacity-20 disabled:pointer-events-none"
+          aria-label="Reseña anterior"
+        >
+          <ChevronLeft size={18} />
+        </button>
+
+        {/* Card area */}
+        <div
+          className="relative flex-1 overflow-hidden"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {loading ? (
+            <div className="flex flex-col items-center gap-4 py-16 text-[#C9A962]/60">
+              <Loader2 size={32} className="animate-spin" />
+              <span className="text-sm">Cargando reseñas...</span>
+            </div>
+          ) : review ? (
+            <AnimatePresence initial={false} custom={direction} mode="wait">
+              <motion.div
+                key={currentIndex}
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: 'spring', stiffness: 280, damping: 28 },
+                  opacity: { duration: 0.22 },
+                  scale: { duration: 0.22 },
+                }}
+                className="w-full"
+              >
+                <div className="glass-deep p-6 sm:p-8 md:p-10 rounded-2xl border border-[#C9A962]/20 relative overflow-hidden">
+                  {/* Decorative blur */}
+                  <div className="absolute -top-10 -right-10 w-36 h-36 bg-[#C9A962]/5 rounded-full blur-3xl pointer-events-none" />
+
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    {/* Avatar */}
+                    <div className="relative flex-shrink-0">
+                      {review.avatar ? (
+                        <img
+                          src={review.avatar}
+                          alt={review.author}
+                          className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-[#C9A962]/30 object-cover"
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                        />
+                      ) : (
+                        <AvatarFallback name={review.author} />
+                      )}
+                      <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-[3px] shadow-md">
+                        <GoogleLogo size={11} />
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Stars */}
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        size={13}
-                        fill={i < review.rating ? '#C9A962' : 'transparent'}
-                        className={i < review.rating ? 'text-[#C9A962]' : 'text-[#C9A962]/30'}
-                      />
-                    ))}
-                  </div>
+                    {/* Stars */}
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          size={13}
+                          fill={i < review.rating ? '#C9A962' : 'transparent'}
+                          className={i < review.rating ? 'text-[#C9A962]' : 'text-[#C9A962]/30'}
+                        />
+                      ))}
+                    </div>
 
-                  {/* Review text */}
-                  <div className="space-y-3 w-full max-w-xl">
-                    <p className="text-sm sm:text-base md:text-lg text-[#FAF8F5]/90 italic font-light leading-relaxed">
-                      "{review.text}"
-                    </p>
-                    <div className="space-y-0.5 pt-1">
-                      <h4 className="text-[#C9A962] font-semibold tracking-wider uppercase text-[11px] sm:text-xs">
-                        {review.author}
-                      </h4>
-                      <p className="text-[#FAF8F5]/40 text-[9px] sm:text-[10px] uppercase tracking-[0.2em]">
-                        {review.date}
+                    {/* Review text */}
+                    <div className="space-y-3 w-full max-w-xl">
+                      <p className="text-sm sm:text-base md:text-lg text-[#FAF8F5]/90 italic font-light leading-relaxed">
+                        "{review.text}"
                       </p>
+                      <div className="space-y-0.5 pt-1">
+                        <h4 className="text-[#C9A962] font-semibold tracking-wider uppercase text-[11px] sm:text-xs">
+                          {review.author}
+                        </h4>
+                        <p className="text-[#FAF8F5]/40 text-[9px] sm:text-[10px] uppercase tracking-[0.2em]">
+                          {review.date}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        ) : null}
+              </motion.div>
+            </AnimatePresence>
+          ) : null}
+        </div>
+
+        {/* → Right arrow */}
+        <button
+          onClick={goToNext}
+          disabled={loading || reviews.length === 0}
+          className="flex-shrink-0 z-10 w-9 h-9 sm:w-11 sm:h-11 rounded-full border border-[#C9A962]/30 bg-[#161616]/80 backdrop-blur-sm text-[#C9A962] flex items-center justify-center
+            hover:bg-[#C9A962]/15 hover:border-[#C9A962]/60 hover:scale-110
+            active:scale-95 transition-all duration-200 shadow-lg
+            disabled:opacity-20 disabled:pointer-events-none"
+          aria-label="Siguiente reseña"
+        >
+          <ChevronRight size={18} />
+        </button>
       </div>
 
-      {/* Controls */}
+      {/* Progress bar + dots + CTA */}
       {!loading && reviews.length > 1 && (
-        <>
-          {/* Nav buttons + CTA */}
-          <div className="flex items-center justify-center gap-4 sm:gap-8 mt-6 sm:mt-8 flex-wrap">
-            <button
-              onClick={prevReview}
-              className="p-2.5 sm:p-3 rounded-full border border-[#C9A962]/20 text-[#C9A962] hover:bg-[#C9A962]/10 transition-all hover:scale-110 active:scale-95"
-              aria-label="Anterior reseña"
-            >
-              <ChevronLeft size={18} />
-            </button>
+        <div className="mt-5 space-y-4">
 
-            <button
-              onClick={onExpand}
-              className="flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-full bg-gradient-to-r from-[#C9A962] to-[#D4B673] text-[#0A0A0A] font-primary text-[11px] sm:text-xs uppercase tracking-widest font-bold hover:shadow-[0_0_20px_rgba(201,169,98,0.4)] transition-all transform hover:-translate-y-0.5 active:translate-y-0"
-            >
-              <MessageSquare size={13} />
-              {t('reviews.viewAll', 'Ver todas')}
-            </button>
-
-            <button
-              onClick={nextReview}
-              className="p-2.5 sm:p-3 rounded-full border border-[#C9A962]/20 text-[#C9A962] hover:bg-[#C9A962]/10 transition-all hover:scale-110 active:scale-95"
-              aria-label="Siguiente reseña"
-            >
-              <ChevronRight size={18} />
-            </button>
+          {/* Autoplay progress bar */}
+          <div className="w-full h-[2px] bg-[#C9A962]/10 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-[#C9A962] to-[#D4B673] rounded-full"
+              style={{ width: `${progress}%` }}
+              transition={{ duration: 0.05, ease: 'linear' }}
+            />
           </div>
 
-          {/* Progress dots */}
-          <div className="flex justify-center gap-1.5 mt-5">
+          {/* Dot indicators */}
+          <div className="flex items-center justify-center gap-1.5">
             {reviews.map((_, idx) => (
               <button
                 key={idx}
-                onClick={() => {
-                  setDirection(idx > currentIndex ? 1 : -1);
-                  setCurrentIndex(idx);
-                }}
+                onClick={() => goToIndex(idx)}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
-                  idx === currentIndex ? 'w-7 bg-[#C9A962]' : 'w-1.5 bg-[#C9A962]/20 hover:bg-[#C9A962]/40'
+                  idx === currentIndex
+                    ? 'w-7 bg-[#C9A962]'
+                    : 'w-1.5 bg-[#C9A962]/20 hover:bg-[#C9A962]/50'
                 }`}
                 aria-label={`Ir a reseña ${idx + 1}`}
               />
             ))}
           </div>
-        </>
+
+          {/* CTA button */}
+          <div className="flex justify-center pt-1">
+            <button
+              onClick={onExpand}
+              className="flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-full bg-gradient-to-r from-[#C9A962] to-[#D4B673] text-[#0A0A0A] font-primary text-[11px] sm:text-xs uppercase tracking-widest font-bold hover:shadow-[0_0_20px_rgba(201,169,98,0.4)] transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <MessageSquare size={13} />
+              {t('reviews.viewAll', 'Ver todas las reseñas')}
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
