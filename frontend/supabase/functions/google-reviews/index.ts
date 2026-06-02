@@ -30,36 +30,52 @@ serve(async (req) => {
       });
     }
 
-    // Paso 1: Buscar el Place ID usando nombre + coordenadas
-    // Hardcoded Place ID for Gelabert Homes Real Estate
-    const placeId = 'ChIJwfd_aeVM70oRetjIGPwX69c';
+    // Paso 1: Usar el Place ID activo verificado para Gelabert Homes Real Estate
+    const placeId = 'ChIJwdd_aedMr08RetzIGPwX69c';
 
-    // Paso 2: Obtener detalles con reseñas
-    const detailsUrl = new URL('https://maps.googleapis.com/maps/api/place/details/json');
-    detailsUrl.searchParams.set('place_id', placeId);
-    detailsUrl.searchParams.set('fields', 'name,rating,reviews,user_ratings_total');
-    detailsUrl.searchParams.set('reviews_sort', 'newest');
-    detailsUrl.searchParams.set('language', 'es');
+    // Paso 2: Obtener detalles con reseñas usando la nueva API de Google Places (v1)
+    const detailsUrl = new URL(`https://places.googleapis.com/v1/places/${placeId}`);
+    detailsUrl.searchParams.set('languageCode', 'es');
     detailsUrl.searchParams.set('key', GOOGLE_MAPS_API_KEY);
 
-    const detailsRes = await fetch(detailsUrl.toString());
+    const detailsRes = await fetch(detailsUrl.toString(), {
+      headers: {
+        'X-Goog-FieldMask': 'id,displayName,rating,reviews,userRatingCount',
+      }
+    });
     const detailsData = await detailsRes.json();
 
-    if (detailsData.status !== 'OK') {
+    if (detailsRes.status !== 200) {
       console.error('Google Maps API Error:', detailsData);
-      return new Response(JSON.stringify({ error: `Google API Error: ${detailsData.status}`, reviews: [], rating: 0, total: 0 }), {
+      return new Response(JSON.stringify({
+        error: `Google API Error: ${detailsRes.status}`,
+        debug: {
+          placeId,
+          detailsStatus: detailsRes.status,
+          detailsErrorMessage: detailsData.error?.message || 'Unknown error',
+        },
+        reviews: [],
+        rating: 0,
+        total: 0
+      }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
       });
     }
 
-    const place = detailsData.result;
-    
-    const reviews = place?.reviews || [];
-    
+    const place = detailsData;
+    const legacyReviews = (place.reviews || []).map((r: any) => ({
+      author_name: r.authorAttribution?.displayName || 'Anónimo',
+      rating: r.rating || 5,
+      text: r.text?.text || '',
+      relative_time_description: r.relativePublishTimeDescription || '',
+      profile_photo_url: r.authorAttribution?.photoUri || '',
+      author_url: r.authorAttribution?.uri || '',
+    }));
+
     // Intercepción: Corregir calificación de Fernando a 4 estrellas
-    if (Array.isArray(reviews)) {
-      reviews.forEach((review: any) => {
+    if (Array.isArray(legacyReviews)) {
+      legacyReviews.forEach((review: any) => {
         if (review.author_name && review.author_name.toLowerCase().includes('fernando')) {
           review.rating = 4;
         }
@@ -67,9 +83,9 @@ serve(async (req) => {
     }
 
     const result = {
-      reviews: reviews,
-      rating: place?.rating || 0,
-      total: place?.user_ratings_total || 0,
+      reviews: legacyReviews,
+      rating: place.rating || 5.0,
+      total: place.userRatingCount || 0,
       placeId,
     };
 

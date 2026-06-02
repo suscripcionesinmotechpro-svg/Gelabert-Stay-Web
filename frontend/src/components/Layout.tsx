@@ -32,6 +32,7 @@ export const Layout = () => {
     { name: t('nav.owners'), path: `${langPrefix}/propietarios` },
     { name: t('nav.valuation'), path: `${langPrefix}/valoracion` },
     { name: t('nav.blog'), path: `${langPrefix}/blog` },
+    { name: t('nav.reviews'), path: `${langPrefix}/${i18n.language.startsWith('en') ? 'reviews' : 'reseñas'}` },
     { name: t('nav.about'), path: `${langPrefix}/nosotros` },
     { name: t('nav.contact'), path: `${langPrefix}/contacto` },
   ];
