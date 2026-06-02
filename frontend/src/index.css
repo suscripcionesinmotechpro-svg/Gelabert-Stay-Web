@@ -11,7 +11,7 @@
   --primary-hover: #D4B673;
   --secondary: #161616;
   --border: #1F1F1F;
-  --muted: #888888;
+  --muted: #DFDFE6;
   
   --bg-page: #0F0F0F;
   --bg-card: #161616;
@@ -23,8 +23,8 @@
   --gold-tint-40: rgba(201, 169, 98, 0.4);
   
   --text-primary: #FAF8F5;
-  --text-secondary: #888888;
-  --text-tertiary: #666666;
+  --text-secondary: #DFDFE6;
+  --text-tertiary: #B0B0BA;
   --text-on-gold: #0A0A0A;
   
   --success: #4ADE80;
@@ -38,6 +38,58 @@
     background-color: var(--background);
     color: var(--foreground);
     font-family: var(--font-primary);
+  }
+
+  /* Global accessibility & contrast overrides for all pages */
+  p, li, span, a, label {
+    letter-spacing: 0.015em;
+  }
+
+  /* Make paragraphs globally highly legible and proportional */
+  p {
+    line-height: 1.75 !important;
+  }
+
+  /* Accessible overrides for standard small font sizes */
+  .text-xs,
+  .text-\[10px\],
+  .text-\[11px\],
+  .text-\[12px\] {
+    font-size: 0.85rem !important; /* Bump up tiny text sizes to a minimum of 13.6px for accessibility */
+  }
+
+  /* Universal high-contrast opacity overrides for semi-transparent text */
+  .text-white\/30 {
+    color: rgba(250, 248, 245, 0.72) !important; /* Increase from 30% to 72% opacity */
+  }
+
+  .text-white\/40 {
+    color: rgba(250, 248, 245, 0.78) !important; /* Increase from 40% to 78% opacity */
+  }
+
+  .text-white\/50 {
+    color: rgba(250, 248, 245, 0.82) !important; /* Increase from 50% to 82% opacity */
+  }
+
+  .text-white\/60 {
+    color: rgba(250, 248, 245, 0.88) !important; /* Increase from 60% to 88% opacity */
+  }
+
+  .text-white\/70 {
+    color: rgba(250, 248, 245, 0.92) !important; /* Increase from 70% to 92% opacity */
+  }
+
+  /* Universal high-contrast overrides for standard tailwind muted gray texts */
+  .text-zinc-500,
+  .text-neutral-500,
+  .text-gray-500 {
+    color: #DFDFE6 !important; /* High contrast bright silver instead of dark gray */
+  }
+
+  .text-zinc-400,
+  .text-neutral-400,
+  .text-gray-400 {
+    color: #FAF8F5 !important; /* Off-white instead of standard mid gray */
   }
 
   /* Mejora global de renderizado de imágenes y vídeos */
