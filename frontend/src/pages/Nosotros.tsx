@@ -253,12 +253,12 @@ const Nosotros = () => {
               transition={{ ...fadeUp.transition, delay: 0.45 }}
               className="border border-white/10 rounded-md p-6 sm:p-8 flex flex-col sm:flex-row items-start gap-6 bg-white/[0.01] hover:border-[#C9A962]/40 hover:bg-[#C9A962]/[0.02] transition-all duration-500 backdrop-blur-sm relative group"
             >
-              {/* Circular White Badge for Logo */}
-              <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-md shrink-0 transition-transform duration-300 group-hover:scale-103 relative z-10 p-3">
+              {/* Premium Stadium Rounded Badge for Logo */}
+              <div className="h-14 px-7 rounded-full bg-white flex items-center justify-center shadow-md shrink-0 transition-transform duration-300 group-hover:scale-103 relative z-10">
                 <img 
                   src="/images/brand/devante-logo.svg" 
                   alt="Davante Business School" 
-                  className="w-full h-auto max-h-[85%] object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300"
+                  className="h-6 md:h-7 w-auto max-w-[140px] object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300"
                 />
               </div>
               <div className="space-y-2 relative z-10">
@@ -277,12 +277,12 @@ const Nosotros = () => {
               transition={{ ...fadeUp.transition, delay: 0.55 }}
               className="border border-white/10 rounded-md p-6 sm:p-8 flex flex-col sm:flex-row items-start gap-6 bg-white/[0.01] hover:border-[#C9A962]/40 hover:bg-[#C9A962]/[0.02] transition-all duration-500 backdrop-blur-sm relative group"
             >
-              {/* Circular White Badge for Logo */}
-              <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-md shrink-0 transition-transform duration-300 group-hover:scale-103 relative z-10 p-3">
+              {/* Premium Stadium Rounded Badge for Logo */}
+              <div className="h-14 px-7 rounded-full bg-white flex items-center justify-center shadow-md shrink-0 transition-transform duration-300 group-hover:scale-103 relative z-10">
                 <img 
                   src="/images/brand/huspy-logo.svg" 
                   alt="Huspy Authorized Partner" 
-                  className="w-full h-auto max-h-[85%] object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300"
+                  className="h-6 md:h-7 w-auto max-w-[120px] object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300"
                 />
               </div>
               <div className="space-y-2 relative z-10">

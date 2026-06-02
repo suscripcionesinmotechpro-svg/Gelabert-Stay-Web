@@ -448,12 +448,12 @@ export const Home = () => {
             >
               <div className="absolute inset-0 bg-gradient-to-b from-[#C9A962]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
               
-              {/* Circular White Badge for Logo */}
-              <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center shadow-xl border border-zinc-100 relative z-10 transition-all duration-500 group-hover:scale-105 p-4 shrink-0">
+              {/* Premium Stadium Rounded Badge for Logo */}
+              <div className="h-20 px-12 rounded-full bg-white flex items-center justify-center shadow-xl border border-zinc-100 relative z-10 transition-all duration-500 group-hover:scale-105 shrink-0">
                 <img 
                   src="/images/brand/devante-logo.svg" 
                   alt="Davante Business School" 
-                  className="w-full h-auto max-h-[85%] object-contain opacity-95 group-hover:opacity-100 transition-all duration-500"
+                  className="h-10 md:h-11 w-auto max-w-[240px] object-contain opacity-95 group-hover:opacity-100 transition-all duration-500"
                 />
               </div>
               
@@ -477,12 +477,12 @@ export const Home = () => {
             >
               <div className="absolute inset-0 bg-gradient-to-b from-[#C9A962]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
               
-              {/* Circular White Badge for Logo */}
-              <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center shadow-xl border border-zinc-100 relative z-10 transition-all duration-500 group-hover:scale-105 p-4 shrink-0">
+              {/* Premium Stadium Rounded Badge for Logo */}
+              <div className="h-20 px-12 rounded-full bg-white flex items-center justify-center shadow-xl border border-zinc-100 relative z-10 transition-all duration-500 group-hover:scale-105 shrink-0">
                 <img 
                   src="/images/brand/huspy-logo.svg" 
                   alt="Huspy Authorized Partner" 
-                  className="w-full h-auto max-h-[85%] object-contain opacity-95 group-hover:opacity-100 transition-all duration-500"
+                  className="h-10 md:h-11 w-auto max-w-[220px] object-contain opacity-95 group-hover:opacity-100 transition-all duration-500"
                 />
               </div>
               
