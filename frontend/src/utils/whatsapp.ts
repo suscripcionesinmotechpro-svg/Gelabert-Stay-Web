@@ -62,7 +62,7 @@ export const getCommunityShareMessage = (property: {
   operation: string;
 }) => {
   // Use the professional domain for sharing
-  const propertyUrl = `https://gelaberthomes.es/propiedades/${property.slug || property.reference || ''}`;
+  const propertyUrl = `https://gelaberthomes.es/propiedades/${property.reference || property.slug || ''}`;
   
   const priceStr = property.price 
     ? `${property.price.toLocaleString('es-ES')}€${property.operation === 'alquiler' ? '/mes' : ''}`

@@ -11,7 +11,7 @@ function optimizeSupabaseImage(rawUrl: string): string {
   const clean = rawUrl.split("?")[0].split("#")[0].trim();
   // Only transform if it's a Supabase storage URL
   if (clean.includes("supabase.co") && clean.includes("/object/public/")) {
-    return clean.replace("/object/public/", "/render/image/public/") + "?width=1200&height=630&resize=cover&quality=75&format=jpeg";
+    return clean.replace("/object/public/", "/render/image/public/") + "?width=1200&height=630&resize=cover&quality=75&format=webp";
   }
   // For non-Supabase images (e.g. external CDN), return as-is without query params
   return clean;
@@ -97,7 +97,7 @@ export default async (request: Request, context: Context) => {
 
       const orConditions = isUuid
         ? `reference.eq.${searchId},slug.eq.${searchId},id.eq.${searchId}`
-        : `reference.in.(${possibleRefs.join(",")}),slug.eq.${searchId},reference.ilike.${searchId},id.eq.${searchId}`;
+        : `reference.in.(${possibleRefs.join(",")}),slug.eq.${searchId},reference.ilike.${searchId}`;
       queryUrl = `${SUPABASE_URL}/rest/v1/properties?or=(${orConditions})&select=*&t=${t}`;
     } else {
       // Blog search by slug
@@ -292,7 +292,7 @@ export default async (request: Request, context: Context) => {
         `<meta property="og:image:secure_url" content="${previewImage}">`,
         `<meta property="og:image:width" content="1200">`,
         `<meta property="og:image:height" content="630">`,
-        `<meta property="og:image:type" content="image/jpeg">`,
+        `<meta property="og:image:type" content="image/webp">`,
         `<meta property="og:image:alt" content="${cleanTitle}">`,
         `<meta property="og:locale" content="${isEn ? "en_US" : "es_ES"}">`,
         `<meta property="og:locale:alternate" content="${isEn ? "es_ES" : "en_US"}">`,

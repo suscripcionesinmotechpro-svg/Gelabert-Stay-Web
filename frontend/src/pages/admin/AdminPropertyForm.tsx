@@ -732,7 +732,7 @@ export const AdminPropertyForm = () => {
           </button>
           {isEditing && property?.status === 'publicada' && (
             <a
-              href={`/propiedades/${property.slug || property.id}`}
+              href={`/propiedades/${property.reference || property.slug || property.id}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2.5 border border-[#1F1F1F] text-[#888888] font-primary text-sm hover:border-[#FAF8F5] hover:text-[#FAF8F5] transition-all"

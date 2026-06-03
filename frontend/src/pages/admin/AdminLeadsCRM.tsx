@@ -492,7 +492,7 @@ export const AdminLeadsCRM = () => {
                             <div className="p-2.5">
                               <h4 className="font-secondary text-xs text-[#FAF8F5] truncate mb-1">{p.title}</h4>
                               <p className="text-sm text-[#C9A962] font-semibold">{p.price}€</p>
-                              <a href={`/propiedades/${p.slug}`} target="_blank" rel="noreferrer" className="mt-2 block text-center py-1 border border-[#C9A962] text-[#C9A962] hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-colors rounded text-[10px] uppercase font-bold w-full">Ver Propiedad</a>
+                              <a href={`/propiedades/${p.reference || p.slug || p.id}`} target="_blank" rel="noreferrer" className="mt-2 block text-center py-1 border border-[#C9A962] text-[#C9A962] hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-colors rounded text-[10px] uppercase font-bold w-full">Ver Propiedad</a>
                             </div>
                           </div>
                         ))}

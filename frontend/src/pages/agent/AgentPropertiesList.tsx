@@ -354,7 +354,7 @@ export const AgentPropertiesList = () => {
                       : <FolderArchive className="w-3.5 h-3.5" />}
                 </button>
                 {p.status === 'publicada' ? (
-                  <a href={`/propiedades/${p.slug || p.id}`} target="_blank" className="p-1.5 text-[#888888] hover:text-[#FAF8F5] border border-transparent hover:border-[#1F1F1F] transition-all" title="Ver en la web">
+                  <a href={`/propiedades/${p.reference || p.slug || p.id}`} target="_blank" className="p-1.5 text-[#888888] hover:text-[#FAF8F5] border border-transparent hover:border-[#1F1F1F] transition-all" title="Ver en la web">
                     <Eye className="w-3.5 h-3.5" />
                   </a>
                 ) : (

@@ -12,6 +12,7 @@ import { supabase } from '../lib/supabase';
 interface PropertyDetails {
   id: string; title: string; price: number; main_image: string;
   slug: string; description?: string; bedrooms?: number; bathrooms?: number; sqft?: number;
+  reference?: string;
 }
 
 interface ChatMessage {
@@ -226,10 +227,17 @@ export const Gelabot = () => {
       const a = (e.target as HTMLElement).closest('a');
       if (a?.href?.includes('/propiedades/')) {
         e.preventDefault();
-        const slug = a.href.split('/propiedades/')[1];
-        if (slug) {
-          const { data } = await supabase
-            .from('properties').select('*').eq('slug', slug).maybeSingle();
+        const ident = a.href.split('/propiedades/')[1];
+        if (ident) {
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          const isUuid = uuidRegex.test(ident);
+          let query = supabase.from('properties').select('*');
+          if (isUuid) {
+            query = query.or(`id.eq.${ident},reference.eq.${ident},slug.eq.${ident}`);
+          } else {
+            query = query.or(`reference.eq.${ident},slug.eq.${ident}`);
+          }
+          const { data } = await query.maybeSingle();
           if (data) setActiveProperty(data);
         }
       }
@@ -415,7 +423,7 @@ export const Gelabot = () => {
                         </div>
                         <p className="text-[#FAF8F5]/70 text-xs leading-relaxed line-clamp-4">{activeProperty.description}</p>
                         <a
-                          href={`/propiedades/${activeProperty.slug}`}
+                          href={`/propiedades/${activeProperty.reference || activeProperty.slug || activeProperty.id}`}
                           target="_blank"
                           rel="noreferrer"
                           className="mt-auto flex items-center justify-center gap-2 py-3 bg-[#C9A962] text-[#0A0A0A] rounded-xl font-bold text-sm hover:bg-[#D4B673] transition-colors"
