@@ -669,23 +669,43 @@ serve(async (req) => {
       // Las parcelas requieren areaPlot obligatorio en Idealista
       mappedFeatures.areaPlot = property.area_m2 ? Math.round(property.area_m2) : 100;
     } else if (mappedType === "room") {
-      mappedFeatures.roomAreaConstructed = property.area_m2 ? Math.round(property.area_m2) : 12;
-      mappedFeatures.internetAvailable = property.air_conditioning ?? true; // fallback
-      mappedFeatures.bedType = "double";
-      mappedFeatures.tenantGender = "both";
-      mappedFeatures.smokingAllowed = true;
-      mappedFeatures.couplesAllowed = false;
-      mappedFeatures.roomType = "shared_flat";
-      
-      // availableFrom es obligatorio para habitaciones en Idealista
-      let availDate = new Date().toISOString().split('T')[0];
+      // ── CAMPOS OBLIGATORIOS según validación Idealista ──────────────────────
+      // areaConstructed = superficie del piso completo (no de la habitación)
+      mappedFeatures.areaConstructed = property.area_m2 ? Math.round(property.area_m2) : 60;
+      mappedFeatures.bathroomNumber = property.bathrooms || 1;
+      mappedFeatures.liftAvailable = property.has_elevator ?? false;
+      // rooms = total de habitaciones del piso (no de la habitación individual)
+      mappedFeatures.rooms = property.bedrooms || 3;
+      // tenantNumber = número de inquilinos actuales en el piso
+      mappedFeatures.tenantNumber = property.tenant_number ?? 1;
+      // occupiedNow = si hay inquilinos actualmente
+      mappedFeatures.occupiedNow = (property.tenant_number ?? 0) > 0;
+      // minimalStay = estancia mínima en meses (1 = mes a mes)
+      mappedFeatures.minimalStay = property.min_stay_months ?? 1;
+      // petsAllowed = se permiten mascotas
+      mappedFeatures.petsAllowed = property.pets_allowed ?? false;
+      // type = tipo de habitación (usa "type", NO "roomType" que está prohibido)
+      mappedFeatures.type = "private_room"; // valores válidos: private_room, shared_room
+
+      // ── CAMPOS OPCIONALES ────────────────────────────────────────────────────
+      mappedFeatures.internetAvailable = property.has_wifi ?? true;
+      mappedFeatures.bedType = "double"; // single, double, no_bed
+      mappedFeatures.tenantGender = "both"; // male, female, both
+      mappedFeatures.smokingAllowed = property.smoking_allowed ?? false;
+      mappedFeatures.couplesAllowed = property.couples_allowed ?? false;
+
+      // ── availableFrom: formato obligatorio YYYY-MM (no YYYY-MM-DD) ───────────
+      const now = new Date();
+      let availYear = now.getFullYear();
+      let availMonth = now.getMonth() + 1;
       if (property.availability) {
-        const parsed = Date.parse(property.availability);
-        if (!isNaN(parsed)) {
-          availDate = new Date(parsed).toISOString().split('T')[0];
+        const parsed = new Date(property.availability);
+        if (!isNaN(parsed.getTime())) {
+          availYear = parsed.getFullYear();
+          availMonth = parsed.getMonth() + 1;
         }
       }
-      mappedFeatures.availableFrom = availDate;
+      mappedFeatures.availableFrom = `${availYear}-${String(availMonth).padStart(2, '0')}`;
     }
 
     // Mapeo de descripciones
