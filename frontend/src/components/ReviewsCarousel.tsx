@@ -4,7 +4,7 @@ import { Star, ChevronLeft, ChevronRight, MessageSquare, Loader2 } from 'lucide-
 import { useTranslation } from 'react-i18next';
 import { useGoogleReviews } from '../hooks/useGoogleReviews';
 
-const AUTOPLAY_DURATION = 8000; // ms — 8s gives mobile users time to read
+const AUTOPLAY_DURATION = 8000; // ms
 
 const GoogleLogo = ({ size = 24 }: { size?: number }) => (
   <svg viewBox="0 0 24 24" width={size} height={size}>
@@ -29,78 +29,81 @@ const AvatarFallback = ({ name }: { name: string }) => {
   );
 };
 
+// CSS keyframe for the progress bar — injected once
+const PROGRESS_STYLE_ID = 'reviews-progress-keyframes';
+function ensureProgressKeyframes() {
+  if (typeof document === 'undefined') return;
+  if (document.getElementById(PROGRESS_STYLE_ID)) return;
+  const style = document.createElement('style');
+  style.id = PROGRESS_STYLE_ID;
+  style.textContent = `
+    @keyframes reviewProgress {
+      from { width: 0%; }
+      to   { width: 100%; }
+    }
+    .review-progress-bar {
+      animation: reviewProgress linear forwards;
+    }
+    .review-progress-bar.paused {
+      animation-play-state: paused;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
   const { t } = useTranslation();
   const { data, loading } = useGoogleReviews();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [progress, setProgress] = useState(0);
-  // Incrementing this key cancels the current interval and starts a fresh one
+  // Incrementing this key restarts both the autoplay timer and the CSS progress animation
   const [resetKey, setResetKey] = useState(0);
 
   // Touch / swipe support
   const touchStartX = useRef<number | null>(null);
-  const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const reviews = data?.reviews ?? [];
+
+  // Inject CSS keyframes once on mount
+  useEffect(() => { ensureProgressKeyframes(); }, []);
 
   const goToNext = useCallback(() => {
     if (reviews.length === 0) return;
     setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % reviews.length);
-    setProgress(0);
-    setResetKey((k) => k + 1); // restart autoplay timer
+    setResetKey((k) => k + 1);
   }, [reviews.length]);
 
   const goToPrev = useCallback(() => {
     if (reviews.length === 0) return;
     setDirection(-1);
     setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
-    setProgress(0);
     setResetKey((k) => k + 1);
   }, [reviews.length]);
 
   const goToIndex = useCallback((idx: number) => {
     setDirection(idx > currentIndex ? 1 : -1);
     setCurrentIndex(idx);
-    setProgress(0);
     setResetKey((k) => k + 1);
   }, [currentIndex]);
 
-  // Reset when reviews load
+  // Reset when reviews first load
   useEffect(() => {
     setCurrentIndex(0);
-    setProgress(0);
+    setResetKey((k) => k + 1);
   }, [reviews.length]);
 
-  // Autoplay — resetKey forces a fresh interval after every manual navigation
+  // Autoplay — resetKey forces a fresh timer after every manual navigation
   useEffect(() => {
     if (isPaused || reviews.length === 0) return;
     const timer = setTimeout(() => {
       setDirection(1);
       setCurrentIndex((prev) => (prev + 1) % reviews.length);
-      setProgress(0);
       setResetKey((k) => k + 1);
     }, AUTOPLAY_DURATION);
     return () => clearTimeout(timer);
   }, [resetKey, isPaused, reviews.length]);
-
-  // Progress bar — resets whenever resetKey, currentIndex, or pause state changes
-  useEffect(() => {
-    if (isPaused || reviews.length === 0) {
-      if (progressInterval.current) clearInterval(progressInterval.current);
-      return;
-    }
-    setProgress(0);
-    const step = 100 / (AUTOPLAY_DURATION / 50);
-    progressInterval.current = setInterval(() => {
-      setProgress((p) => Math.min(p + step, 100));
-    }, 50);
-    return () => {
-      if (progressInterval.current) clearInterval(progressInterval.current);
-    };
-  }, [resetKey, currentIndex, isPaused, reviews.length]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -264,12 +267,12 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
       {!loading && reviews.length > 1 && (
         <div className="mt-5 space-y-4">
 
-          {/* Autoplay progress bar */}
+          {/* ── Autoplay progress bar (pure CSS animation, no setInterval) ── */}
           <div className="w-full h-[2px] bg-[#C9A962]/10 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-[#C9A962] to-[#D4B673] rounded-full"
-              style={{ width: `${progress}%` }}
-              transition={{ duration: 0.05, ease: 'linear' }}
+            <div
+              key={`progress-${resetKey}`}
+              className={`h-full bg-gradient-to-r from-[#C9A962] to-[#D4B673] rounded-full review-progress-bar${isPaused ? ' paused' : ''}`}
+              style={{ animationDuration: `${AUTOPLAY_DURATION}ms` }}
             />
           </div>
 
