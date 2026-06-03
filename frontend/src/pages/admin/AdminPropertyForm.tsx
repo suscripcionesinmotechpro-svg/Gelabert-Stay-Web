@@ -16,6 +16,7 @@ import { RoomManager } from '../../components/admin/RoomManager';
 import { CommonAreaManager } from '../../components/admin/CommonAreaManager';
 import type { PropertyVideo } from '../../types/property';
 import { triggerNetlifyBuild } from '../../utils/triggerBuild';
+import { ErrorDetailBox, useErrorDetail } from '../../components/admin/ErrorDetailBox';
 
 const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"];
 
@@ -121,7 +122,7 @@ export const AdminPropertyForm = () => {
 
   const [form, setForm] = useState<Partial<PropertyInsert>>(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { errorDetail, showError, clearError } = useErrorDetail();
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadingFloorPlan, setUploadingFloorPlan] = useState(false);
@@ -689,11 +690,16 @@ export const AdminPropertyForm = () => {
       
       // Control de errores de duplicados (23505)
       if (err.code === '23505' && (err.message?.includes('properties_reference_key') || err.details?.includes('properties_reference_key'))) {
-        setError('El número de referencia introducido ya está en uso por otra propiedad. Por favor, especifica una referencia única o añade una variación (ej. GEL-102-01).');
+        showError(
+          'Referencia duplicada',
+          'El número de referencia introducido ya está en uso por otra propiedad. Por favor, especifica una referencia única o añade una variación (ej. GEL-102-01).',
+          err.details || undefined
+        );
       } else {
         const errorMessage = err.message || err.details || 'Error al guardar';
-        const errorCode = err.code ? ` (${err.code})` : '';
-        setError(`${errorMessage}${errorCode}`);
+        const errorCode = err.code ? ` [${err.code}]` : '';
+        const rawDetails = JSON.stringify({ code: err.code, message: err.message, details: err.details, hint: err.hint }, null, 2);
+        showError('Error al guardar la propiedad', `${errorMessage}${errorCode}`, rawDetails);
       }
     } finally {
       setSaving(false);
@@ -761,7 +767,14 @@ export const AdminPropertyForm = () => {
         </div>
       </div>
 
-      {error && <div className="bg-red-500/10 border border-red-500/30 p-4"><p className="font-primary text-red-400 text-sm">{error}</p></div>}
+      {errorDetail && (
+        <ErrorDetailBox
+          title={errorDetail.title}
+          error={errorDetail.error}
+          details={errorDetail.details}
+          onClose={clearError}
+        />
+      )}
 
       {/* INFORMACIÓN PRINCIPAL */}
       <div className={sectionClass}>

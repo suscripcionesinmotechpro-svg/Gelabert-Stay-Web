@@ -24,6 +24,7 @@ import { downloadPropertyImagesAsZip } from '../../utils/downloadPropertyImages'
 import { formatPropertyPrice } from '../../utils/textUtils';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'react-hot-toast';
+import { ErrorDetailBox, useErrorDetail } from '../../components/admin/ErrorDetailBox';
 
 const WhatsAppIcon = () => (
   <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -383,6 +384,9 @@ export const AdminPropertiesList = () => {
   const dragImageIdx = useRef<number | null>(null);
   const dragOverImageIdx = useRef<number | null>(null);
 
+  // ── Error detail (copiable error box) ──
+  const { errorDetail, showError, clearError } = useErrorDetail();
+
   const handleOpenSocialModal = (p: Property, preselectedPlatform: 'facebook' | 'instagram') => {
     setSocialProperty(p);
     setSocialPlatforms({
@@ -522,12 +526,20 @@ export const AdminPropertiesList = () => {
 
         if (!res.ok || result.error) {
           const errMsg = result.error || 'Error desconocido del servidor.';
-          toast.error(`${platformLabel}: ${errMsg}`);
+          showError(
+            `Error al publicar en ${platformLabel}`,
+            errMsg,
+            JSON.stringify(result, null, 2)
+          );
           setPlatformStatuses(prev => ({ ...prev, [socialProperty.id]: 'error' }));
         } else {
           const platformResult = result[platform];
           if (platformResult?.error) {
-            toast.error(`${platformLabel}: ${platformResult.error}`);
+            showError(
+              `Error al publicar en ${platformLabel}`,
+              platformResult.error,
+              JSON.stringify(platformResult, null, 2)
+            );
             setPlatformStatuses(prev => ({ ...prev, [socialProperty.id]: 'error' }));
           } else {
             setPlatformStatuses(prev => ({ ...prev, [socialProperty.id]: 'published' }));
@@ -538,7 +550,7 @@ export const AdminPropertiesList = () => {
       setSocialModalOpen(false);
       refetch();
     } catch (err: any) {
-      toast.error(`Error de conexión: ${err.message}`);
+      showError('Error de conexión al publicar en redes', err.message, err.stack || undefined);
     } finally {
       setSocialPublishing(false);
     }
@@ -773,14 +785,14 @@ export const AdminPropertiesList = () => {
       );
       const result = await res.json();
       if (result.error) {
-        toast.error(`Error: ${result.error}`);
+        showError('Error al importar de Idealista', result.error, JSON.stringify(result, null, 2));
         setImportModalOpen(false);
       } else {
         setImportMatches(result.matches || []);
         setCrmProperties(result.crm_properties || []);
       }
     } catch (err: any) {
-      toast.error(`Error de conexión: ${err.message}`);
+      showError('Error de conexión con Idealista', err.message, err.stack);
       setImportModalOpen(false);
     } finally {
       setImportLoading(false);
@@ -846,6 +858,15 @@ export const AdminPropertiesList = () => {
 
   return (
     <div className="flex flex-col gap-6 max-w-7xl">
+      {/* Error detail box — shown when Idealista / social media / import errors occur */}
+      {errorDetail && (
+        <ErrorDetailBox
+          title={errorDetail.title}
+          error={errorDetail.error}
+          details={errorDetail.details}
+          onClose={clearError}
+        />
+      )}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
