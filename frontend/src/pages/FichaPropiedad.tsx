@@ -1124,18 +1124,26 @@ export const FichaPropiedad = () => {
                           <h4 className="font-primary text-[#FAF8F5] font-bold text-sm uppercase tracking-tight leading-tight">
                             {room.name?.replace(/Habitación/g, t('property.labels.features.room_prefix')) || `${t('property.labels.features.room_prefix')} ${idx + 1}`}
                           </h4>
-                          <span className={cn(
-                            "font-primary text-[10px] uppercase font-bold self-start px-1.5 py-0.5 rounded-sm border",
-                            roomStatus === 'disponible' ? "bg-green-500/10 text-green-400 border-green-500/20" :
-                            roomStatus === 'reservado' ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
-                            "bg-purple-500/10 text-purple-400 border-purple-500/20"
-                          )}>
+                          <div className="flex flex-wrap items-center gap-1.5">
                             <span className={cn(
-                              "inline-block w-1 h-1 rounded-full mr-1.5 align-middle",
-                              roomStatus === 'disponible' ? "bg-green-400" : "bg-current animate-pulse"
-                            )} />
-                            {roomStatus === 'disponible' ? t('property.labels.features.available') : roomStatus === 'reservado' ? t('property.labels.features.reserved') : t('property.labels.features.rented')}
-                          </span>
+                              "font-primary text-[10px] uppercase font-bold self-start px-1.5 py-0.5 rounded-sm border",
+                              roomStatus === 'disponible' ? "bg-green-500/10 text-green-400 border-green-500/20" :
+                              roomStatus === 'reservado' ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
+                              "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                            )}>
+                              <span className={cn(
+                                "inline-block w-1 h-1 rounded-full mr-1.5 align-middle",
+                                roomStatus === 'disponible' ? "bg-green-400" : "bg-current animate-pulse"
+                              )} />
+                              {roomStatus === 'disponible' ? t('property.labels.features.available') : roomStatus === 'reservado' ? t('property.labels.features.reserved') : t('property.labels.features.rented')}
+                            </span>
+                            {room.private_bathroom && (
+                              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 6 2 2-2 2"/><path d="M13.83 13A8 8 0 0 1 8 21H4"/><path d="M14 10a7 7 0 0 1 7 7v2"/><path d="M18.83 11.83a7 7 0 0 0-9.76-9.76"/></svg>
+                                Baño privado
+                              </span>
+                            )}
+                          </div>
                         </div>
                         {room.price !== undefined && room.price !== null && (
                           <span className="font-primary text-[#C9A962] font-bold text-sm flex-shrink-0 mt-0.5">
