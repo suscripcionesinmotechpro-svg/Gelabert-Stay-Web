@@ -797,7 +797,8 @@ export const AdminPropertiesList = () => {
         mappings.push({ 
           crm_id: crmId, 
           idealista_id: m.idealista.idealista_id,
-          status: m.idealista.status
+          status: m.idealista.status,
+          is_active: (m.idealista as any).is_active
         });
       }
     });
@@ -829,10 +830,10 @@ export const AdminPropertiesList = () => {
         toast.success(`✅ ${result.saved} propiedades vinculadas con Idealista`);
         setImportModalOpen(false);
         refetch();
-        // Update local statuses based on Idealista status
+        // Update local statuses based on Idealista is_active flag (or status string as fallback)
         mappings.forEach(m => {
-          const normStatus = String(m.status || "").toLowerCase().trim();
-          const isActive = normStatus === "active" || normStatus === "published" || normStatus === "activa" || normStatus === "activo";
+          const isActive = (m as any).is_active === true || 
+            ['active','published','activo','activa'].some(v => String(m.status || '').toLowerCase().trim() === v);
           setIdealistaStatuses(prev => ({ ...prev, [m.crm_id]: isActive ? 'published' : 'not_published' }));
         });
       }
@@ -1263,9 +1264,9 @@ export const AdminPropertiesList = () => {
                               <span className="font-primary text-[10px] text-[#C9A962]">{m.idealista.price.toLocaleString('es-ES')} €</span>
                             )}
                             <span className={`font-primary text-[10px] font-bold px-1.5 py-0.5 rounded-sm ${
-                              m.idealista.status === 'activo' ? 'text-[#4ADE80] bg-[#4ADE80]/10' : 'text-[#888] bg-[#1A1A1A]'
+                              (m.idealista as any).is_active ? 'text-[#4ADE80] bg-[#4ADE80]/10' : 'text-[#888] bg-[#1A1A1A]'
                             }`}>
-                              {m.idealista.status}
+                              {m.idealista.status || '—'}
                             </span>
                           </div>
                         </div>

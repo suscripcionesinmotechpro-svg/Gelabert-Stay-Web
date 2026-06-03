@@ -13,9 +13,48 @@ interface IdealistaToken {
   token_type: string;
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Fetch with exponential backoff retries on 429 and 5xx errors.
+ */
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  maxRetries = 4,
+  initialDelayMs = 2000
+): Promise<Response> {
+  let delayMs = initialDelayMs;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const res = await fetch(url, options);
+    if (res.status === 429 || (res.status >= 500 && res.status <= 599)) {
+      const bodyText = await res.text().catch(() => "");
+      console.warn(
+        `[Retry] HTTP ${res.status} on ${url}. Attempt ${attempt}/${maxRetries}. Waiting ${delayMs}ms. Body: ${bodyText}`
+      );
+      if (attempt === maxRetries) {
+        // Return a synthetic error response on final failure
+        return new Response(
+          JSON.stringify({ message: `HTTP ${res.status} after ${maxRetries} attempts`, body: bodyText }),
+          { status: res.status }
+        );
+      }
+      await delay(delayMs);
+      delayMs = Math.min(delayMs * 2, 15000); // cap at 15s
+      continue;
+    }
+    return res;
+  }
+  // Should never reach here but TypeScript requires a return
+  return fetch(url, options);
+}
+
 async function getIdealistaToken(clientId: string, clientSecret: string, baseUrl: string): Promise<string> {
   const authB64 = btoa(`${clientId}:${clientSecret}`);
-  const response = await fetch(`${baseUrl}/oauth/token`, {
+  const tokenUrl = `${baseUrl}/oauth/token`;
+  console.log(`[Auth] Requesting token from ${tokenUrl}`);
+  const response = await fetchWithRetry(tokenUrl, {
     method: "POST",
     headers: {
       "Authorization": `Basic ${authB64}`,
@@ -28,7 +67,19 @@ async function getIdealistaToken(clientId: string, clientSecret: string, baseUrl
     throw new Error(`Auth failed: ${err}`);
   }
   const data = await response.json() as IdealistaToken;
+  console.log(`[Auth] Token acquired successfully`);
   return data.access_token;
+}
+
+/**
+ * Determines whether an Idealista property status string means "active/published".
+ * Idealista can return: "active", "inactive", "deactivated", "activating",
+ * "suspended", etc. (values may vary between sandbox and production).
+ */
+function isIdealistaActive(status: string): boolean {
+  const s = String(status || "").toLowerCase().trim();
+  // Treat as active if the status contains "activ" (covers "active", "activating", "activo", "activa")
+  return s.includes("activ") || s === "published" || s === "publicado";
 }
 
 serve(async (req) => {
@@ -49,25 +100,26 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const supabase           = createClient(supabaseUrl, supabaseServiceKey);
 
-    // ── ACTION: FETCH (get all properties from Idealista) ──────────────────
+    // ── ACTION: FETCH ──────────────────────────────────────────────────────────
     if (action === "fetch") {
       const accessToken = await getIdealistaToken(clientId, clientSecret, baseUrl);
+
+      // Small delay after token request before first API call
+      await delay(800);
 
       const allProperties: any[] = [];
       let page = 1;
       const pageSize = 100;
 
-      const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
       while (true) {
         if (page > 1) {
-          await delay(500); // 500ms delay between pages to prevent rate limits
+          await delay(600); // delay between pages
         }
 
         const url = `${baseUrl}/v1/properties?page=${page}&size=${pageSize}`;
-        console.log(`[Import] Fetching page ${page} from ${url}`);
+        console.log(`[Fetch] Page ${page} → ${url}`);
 
-        let res = await fetch(url, {
+        const res = await fetchWithRetry(url, {
           headers: {
             "feedKey": feedKey,
             "Authorization": `Bearer ${accessToken}`,
@@ -75,63 +127,61 @@ serve(async (req) => {
           },
         });
 
-        // Retry once on 429 Rate Limit
-        if (res.status === 429) {
-          console.warn(`[Import] Rate limit hit on page ${page}. Waiting 2000ms before retrying once...`);
-          await delay(2000);
-          res = await fetch(url, {
-            headers: {
-              "feedKey": feedKey,
-              "Authorization": `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-          });
-        }
-
         if (!res.ok) {
-          const errText = await res.text();
-          console.error(`[Import] Error fetching page ${page}: ${errText}`);
-          // If it's a 404 or empty, stop paginating
+          const errText = await res.text().catch(() => "");
+          console.error(`[Fetch] Error on page ${page} (HTTP ${res.status}): ${errText}`);
+
           if (res.status === 404 || res.status === 400) break;
-          
+
           if (res.status === 429) {
-            console.warn(`[Import] Rate limit hit again on page ${page}. Stop paginating and returning fetched data.`);
             if (allProperties.length > 0) {
+              console.warn("[Fetch] Rate limit, stopping pagination with partial data.");
               break;
-            } else {
-              throw new Error("El servidor de Idealista está temporalmente saturado (Límite de peticiones superado). Por favor, inténtalo de nuevo en unos segundos.");
             }
+            throw new Error(
+              "El servidor de Idealista está temporalmente saturado (Límite de peticiones superado). Por favor, espera unos segundos y vuelve a intentarlo."
+            );
           }
+
           throw new Error(`Idealista API error (page ${page}): ${errText}`);
         }
 
         const data = await res.json();
-        const items = data.properties || data.items || data || [];
 
+        // Debug: log raw status values on the first page so we can see what Idealista returns
+        if (page === 1 && Array.isArray(data.properties || data.items || data)) {
+          const items = data.properties || data.items || data;
+          const sampleStatuses = (items as any[])
+            .slice(0, 5)
+            .map((p: any) => ({ id: p.propertyId || p.id, status: p.status, code: p.code }));
+          console.log("[Fetch] Sample statuses from Idealista:", JSON.stringify(sampleStatuses));
+        }
+
+        const items: any[] = data.properties || data.items || data || [];
         if (!Array.isArray(items) || items.length === 0) break;
 
         allProperties.push(...items);
 
-        // If we got fewer than pageSize, we've reached the end
-        if (items.length < pageSize) break;
+        if (items.length < pageSize) break; // last page
         page++;
       }
 
-      console.log(`[Import] Total properties fetched from Idealista: ${allProperties.length}`);
+      console.log(`[Fetch] Total properties fetched: ${allProperties.length}`);
 
-      // Normalize: extract propertyId, code/reference, type, status
+      // Normalize properties
       const normalized = allProperties.map((p: any) => ({
         idealista_id: String(p.propertyId || p.id || ""),
         code: String(p.code || p.reference || ""),
         type: p.type || "",
         status: p.status || "",
+        is_active: isIdealistaActive(p.status || ""),
         address: p.address
           ? [p.address.streetName, p.address.streetNumber, p.address.town].filter(Boolean).join(", ")
           : "",
         price: p.operation?.price || null,
       }));
 
-      // Also fetch all CRM properties for matching
+      // Fetch CRM properties for matching
       const { data: crmProperties, error: crmErr } = await supabase
         .from("properties")
         .select("id, title, reference, idealista_id, idealista_status, property_type, city, price, main_image")
@@ -155,6 +205,11 @@ serve(async (req) => {
         };
       });
 
+      console.log(
+        `[Fetch] Matches: ${matches.filter((m) => m.auto_matched).length} auto-matched, ` +
+        `${matches.filter((m) => !m.auto_matched).length} unmatched`
+      );
+
       return new Response(
         JSON.stringify({
           success: true,
@@ -167,10 +222,10 @@ serve(async (req) => {
       );
     }
 
-    // ── ACTION: SAVE (persist the confirmed matches to DB) ─────────────────
+    // ── ACTION: SAVE ───────────────────────────────────────────────────────────
     if (action === "save") {
       const { mappings } = body as {
-        mappings: Array<{ crm_id: string; idealista_id: string; status?: string }>;
+        mappings: Array<{ crm_id: string; idealista_id: string; status?: string; is_active?: boolean }>;
       };
 
       if (!mappings || !Array.isArray(mappings) || mappings.length === 0) {
@@ -185,15 +240,21 @@ serve(async (req) => {
 
       for (const mapping of mappings) {
         if (!mapping.crm_id || !mapping.idealista_id) continue;
-        
-        const normStatus = String(mapping.status || "").toLowerCase().trim();
-        const isActive = normStatus === "active" || normStatus === "published" || normStatus === "activa" || normStatus === "activo";
+
+        // Use is_active flag (preferred) or fall back to status string
+        const active = mapping.is_active === true || 
+          (mapping.is_active === undefined && isIdealistaActive(mapping.status || ""));
+
+        console.log(
+          `[Save] CRM ${mapping.crm_id} → Idealista ${mapping.idealista_id} | ` +
+          `raw_status="${mapping.status}" is_active=${active} → DB status="${active ? "published" : "not_published"}"`
+        );
 
         const { error } = await supabase
           .from("properties")
           .update({
             idealista_id: mapping.idealista_id,
-            idealista_status: isActive ? "published" : "not_published",
+            idealista_status: active ? "published" : "not_published",
             idealista_last_sync: new Date().toISOString(),
           })
           .eq("id", mapping.crm_id);

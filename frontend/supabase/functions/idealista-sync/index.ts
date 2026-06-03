@@ -9,39 +9,100 @@ const corsHeaders = {
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Helper function to handle fetch retries on Rate Limit (429) or Server Errors (5xx)
+/**
+ * Checks if a parsed JSON body from Idealista contains a body-level rate-limit error.
+ * Idealista sometimes returns HTTP 200 with {"success":false,"message":"Ratelimit: Too Many Requests"}
+ * instead of a proper HTTP 429.
+ */
+function isBodyRateLimit(body: any): boolean {
+  if (!body || typeof body !== 'object') return false;
+  if (body.success === false && typeof body.message === 'string') {
+    const msg = body.message.toLowerCase();
+    return msg.includes('ratelimit') || msg.includes('rate limit') || msg.includes('too many requests');
+  }
+  return false;
+}
+
+/**
+ * Smart Idealista fetch that handles:
+ * 1. HTTP 429 / 5xx → retry with exponential backoff
+ * 2. HTTP 200 with {success:false, message:"Ratelimit:..."} → retry with exponential backoff
+ * Returns { ok, status, body } where body is the already-parsed JSON (or null).
+ */
+async function idealistaFetch(
+  url: string,
+  options: RequestInit,
+  maxRetries = 5,
+  initialDelayMs = 2000
+): Promise<{ ok: boolean; status: number; body: any; rawText: string }> {
+  let delayMs = initialDelayMs;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    let res: Response;
+    try {
+      res = await fetch(url, options);
+    } catch (err) {
+      console.warn(`[idealistaFetch] Network error on ${url} attempt ${attempt}/${maxRetries}: ${err}. Waiting ${delayMs}ms...`);
+      if (attempt === maxRetries) throw err;
+      await delay(delayMs);
+      delayMs = Math.min(delayMs * 2, 20000);
+      continue;
+    }
+
+    // HTTP-level rate limit or server error → retry
+    if (res.status === 429 || (res.status >= 500 && res.status <= 599)) {
+      const txt = await res.text().catch(() => '');
+      console.warn(`[idealistaFetch] HTTP ${res.status} on ${url} attempt ${attempt}/${maxRetries}. Waiting ${delayMs}ms. Body: ${txt}`);
+      if (attempt === maxRetries) return { ok: false, status: res.status, body: null, rawText: txt };
+      await delay(delayMs);
+      delayMs = Math.min(delayMs * 2, 20000);
+      continue;
+    }
+
+    // Parse body
+    const rawText = await res.text().catch(() => '');
+    let body: any = null;
+    try { body = rawText ? JSON.parse(rawText) : null; } catch { body = null; }
+
+    // Body-level rate limit (HTTP 200 but Idealista signals rate limit in JSON)
+    if (isBodyRateLimit(body)) {
+      console.warn(`[idealistaFetch] Body-level rate limit on ${url} attempt ${attempt}/${maxRetries}. Waiting ${delayMs}ms. Body: ${rawText}`);
+      if (attempt === maxRetries) return { ok: false, status: 429, body, rawText };
+      await delay(delayMs);
+      delayMs = Math.min(delayMs * 2, 20000);
+      continue;
+    }
+
+    return { ok: res.ok, status: res.status, body, rawText };
+  }
+  // Should never reach here
+  return { ok: false, status: 0, body: null, rawText: 'Max retries exceeded' };
+}
+
+// Legacy wrapper kept for internal use with non-JSON endpoints (e.g. OAuth token)
 async function fetchWithRetry(
   url: string,
   options: RequestInit,
-  retries = 3,
+  retries = 4,
   delayMs = 2000
 ): Promise<Response> {
-  let lastError: any;
   for (let i = 0; i < retries; i++) {
     try {
       const response = await fetch(url, options);
-      if (response.status === 429) {
-        console.warn(`[Retry] Rate limit (429) hit on ${url}. Attempt ${i + 1}/${retries}. Waiting ${delayMs}ms before retrying...`);
+      if (response.status === 429 || (response.status >= 500 && response.status <= 599)) {
+        console.warn(`[fetchWithRetry] HTTP ${response.status} on ${url}. Attempt ${i + 1}/${retries}. Waiting ${delayMs}ms...`);
+        if (i + 1 === retries) return response;
         await delay(delayMs);
-        delayMs *= 2; // exponential backoff
-        continue;
-      }
-      if (response.status >= 500 && response.status <= 599) {
-        console.warn(`[Retry] Server error (${response.status}) on ${url}. Attempt ${i + 1}/${retries}. Waiting ${delayMs}ms before retrying...`);
-        await delay(delayMs);
-        delayMs *= 2;
+        delayMs = Math.min(delayMs * 2, 20000);
         continue;
       }
       return response;
     } catch (err) {
-      console.warn(`[Retry] Network error on ${url}: ${err}. Attempt ${i + 1}/${retries}. Waiting ${delayMs}ms...`);
-      lastError = err;
+      console.warn(`[fetchWithRetry] Network error on ${url}: ${err}. Attempt ${i + 1}/${retries}. Waiting ${delayMs}ms...`);
+      if (i + 1 === retries) throw err;
       await delay(delayMs);
-      delayMs *= 2;
+      delayMs = Math.min(delayMs * 2, 20000);
     }
   }
-  
-  console.error(`[Retry] Out of retries for ${url}. Making final attempt.`);
   return fetch(url, options);
 }
 
@@ -86,34 +147,35 @@ async function getIdealistaContactId(accessToken: string, feedKey: string, baseU
   const contactsUrl = `${baseUrl}/v1/contacts?page=1&size=100`;
   console.log(`[Contact] Querying existing contacts from: ${contactsUrl}`);
   
-  const headers = {
+  const headers: Record<string, string> = {
     "feedKey": feedKey,
     "Authorization": `Bearer ${accessToken}`,
     "Content-Type": "application/json"
   };
 
+  // Step 1: Try to find an existing contact (with body-level rate limit detection)
   try {
-    const response = await fetchWithRetry(contactsUrl, { headers });
-    if (response.ok) {
-      const data = await response.json();
-      // Search for our primary contact info@gelaberthomes.es
-      const existing = data.contacts?.find(
+    const { ok, body } = await idealistaFetch(contactsUrl, { headers });
+    if (ok && body) {
+      const existing = body.contacts?.find(
         (c: any) => c.email && c.email.toLowerCase() === "info@gelaberthomes.es"
       );
       if (existing) {
         console.log(`[Contact] Found existing contact ID: ${existing.contactId}`);
         return Number(existing.contactId);
       }
+      console.log(`[Contact] No existing contact found with info@gelaberthomes.es. Will create one.`);
     } else {
-      console.warn(`[Contact] Non-ok response fetching contacts list: ${response.status}`);
+      console.warn(`[Contact] Could not fetch contact list (ok=${ok}), will attempt creation.`);
     }
   } catch (err) {
     console.warn("[Contact] Error fetching contacts list:", err);
   }
 
-  // Create contact if not found
+  // Step 2: Create contact – add extra delay before creation to avoid rate limit
+  await delay(1500);
   const createUrl = `${baseUrl}/v1/contacts`;
-  console.log(`[Contact] Contact not found, creating one at: ${createUrl}`);
+  console.log(`[Contact] Creating new contact at: ${createUrl}`);
   
   const contactPayload = {
     name: "José Carlos",
@@ -123,21 +185,26 @@ async function getIdealistaContactId(accessToken: string, feedKey: string, baseU
     primaryPhoneNumber: "611898827"
   };
 
-  const response = await fetchWithRetry(createUrl, {
+  const { ok, status, body, rawText } = await idealistaFetch(createUrl, {
     method: "POST",
     headers,
     body: JSON.stringify(contactPayload)
   });
 
-  if (!response.ok) {
-    const errText = await response.text();
-    console.error(`[Contact Error] Create failed: ${errText}`);
-    throw new Error(`Failed to create contact in Idealista: ${errText}`);
+  if (!ok) {
+    console.error(`[Contact Error] Create failed (HTTP ${status}): ${rawText}`);
+    throw new Error(`Failed to create contact in Idealista: ${rawText}`);
   }
 
-  const result = await response.json();
-  console.log(`[Contact] Contact created successfully. ID: ${result.contactId}`);
-  return Number(result.contactId);
+  // Sometimes the API returns {success:false} even on HTTP 200 after retries
+  if (body && body.success === false) {
+    console.error(`[Contact Error] API returned success:false: ${rawText}`);
+    throw new Error(`Failed to create contact in Idealista: ${rawText}`);
+  }
+
+  const contactId = body?.contactId ?? body?.id;
+  console.log(`[Contact] Contact created successfully. ID: ${contactId}`);
+  return Number(contactId);
 }
 
 // ── Watermark helper functions for Idealista ──
@@ -318,16 +385,15 @@ async function syncPropertyImages(
     images: mappedImages
   };
 
-  const response = await fetchWithRetry(imagesUrl, {
+  const { ok: imgOk, status: imgStatus, rawText: imgRaw } = await idealistaFetch(imagesUrl, {
     method: "PUT",
     headers,
     body: JSON.stringify(payload)
   });
 
-  if (!response.ok) {
-    const errText = await response.text();
-    console.error(`[Images Error] Sync failed: ${errText}`);
-    throw new Error(`Failed to sync images to Idealista: ${errText}`);
+  if (!imgOk) {
+    console.error(`[Images Error] Sync failed (HTTP ${imgStatus}): ${imgRaw}`);
+    throw new Error(`Failed to sync images to Idealista: ${imgRaw}`);
   }
 
   console.log(`[Images] Mapped and synchronized all images successfully for Idealista property ${idealistaId}`);
@@ -393,10 +459,10 @@ serve(async (req) => {
       
       // Get OAuth Token
       const accessToken = await getIdealistaToken(clientId, clientSecret, baseUrl);
-      await delay(500); // Proactive delay to avoid rate limiting
+      await delay(800); // Proactive delay to avoid rate limiting
       
       const deactivateUrl = `${baseUrl}/v1/properties/${property.idealista_id}/deactivate`;
-      const response = await fetchWithRetry(deactivateUrl, {
+      const { ok: deactivateOk, status: deactivateStatus, rawText: deactivateRaw } = await idealistaFetch(deactivateUrl, {
         method: "POST",
         headers: {
           "feedKey": feedKey,
@@ -405,10 +471,9 @@ serve(async (req) => {
         }
       });
 
-      if (!response.ok && response.status !== 404) {
-        const errText = await response.text();
-        console.error(`[Deactivate Error] Failed to deactivate on Idealista: ${errText}`);
-        throw new Error(`Idealista deactivation failed: ${errText}`);
+      if (!deactivateOk && deactivateStatus !== 404) {
+        console.error(`[Deactivate Error] Failed to deactivate on Idealista: ${deactivateRaw}`);
+        throw new Error(`Idealista deactivation failed: ${deactivateRaw}`);
       }
 
       // Update local database status
@@ -667,13 +732,13 @@ serve(async (req) => {
     let publishedOk = false;
 
     // Call Idealista API
-    await delay(500); // Proactive delay before publication request
+    await delay(800); // Proactive delay before publication request
     if (idealistaResponseId) {
       // UPDATE
       const updateUrl = `${baseUrl}/v1/properties/${idealistaResponseId}`;
       console.log(`[Publish] Sending PUT update to: ${updateUrl}`);
       
-      const response = await fetchWithRetry(updateUrl, {
+      const { ok: putOk, status: putStatus, body: putBody, rawText: putRaw } = await idealistaFetch(updateUrl, {
         method: "PUT",
         headers: {
           "feedKey": feedKey,
@@ -683,17 +748,15 @@ serve(async (req) => {
         body: JSON.stringify(payload)
       });
 
-      if (response.ok) {
-        const resData = await response.json();
-        idealistaResponseId = String(resData.propertyId);
+      if (putOk && putBody?.propertyId) {
+        idealistaResponseId = String(putBody.propertyId);
         publishedOk = true;
         console.log(`[Publish] Property updated successfully! ID: ${idealistaResponseId}`);
       } else {
-        const errText = await response.text();
-        console.warn(`[Publish Warning] PUT update returned ${response.status}: ${errText}. Attempting POST instead...`);
+        console.warn(`[Publish Warning] PUT update returned ${putStatus}: ${putRaw}. Attempting POST instead...`);
         // Fallback to POST if PUT fails (e.g. if listing was removed on their end)
         idealistaResponseId = null;
-        await delay(500); // Short delay before fallback creation request
+        await delay(800); // Short delay before fallback creation request
       }
     }
 
@@ -702,7 +765,7 @@ serve(async (req) => {
       const createUrl = `${baseUrl}/v1/properties`;
       console.log(`[Publish] Sending POST create to: ${createUrl}`);
       
-      const response = await fetchWithRetry(createUrl, {
+      const { ok: postOk, status: postStatus, body: postBody, rawText: postRaw } = await idealistaFetch(createUrl, {
         method: "POST",
         headers: {
           "feedKey": feedKey,
@@ -712,14 +775,12 @@ serve(async (req) => {
         body: JSON.stringify(payload)
       });
 
-      if (!response.ok) {
-        const errText = await response.text();
-        console.error(`[Publish Error] POST create returned ${response.status}: ${errText}`);
-        throw new Error(`Idealista listing creation failed: ${errText}`);
+      if (!postOk) {
+        console.error(`[Publish Error] POST create returned ${postStatus}: ${postRaw}`);
+        throw new Error(`Idealista listing creation failed: ${postRaw}`);
       }
 
-      const resData = await response.json();
-      idealistaResponseId = String(resData.propertyId);
+      idealistaResponseId = String(postBody?.propertyId);
       publishedOk = true;
       console.log(`[Publish] Property created successfully! ID: ${idealistaResponseId}`);
     }
