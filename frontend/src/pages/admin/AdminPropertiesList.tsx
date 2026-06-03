@@ -788,7 +788,7 @@ export const AdminPropertiesList = () => {
   };
 
   const handleSaveImport = async () => {
-    const mappings: { crm_id: string; idealista_id: string; status?: string }[] = [];
+    const mappings: { crm_id: string; idealista_id: string; status?: string; is_active?: boolean }[] = [];
 
     importMatches.forEach((m, idx) => {
       const manualCrmId = manualSelections[String(idx)];
