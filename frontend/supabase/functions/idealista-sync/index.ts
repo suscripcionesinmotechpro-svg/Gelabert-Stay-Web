@@ -606,24 +606,20 @@ serve(async (req) => {
       mappedFeatures.conditionedAir = property.air_conditioning ?? false;
 
       // ── House type classification ──────────────────────────────────────────
-      // Para "house", Idealista requiere el campo "type" (NO "classificationChalet").
-      // Valores válidos: chalet, country_house, villa, townHouse, semi_detached, etc.
+      // Para "house", Idealista requiere el campo "houseType".
+      // Valores válidos: andar_moradia, independent, semidetached, terraced, villa
       if (mappedType === "house") {
-        // Mapear según subtipo de la propiedad en nuestro CRM
         const subType = (property.house_type || property.sub_type || '').toLowerCase().trim();
-        if (subType.includes('adosad') || subType.includes('townhouse') || subType.includes('town_house')) {
-          mappedFeatures.type = "townHouse";
+        let houseTypeValue = "independent";
+        if (subType.includes('adosad') || subType.includes('townhouse') || subType.includes('town_house') || subType.includes('hilera')) {
+          houseTypeValue = "terraced";
         } else if (subType.includes('paread') || subType.includes('semi')) {
-          mappedFeatures.type = "semi_detached";
-        } else if (subType.includes('rústic') || subType.includes('rustic') || subType.includes('campo') || subType.includes('country') || subType.includes('finca')) {
-          mappedFeatures.type = "country_house";
+          houseTypeValue = "semidetached";
         } else if (subType.includes('villa')) {
-          mappedFeatures.type = "villa";
-        } else {
-          // Por defecto: chalet independiente
-          mappedFeatures.type = "chalet";
+          houseTypeValue = "villa";
         }
-        console.log(`[Features] House type mapped to: ${mappedFeatures.type} (from subType: "${subType}")`);
+        mappedFeatures.houseType = houseTypeValue;
+        console.log(`[Features] House type mapped to: ${houseTypeValue} (from subType: "${subType}")`);
       }
 
       // Energy certification mapping
