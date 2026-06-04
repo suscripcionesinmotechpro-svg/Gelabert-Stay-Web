@@ -82,45 +82,58 @@ export default async (request: Request, context: Context) => {
     }
 
     // 4. Supabase Query
-    const t = Date.now(); // cache-buster
     let dbData = null;
-    let queryUrl = "";
+    let xDebug = `origin:${originStatus}`;
+    const headers = {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+    };
 
     if (routeType === "propiedades") {
-      // Build possible reference variants (GEL-123, GEL123, etc.)
-      const possibleRefs = Array.from(new Set([
-        searchId,
-        searchId.toUpperCase(),
-        searchId.replace(/-/g, ""),
-        searchId.toUpperCase().replace(/-/g, ""),
-      ])).filter(Boolean);
+      const urls = [
+        `${SUPABASE_URL}/rest/v1/properties?reference=eq.${encodeURIComponent(searchId)}&select=*`,
+        `${SUPABASE_URL}/rest/v1/properties?slug=eq.${encodeURIComponent(identifier)}&select=*`
+      ];
+      if (searchId.includes("-")) {
+        urls.push(`${SUPABASE_URL}/rest/v1/properties?reference=eq.${encodeURIComponent(searchId.replace(/-/g, ""))}&select=*`);
+      }
+      if (isUuid) {
+        urls.push(`${SUPABASE_URL}/rest/v1/properties?id=eq.${encodeURIComponent(searchId)}&select=*`);
+      }
 
-      const orConditions = isUuid
-        ? `reference.eq.${searchId},slug.eq.${searchId},id.eq.${searchId}`
-        : `reference.in.(${possibleRefs.join(",")}),slug.eq.${searchId},reference.ilike.${searchId}`;
-      queryUrl = `${SUPABASE_URL}/rest/v1/properties?or=(${orConditions})&select=*&t=${t}`;
-    } else {
-      // Blog search by slug
-      queryUrl = `${SUPABASE_URL}/rest/v1/blog_posts?slug=eq.${identifier}&select=*&t=${t}`;
-    }
+      const responses = await Promise.all(
+        urls.map(url => fetch(url, { headers, cache: 'no-store' }))
+      );
 
-    const dbResponse = await fetch(queryUrl, {
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-      },
-      cache: 'no-store'
-    });
-
-    let xDebug = `origin:${originStatus}`;
-    if (dbResponse.ok) {
-      const items = await dbResponse.json();
-      xDebug += `|found:${items.length}`;
-      if (items && items.length > 0) {
-        dbData = items[0];
+      for (let i = 0; i < responses.length; i++) {
+        const res = responses[i];
+        if (res.ok) {
+          const items = await res.json();
+          if (items && items.length > 0) {
+            dbData = items[0];
+            xDebug += `|found_ref:${dbData.reference || dbData.id}`;
+            break;
+          }
+        } else {
+          xDebug += `|db_err_${i}:${res.status}`;
+        }
+      }
+      if (!dbData) {
+        xDebug += `|not_found`;
       }
     } else {
-      xDebug += `|db_err:${dbResponse.status}`;
+      // Blog search by slug (cleaned of parameter t)
+      const queryUrl = `${SUPABASE_URL}/rest/v1/blog_posts?slug=eq.${encodeURIComponent(identifier)}&select=*`;
+      const dbResponse = await fetch(queryUrl, { headers, cache: 'no-store' });
+      if (dbResponse.ok) {
+        const items = await dbResponse.json();
+        xDebug += `|found_blog:${items.length}`;
+        if (items && items.length > 0) {
+          dbData = items[0];
+        }
+      } else {
+        xDebug += `|db_err_blog:${dbResponse.status}`;
+      }
     }
 
     // 5. Injection Logic

@@ -110,7 +110,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange }) => 
                 <Trash2 className="w-4 h-4" />
               </button>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="flex flex-col gap-2">
                   <label className={labelClass}>Nombre de la Habitación</label>
                   <input
@@ -132,6 +132,18 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange }) => 
                       placeholder="Precio mensual"
                     />
                   </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className={labelClass}>Estado de la Habitación</label>
+                  <select
+                    className={inputClass}
+                    value={room.status || 'disponible'}
+                    onChange={(e) => updateRoom(idx, { status: e.target.value as any })}
+                  >
+                    <option value="disponible">Disponible (Automático)</option>
+                    <option value="reservado">Reservado (Manual)</option>
+                    <option value="alquilado">Alquilado (Manual)</option>
+                  </select>
                 </div>
               </div>
 

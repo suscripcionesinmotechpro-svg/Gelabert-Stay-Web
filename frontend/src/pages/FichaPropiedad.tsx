@@ -1059,7 +1059,16 @@ export const FichaPropiedad = () => {
               <h2 className="font-secondary text-2xl text-[#FAF8F5]">{t('property.labels.features.room_distribution', { defaultValue: 'Distribución por Habitaciones' })}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {property.rooms.map((room: PropertyRoom, idx: number) => {
-                  const roomStatus = roomStatuses[room.id] || room._calculated_status || 'disponible';
+                  const roomStatusRaw = (room.status && room.status !== 'disponible')
+                    ? room.status
+                    : (roomStatuses[room.id] || room._calculated_status || 'disponible');
+
+                  const roomStatus = roomStatusRaw.toLowerCase().startsWith('reser')
+                    ? 'reservado'
+                    : roomStatusRaw.toLowerCase().startsWith('alqui')
+                      ? 'alquilado'
+                      : 'disponible';
+
                   const validImages = room.images?.filter((img: string) => typeof img === 'string' && img.trim() !== '') || [];
                   return (
                   <div key={room.id} className="flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] rounded-sm overflow-hidden group hover:border-[#C9A962] transition-colors relative">
@@ -1076,11 +1085,7 @@ export const FichaPropiedad = () => {
                         {/* Dynamic watermark mapping main property image behavior */}
                         {roomStatus !== 'disponible' && (
                           <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden select-none">
-                            <div className={cn(
-                              "transform -rotate-12 scale-110 opacity-70 drop-shadow-md",
-                              roomStatus === 'reservado' && "text-orange-500",
-                              roomStatus === 'alquilado' && "text-purple-500"
-                            )}>
+                            <div className="transform -rotate-12 scale-110 opacity-70 drop-shadow-md text-white">
                               <div className="border-[4px] border-current px-4 py-1.5 rounded-sm flex items-center justify-center bg-black/20 backdrop-blur-sm">
                                 <span className="font-secondary text-2xl font-black uppercase tracking-tighter text-center leading-none">
                                   {roomStatus === 'reservado' ? t('property.labels.features.reserved') : t('property.labels.features.rented')}
@@ -1103,11 +1108,7 @@ export const FichaPropiedad = () => {
                         {/* Dynamic watermark matching main property images behavior */}
                         {roomStatus !== 'disponible' && (
                           <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden select-none">
-                            <div className={cn(
-                              "transform -rotate-12 scale-110 opacity-70 drop-shadow-md",
-                              roomStatus === 'reservado' && "text-orange-500",
-                              roomStatus === 'alquilado' && "text-purple-500"
-                            )}>
+                            <div className="transform -rotate-12 scale-110 opacity-70 drop-shadow-md text-white">
                               <div className="border-[4px] border-current px-4 py-1.5 rounded-sm flex items-center justify-center bg-black/20 backdrop-blur-sm">
                                 <span className="font-secondary text-2xl font-black uppercase tracking-tighter text-center leading-none">
                                   {roomStatus === 'reservado' ? t('property.labels.features.reserved') : t('property.labels.features.rented')}

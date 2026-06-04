@@ -173,9 +173,14 @@ const PropertyRow = ({ property, periodFilter }: { property: Property; periodFil
                   const roomContract = currentContracts.find(c => c.room_id === room.id);
                   const roomUpcoming = upcomingContracts.find(c => c.room_id === room.id);
                   
-                  let roomStatus = 'disponible';
-                  if (roomContract) roomStatus = 'alquilada';
-                  else if (roomUpcoming) roomStatus = 'reservada';
+                  let roomStatus = room.status || 'disponible';
+                  if (roomStatus === 'disponible') {
+                    if (roomContract) roomStatus = 'alquilada';
+                    else if (roomUpcoming) roomStatus = 'reservada';
+                  } else {
+                    if (roomStatus === 'alquilado') roomStatus = 'alquilada';
+                    if (roomStatus === 'reservado') roomStatus = 'reservada';
+                  }
 
                   return (
                     <div key={room.id} className="bg-[#0D0D0D] border border-[#1F1F1F] p-3 rounded-sm flex flex-col gap-2">
