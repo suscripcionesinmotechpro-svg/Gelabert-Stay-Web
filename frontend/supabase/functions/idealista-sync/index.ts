@@ -606,7 +606,7 @@ serve(async (req) => {
       mappedFeatures.conditionedAir = property.air_conditioning ?? false;
 
       // ── House type classification ──────────────────────────────────────────
-      // Para "house", Idealista requiere el campo "houseType".
+      // Para "house", Idealista requiere el campo "type" (cuyo tipo en el esquema es "house type").
       // Valores válidos: andar_moradia, independent, semidetached, terraced, villa
       if (mappedType === "house") {
         const subType = (property.house_type || property.sub_type || '').toLowerCase().trim();
@@ -618,7 +618,7 @@ serve(async (req) => {
         } else if (subType.includes('villa')) {
           houseTypeValue = "villa";
         }
-        mappedFeatures.houseType = houseTypeValue;
+        mappedFeatures.type = houseTypeValue;
         console.log(`[Features] House type mapped to: ${houseTypeValue} (from subType: "${subType}")`);
       }
 
