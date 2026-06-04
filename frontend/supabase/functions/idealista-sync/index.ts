@@ -675,7 +675,8 @@ serve(async (req) => {
       mappedFeatures.bathroomNumber = property.bathrooms || 1;
       mappedFeatures.liftAvailable = property.has_elevator ?? false;
       // rooms = total de habitaciones del piso (no de la habitación individual)
-      mappedFeatures.rooms = property.bedrooms || 3;
+      // Nota: Idealista exige un mínimo de 2 habitaciones para inmuebles de tipo "room" (piso compartido).
+      mappedFeatures.rooms = Math.max(2, property.bedrooms || 3);
       // tenantNumber = número de inquilinos actuales en el piso
       mappedFeatures.tenantNumber = property.tenant_number ?? 1;
       // occupiedNow = si hay inquilinos actualmente
@@ -684,8 +685,11 @@ serve(async (req) => {
       mappedFeatures.minimalStay = property.min_stay_months ?? 1;
       // petsAllowed = se permiten mascotas
       mappedFeatures.petsAllowed = property.pets_allowed ?? false;
-      // type = tipo de habitación (usa "type", NO "roomType" que está prohibido)
+      // type = tipo de habitación
       mappedFeatures.type = "private_room"; // valores válidos: private_room, shared_room
+      // roomType = tipo de propiedad compartida (shared_flat o shared_chalet)
+      const isChalet = property.property_type === "casa";
+      mappedFeatures.roomType = isChalet ? "shared_chalet" : "shared_flat";
 
       // ── CAMPOS OPCIONALES ────────────────────────────────────────────────────
       mappedFeatures.internetAvailable = property.has_wifi ?? true;
@@ -797,7 +801,55 @@ serve(async (req) => {
 
       if (!postOk) {
         console.error(`[Publish Error] POST create returned ${postStatus}: ${postRaw}`);
-        throw new Error(`Idealista listing creation failed: ${postRaw}`);
+        
+        let existingId: string | null = null;
+        try {
+          const errData = JSON.parse(postRaw);
+          if (
+            (errData.message?.includes("already exists") || errData.message?.includes("ya existe")) && 
+            typeof errData.pathResource === "string"
+          ) {
+            const parts = errData.pathResource.split("/");
+            const lastPart = parts[parts.length - 1];
+            if (lastPart && /^\d+$/.test(lastPart)) {
+              existingId = lastPart;
+            }
+          }
+        } catch (e) {
+          console.warn("[Publish Warning] Failed to parse error response for existing ID:", e);
+        }
+
+        if (existingId) {
+          console.log(`[Publish] Listing already exists with ID ${existingId}. Recovering and performing PUT update...`);
+          idealistaResponseId = existingId;
+          
+          // Update DB with the recovered ID
+          await supabase
+            .from("properties")
+            .update({ idealista_id: existingId })
+            .eq("id", propertyId);
+
+          const updateUrl = `${baseUrl}/v1/properties/${existingId}`;
+          await delay(800);
+          const { ok: putOk, status: putStatus, body: putBody, rawText: putRaw } = await idealistaFetch(updateUrl, {
+            method: "PUT",
+            headers: {
+              "feedKey": feedKey,
+              "Authorization": `Bearer ${accessToken}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (putOk) {
+            publishedOk = true;
+            console.log(`[Publish] Successfully updated existing property via PUT! ID: ${idealistaResponseId}`);
+          } else {
+            throw new Error(`Idealista listing update failed after recovery: ${putRaw}`);
+          }
+        } else {
+          throw new Error(`Idealista listing creation failed: ${postRaw}`);
+        }
       }
 
       idealistaResponseId = String(postBody?.propertyId);
