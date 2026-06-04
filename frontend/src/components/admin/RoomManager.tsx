@@ -3,17 +3,21 @@ import { Plus, X, Upload, Video, Trash2, ShowerHead } from 'lucide-react';
 import { uploadPropertyMedia } from '../../hooks/useProperties';
 import type { PropertyRoom } from '../../types/property';
 import { SortableImageGallery } from './SortableImageGallery';
+import { usePropertyContracts } from '../../hooks/useContracts';
 
 interface RoomManagerProps {
   rooms: PropertyRoom[];
   onChange: (rooms: PropertyRoom[]) => void;
+  propertyId?: string;
 }
 
 const inputClass = "w-full h-10 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
 const labelClass = "font-primary text-[10px] text-[#666666] uppercase tracking-wider mb-1 font-bold";
 
-export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange }) => {
+export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, propertyId }) => {
   const [uploading, setUploading] = useState<string | null>(null);
+  const { contracts } = usePropertyContracts(propertyId);
+  const today = new Date().toISOString().split('T')[0];
 
   const addRoom = () => {
     const newRoom: PropertyRoom = {
@@ -99,53 +103,88 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange }) => 
         </div>
       ) : (
         <div className="flex flex-col gap-8">
-          {rooms.map((room, idx) => (
-            <div key={room.id} className="relative group bg-[#0A0A0A] border border-[#1F1F1F] p-6 rounded-sm">
-              <button
-                type="button"
-                onClick={() => removeRoom(idx)}
-                className="absolute top-4 right-4 text-[#444444] hover:text-red-500 transition-colors p-1"
-                title="Eliminar habitación"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+          {rooms.map((room, idx) => {
+            const roomContracts = propertyId
+              ? contracts.filter(c => c.room_id === room.id && c.status === 'active')
+              : [];
+            
+            const activeContract = roomContracts.find(
+              c => c.start_date <= today && c.end_date >= today
+            );
+            const upcomingContract = !activeContract
+              ? roomContracts.find(c => c.start_date > today)
+              : null;
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="flex flex-col gap-2">
-                  <label className={labelClass}>Nombre de la Habitación</label>
-                  <input
-                    className={inputClass}
-                    value={room.name}
-                    onChange={(e) => updateRoom(idx, { name: e.target.value })}
-                    placeholder="Ej: Habitación 1 - Exterior"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className={labelClass}>Precio Mensual (opcional)</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-[#444444] font-bold">€</span>
+            const activeTenantName = activeContract?.tenant
+              ? `${activeContract.tenant.first_name} ${activeContract.tenant.last_name}`
+              : '';
+            const upcomingTenantName = upcomingContract?.tenant
+              ? `${upcomingContract.tenant.first_name} ${upcomingContract.tenant.last_name}`
+              : '';
+
+            return (
+              <div key={room.id} className="relative group bg-[#0A0A0A] border border-[#1F1F1F] p-6 rounded-sm">
+                <button
+                  type="button"
+                  onClick={() => removeRoom(idx)}
+                  className="absolute top-4 right-4 text-[#444444] hover:text-red-500 transition-colors p-1"
+                  title="Eliminar habitación"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="flex flex-col gap-2">
+                    <label className={labelClass}>Nombre de la Habitación</label>
                     <input
-                      type="number"
-                      className={`${inputClass} !pl-8`}
-                      value={room.price ?? ''}
-                      onChange={(e) => updateRoom(idx, { price: e.target.value ? Number(e.target.value) : null })}
-                      placeholder="Precio mensual"
+                      className={inputClass}
+                      value={room.name}
+                      onChange={(e) => updateRoom(idx, { name: e.target.value })}
+                      placeholder="Ej: Habitación 1 - Exterior"
                     />
                   </div>
+                  <div className="flex flex-col gap-2">
+                    <label className={labelClass}>Precio Mensual (opcional)</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-[#444444] font-bold">€</span>
+                      <input
+                        type="number"
+                        className={`${inputClass} !pl-8`}
+                        value={room.price ?? ''}
+                        onChange={(e) => updateRoom(idx, { price: e.target.value ? Number(e.target.value) : null })}
+                        placeholder="Precio mensual"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className={labelClass}>Estado de la Habitación</label>
+                    <select
+                      className={inputClass}
+                      value={room.status || 'disponible'}
+                      onChange={(e) => updateRoom(idx, { status: e.target.value as any })}
+                    >
+                      <option value="disponible">
+                        {activeContract
+                          ? 'Disponible (Automático - Alquilada por contrato)'
+                          : upcomingContract
+                            ? 'Disponible (Automático - Reservada por contrato)'
+                            : 'Disponible (Automático - Libre)'}
+                      </option>
+                      <option value="reservado">Reservado (Manual)</option>
+                      <option value="alquilado">Alquilado (Manual)</option>
+                    </select>
+                    {activeContract && (
+                      <p className="text-[10px] text-[#A78BFA] leading-tight font-semibold mt-1">
+                        ⚠️ Alquilada automáticamente por contrato activo con {activeTenantName || 'inquilino'}.
+                      </p>
+                    )}
+                    {upcomingContract && (
+                      <p className="text-[10px] text-[#FB923C] leading-tight font-semibold mt-1">
+                        ⚠️ Reservada automáticamente por contrato futuro con {upcomingTenantName || 'inquilino'} (desde {new Date(upcomingContract.start_date).toLocaleDateString()}).
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label className={labelClass}>Estado de la Habitación</label>
-                  <select
-                    className={inputClass}
-                    value={room.status || 'disponible'}
-                    onChange={(e) => updateRoom(idx, { status: e.target.value as any })}
-                  >
-                    <option value="disponible">Disponible (Automático)</option>
-                    <option value="reservado">Reservado (Manual)</option>
-                    <option value="alquilado">Alquilado (Manual)</option>
-                  </select>
-                </div>
-              </div>
 
               {/* Private Bathroom Toggle */}
               <div className="flex items-center gap-3 pb-4 border-b border-[#1F1F1F]">
@@ -236,9 +275,10 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange }) => 
                 )}
               </div>
             </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+          );
+        })}
+      </div>
+    )}
+  </div>
+);
 };

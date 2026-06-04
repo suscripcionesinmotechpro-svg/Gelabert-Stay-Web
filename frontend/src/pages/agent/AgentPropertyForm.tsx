@@ -1053,6 +1053,7 @@ export const AgentPropertyForm = () => {
           <RoomManager 
             rooms={form.rooms || []} 
             onChange={(rooms: any[]) => set('rooms', rooms)}
+            propertyId={isEditing ? id : undefined}
           />
         </div>
       )}
