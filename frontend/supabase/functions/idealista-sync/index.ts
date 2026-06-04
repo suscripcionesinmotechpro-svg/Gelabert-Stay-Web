@@ -707,11 +707,10 @@ serve(async (req) => {
       mappedFeatures.minimalStay = Math.max(2, (property as any).min_stay_months ?? 2);
       // petsAllowed = se permiten mascotas
       mappedFeatures.petsAllowed = property.pets_allowed ?? false;
-      // type = tipo de habitación
-      mappedFeatures.type = "private_room"; // valores válidos: private_room, shared_room
-      // houseType = tipo de propiedad compartida (shared_flat o shared_chalet)
+      // type = tipo de propiedad compartida (shared_flat o shared_chalet)
+      // (cuyo tipo en el esquema de Idealista para "room" es "room types")
       const isChalet = property.property_type === "casa";
-      mappedFeatures.houseType = isChalet ? "shared_chalet" : "shared_flat";
+      mappedFeatures.type = isChalet ? "shared_chalet" : "shared_flat";
 
       // ── CAMPOS OPCIONALES ────────────────────────────────────────────────────
       mappedFeatures.internetAvailable = property.has_wifi ?? true;
