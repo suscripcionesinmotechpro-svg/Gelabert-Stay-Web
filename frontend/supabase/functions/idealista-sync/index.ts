@@ -405,8 +405,17 @@ serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  let propertyId: string | null = null;
+  let action = "publish";
+
   try {
-    const { propertyId, action = "publish" } = await req.json();
+    try {
+      const body = await req.json();
+      propertyId = body?.propertyId || null;
+      action = body?.action || "publish";
+    } catch (e) {
+      console.error("[Request Parse Error] Failed to parse request JSON:", e);
+    }
 
     if (!propertyId) {
       return new Response(JSON.stringify({ error: "Missing propertyId in body" }), {
@@ -690,18 +699,19 @@ serve(async (req) => {
       // Nota: Idealista exige un mínimo de 2 habitaciones para inmuebles de tipo "room" (piso compartido).
       mappedFeatures.rooms = Math.max(2, property.bedrooms || 3);
       // tenantNumber = número de inquilinos actuales en el piso
-      mappedFeatures.tenantNumber = property.tenant_number ?? 1;
+      const tenants = Math.max(2, property.tenant_number ?? 2);
+      mappedFeatures.tenantNumber = tenants;
       // occupiedNow = si hay inquilinos actualmente
-      mappedFeatures.occupiedNow = (property.tenant_number ?? 0) > 0;
+      mappedFeatures.occupiedNow = tenants > 0;
       // minimalStay = estancia mínima en meses (mínimo 2 según esquema de Idealista)
       mappedFeatures.minimalStay = Math.max(2, (property as any).min_stay_months ?? 2);
       // petsAllowed = se permiten mascotas
       mappedFeatures.petsAllowed = property.pets_allowed ?? false;
       // type = tipo de habitación
       mappedFeatures.type = "private_room"; // valores válidos: private_room, shared_room
-      // roomTypes = tipo de propiedad compartida (shared_flat o shared_chalet)
+      // houseType = tipo de propiedad compartida (shared_flat o shared_chalet)
       const isChalet = property.property_type === "casa";
-      mappedFeatures.roomTypes = isChalet ? "shared_chalet" : "shared_flat";
+      mappedFeatures.houseType = isChalet ? "shared_chalet" : "shared_flat";
 
       // ── CAMPOS OPCIONALES ────────────────────────────────────────────────────
       mappedFeatures.internetAvailable = property.has_wifi ?? true;
@@ -982,7 +992,6 @@ serve(async (req) => {
       const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
       const supabase = createClient(supabaseUrl, supabaseServiceKey);
       
-      const { propertyId } = await req.json().catch(() => ({}));
       if (propertyId) {
         await supabase
           .from("properties")
