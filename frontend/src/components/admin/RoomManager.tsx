@@ -165,10 +165,10 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
                     >
                       <option value="disponible">
                         {activeContract
-                          ? 'Disponible (Automático - Alquilada por contrato)'
+                          ? 'Alquilado (Automático)'
                           : upcomingContract
-                            ? 'Disponible (Automático - Reservada por contrato)'
-                            : 'Disponible (Automático - Libre)'}
+                            ? 'Reservado (Automático)'
+                            : 'Disponible (Automático)'}
                       </option>
                       <option value="reservado">Reservado (Manual)</option>
                       <option value="alquilado">Alquilado (Manual)</option>
