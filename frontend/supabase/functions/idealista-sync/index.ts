@@ -681,15 +681,15 @@ serve(async (req) => {
       mappedFeatures.tenantNumber = property.tenant_number ?? 1;
       // occupiedNow = si hay inquilinos actualmente
       mappedFeatures.occupiedNow = (property.tenant_number ?? 0) > 0;
-      // minimalStay = estancia mínima en meses (1 = mes a mes)
-      mappedFeatures.minimalStay = property.min_stay_months ?? 1;
+      // minimalStay = estancia mínima en meses (mínimo 2 según esquema de Idealista)
+      mappedFeatures.minimalStay = Math.max(2, (property as any).min_stay_months ?? 2);
       // petsAllowed = se permiten mascotas
       mappedFeatures.petsAllowed = property.pets_allowed ?? false;
       // type = tipo de habitación
       mappedFeatures.type = "private_room"; // valores válidos: private_room, shared_room
-      // roomType = tipo de propiedad compartida (shared_flat o shared_chalet)
+      // roomTypes = tipo de propiedad compartida (shared_flat o shared_chalet)
       const isChalet = property.property_type === "casa";
-      mappedFeatures.roomType = isChalet ? "shared_chalet" : "shared_flat";
+      mappedFeatures.roomTypes = isChalet ? "shared_chalet" : "shared_flat";
 
       // ── CAMPOS OPCIONALES ────────────────────────────────────────────────────
       mappedFeatures.internetAvailable = property.has_wifi ?? true;
