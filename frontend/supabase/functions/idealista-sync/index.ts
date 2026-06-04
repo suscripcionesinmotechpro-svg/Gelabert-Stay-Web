@@ -605,9 +605,25 @@ serve(async (req) => {
       mappedFeatures.wardrobes = property.has_wardrobes ?? false;
       mappedFeatures.conditionedAir = property.air_conditioning ?? false;
 
-      // La clasificación de Chalet es obligatoria para el tipo house
+      // ── House type classification ──────────────────────────────────────────
+      // Para "house", Idealista requiere el campo "type" (NO "classificationChalet").
+      // Valores válidos: chalet, country_house, villa, townHouse, semi_detached, etc.
       if (mappedType === "house") {
-        mappedFeatures.classificationChalet = "ch"; // por defecto chalet independiente
+        // Mapear según subtipo de la propiedad en nuestro CRM
+        const subType = (property.house_type || property.sub_type || '').toLowerCase().trim();
+        if (subType.includes('adosad') || subType.includes('townhouse') || subType.includes('town_house')) {
+          mappedFeatures.type = "townHouse";
+        } else if (subType.includes('paread') || subType.includes('semi')) {
+          mappedFeatures.type = "semi_detached";
+        } else if (subType.includes('rústic') || subType.includes('rustic') || subType.includes('campo') || subType.includes('country') || subType.includes('finca')) {
+          mappedFeatures.type = "country_house";
+        } else if (subType.includes('villa')) {
+          mappedFeatures.type = "villa";
+        } else {
+          // Por defecto: chalet independiente
+          mappedFeatures.type = "chalet";
+        }
+        console.log(`[Features] House type mapped to: ${mappedFeatures.type} (from subType: "${subType}")`);
       }
 
       // Energy certification mapping
@@ -751,6 +767,7 @@ serve(async (req) => {
     };
 
     console.log(`[Publish] Payload constructed. Mapped Type: ${mappedType}. Reference: ${payload.reference}`);
+    console.log(`[Publish] Features: ${JSON.stringify(mappedFeatures)}`);
     
     let idealistaResponseId = property.idealista_id;
     let publishedOk = false;
