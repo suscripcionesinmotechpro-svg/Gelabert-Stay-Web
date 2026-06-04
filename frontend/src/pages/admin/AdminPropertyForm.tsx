@@ -315,7 +315,7 @@ export const AdminPropertyForm = () => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
     setUploadingImages(true);
-    setError(null);
+    clearError();
     try {
       const urls: string[] = [];
       for (const f of files) {
@@ -324,7 +324,7 @@ export const AdminPropertyForm = () => {
       }
       handleImagesChange([...allImages, ...urls]);
     } catch (err) { 
-      setError(err instanceof Error ? err.message : 'Error subiendo imágenes'); 
+      showError('Error subiendo imágenes', err instanceof Error ? err.message : 'Error desconocido'); 
     } finally { 
       setUploadingImages(false); 
     }
@@ -335,7 +335,7 @@ export const AdminPropertyForm = () => {
     if (files.length === 0) return;
     
     setUploadingVideo(true);
-    setError(null);
+    clearError();
     try {
       const urls: string[] = [];
       for (const file of files) {
@@ -351,7 +351,7 @@ export const AdminPropertyForm = () => {
       const newVids: PropertyVideo[] = urls.map(url => ({ url, title: 'Vídeo' }));
       handleVideosChange([...currentVideos, ...newVids]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error subiendo vídeo');
+      showError('Error subiendo vídeo', err instanceof Error ? err.message : 'Error desconocido');
     } finally {
       setUploadingVideo(false);
     }
@@ -456,7 +456,7 @@ export const AdminPropertyForm = () => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
     setUploadingFloorPlan(true);
-    setError(null);
+    clearError();
     try {
       const urls: string[] = [];
       for (const file of files) {
@@ -468,7 +468,7 @@ export const AdminPropertyForm = () => {
       }
       handleFloorPlansChange([...allFloorPlans, ...urls]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error subiendo plano');
+      showError('Error subiendo plano', err instanceof Error ? err.message : 'Error desconocido');
     } finally {
       setUploadingFloorPlan(false);
     }
@@ -563,11 +563,11 @@ export const AdminPropertyForm = () => {
   };
 
   const handleSave = async (targetStatus?: PropertyStatus) => {
-    if (!form.title?.trim()) { setError('El título es obligatorio'); return; }
-    if (!form.operation) { setError('El tipo de operación es obligatorio'); return; }
+    if (!form.title?.trim()) { showError('Campo obligatorio', 'El título es obligatorio'); return; }
+    if (!form.operation) { showError('Campo obligatorio', 'El tipo de operación es obligatorio'); return; }
     
     setSaving(true);
-    setError(null);
+    clearError();
     
     try {
       // 1. Clonar el estado para limpieza
