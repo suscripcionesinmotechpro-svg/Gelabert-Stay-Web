@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { 
   Briefcase, Search, Plus, Trash2, Mail, Phone, MapPin, 
   Calendar, Filter, X, ChevronRight, User, ExternalLink,
-  Download, Printer
+  Download, Printer, Sparkles
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -44,6 +44,8 @@ export const AdminCaptaciones = () => {
   const [contactDate, setContactDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [notes, setNotes] = useState('');
   const [assignedAgentId, setAssignedAgentId] = useState<string>('');
+  const [visitDate, setVisitDate] = useState('');
+  const [extractingFeatures, setExtractingFeatures] = useState(false);
 
   // Agents list
   const [agentsList, setAgentsList] = useState<{ id: string; agent_name: string; role: string }[]>([]);
@@ -126,6 +128,7 @@ export const AdminCaptaciones = () => {
     setContactDate(captacion.contact_date);
     setNotes(captacion.notes || '');
     setAssignedAgentId(captacion.agent_id || '');
+    setVisitDate(captacion.visit_date ? captacion.visit_date.substring(0, 16) : '');
   };
 
   const handleStartCreate = () => {
@@ -144,12 +147,17 @@ export const AdminCaptaciones = () => {
     setContactDate(format(new Date(), 'yyyy-MM-dd'));
     setNotes('');
     setAssignedAgentId('');
+    setVisitDate('');
   };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!ownerName || !propertyAddress) {
       toast.error('Nombre del propietario y Dirección son obligatorios');
+      return;
+    }
+    if (status === 'visita_planificada' && !visitDate) {
+      toast.error('Por favor, selecciona la fecha y hora para la visita agendada.');
       return;
     }
 
@@ -164,7 +172,8 @@ export const AdminCaptaciones = () => {
         status,
         contact_date: contactDate,
         notes: notes || null,
-        agent_id: assignedAgentId || null
+        agent_id: assignedAgentId || null,
+        visit_date: status === 'visita_planificada' && visitDate ? visitDate : null
       });
 
       toast.success('Captación agregada correctamente');
@@ -184,7 +193,8 @@ export const AdminCaptaciones = () => {
         status,
         contact_date: contactDate,
         notes: notes || null,
-        agent_id: assignedAgentId || null
+        agent_id: assignedAgentId || null,
+        visit_date: status === 'visita_planificada' && visitDate ? visitDate : null
       };
       handleSelect(newCap);
     } catch (err: any) {
@@ -200,6 +210,10 @@ export const AdminCaptaciones = () => {
       toast.error('Nombre del propietario y Dirección son obligatorios');
       return;
     }
+    if (status === 'visita_planificada' && !visitDate) {
+      toast.error('Por favor, selecciona la fecha y hora para la visita agendada.');
+      return;
+    }
 
     try {
       await updateCaptacion(selectedCaptacion.id, {
@@ -212,7 +226,8 @@ export const AdminCaptaciones = () => {
         status,
         contact_date: contactDate,
         notes: notes || null,
-        agent_id: assignedAgentId || null
+        agent_id: assignedAgentId || null,
+        visit_date: status === 'visita_planificada' && visitDate ? visitDate : null
       });
 
       toast.success('Cambios guardados correctamente');
@@ -229,7 +244,8 @@ export const AdminCaptaciones = () => {
         status,
         contact_date: contactDate,
         notes: notes || null,
-        agent_id: assignedAgentId || null
+        agent_id: assignedAgentId || null,
+        visit_date: status === 'visita_planificada' && visitDate ? visitDate : null
       });
     } catch (err: any) {
       console.error(err);
@@ -239,6 +255,12 @@ export const AdminCaptaciones = () => {
 
   const handleUpdateStatusOnly = async (newStatus: CaptacionStatus) => {
     if (!selectedCaptacion) return;
+    if (newStatus === 'visita_planificada') {
+      setStatus('visita_planificada');
+      setIsEditing(true);
+      toast('Por favor, selecciona la fecha y hora para la visita agendada.');
+      return;
+    }
     try {
       await updateCaptacion(selectedCaptacion.id, { status: newStatus });
       toast.success(`Estado actualizado a: ${CAPTACION_STATUS_LABELS[newStatus]}`);
@@ -275,6 +297,101 @@ export const AdminCaptaciones = () => {
     } catch (err: any) {
       console.error(err);
       toast.error('Error al guardar notas');
+    }
+  };
+
+  const getGoogleCalendarUrl = (c: Captacion) => {
+    if (!c.visit_date) return '';
+    const startDate = new Date(c.visit_date);
+    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+    
+    const formatDate = (date: Date) => {
+      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+
+    const title = `Visita a propiedad: ${c.property_address}`;
+    const details = `Detalles de la visita:\nPropietario: ${c.owner_name}\nTeléfono: ${c.owner_phone || 'No disponible'}\nEmail: ${c.owner_email || 'No disponible'}\n\nCaracterísticas:\n${c.property_features || ''}\n\nNotas:\n${c.notes || ''}`;
+    
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatDate(startDate)}/${formatDate(endDate)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(c.property_address)}`;
+  };
+
+  const getOutlookCalendarUrl = (c: Captacion) => {
+    if (!c.visit_date) return '';
+    const startDate = new Date(c.visit_date);
+    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+
+    const title = `Visita a propiedad: ${c.property_address}`;
+    const details = `Detalles de la visita:\nPropietario: ${c.owner_name}\nTeléfono: ${c.owner_phone || 'No disponible'}\nEmail: ${c.owner_email || 'No disponible'}\n\nCaracterísticas:\n${c.property_features || ''}\n\nNotas:\n${c.notes || ''}`;
+
+    return `https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent&subject=${encodeURIComponent(title)}&startdt=${startDate.toISOString()}&enddt=${endDate.toISOString()}&body=${encodeURIComponent(details)}&location=${encodeURIComponent(c.property_address)}`;
+  };
+
+  const handleDownloadICS = (c: Captacion) => {
+    if (!c.visit_date) return;
+    const startDate = new Date(c.visit_date);
+    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+
+    const formatDate = (date: Date) => {
+      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+
+    const title = `Visita a propiedad: ${c.property_address}`;
+    const details = `Detalles de la visita:\\nPropietario: ${c.owner_name}\\nTelefono: ${c.owner_phone || 'No disponible'}\\nEmail: ${c.owner_email || 'No disponible'}\\n\\nCaracteristicas:\\n${(c.property_features || '').replace(/\n/g, '\\n')}\\n\\nNotas:\\n${(c.notes || '').replace(/\n/g, '\\n')}`;
+
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Gelabert Homes//CRM//ES',
+      'BEGIN:VEVENT',
+      `UID:${c.id}-visit`,
+      `DTSTAMP:${formatDate(new Date())}`,
+      `DTSTART:${formatDate(startDate)}`,
+      `DTEND:${formatDate(endDate)}`,
+      `SUMMARY:${title}`,
+      `DESCRIPTION:${details}`,
+      `LOCATION:${c.property_address}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Visita_${c.property_address.replace(/[^a-zA-Z0-9]/g, '_')}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Archivo .ics descargado correctamente.');
+  };
+
+  const handleExtractFeaturesWithAI = async () => {
+    if (!propertyFeatures.trim()) {
+      toast.error('Por favor, escribe algo en el campo de características para que la IA lo analice.');
+      return;
+    }
+
+    setExtractingFeatures(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-description', {
+        body: { 
+          mode: 'extract-features',
+          text: propertyFeatures 
+        }
+      });
+
+      if (error) throw error;
+      if (data?.result) {
+        setPropertyFeatures(data.result);
+        toast.success('Características resumidas y estructuradas con IA sin perder ningún detalle.');
+      } else if (data?.error) {
+        throw new Error(data.error);
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Error al extraer características con IA: ' + err.message);
+    } finally {
+      setExtractingFeatures(false);
     }
   };
 
@@ -812,10 +929,16 @@ export const AdminCaptaciones = () => {
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-end gap-2">
+                    <div className="flex flex-col items-end gap-1.5">
                       <span className={`text-[9px] px-2.5 py-0.5 rounded-full border uppercase tracking-wider font-primary font-bold ${CAPTACION_STATUS_COLORS[item.status]}`}>
                         {CAPTACION_STATUS_LABELS[item.status]}
                       </span>
+                      {item.status === 'visita_planificada' && item.visit_date && (
+                        <span className="text-[9px] text-[#C9A962] font-semibold flex items-center gap-1">
+                          <Calendar className="w-2.5 h-2.5" />
+                          {format(new Date(item.visit_date), 'dd/MM HH:mm')}
+                        </span>
+                      )}
                       <ChevronRight className="w-4 h-4 text-[#333]" />
                     </div>
                   </button>
@@ -920,7 +1043,19 @@ export const AdminCaptaciones = () => {
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs text-[#888]">Características del inmueble</label>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-xs text-[#888]">Características del inmueble</label>
+                      <button
+                        type="button"
+                        onClick={handleExtractFeaturesWithAI}
+                        disabled={extractingFeatures}
+                        className="text-[10px] text-[#C9A962] hover:text-[#D4B673] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors disabled:opacity-50"
+                        title="Extraer y resumir aspectos más importantes con IA"
+                      >
+                        <Sparkles className="w-3 h-3 animate-pulse" />
+                        {extractingFeatures ? 'Extrayendo...' : 'Extraer con IA'}
+                      </button>
+                    </div>
                     <textarea
                       value={propertyFeatures}
                       onChange={(e) => setPropertyFeatures(e.target.value)}
@@ -977,6 +1112,24 @@ export const AdminCaptaciones = () => {
                       />
                     </div>
                   </div>
+
+                  {status === 'visita_planificada' && (
+                    <div className="flex flex-col gap-1 border border-[#C9A962]/20 bg-[#C9A962]/5 p-4 rounded-sm">
+                      <label className="text-xs text-[#C9A962] font-bold uppercase tracking-wider">
+                        Programar fecha y hora de la visita *
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={visitDate}
+                        onChange={(e) => setVisitDate(e.target.value)}
+                        className="bg-[#0A0A0A] border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] transition-colors"
+                        required
+                      />
+                      <p className="text-[10px] text-[#888]">
+                        Indica la fecha y hora en la que se realizará la visita a la propiedad. Podrás añadir esta visita a tu calendario una vez guardada.
+                      </p>
+                    </div>
+                  )}
 
                   <div className="flex flex-col gap-1">
                     <label className="text-xs text-[#888]">Notas iniciales</label>
@@ -1152,8 +1305,20 @@ export const AdminCaptaciones = () => {
                         />
                       </div>
 
-                      <div className="flex flex-col gap-1">
-                        <label className="text-xs text-[#888]">Características del inmueble</label>
+                       <div className="flex flex-col gap-1">
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-xs text-[#888]">Características del inmueble</label>
+                          <button
+                            type="button"
+                            onClick={handleExtractFeaturesWithAI}
+                            disabled={extractingFeatures}
+                            className="text-[10px] text-[#C9A962] hover:text-[#D4B673] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors disabled:opacity-50"
+                            title="Extraer y resumir aspectos más importantes con IA"
+                          >
+                            <Sparkles className="w-3 h-3 animate-pulse" />
+                            {extractingFeatures ? 'Extrayendo...' : 'Extraer con IA'}
+                          </button>
+                        </div>
                         <textarea
                           value={propertyFeatures}
                           onChange={(e) => setPropertyFeatures(e.target.value)}
@@ -1210,6 +1375,24 @@ export const AdminCaptaciones = () => {
                         </div>
                       </div>
                     </div>
+
+                    {status === 'visita_planificada' && (
+                      <div className="flex flex-col gap-1 border border-[#C9A962]/20 bg-[#C9A962]/5 p-4 rounded-sm mt-4">
+                        <label className="text-xs text-[#C9A962] font-bold uppercase tracking-wider">
+                          Programar fecha y hora de la visita *
+                        </label>
+                        <input
+                          type="datetime-local"
+                          value={visitDate}
+                          onChange={(e) => setVisitDate(e.target.value)}
+                          className="bg-[#0A0A0A] border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] transition-colors"
+                          required
+                        />
+                        <p className="text-[10px] text-[#888]">
+                          Indica la fecha y hora en la que se realizará la visita a la propiedad. Podrás añadir esta visita a tu calendario una vez guardada.
+                        </p>
+                      </div>
+                    )}
 
                   </div>
 
@@ -1335,6 +1518,58 @@ export const AdminCaptaciones = () => {
                       </div>
                     </div>
                   </section>
+
+                  {/* Visita Programada & Calendario */}
+                  {selectedCaptacion.status === 'visita_planificada' && selectedCaptacion.visit_date && (
+                    <section className="border border-[#C9A962]/30 bg-[#C9A962]/5 p-5 rounded-md space-y-4">
+                      <div className="flex justify-between items-start gap-4">
+                        <div>
+                          <span className="block text-[10px] text-[#C9A962] uppercase font-bold tracking-wider mb-1">
+                            Visita Agendada
+                          </span>
+                          <span className="text-base font-semibold text-[#FAF8F5]">
+                            {format(new Date(selectedCaptacion.visit_date), "EEEE, d 'de' MMMM 'de' yyyy, HH:mm", { locale: es })}
+                          </span>
+                        </div>
+                        <span className="text-xs px-2.5 py-0.5 rounded-full border border-blue-400/30 text-blue-400 bg-blue-400/10 font-bold uppercase tracking-wider">
+                          Visita Planificada
+                        </span>
+                      </div>
+
+                      <div className="border-t border-[#C9A962]/20 pt-4">
+                        <span className="block text-xs text-[#888] mb-3 uppercase tracking-wider font-bold">
+                          Añadir a tu Calendario Personal
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          <a
+                            href={getGoogleCalendarUrl(selectedCaptacion)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-1.5 px-3 py-2 bg-[#1A1A1A] border border-[#1F1F1F] text-xs text-[#FAF8F5] hover:border-[#C9A962] hover:text-[#C9A962] transition-colors rounded-sm font-primary font-bold uppercase tracking-wider"
+                          >
+                            <Calendar className="w-3.5 h-3.5" />
+                            Google Calendar
+                          </a>
+                          <a
+                            href={getOutlookCalendarUrl(selectedCaptacion)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-1.5 px-3 py-2 bg-[#1A1A1A] border border-[#1F1F1F] text-xs text-[#FAF8F5] hover:border-[#C9A962] hover:text-[#C9A962] transition-colors rounded-sm font-primary font-bold uppercase tracking-wider"
+                          >
+                            <Calendar className="w-3.5 h-3.5" />
+                            Outlook Calendar
+                          </a>
+                          <button
+                            onClick={() => handleDownloadICS(selectedCaptacion)}
+                            className="flex items-center gap-1.5 px-3 py-2 bg-[#1A1A1A] border border-[#1F1F1F] text-xs text-[#FAF8F5] hover:border-[#C9A962] hover:text-[#C9A962] transition-colors rounded-sm font-primary font-bold uppercase tracking-wider"
+                          >
+                            <Calendar className="w-3.5 h-3.5" />
+                            Apple / iCal (.ics)
+                          </button>
+                        </div>
+                      </div>
+                    </section>
+                  )}
 
                   {/* Tracking Detail */}
                   <section>

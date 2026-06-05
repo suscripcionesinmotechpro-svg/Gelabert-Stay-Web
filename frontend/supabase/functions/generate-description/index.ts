@@ -20,8 +20,58 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+    const body = await req.json()
+    const { form, mode, text } = body
 
-    const { form } = await req.json()
+    if (mode === 'extract-features') {
+      if (!text || !text.trim()) {
+        return new Response(
+          JSON.stringify({ error: 'Error: Falta el texto para extraer características.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      const systemPrompt = `Eres un asistente de inteligencia artificial experto en el sector inmobiliario de lujo para la marca Gelabert Homes.
+Tu trabajo es tomar un texto desorganizado con características o notas sobre una propiedad y extraer un resumen estructurado, elegante, conciso y profesional en formato de viñetas (bullet points) en español.
+REGLA DE ORO CRÍTICA:
+1. Extrae SOLAMENTE la información real proporcionada en el texto.
+2. NO inventes características, calidades, ubicaciones ni datos.
+3. Formatea la salida como una lista limpia de aspectos importantes (ej: superficie, habitaciones, extras).
+4. No devuelvas etiquetas HTML complejas, solo texto plano con guiones o viñetas limpias.`
+
+      console.log(`[AI Extract Features] Request received`)
+
+      const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: `Por favor, extrae los aspectos y características más importantes de este texto de forma limpia y estructurada:\n\n"${text}"` }
+          ],
+          temperature: 0.3
+        })
+      })
+
+      if (!openAIResponse.ok) {
+        const errText = await openAIResponse.text()
+        console.error('OpenAI Error Response:', errText)
+        throw new Error(`OpenAI API returned status ${openAIResponse.status}`)
+      }
+
+      const result = await openAIResponse.json()
+      const extracted = result.choices?.[0]?.message?.content || ''
+
+      return new Response(
+        JSON.stringify({ result: extracted.trim() }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     if (!form || !form.title) {
       return new Response(
         JSON.stringify({ error: 'Error: Faltan datos del formulario o el título de la propiedad.' }),

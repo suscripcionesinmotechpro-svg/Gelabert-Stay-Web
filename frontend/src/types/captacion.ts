@@ -26,6 +26,7 @@ export interface Captacion {
   // Management
   agent_id: string | null;
   notes: string | null;
+  visit_date: string | null;
 }
 
 export type CaptacionInsert = Omit<Captacion, 'id' | 'created_at' | 'updated_at'>;
