@@ -16,12 +16,13 @@ CREATE TABLE IF NOT EXISTS public.captaciones (
   property_features TEXT,
   
   -- Listing/Acquisition details
-  status TEXT NOT NULL CHECK (status IN ('captado', 'visita_planificada', 'rechazado', 'seguimiento')) DEFAULT 'seguimiento',
+  status TEXT NOT NULL CHECK (status IN ('captado', 'visita_planificada', 'rechazado', 'seguimiento', 'pendiente_contacto')) DEFAULT 'pendiente_contacto',
   contact_date DATE NOT NULL DEFAULT CURRENT_DATE,
   
   -- Management
   agent_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
-  notes TEXT
+  notes TEXT,
+  property_ad_url TEXT
 );
 
 -- Enable RLS

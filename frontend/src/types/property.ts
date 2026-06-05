@@ -141,6 +141,10 @@ export interface Property {
   is_room_rental: boolean;
   rooms: PropertyRoom[] | null;
   common_areas: PropertyCommonArea[] | null;
+  occupied_now: boolean;
+  tenant_number: number | null;
+  tenant_min_age: number | null;
+  tenant_max_age: number | null;
 
   // SEO
   slug: string | null;

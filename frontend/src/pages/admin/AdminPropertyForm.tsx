@@ -110,6 +110,10 @@ const DEFAULT_FORM: Partial<PropertyInsert> = {
   is_room_rental: false,
   rooms: [],
   common_areas: [],
+  occupied_now: false,
+  tenant_number: undefined,
+  tenant_min_age: undefined,
+  tenant_max_age: undefined,
 };
 
 
@@ -185,6 +189,10 @@ export const AdminPropertyForm = () => {
         rooms: property.rooms ?? [],
         common_areas: property.common_areas ?? [],
         videos_metadata: property.videos_metadata ?? [],
+        occupied_now: property.occupied_now ?? false,
+        tenant_number: property.tenant_number ?? undefined,
+        tenant_min_age: property.tenant_min_age ?? undefined,
+        tenant_max_age: property.tenant_max_age ?? undefined,
       };
       setForm(newForm);
       setLatStr(property.latitude?.toString() || '');
@@ -605,7 +613,7 @@ export const AdminPropertyForm = () => {
       });
 
       // 4. Asegurar que los campos numéricos son números o null
-      const numericFields = ['price', 'max_price', 'energy_consumption', 'emissions_value', 'community_fees', 'ibi'];
+      const numericFields = ['price', 'max_price', 'energy_consumption', 'emissions_value', 'community_fees', 'ibi', 'tenant_number', 'tenant_min_age', 'tenant_max_age'];
       numericFields.forEach(field => {
         if (data[field] !== null && data[field] !== undefined) {
           const p = Number(data[field]);
@@ -1070,6 +1078,65 @@ export const AdminPropertyForm = () => {
             areas={form.common_areas || []} 
             onChange={(areas: any[]) => set('common_areas', areas)}
           />
+        </div>
+      )}
+
+      {/* DATOS DE OCUPACIÓN (HABITACIÓN INDIVIDUAL O PROPIEDAD POR HABITACIONES) */}
+      {(form.property_type === 'habitacion' || form.is_room_rental) && (
+        <div className={sectionClass}>
+          <h2 className={sectionHeaderClass}>Ocupación y Compañeros de Piso (Idealista)</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2 justify-center">
+              <label className={labelClass}>Ocupación actual</label>
+              <div className="flex items-center h-10">
+                <ToggleField 
+                  label="Inmueble ocupado actualmente" 
+                  checked={form.occupied_now ?? false} 
+                  onChange={v => set('occupied_now', v)} 
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className={labelClass}>Número de inquilinos</label>
+              <input 
+                type="number" 
+                min={2}
+                className={inputClass} 
+                placeholder="Mínimo 2 (Ej: 3)" 
+                value={form.tenant_number ?? ''} 
+                onChange={e => set('tenant_number', e.target.value ? Number(e.target.value) : undefined)} 
+              />
+              <p className="text-[10px] text-[#666666]">
+                Número total de inquilinos en la vivienda (obligatorio para Idealista, mínimo 2).
+              </p>
+            </div>
+          </div>
+          {form.occupied_now && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-[#1F1F1F] pt-4">
+              <div className="flex flex-col gap-2">
+                <label className={labelClass}>Edad mínima de inquilinos</label>
+                <input 
+                  type="number" 
+                  min={0}
+                  className={inputClass} 
+                  placeholder="Por defecto: 18" 
+                  value={form.tenant_min_age ?? ''} 
+                  onChange={e => set('tenant_min_age', e.target.value ? Number(e.target.value) : undefined)} 
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className={labelClass}>Edad máxima de inquilinos</label>
+                <input 
+                  type="number" 
+                  min={0}
+                  className={inputClass} 
+                  placeholder="Por defecto: 35" 
+                  value={form.tenant_max_age ?? ''} 
+                  onChange={e => set('tenant_max_age', e.target.value ? Number(e.target.value) : undefined)} 
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
 

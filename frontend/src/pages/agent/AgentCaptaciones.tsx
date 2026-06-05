@@ -36,7 +36,7 @@ export const AgentCaptaciones = () => {
   const [propertyAddress, setPropertyAddress] = useState('');
   const [propertyFeatures, setPropertyFeatures] = useState('');
   const [propertyAdUrl, setPropertyAdUrl] = useState('');
-  const [status, setStatus] = useState<CaptacionStatus>('seguimiento');
+  const [status, setStatus] = useState<CaptacionStatus>('pendiente_contacto');
   const [contactDate, setContactDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [notes, setNotes] = useState('');
 
@@ -120,7 +120,7 @@ export const AgentCaptaciones = () => {
     setPropertyAddress('');
     setPropertyFeatures('');
     setPropertyAdUrl('');
-    setStatus('seguimiento');
+    setStatus('pendiente_contacto');
     setContactDate(format(new Date(), 'yyyy-MM-dd'));
     setNotes('');
   };
@@ -882,6 +882,7 @@ export const AgentCaptaciones = () => {
                         onChange={(e) => setStatus(e.target.value as CaptacionStatus)}
                         className="bg-[#111] border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] transition-colors"
                       >
+                        <option value="pendiente_contacto">Pendiente de Contacto</option>
                         <option value="seguimiento">Seguimiento</option>
                         <option value="visita_planificada">Visita Planificada</option>
                         <option value="captado">Captado</option>
@@ -954,6 +955,7 @@ export const AgentCaptaciones = () => {
                         onChange={(e) => handleUpdateStatusOnly(e.target.value as CaptacionStatus)}
                         className={`text-xs px-3 py-1.5 rounded-sm border outline-none font-bold uppercase tracking-wider cursor-pointer ${CAPTACION_STATUS_COLORS[selectedCaptacion.status]}`}
                       >
+                        <option value="pendiente_contacto">Pendiente de Contacto</option>
                         <option value="seguimiento">Seguimiento</option>
                         <option value="visita_planificada">Visita Planificada</option>
                         <option value="captado">Captado</option>
@@ -1083,6 +1085,7 @@ export const AgentCaptaciones = () => {
                             onChange={(e) => setStatus(e.target.value as CaptacionStatus)}
                             className="bg-[#111] border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] transition-colors"
                           >
+                            <option value="pendiente_contacto">Pendiente de Contacto</option>
                             <option value="seguimiento">Seguimiento</option>
                             <option value="visita_planificada">Visita Planificada</option>
                             <option value="captado">Captado</option>

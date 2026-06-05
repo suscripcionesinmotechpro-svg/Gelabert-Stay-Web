@@ -102,12 +102,22 @@
   </url>
   <url>
     <loc>https://gelaberthomes.es/propiedades/GEL-134</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-134</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2026-06-05</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/propiedades/GEL-137</loc>
+    <lastmod>2026-06-05</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/en/propiedades/GEL-137</loc>
+    <lastmod>2026-06-05</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -131,22 +141,22 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://gelaberthomes.es/propiedades/GEL-137</loc>
-    <lastmod>2026-06-04</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://gelaberthomes.es/en/propiedades/GEL-137</loc>
-    <lastmod>2026-06-04</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://gelaberthomes.es/propiedades/GEL-122</loc>
     <lastmod>2026-06-03</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-122</loc>
+    <lastmod>2026-06-03</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/propiedades/GEL-128</loc>
+    <lastmod>2026-06-03</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gelaberthomes.es/en/propiedades/GEL-128</loc>
     <lastmod>2026-06-03</lastmod>
     <priority>0.6</priority>
   </url>
@@ -158,16 +168,6 @@
   <url>
     <loc>https://gelaberthomes.es/en/propiedades/GEL-125-01</loc>
     <lastmod>2026-06-05</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://gelaberthomes.es/propiedades/GEL-128</loc>
-    <lastmod>2026-06-03</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://gelaberthomes.es/en/propiedades/GEL-128</loc>
-    <lastmod>2026-06-03</lastmod>
     <priority>0.6</priority>
   </url>
   <url>

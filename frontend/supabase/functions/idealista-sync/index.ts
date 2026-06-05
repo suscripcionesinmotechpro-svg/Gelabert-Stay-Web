@@ -698,14 +698,19 @@ serve(async (req) => {
       // rooms = total de habitaciones del piso (no de la habitación individual)
       // Nota: Idealista exige un mínimo de 2 habitaciones para inmuebles de tipo "room" (piso compartido).
       mappedFeatures.rooms = Math.max(2, property.bedrooms || 3);
-      // occupiedNow = si hay inquilinos actualmente
-      // Por defecto establecemos occupiedNow = false para evitar tener que suministrar el rango de edad
-      // de los inquilinos actuales (lo cual es obligatorio en la API de Idealista si occupiedNow es true).
-      mappedFeatures.occupiedNow = false;
+      // occupiedNow = si hay inquilinos actualmente (según BD)
+      const isOccupied = property.occupied_now ?? false;
+      mappedFeatures.occupiedNow = isOccupied;
 
       // tenantNumber = número de inquilinos en el piso.
       // Nota: Idealista exige que este campo sea obligatorio y tenga un valor mínimo de 2.
-      mappedFeatures.tenantNumber = Math.max(2, (property as any).tenant_number ?? 2);
+      mappedFeatures.tenantNumber = Math.max(2, property.tenant_number ?? 2);
+
+      // Edad de los inquilinos (obligatorio solo si occupiedNow es true)
+      if (isOccupied) {
+        mappedFeatures.tenantAgeMin = property.tenant_min_age ?? 18;
+        mappedFeatures.tenantAgeMax = property.tenant_max_age ?? 35;
+      }
       // minimalStay = estancia mínima en meses (mínimo 2 según esquema de Idealista)
       mappedFeatures.minimalStay = Math.max(2, (property as any).min_stay_months ?? 2);
       // petsAllowed = se permiten mascotas
