@@ -732,10 +732,7 @@ export const Propietarios = () => {
               <motion.a
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                // Enlace original (guardado para uso futuro):
-                // href="https://statefox.com/mites/v/6093dc70f21ebc61f637b472"
-                // Enlace temporal activo:
-                href={`${typeof window !== 'undefined' ? window.location.origin : 'https://gelaberthomes.es'}/t/valorador/cta-valorador`}
+                href="https://statefox.com/mites/v/6093dc70f21ebc61f637b472"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 px-8 py-4 bg-[#C9A962] text-[#050505] font-primary uppercase tracking-widest font-semibold hover:bg-white transition-all duration-300 rounded-sm w-full sm:w-auto justify-center shadow-[0_5px_15px_rgba(201,169,98,0.2)] hover:shadow-[0_5px_20px_rgba(255,255,255,0.2)]"

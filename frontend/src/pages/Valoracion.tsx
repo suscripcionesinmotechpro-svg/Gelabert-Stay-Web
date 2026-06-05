@@ -2,16 +2,7 @@ import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { TrendingUp, Zap, Users } from 'lucide-react';
 
-// Enlaces del valorador guardados para uso futuro si se desea volver al esquema directo:
-// const VALORACION_URL_ORIGINAL = "https://statefox.com/mites/v/6093dc70f21ebc61f637b472";
-// const QR_URL_ORIGINAL = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('https://statefox.com/mites/v/6093dc70f21ebc61f637b472')}`;
-// const VALORACION_URL_TEMPORAL_DIRECTO = "https://gelaberthomes.es/valoracion";
-
 export const Valoracion = () => {
-  const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://gelaberthomes.es';
-  const ctaTrackingUrl = `${baseOrigin}/t/valorador/cta-valorador`;
-  const qrTrackingUrl = `${baseOrigin}/t/valorador/escaparate-001`;
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrTrackingUrl)}`;
   return (
     <div className="w-full bg-[#0F0F0F] min-h-screen text-[#FAF8F5]">
       <Helmet>
@@ -68,7 +59,7 @@ export const Valoracion = () => {
                   Por medidas de seguridad de la plataforma, nuestro valorador avanzado se abrirá en una nueva ventana segura. Haz clic en el botón inferior para comenzar de inmediato.
                 </p>
                 <a 
-                  href={ctaTrackingUrl} 
+                  href="https://statefox.com/mites/v/6093dc70f21ebc61f637b472" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-3 px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary uppercase tracking-wider font-semibold hover:bg-white transition-all duration-300 rounded-sm w-full sm:w-auto justify-center"
@@ -85,8 +76,8 @@ export const Valoracion = () => {
                 </p>
                 <div className="bg-white p-4 rounded-xl shadow-2xl">
                   <img 
-                    src={qrImageUrl} 
-                    alt="Código QR Valorador"
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('https://statefox.com/mites/v/6093dc70f21ebc61f637b472')}`} 
+                    alt="Código QR Valorador Statefox"
                     className="w-48 h-48 object-contain"
                   />
                 </div>

@@ -16,7 +16,6 @@ const Contacto = lazy(() => import('./pages/Contacto').then(m => ({ default: m.C
 const Inversores = lazy(() => import('./pages/Inversores'));
 const Nosotros = lazy(() => import('./pages/Nosotros'));
 const Valoracion = lazy(() => import('./pages/Valoracion').then(m => ({ default: m.Valoracion })));
-const ValoradorTracker = lazy(() => import('./pages/ValoradorTracker').then(m => ({ default: m.ValoradorTracker })));
 const Reviews = lazy(() => import('./pages/Reviews').then(m => ({ default: m.Reviews })));
 
 const BlogList = lazy(() => import('./pages/BlogList').then(m => ({ default: m.BlogList })));
@@ -96,7 +95,6 @@ function App() {
           <Route path="contacto" element={<Contacto />} />
           <Route path="nosotros" element={<Nosotros />} />
           <Route path="valoracion" element={<Valoracion />} />
-          <Route path="t/valorador/:qrId" element={<ValoradorTracker />} />
           <Route path="reseñas" element={<Reviews />} />
           <Route path="blog" element={<BlogList />} />
           <Route path="blog/:slug" element={<BlogPost />} />
@@ -121,7 +119,6 @@ function App() {
           <Route path="contacto" element={<Contacto />} />
           <Route path="nosotros" element={<Nosotros />} />
           <Route path="valoracion" element={<Valoracion />} />
-          <Route path="t/valorador/:qrId" element={<ValoradorTracker />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="blog" element={<BlogList />} />
           <Route path="blog/:slug" element={<BlogPost />} />
