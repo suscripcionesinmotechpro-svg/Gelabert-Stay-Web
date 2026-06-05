@@ -718,7 +718,10 @@ serve(async (req) => {
       // ── CAMPOS OPCIONALES ────────────────────────────────────────────────────
       mappedFeatures.internetAvailable = property.has_wifi ?? true;
       mappedFeatures.bedType = "double"; // single, double, no_bed
-      mappedFeatures.tenantGender = "both"; // male, female, both
+      if (mappedFeatures.occupiedNow) {
+        mappedFeatures.tenantGender = "both"; // male, female, both
+      }
+      mappedFeatures.windowView = property.is_exterior ? "street_view" : "courtyard_view";
       mappedFeatures.smokingAllowed = property.smoking_allowed ?? false;
       mappedFeatures.couplesAllowed = property.couples_allowed ?? false;
 
