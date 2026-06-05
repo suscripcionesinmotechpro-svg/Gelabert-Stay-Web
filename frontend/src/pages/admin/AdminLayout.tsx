@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth.tsx';
 import { supabase } from '../../lib/supabase';
 import {
   LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X,
-  Receipt, Users, CalendarDays, Bot, FileText, LayoutGrid, BarChart3
+  Receipt, Users, CalendarDays, Bot, FileText, LayoutGrid, BarChart3, Briefcase
 } from 'lucide-react';
 
 export const AdminLayout = () => {
@@ -44,6 +44,7 @@ export const AdminLayout = () => {
     { to: `/admin/inquilinos`, icon: <Users className="w-4 h-4" />, label: "Inquilinos" },
     { to: `/admin/contratos`, icon: <FileText className="w-4 h-4" />, label: "Contratos" },
     { to: `/admin/reservas`, icon: <CalendarDays className="w-4 h-4" />, label: "Reservas" },
+    { to: `/admin/captaciones`, icon: <Briefcase className="w-4 h-4" />, label: "Control Captaciones" },
     { to: `/admin/leads`, icon: <Bot className="w-4 h-4" />, label: "CRM Leads (Bot)" },
     { to: `/admin/blog`, icon: <FileText className="w-4 h-4" />, label: "Blog & Insights" },
     { to: `/admin/crm-agentes`, icon: <BarChart3 className="w-4 h-4" />, label: "CRM Agentes" },

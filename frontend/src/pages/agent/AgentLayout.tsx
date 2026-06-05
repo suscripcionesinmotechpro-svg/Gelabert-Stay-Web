@@ -69,6 +69,7 @@ export const AgentLayout = () => {
     { to: '/agente/inquilinos', icon: <Users className="w-4 h-4" />, label: 'Mis Inquilinos' },
     { to: '/agente/contratos', icon: <FileText className="w-4 h-4" />, label: 'Mis Contratos' },
     { to: '/agente/reservas', icon: <CalendarDays className="w-4 h-4" />, label: 'Mis Reservas' },
+    { to: '/agente/captaciones', icon: <Briefcase className="w-4 h-4" />, label: 'Captaciones' },
     { to: '/agente/leads', icon: <Bot className="w-4 h-4" />, label: 'CRM Leads' },
   ];
 

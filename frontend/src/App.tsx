@@ -42,6 +42,7 @@ const AdminContractForm = lazy(() => import('./pages/admin/AdminContractForm').t
 const AdminContractsList = lazy(() => import('./pages/admin/AdminContractsList').then(m => ({ default: m.AdminContractsList })));
 const AdminReservations = lazy(() => import('./pages/admin/AdminReservations').then(m => ({ default: m.AdminReservations })));
 const AdminLeadsCRM = lazy(() => import('./pages/admin/AdminLeadsCRM').then(m => ({ default: m.AdminLeadsCRM })));
+const AdminCaptaciones = lazy(() => import('./pages/admin/AdminCaptaciones').then(m => ({ default: m.AdminCaptaciones })));
 const AdminBlogList = lazy(() => import('./pages/admin/AdminBlogList').then(m => ({ default: m.AdminBlogList })));
 const AdminBlogPostForm = lazy(() => import('./pages/admin/AdminBlogPostForm').then(m => ({ default: m.AdminBlogPostForm })));
 const AdminPropertyReorder = lazy(() => import('./pages/admin/AdminPropertyReorder').then(m => ({ default: m.AdminPropertyReorder })));
@@ -63,6 +64,7 @@ const AgentContractsList = lazy(() => import('./pages/agent/AgentContractsList')
 const AgentContractForm = lazy(() => import('./pages/agent/AgentContractForm').then(m => ({ default: m.AgentContractForm })));
 const AgentReservations = lazy(() => import('./pages/agent/AgentReservations').then(m => ({ default: m.AgentReservations })));
 const AgentLeadsCRM = lazy(() => import('./pages/agent/AgentLeadsCRM').then(m => ({ default: m.AgentLeadsCRM })));
+const AgentCaptaciones = lazy(() => import('./pages/agent/AgentCaptaciones').then(m => ({ default: m.AgentCaptaciones })));
 
 // Legal
 const AvisoLegal = lazy(() => import('./pages/legal/AvisoLegal').then(m => ({ default: m.AvisoLegal })));
@@ -152,6 +154,7 @@ function App() {
           <Route path="contratos/:id/editar" element={<AdminContractForm />} />
           <Route path="reservas" element={<AdminReservations />} />
           <Route path="leads" element={<AdminLeadsCRM />} />
+          <Route path="captaciones" element={<AdminCaptaciones />} />
           <Route path="blog" element={<AdminBlogList />} />
           <Route path="blog/nuevo" element={<AdminBlogPostForm />} />
           <Route path="blog/:id/editar" element={<AdminBlogPostForm />} />
@@ -181,6 +184,7 @@ function App() {
           <Route path="contratos/:id/editar" element={<AgentContractForm />} />
           <Route path="reservas" element={<AgentReservations />} />
           <Route path="leads" element={<AgentLeadsCRM />} />
+          <Route path="captaciones" element={<AgentCaptaciones />} />
         </Route>
 
         {/* 404 catch-all */}
