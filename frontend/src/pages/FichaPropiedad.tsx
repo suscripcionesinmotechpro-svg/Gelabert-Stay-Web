@@ -1150,6 +1150,12 @@ export const FichaPropiedad = () => {
                                 Terraza privada
                               </span>
                             )}
+                            {room.is_exterior !== undefined && (
+                              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.8 4.38-4.38 1.8 1.8-4.38 4.38-1.8Z"/></svg>
+                                {room.is_exterior ? 'Exterior' : 'Interior'}
+                              </span>
+                            )}
                           </div>
                         </div>
                         {room.price !== undefined && room.price !== null && (

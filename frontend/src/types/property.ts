@@ -41,6 +41,7 @@ export interface PropertyRoom {
   price?: number | null;
   private_bathroom?: boolean;
   private_terrace?: boolean;
+  is_exterior?: boolean;
   status?: 'disponible' | 'reservado' | 'alquilado';
   _calculated_status?: 'disponible' | 'reservada' | 'alquilada';
 }
