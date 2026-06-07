@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { useAgentStats } from '../../hooks/useProperties';
-import { useExpiringContracts, useContracts } from '../../hooks/useContracts';
+import { useExpiringContracts, useContracts, useUpcomingContracts } from '../../hooks/useContracts';
 import { useTenants } from '../../hooks/useTenants';
 import {
   Building2, Eye, FileText, TrendingUp, PlusCircle, List,
   Users, AlertTriangle, CalendarClock, Briefcase
 } from 'lucide-react';
-import { daysUntilExpiry } from '../../types/tenant';
+import { daysUntilExpiry, daysUntilStart } from '../../types/tenant';
 
 export const AgentDashboard = () => {
   const { user, userProfile } = useAuth();
@@ -16,6 +16,7 @@ export const AgentDashboard = () => {
   const { tenants } = useTenants(undefined, agentId);
   const { contracts } = useContracts(undefined, agentId);
   const { contracts: expiring } = useExpiringContracts(60, agentId);
+  const { contracts: upcoming } = useUpcomingContracts(30, agentId);
 
   const agentName = userProfile?.agent_name || 'Agente';
   const activeContracts = contracts.filter(c => c.status === 'active').length;
@@ -88,6 +89,47 @@ export const AgentDashboard = () => {
                     {days <= 0 ? 'Expirado' : `Vence en ${days} días`}
                   </span>
                 </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Upcoming Alert */}
+      {upcoming.length > 0 && (
+        <div className="bg-[#C9A962]/5 border border-[#C9A962]/20 p-5 flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <CalendarClock className="w-4 h-4 text-[#C9A962]" />
+            <p className="font-primary text-[#C9A962] font-bold text-sm uppercase tracking-wider">
+              {upcoming.length} {upcoming.length === 1 ? 'contrato próximo' : 'contratos próximos'} a iniciar
+            </p>
+          </div>
+          <div className="flex flex-col gap-2">
+            {upcoming.map(c => {
+              const days = daysUntilStart(c.start_date);
+              const isToday = days === 0;
+              return (
+                <div key={c.id} className="flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] hover:border-[#C9A962]/40 transition-colors group">
+                  <div className="flex items-start sm:items-center justify-between gap-3 px-4 py-3">
+                    <div className="flex items-start sm:items-center gap-3">
+                      <CalendarClock className="w-4 h-4 flex-shrink-0 mt-0.5 sm:mt-0 text-[#C9A962]" />
+                      <div className="flex flex-col gap-0.5">
+                        <Link
+                          to={`/agente/inquilinos/${c.tenant_id}`}
+                          className="font-primary text-sm text-[#FAF8F5] font-semibold group-hover:text-[#C9A962] transition-colors"
+                        >
+                          {c.tenant?.first_name} {c.tenant?.last_name}
+                        </Link>
+                        {c.property_label && (
+                          <p className="font-primary text-xs text-[#555]">{c.property_label}</p>
+                        )}
+                      </div>
+                    </div>
+                    <span className="font-primary text-xs px-2.5 py-1 border rounded-full flex-shrink-0 text-[#C9A962] bg-[#C9A962]/10 border-[#C9A962]/30">
+                      {isToday ? 'Inicia hoy' : `Inicia en ${days} días`}
+                    </span>
+                  </div>
+                </div>
               );
             })}
           </div>

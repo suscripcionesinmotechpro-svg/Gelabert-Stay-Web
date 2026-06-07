@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useAdminStats, useAgentStats } from '../../hooks/useProperties';
-import { useExpiringContracts, useContracts } from '../../hooks/useContracts';
+import { useExpiringContracts, useContracts, useUpcomingContracts } from '../../hooks/useContracts';
 import { useTenants } from '../../hooks/useTenants';
 import { Building2, Eye, FileText, TrendingUp, PlusCircle, List, Users, AlertTriangle, CalendarClock, Filter } from 'lucide-react';
-import { daysUntilExpiry } from '../../types/tenant';
+import { daysUntilExpiry, daysUntilStart } from '../../types/tenant';
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 
@@ -31,6 +31,7 @@ export const AdminDashboard = () => {
   const { tenants } = useTenants(undefined, agentId);
   const { contracts } = useContracts(undefined, agentId);
   const { contracts: expiring } = useExpiringContracts(60, agentId);
+  const { contracts: upcoming } = useUpcomingContracts(30, agentId);
 
   const activeContracts = contracts.filter(c => c.status === 'active').length;
 
@@ -136,6 +137,84 @@ export const AdminDashboard = () => {
                       {days <= 0 ? 'Expirado' : `Vence en ${days} días`}
                     </span>
                   </Link>
+
+                  {/* Landlord Data in Alert */}
+                  {(c.landlord_name || c.landlord_phone || c.landlord_email) && (
+                    <div className="px-4 pb-3 pt-1 border-t border-[#1A1A1A] mt-1 mx-2 flex flex-col sm:flex-row sm:items-center gap-x-6 gap-y-2">
+                      <span className="font-primary text-[10px] uppercase tracking-wider text-[#555] font-semibold">Propietario:</span>
+                      
+                      {c.landlord_name && (
+                        <span className="font-primary text-xs text-[#FAF8F5]">
+                          {c.landlord_name}
+                        </span>
+                      )}
+                      
+                      {c.landlord_phone && (
+                        <span className="font-primary text-xs text-[#888] flex items-center gap-1">
+                          📞 {c.landlord_phone}
+                        </span>
+                      )}
+                      
+                      {c.landlord_email && (
+                        <span className="font-primary text-xs text-[#888] flex items-center gap-1">
+                          ✉️ {c.landlord_email}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Upcoming Contracts Alert */}
+      {upcoming.length > 0 && (
+        <div className="bg-[#C9A962]/5 border border-[#C9A962]/20 p-5 flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <CalendarClock className="w-4 h-4 text-[#C9A962]" />
+            <p className="font-primary text-[#C9A962] font-bold text-sm uppercase tracking-wider">
+              {upcoming.length} {upcoming.length === 1 ? 'contrato próximo' : 'contratos próximos'} a iniciar
+            </p>
+          </div>
+          <div className="flex flex-col gap-2">
+            {upcoming.map(c => {
+              const days = daysUntilStart(c.start_date);
+              const isToday = days === 0;
+              return (
+                <div key={c.id} className="flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] hover:border-[#C9A962]/40 transition-colors group">
+                  <div className="flex items-start sm:items-center justify-between gap-3 px-4 py-3">
+                    <div className="flex items-start sm:items-center gap-3">
+                      <CalendarClock className="w-4 h-4 flex-shrink-0 mt-0.5 sm:mt-0 text-[#C9A962]" />
+                      <div className="flex flex-col gap-0.5">
+                        <Link
+                          to={`/admin/inquilinos/${c.tenant_id}`}
+                          className="font-primary text-sm text-[#FAF8F5] font-semibold group-hover:text-[#C9A962] transition-colors"
+                        >
+                          {c.tenant?.first_name} {c.tenant?.last_name}
+                        </Link>
+                        {c.property_label && (
+                          c.property_id ? (
+                            <Link
+                              to={`/propiedades/${c.property_id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-primary text-sm text-[#C9A962] hover:underline"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {c.property_label}
+                            </Link>
+                          ) : (
+                            <p className="font-primary text-xs text-[#555]">{c.property_label}</p>
+                          )
+                        )}
+                      </div>
+                    </div>
+                    <span className="font-primary text-xs px-2.5 py-1 border rounded-full flex-shrink-0 text-[#C9A962] bg-[#C9A962]/10 border-[#C9A962]/30">
+                      {isToday ? 'Inicia hoy' : `Inicia en ${days} días`}
+                    </span>
+                  </div>
 
                   {/* Landlord Data in Alert */}
                   {(c.landlord_name || c.landlord_phone || c.landlord_email) && (

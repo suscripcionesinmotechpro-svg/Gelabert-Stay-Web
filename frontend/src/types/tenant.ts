@@ -137,3 +137,12 @@ export const daysUntilExpiry = (endDate: string): number => {
   now.setHours(0, 0, 0, 0);
   return Math.round((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 };
+
+// Helper: days until contract starts (negative = already started)
+export const daysUntilStart = (startDate: string): number => {
+  const start = new Date(startDate);
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return Math.round((start.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+};
+

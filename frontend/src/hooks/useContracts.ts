@@ -98,6 +98,42 @@ export const useExpiringContracts = (days = 60, agentId?: string) => {
   return { contracts, loading };
 };
 
+// ─── UPCOMING (STARTING WITHIN N DAYS) ───────────────────────────────────────────
+export const useUpcomingContracts = (days = 30, agentId?: string) => {
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const today = new Date();
+    const future = new Date();
+    future.setDate(today.getDate() + days);
+
+    const todayStr = today.toISOString().split('T')[0];
+    const futureStr = future.toISOString().split('T')[0];
+
+    // Status is 'active' for upcoming/future contracts. We check start_date between today and future.
+    let query = supabase
+      .from('contracts')
+      .select(`*, tenant:tenants(id, first_name, last_name)`)
+      .eq('status', 'active')
+      .gte('start_date', todayStr)
+      .lte('start_date', futureStr)
+      .order('start_date', { ascending: true });
+
+    if (agentId) {
+      query = query.eq('agent_id', agentId);
+    }
+
+    query.then(({ data }) => {
+      setContracts(dedupContracts((data || []) as Contract[]));
+      setLoading(false);
+    });
+  }, [days, agentId]);
+
+  return { contracts, loading };
+};
+
+
 
 // ─── SINGLE ──────────────────────────────────────────────────────────────────
 export const useContract = (id?: string) => {
