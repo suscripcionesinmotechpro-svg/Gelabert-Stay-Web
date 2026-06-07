@@ -8,29 +8,41 @@ import type { Property } from '../types/property';
  */
 function collectImageUrls(property: Property): { url: string; filename: string }[] {
   const entries: { url: string; filename: string }[] = [];
-  let index = 1;
+  const isRoomRental = !!property.is_room_rental;
 
-  const addUrl = (url: string | null | undefined, prefix: string) => {
+  const sanitizeFolderName = (name: string): string => {
+    return name.replace(/[\\/:*?"<>|]/g, '').trim();
+  };
+
+  const addUrl = (url: string | null | undefined, prefix: string, idx: number) => {
     if (!url || typeof url !== 'string') return;
     // Skip PDF files
     if (url.toLowerCase().split('?')[0].endsWith('.pdf')) return;
     const ext = url.split('?')[0].split('.').pop() || 'jpg';
-    entries.push({ url, filename: `${prefix}_${String(index).padStart(2, '0')}.${ext}` });
-    index++;
+    
+    const folderPrefix = isRoomRental ? 'General/' : '';
+    entries.push({ 
+      url, 
+      filename: `${folderPrefix}${prefix}_${String(idx).padStart(2, '0')}.${ext}` 
+    });
   };
 
   // Main image
   if (property.main_image) {
     const ext = property.main_image.split('?')[0].split('.').pop() || 'jpg';
-    entries.push({ url: property.main_image, filename: `foto_01_principal.${ext}` });
-    index = 2;
+    const folderPrefix = isRoomRental ? 'General/' : '';
+    entries.push({ 
+      url: property.main_image, 
+      filename: `${folderPrefix}foto_01_principal.${ext}` 
+    });
   }
 
   // Gallery
-  (property.gallery || []).forEach(url => addUrl(url, 'foto'));
-
-  // Reset index for plans
-  index = 1;
+  let galleryIndex = property.main_image ? 2 : 1;
+  (property.gallery || []).forEach(url => {
+    addUrl(url, 'foto', galleryIndex);
+    galleryIndex++;
+  });
 
   // Floor plans (legacy single + array)
   const allPlans = [
@@ -38,7 +50,44 @@ function collectImageUrls(property: Property): { url: string; filename: string }
     ...(property.floor_plans || []),
   ].filter((v, i, a) => a.indexOf(v) === i); // deduplicate
 
-  allPlans.forEach(url => addUrl(url, 'plano'));
+  let planIndex = 1;
+  allPlans.forEach(url => {
+    addUrl(url, 'plano', planIndex);
+    planIndex++;
+  });
+
+  // Rooms & Common Areas if room rental
+  if (isRoomRental) {
+    // Rooms
+    (property.rooms || []).forEach((room) => {
+      const roomFolderName = sanitizeFolderName(room.name || 'Habitación');
+      let roomImgIndex = 1;
+      (room.images || []).forEach((url) => {
+        if (!url || typeof url !== 'string') return;
+        const ext = url.split('?')[0].split('.').pop() || 'jpg';
+        entries.push({
+          url,
+          filename: `${roomFolderName}/foto_${String(roomImgIndex).padStart(2, '0')}.${ext}`
+        });
+        roomImgIndex++;
+      });
+    });
+
+    // Common Areas
+    (property.common_areas || []).forEach((area) => {
+      const areaName = sanitizeFolderName(area.name || area.type || 'Zona Común');
+      let areaImgIndex = 1;
+      (area.images || []).forEach((url) => {
+        if (!url || typeof url !== 'string') return;
+        const ext = url.split('?')[0].split('.').pop() || 'jpg';
+        entries.push({
+          url,
+          filename: `Zonas Comunes/${areaName}_${String(areaImgIndex).padStart(2, '0')}.${ext}`
+        });
+        areaImgIndex++;
+      });
+    });
+  }
 
   return entries;
 }
