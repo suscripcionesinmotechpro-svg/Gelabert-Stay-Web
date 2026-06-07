@@ -40,6 +40,7 @@ export interface PropertyRoom {
   video?: PropertyVideo | null;
   price?: number | null;
   private_bathroom?: boolean;
+  private_terrace?: boolean;
   status?: 'disponible' | 'reservado' | 'alquilado';
   _calculated_status?: 'disponible' | 'reservada' | 'alquilada';
 }
