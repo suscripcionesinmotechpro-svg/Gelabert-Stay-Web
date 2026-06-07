@@ -35,7 +35,7 @@ export const BlogList = () => {
   }, []);
 
   return (
-    <div className="w-full min-h-screen bg-[#0A0A0A] text-[#FAF8F5]">
+    <div className="w-full min-h-screen bg-[#121212] text-[#FAF8F5]">
       <Helmet>
         <title>{t('nav.blog') || 'Blog'} | Gelabert Homes</title>
         <meta name="description" content={t('blog.seo_description')} />
@@ -49,7 +49,7 @@ export const BlogList = () => {
             className="w-full h-full object-cover opacity-40 brightness-75"
             alt=""
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/80 to-transparent" />
         </div>
 
         <div className="relative z-10 max-w-7xl w-full flex flex-col gap-6 items-center text-center">
@@ -84,11 +84,11 @@ export const BlogList = () => {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse bg-[#0F0F0F] rounded-lg h-[400px] border border-[#1F1F1F]" />
+              <div key={i} className="animate-pulse bg-[#1C1C1C] rounded-lg h-[400px] border border-[#1F1F1F]" />
             ))}
           </div>
         ) : posts.length === 0 ? (
-          <div className="text-center py-32 border border-[#1F1F1F] rounded-2xl bg-[#0F0F0F]">
+          <div className="text-center py-32 border border-[#1F1F1F] rounded-2xl bg-[#1C1C1C]">
             <p className="text-[#888888] font-primary text-lg">{t('blog.coming_soon')}</p>
           </div>
         ) : (
@@ -105,7 +105,7 @@ export const BlogList = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="group flex flex-col border border-[#1F1F1F] bg-[#0F0F0F] hover:border-[#C9A962]/40 transition-all duration-500 rounded-xl overflow-hidden h-full shadow-2xl"
+                  className="group flex flex-col border border-[#1F1F1F] bg-[#1C1C1C] hover:border-[#C9A962]/40 transition-all duration-500 rounded-xl overflow-hidden h-full shadow-2xl"
                 >
                   <Link to={`${langPrefix}/blog/${post.slug}`} className="relative aspect-[2/3] overflow-hidden block border-b border-[#1F1F1F]">
                     {coverUrl ? (

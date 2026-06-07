@@ -57,7 +57,7 @@ export const BlogPost = () => {
   const isVideo = !!post.cover_video || (post.cover_image?.match(/\.(mp4|webm|mov)(\?.*)?$/i));
 
   return (
-    <div className="w-full min-h-screen bg-[#0A0A0A] text-[#FAF8F5] pb-24">
+    <div className="w-full min-h-screen bg-[#121212] text-[#FAF8F5] pb-24">
       <Helmet>
         <title>{displaySeoTitle} | Gelabert Homes Blog</title>
         <meta name="description" content={displaySeoDescription} />
@@ -70,7 +70,7 @@ export const BlogPost = () => {
       <section className="relative w-full pt-32 pb-20 px-6 md:px-14 min-h-[50vh] flex flex-col items-center justify-center border-b border-[#1F1F1F]">
         {coverUrl && (
           <>
-            <div className="absolute inset-0 z-0 bg-[#050505]">
+            <div className="absolute inset-0 z-0 bg-[#121212]">
               {isVideo ? (
                 <video
                   src={coverUrl}
@@ -87,7 +87,7 @@ export const BlogPost = () => {
                   alt=""
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-black/50" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/80 to-black/50" />
             </div>
           </>
         )}
