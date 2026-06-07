@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { 
   Users, Target, History, Heart, Shield, Award, User, Zap,
-  Camera, Video, Scale, Palette
+  Camera, Video, Scale, Palette, Linkedin
 } from 'lucide-react';
 
 const fadeUp = {
@@ -201,9 +201,20 @@ const Nosotros = () => {
               <p className="font-primary text-[10px] text-[#C9A962] uppercase tracking-[0.3em] font-bold mb-3">
                 {t('nosotros.team.badge')}
               </p>
-              <h3 className="font-secondary text-3xl md:text-4xl text-white leading-tight mb-2">
-                José Carlos Delgado Gelabert
-              </h3>
+              <div className="flex items-center gap-4 mb-2">
+                <h3 className="font-secondary text-3xl md:text-4xl text-white leading-tight">
+                  José Carlos Delgado Gelabert
+                </h3>
+                <a
+                  href="https://www.linkedin.com/in/jose-carlos-delgado-gelabert-185487403"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 bg-white/5 border border-white/10 rounded-sm text-[#888888] hover:text-[#0077B5] hover:border-[#0077B5]/40 hover:bg-[#0077B5]/5 transition-all group shrink-0"
+                  title="LinkedIn de José Carlos"
+                >
+                  <Linkedin className="w-4 h-4 transition-transform group-hover:scale-110" />
+                </a>
+              </div>
               <p className="font-primary text-[11px] text-[#C9A962] uppercase tracking-[0.2em] font-bold">
                 CEO & Founder
               </p>

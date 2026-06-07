@@ -23,6 +23,14 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
+const LinkedInIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+    <rect x="2" y="9" width="4" height="12"/>
+    <circle cx="4" cy="4" r="2"/>
+  </svg>
+);
+
 export const Footer = () => {
   const { t, i18n } = useTranslation();
   const langPrefix = i18n.language.startsWith('en') ? '/en' : '';
@@ -127,6 +135,9 @@ export const Footer = () => {
               </a>
               <a href="https://wa.me/34611898827" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-[#888888] hover:text-[#25D366] hover:border-[#25D366]/40 hover:bg-[#25D366]/5 transition-all group">
                 <span className="group-hover:scale-110 transition-transform"><WhatsAppIcon /></span>
+              </a>
+              <a href="https://www.linkedin.com/in/jose-carlos-delgado-gelabert-185487403" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-[#888888] hover:text-[#0077B5] hover:border-[#0077B5]/40 hover:bg-[#0077B5]/5 transition-all group" title="LinkedIn">
+                <span className="group-hover:scale-110 transition-transform"><LinkedInIcon /></span>
               </a>
             </div>
           </div>
