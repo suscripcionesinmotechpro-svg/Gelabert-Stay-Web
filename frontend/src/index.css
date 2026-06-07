@@ -353,6 +353,34 @@
 }
 
 /* ==========================================================================
+   Global Text Contrast & Accessibility Overrides
+   ========================================================================== */
+
+/* 1. Override text-[#888888] / text-[#888] to be a readable soft silver (approx. 72% opacity) */
+.text-\[\#888888\],
+.text-\[\#888\] {
+  color: rgba(250, 248, 245, 0.72) !important;
+}
+
+/* 2. Override text-[#666666] / text-[#666] to be a legible medium-light grey (approx. 60% opacity) */
+.text-\[\#666666\],
+.text-\[\#666\] {
+  color: rgba(250, 248, 245, 0.60) !important;
+}
+
+/* 3. Override text-[#555555] / text-[#555] to be a readable grey (approx. 52% opacity) */
+.text-\[\#555555\],
+.text-\[\#555\] {
+  color: rgba(250, 248, 245, 0.52) !important;
+}
+
+/* 4. Override text-[#444444] / text-[#444] to be a soft grey (approx. 45% opacity) */
+.text-\[\#444444\],
+.text-\[\#444\] {
+  color: rgba(250, 248, 245, 0.45) !important;
+}
+
+/* ==========================================================================
    Admin & Agent Panel Contrast & Readability Enhancements
    ========================================================================== */
 .admin-panel {

@@ -353,7 +353,7 @@ const Nosotros = () => {
       </section>
 
       {/* Values / Pillars Section */}
-      <section id="values" className="relative py-32 md:py-40 bg-[#0A0A0A] overflow-hidden scroll-mt-32">
+      <section id="values" className="relative py-32 md:py-40 bg-[#161616] overflow-hidden scroll-mt-32">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(201,169,98,0.15),transparent)]" />
         </div>

@@ -247,9 +247,9 @@ export const Home = () => {
         </script>
       </Helmet>
       {/* Hero Section */}
-      <div className="relative w-full min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden bg-[#0A0A0A] py-24 md:py-32">
+      <div className="relative w-full min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden bg-[#121212] py-24 md:py-32">
         {/* Background Image / Overlay */}
-        <div className="absolute inset-0 z-0 bg-[#0A0A0A]">
+        <div className="absolute inset-0 z-0 bg-[#121212]">
         {/* Mixed media slides */}
         {HERO_SLIDES.map((slide, i) => {
           const isLoaded = loadedIndices.includes(i);
@@ -495,7 +495,7 @@ export const Home = () => {
       </section>
 
       {/* Services Block */}
-      <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] flex flex-col gap-12">
+      <section className="w-full px-6 md:px-14 py-24 bg-[#161616] flex flex-col gap-12">
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -519,7 +519,7 @@ export const Home = () => {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
               whileHover={{ y: -8, transition: { duration: 0.2 } }}
-              className="flex flex-col gap-4 p-8 border border-[#1F1F1F] bg-[#0A0A0A] hover:border-[#C9A962] transition-colors group h-full"
+              className="flex flex-col gap-4 p-8 border border-[#1F1F1F] bg-[#1C1C1C] hover:border-[#C9A962] transition-colors group h-full"
             >
               <div className="transform group-hover:scale-110 transition-transform duration-300">
                 {srv.icon}
@@ -549,7 +549,7 @@ export const Home = () => {
       </section>
 
       {/* Owners Block */}
-      <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] flex flex-col lg:flex-row gap-12 lg:gap-20 items-center overflow-hidden">
+      <section className="w-full px-6 md:px-14 py-24 bg-[#121212] flex flex-col lg:flex-row gap-12 lg:gap-20 items-center overflow-hidden">
         <motion.div 
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -598,8 +598,8 @@ export const Home = () => {
             alt=""
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/80 via-[#0A0A0A]/40 to-[#0A0A0A]/80" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/40 via-transparent to-[#0A0A0A]/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#121212]/80 via-[#121212]/40 to-[#121212]/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#121212]/40 via-transparent to-[#121212]/40" />
         </div>
         {/* Línea dorada decorativa */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C9A962]/40 to-transparent" />
@@ -630,7 +630,7 @@ export const Home = () => {
       </section>
 
       {/* Customers Block */}
-      <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] flex flex-col gap-12 items-center">
+      <section className="w-full px-6 md:px-14 py-24 bg-[#161616] flex flex-col gap-12 items-center">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -656,7 +656,7 @@ export const Home = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.15 }}
-              className="flex flex-col gap-4 p-8 border border-[#1C1C1C] text-center items-center bg-[#141414] hover:border-[#C9A962]/40 hover:bg-[#1C1C1C] transition-colors group rounded-sm"
+              className="flex flex-col gap-4 p-8 border border-[#1C1C1C] text-center items-center bg-[#1C1C1C] hover:border-[#C9A962]/40 hover:bg-[#1C1C1C] transition-colors group rounded-sm"
             >
               <div className="transform group-hover:-translate-y-2 transition-transform duration-300">
                 <HomeIcon className="w-8 h-8 text-[#C9A962]" />
@@ -673,7 +673,7 @@ export const Home = () => {
       </section>
 
       {/* Featured Properties Staggered List */}
-      <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A] flex flex-col gap-12">
+      <section className="w-full px-6 md:px-14 py-24 bg-[#121212] flex flex-col gap-12">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -747,7 +747,7 @@ export const Home = () => {
             alt=""
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/85 via-[#0A0A0A]/40 to-[#0A0A0A]/85" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#121212]/85 via-[#121212]/40 to-[#121212]/85" />
         </div>
         <div className="relative z-10 flex flex-col gap-12">
           <motion.div
@@ -789,7 +789,7 @@ export const Home = () => {
       </section>
 
       {/* Testimonials — clean dark section for visual breathing room */}
-      <section className="w-full px-6 md:px-14 py-24 bg-[#0A0A0A]">
+      <section className="w-full px-6 md:px-14 py-24 bg-[#161616]">
         <div className="flex flex-col gap-12">
         <div className="text-center flex flex-col gap-3">
           <span className="font-primary text-[#C9A962] text-xs uppercase tracking-[0.3em] font-bold">{t('home.testimonials.badge') || 'Lo que dicen nuestros clientes'}</span>
@@ -808,7 +808,7 @@ export const Home = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.12 }}
-              className="flex flex-col gap-5 p-8 border border-[#1C1C1C] bg-[#141414] hover:border-[#C9A962]/30 transition-colors group rounded-sm"
+              className="flex flex-col gap-5 p-8 border border-[#1C1C1C] bg-[#1C1C1C] hover:border-[#C9A962]/30 transition-colors group rounded-sm"
             >
               {/* Stars */}
               <div className="flex gap-0.5">
@@ -852,7 +852,7 @@ export const Home = () => {
             alt=""
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/80 via-transparent to-[#0A0A0A]/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#121212]/80 via-transparent to-[#121212]/80" />
           <div className="absolute inset-0 bg-[#C9A962]/[0.04] mix-blend-overlay" />
         </div>
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C9A962]/30 to-transparent" />

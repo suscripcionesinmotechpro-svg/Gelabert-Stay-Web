@@ -38,7 +38,7 @@ export const Layout = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col w-full bg-[#0F0F0F] text-[#FAF8F5] overflow-x-hidden">
+    <div className="min-h-screen flex flex-col w-full bg-[#121212] text-[#FAF8F5] overflow-x-hidden">
       {/* Navbar */}
       <header className="fixed top-0 left-0 right-0 h-20 md:h-24 glass-deep z-50 flex items-center justify-between px-6 md:px-14">
         {/* Scroll progress bar */}

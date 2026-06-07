@@ -471,7 +471,7 @@ export const Servicios = () => {
               key={i} 
               {...fadeUp} 
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="group bg-[#121212] p-10 flex flex-col gap-6 hover:bg-[#0A0A0A] transition-colors"
+              className="group bg-[#1C1C1C] p-10 flex flex-col gap-6 hover:bg-[#252525] transition-colors"
             >
               <div className="w-12 h-12 flex items-center justify-center bg-black border border-white/5 group-hover:border-[#C9A962]/40 transition-all duration-300">
                 {item.icon}
@@ -555,7 +555,7 @@ export const Servicios = () => {
                 key={cart.count}
                 initial={{ scale: 1.5 }}
                 animate={{ scale: 1 }}
-                className="absolute -top-2 -right-2 w-4 h-4 bg-[#0A0A0A] text-[#C9A962] text-[9px] font-bold rounded-full flex items-center justify-center font-primary"
+                className="absolute -top-2 -right-2 w-4 h-4 bg-[#121212] text-[#C9A962] text-[9px] font-bold rounded-full flex items-center justify-center font-primary"
               >
                 {cart.count}
               </motion.span>

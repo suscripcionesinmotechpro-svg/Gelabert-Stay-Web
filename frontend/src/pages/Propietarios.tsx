@@ -223,7 +223,7 @@ export const Propietarios = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8 }}
-                className="w-full bg-[#0C0C0C] border border-[#C9A962]/20 p-8 md:p-12 rounded-sm flex flex-col justify-between relative overflow-hidden group shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                className="w-full bg-[#1C1C1C] border border-[#C9A962]/20 p-8 md:p-12 rounded-sm flex flex-col justify-between relative overflow-hidden group shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#C9A962]/10 blur-3xl pointer-events-none rounded-full" />
                 <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#C9A962]/5 blur-3xl pointer-events-none rounded-full" />
@@ -266,7 +266,7 @@ export const Propietarios = () => {
             </span>
             <div className="w-full flex flex-col md:flex-row items-stretch justify-center gap-8 max-w-5xl">
               {/* Davante Badge */}
-              <div className="flex-1 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left p-6 rounded-md bg-[#0C0C0C] border border-white/5 hover:border-[#C9A962]/20 hover:bg-[#C9A962]/5 transition-all duration-300 w-full min-h-[120px]">
+              <div className="flex-1 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left p-6 rounded-md bg-[#1C1C1C] border border-white/5 hover:border-[#C9A962]/20 hover:bg-[#C9A962]/5 transition-all duration-300 w-full min-h-[120px]">
                 <div className="h-14 px-7 rounded-full bg-white flex items-center justify-center shrink-0 shadow-md">
                   <img 
                     src="/images/brand/devante-logo.svg" 
@@ -280,7 +280,7 @@ export const Propietarios = () => {
               </div>
 
               {/* Huspy Badge */}
-              <div className="flex-1 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left p-6 rounded-md bg-[#0C0C0C] border border-white/5 hover:border-[#C9A962]/20 hover:bg-[#C9A962]/5 transition-all duration-300 w-full min-h-[120px]">
+              <div className="flex-1 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left p-6 rounded-md bg-[#1C1C1C] border border-white/5 hover:border-[#C9A962]/20 hover:bg-[#C9A962]/5 transition-all duration-300 w-full min-h-[120px]">
                 <div className="h-14 px-7 rounded-full bg-white flex items-center justify-center shrink-0 shadow-md">
                   <img 
                     src="/images/brand/huspy-logo.svg" 
@@ -336,7 +336,7 @@ export const Propietarios = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: idx * 0.08 }}
-                  className="group relative bg-[#0C0C0C] border border-white/5 p-8 hover:border-[#C9A962]/30 transition-all duration-500 rounded-sm hover:-translate-y-1 overflow-hidden"
+                  className="group relative bg-[#1C1C1C] border border-white/5 p-8 hover:border-[#C9A962]/30 transition-all duration-500 rounded-sm hover:-translate-y-1 overflow-hidden"
                 >
                   {/* Top accent line on hover */}
                   <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#C9A962] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -572,7 +572,7 @@ export const Propietarios = () => {
       </section>
 
       {/* SECTION 4: 8-Step Selling Process Timeline Section */}
-      <section id="selling-process" className="w-full bg-[#0A0A0A] py-12 md:py-16 relative z-10 border-t border-white/5">
+      <section id="selling-process" className="w-full bg-[#161616] py-12 md:py-16 relative z-10 border-t border-white/5">
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#C9A962]/2 blur-[120px] rounded-full mix-blend-screen pointer-events-none" />
         <div className="max-w-[1440px] mx-auto px-6 md:px-14">
           <motion.div 
@@ -655,7 +655,7 @@ export const Propietarios = () => {
                     }`}
                   >
                     {/* Center number bubble */}
-                    <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#0A0A0A] border border-[#C9A962] items-center justify-center z-20 shadow-[0_0_20px_rgba(201,169,98,0.25)]">
+                    <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#121212] border border-[#C9A962] items-center justify-center z-20 shadow-[0_0_20px_rgba(201,169,98,0.25)]">
                       <span className="font-secondary text-xs text-[#C9A962] font-semibold">
                         0{idx + 1}
                       </span>
@@ -663,7 +663,7 @@ export const Propietarios = () => {
 
                     {/* ── Text Card ── */}
                     <div className="w-full lg:w-[calc(50%-28px)] flex flex-col justify-center">
-                      <div className="group bg-[#0E0E0E] border border-white/5 hover:border-[#C9A962]/30 p-8 h-full relative transition-all duration-300">
+                      <div className="group bg-[#1C1C1C] border border-white/5 hover:border-[#C9A962]/30 p-8 h-full relative transition-all duration-300">
                         {/* Mobile step badge */}
                         <div className="lg:hidden absolute top-4 right-4 text-xs font-semibold text-[#C9A962] bg-[#C9A962]/10 px-2.5 py-1 uppercase tracking-widest font-primary">
                           Paso 0{idx + 1}
@@ -711,7 +711,7 @@ export const Propietarios = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="w-full bg-[#0C0C0C] border border-[#C9A962]/30 p-8 md:p-12 relative rounded-sm text-center shadow-[0_15px_40px_rgba(0,0,0,0.6)]"
+            className="w-full bg-[#1C1C1C] border border-[#C9A962]/30 p-8 md:p-12 relative rounded-sm text-center shadow-[0_15px_40px_rgba(0,0,0,0.6)]"
           >
             <div className="absolute top-0 inset-x-0 h-1 w-full bg-gradient-to-r from-transparent via-[#C9A962]/40 to-transparent" />
             <div className="absolute bottom-0 inset-x-0 h-1 w-full bg-gradient-to-r from-transparent via-[#C9A962]/40 to-transparent" />
