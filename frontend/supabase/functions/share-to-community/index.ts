@@ -251,6 +251,46 @@ function buildPostCopy(prop: any, isEn: boolean): string {
   return lines.join('\n')
 }
 
+// ── Helper to get SHA-256 hash of a string in Deno ───────────────────────────
+async function getUrlHash(text: string): Promise<string> {
+  const msgUint8 = new TextEncoder().encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+}
+
+// ── Helper to download image using Supabase render transformation if possible ──
+async function fetchImageBuffer(imageUrl: string): Promise<Uint8Array | null> {
+  const cleanUrl = imageUrl.trim().split('?')[0];
+  
+  // Try to use Supabase image transformation if it's a Supabase storage URL
+  const supabaseStorageRegex = /https:\/\/([a-z0-9]+)\.supabase\.co\/storage\/v1\/object\/public\/([^\/]+)\/(.+)/i;
+  const match = cleanUrl.match(supabaseStorageRegex);
+  if (match) {
+    const projectId = match[1];
+    const bucket = match[2];
+    const path = match[3];
+    const transformedUrl = `https://${projectId}.supabase.co/storage/v1/render/image/public/${bucket}/${path}?width=1200&resize=contain`;
+    
+    console.log(`[Media Sync] Attempting to fetch transformed image: ${transformedUrl}`);
+    try {
+      const res = await fetch(transformedUrl);
+      if (res.ok) {
+        return new Uint8Array(await res.arrayBuffer());
+      }
+      console.warn(`[Media Sync] Transformed image fetch failed (status ${res.status}), falling back to original URL.`);
+    } catch (err) {
+      console.warn(`[Media Sync] Transformed image fetch error, falling back to original URL:`, err);
+    }
+  }
+
+  // Fallback to fetching the original URL
+  console.log(`[Media Sync] Fetching original image: ${cleanUrl}`);
+  const res = await fetch(cleanUrl);
+  if (!res.ok) return null;
+  return new Uint8Array(await res.arrayBuffer());
+}
+
 // ── Download image and add a diagonal watermark banner ────────────────────────
 async function createWatermarkedImageBuffer(imageUrl: string, statusKey: string): Promise<Uint8Array | null> {
   try {
@@ -261,9 +301,8 @@ async function createWatermarkedImageBuffer(imageUrl: string, statusKey: string)
     if (!cfg) return null
 
     // Download the source image
-    const res = await fetch(imageUrl)
-    if (!res.ok) return null
-    const buf = new Uint8Array(await res.arrayBuffer())
+    const buf = await fetchImageBuffer(imageUrl)
+    if (!buf) return null
     
     const img = await Image.decode(buf)
 
@@ -329,9 +368,8 @@ async function createLabeledImageBuffer(imageUrl: string, label: string): Promis
     const { Image } = await import('https://deno.land/x/imagescript@1.2.15/mod.ts')
     
     // Download the source image
-    const res = await fetch(imageUrl)
-    if (!res.ok) return null
-    const buf = new Uint8Array(await res.arrayBuffer())
+    const buf = await fetchImageBuffer(imageUrl)
+    if (!buf) return null
     
     const img = await Image.decode(buf)
     
@@ -458,16 +496,33 @@ async function processAndWatermarkImage(
   
   // 1. Cover with commercial status watermark (e.g. RESERVADO)
   if (isCover && needsCommercialWatermark && WATERMARK_CONFIG[prop.commercial_status]) {
-    console.log(`[Media Sync] Applying commercial watermark "${prop.commercial_status}" to cover: ${cleanUrl}`);
-    const wmBuffer = await createWatermarkedImageBuffer(cleanUrl, prop.commercial_status);
+    const status = prop.commercial_status;
+    const urlHash = await getUrlHash(cleanUrl);
+    const wmFileName = `watermarks/${pid}_${status}_${urlHash}.jpg`;
+    
+    // Get public URL first
+    const { data: urlData } = supabase.storage.from('properties').getPublicUrl(wmFileName);
+    const publicUrl = urlData.publicUrl;
+    
+    // Check if it already exists in Supabase storage
+    try {
+      const checkRes = await fetch(publicUrl, { method: 'HEAD' });
+      if (checkRes.ok) {
+        console.log(`[Media Sync] Cover commercial watermark already exists, reusing: ${publicUrl}`);
+        return publicUrl;
+      }
+    } catch (err) {
+      console.warn(`[Media Sync] HEAD check failed for cover watermark (will re-process):`, err);
+    }
+    
+    console.log(`[Media Sync] Applying commercial watermark "${status}" to cover: ${cleanUrl}`);
+    const wmBuffer = await createWatermarkedImageBuffer(cleanUrl, status);
     if (wmBuffer) {
-      const wmFileName = `watermarks/${pid}_${prop.commercial_status}_${Date.now()}.jpg`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('properties')
         .upload(wmFileName, wmBuffer, { contentType: 'image/jpeg', upsert: true });
       if (!uploadError && uploadData) {
-        const { data: urlData } = supabase.storage.from('properties').getPublicUrl(wmFileName);
-        return urlData.publicUrl;
+        return publicUrl;
       }
     }
     return cleanUrl;
@@ -476,16 +531,33 @@ async function processAndWatermarkImage(
   // 2. Corner label watermark (rooms / common areas / individual room)
   const labelInfo = getLabelForImage(prop, cleanUrl);
   if (labelInfo && labelInfo.label) {
-    console.log(`[Media Sync] Applying corner label "${labelInfo.label}" to: ${cleanUrl}`);
-    const labeledBuffer = await createLabeledImageBuffer(cleanUrl, labelInfo.label);
+    const label = labelInfo.label;
+    const urlHash = await getUrlHash(cleanUrl + '_' + label);
+    const labelFileName = `labeled_images/${pid}_lbl_${urlHash}.jpg`;
+    
+    // Get public URL first
+    const { data: urlData } = supabase.storage.from('properties').getPublicUrl(labelFileName);
+    const publicUrl = urlData.publicUrl;
+    
+    // Check if it already exists in Supabase storage
+    try {
+      const checkRes = await fetch(publicUrl, { method: 'HEAD' });
+      if (checkRes.ok) {
+        console.log(`[Media Sync] Labeled image already exists, reusing: ${publicUrl}`);
+        return publicUrl;
+      }
+    } catch (err) {
+      console.warn(`[Media Sync] HEAD check failed for labeled image (will re-process):`, err);
+    }
+    
+    console.log(`[Media Sync] Applying corner label "${label}" to: ${cleanUrl}`);
+    const labeledBuffer = await createLabeledImageBuffer(cleanUrl, label);
     if (labeledBuffer) {
-      const labelFileName = `labeled_images/${pid}_lbl_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('properties')
         .upload(labelFileName, labeledBuffer, { contentType: 'image/jpeg', upsert: true });
       if (!uploadError && uploadData) {
-        const { data: urlData } = supabase.storage.from('properties').getPublicUrl(labelFileName);
-        return urlData.publicUrl;
+        return publicUrl;
       }
     }
   }
