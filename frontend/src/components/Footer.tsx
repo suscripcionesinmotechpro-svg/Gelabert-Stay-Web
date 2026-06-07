@@ -50,6 +50,8 @@ export const Footer = () => {
             {t('footer.description')}
           </p>
 
+          <GoogleFooterBadge />
+
           {/* Horario Premium Card */}
           <div className="bg-white/[0.02] border border-white/5 p-5 rounded-sm backdrop-blur-sm relative overflow-hidden group">
             <div className="absolute top-0 left-0 w-1 h-full bg-[#C9A962]/40 group-hover:bg-[#C9A962] transition-colors" />
@@ -132,15 +134,9 @@ export const Footer = () => {
 
       </div>
       {/* Bottom bar */}
-      <div className="relative z-10 border-t border-white/5 py-6 px-6 md:px-14 flex flex-col md:flex-row items-center justify-between gap-6 bg-black/20">
-        <span className="font-primary text-xs text-white/50 tracking-wide text-center md:text-left">
+      <div className="relative z-10 border-t border-white/5 py-6 px-6 md:px-14 flex items-center justify-center bg-black/20">
+        <span className="font-primary text-xs text-white/50 tracking-wide text-center">
           © {new Date().getFullYear()} Gelabert Homes Real Estate · {t('footer.all_rights') || 'Todos los derechos reservados'}
-        </span>
-        
-        <GoogleFooterBadge />
-
-        <span className="font-primary text-[10px] text-white/30 uppercase tracking-widest font-bold text-center md:text-right">
-          {t('footer.made_in') || 'Málaga, España 🇪🇸'}
         </span>
       </div>
     </footer>
@@ -150,7 +146,7 @@ export const Footer = () => {
 // ─── Google Footer Badge ─────────────────────────────────────────────────────
 
 const GoogleLogoSmall = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
@@ -186,23 +182,25 @@ const GoogleFooterBadge = () => {
       href="https://www.google.es/maps/place/Gelabert+Homes+Real+Estate/@36.7183312,-4.5316685,12z/data=!3m1!4b1!4m6!3m5!1s0x4faf4ce7697fd7c1:0xd7eb17fc18c8dc7a!8m2!3d36.718222!4d-4.4492669!16s%2Fg%2F11z755b0v3"
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-3 px-4 py-2 bg-white/[0.04] border border-white/10 hover:border-[#C9A962]/35 hover:bg-white/[0.08] transition-all group rounded-sm shadow-md"
+      className="inline-flex items-center gap-4 px-6 py-4 bg-white/[0.03] border border-white/10 hover:border-[#C9A962]/40 hover:bg-white/[0.06] transition-all group rounded-sm shadow-lg w-fit self-start"
+      title="Ver reseñas en Google"
     >
       <GoogleLogoSmall />
-      <span className="font-primary text-[10px] text-white/60 uppercase tracking-[0.2em] group-hover:text-white transition-colors">
-        Google Reviews
-      </span>
-      <div className="w-[1px] h-3 bg-white/10" />
-      <div className="flex items-center gap-1.5">
-        <span className="font-primary text-xs text-[#C9A962] font-bold">{rating.toFixed(1)}</span>
-        <div className="flex gap-px">
-          {[1,2,3,4,5].map((s) => (
-            <Star key={s} size={9} className={s <= Math.round(rating) ? 'fill-[#FBBC05] text-[#FBBC05]' : 'fill-transparent text-white/15'} />
-          ))}
+      <div className="flex flex-col gap-1 text-left">
+        <span className="font-primary text-[12px] text-white/70 uppercase tracking-[0.2em] group-hover:text-white transition-colors font-semibold">
+          Google Reviews
+        </span>
+        <div className="flex items-center gap-2">
+          <span className="font-primary text-base text-[#C9A962] font-bold">{rating.toFixed(1)}</span>
+          <div className="flex gap-0.5">
+            {[1,2,3,4,5].map((s) => (
+              <Star key={s} size={12} className={s <= Math.round(rating) ? 'fill-[#FBBC05] text-[#FBBC05]' : 'fill-transparent text-white/15'} />
+            ))}
+          </div>
+          {total > 0 && (
+            <span className="font-primary text-xs text-white/45 font-light">({total} reseñas)</span>
+          )}
         </div>
-        {total > 0 && (
-          <span className="font-primary text-[10px] text-white/40">({total})</span>
-        )}
       </div>
     </a>
   );
