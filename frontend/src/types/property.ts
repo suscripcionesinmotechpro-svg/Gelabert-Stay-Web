@@ -55,6 +55,31 @@ export interface PropertyCommonArea {
   is_private?: boolean; // Principalmente para baños
 }
 
+export interface PropertyServiceConfig {
+  enabled: boolean;
+  included: boolean;
+  note: string;
+  limit?: number | null;
+  limit_period?: string | null;
+}
+
+export interface SharedLimitGroup {
+  id: string;
+  services: string[];
+  amount: number;
+  period?: string | null;
+}
+
+export interface PropertyServices {
+  agua?: PropertyServiceConfig;
+  electricidad?: PropertyServiceConfig;
+  internet?: PropertyServiceConfig;
+  limpieza?: PropertyServiceConfig;
+  gas_calle?: PropertyServiceConfig;
+  gas_bombona?: PropertyServiceConfig;
+  shared_limits?: SharedLimitGroup[];
+}
+
 export interface Property {
   id: string;
   created_at: string;
@@ -143,6 +168,7 @@ export interface Property {
   is_room_rental: boolean;
   rooms: PropertyRoom[] | null;
   common_areas: PropertyCommonArea[] | null;
+  services: PropertyServices | null;
   occupied_now: boolean;
   tenant_number: number | null;
   tenant_min_age: number | null;

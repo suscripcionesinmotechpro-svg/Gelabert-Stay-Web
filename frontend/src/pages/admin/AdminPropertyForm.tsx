@@ -5,7 +5,7 @@ import { usePropertyContracts } from '../../hooks/useContracts';
 import { supabase } from '../../lib/supabase';
 import type { PropertyInsert, PropertyOperation, PropertyType, PropertyStatus, CommercialStatus } from '../../types/property';
 import { AVAILABLE_TAGS } from '../../types/property';
-import { ChevronLeft, Save, Eye, Plus, X, ExternalLink, Sparkles } from 'lucide-react';
+import { ChevronLeft, Save, Eye, Plus, X, ExternalLink, Sparkles, Check } from 'lucide-react';
 import { SortableImageGallery } from '../../components/admin/SortableImageGallery';
 import { SortableVideoGallery } from '../../components/admin/SortableVideoGallery';
 import { SortableFloorPlansGallery } from '../../components/admin/SortableFloorPlansGallery';
@@ -85,6 +85,16 @@ const ContractHistory = ({ propertyId }: { propertyId: string }) => {
 };
 
 
+const DEFAULT_SERVICES = {
+  agua: { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual' },
+  electricidad: { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual' },
+  internet: { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual' },
+  limpieza: { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual' },
+  gas_calle: { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual' },
+  gas_bombona: { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual' },
+  shared_limits: []
+};
+
 const DEFAULT_FORM: Partial<PropertyInsert> = {
   title: '', operation: 'alquiler', property_type: 'piso',
   price: undefined, max_price: undefined, price_type: 'exact', currency: 'EUR', city: '', zone: '', address: '',
@@ -110,6 +120,7 @@ const DEFAULT_FORM: Partial<PropertyInsert> = {
   is_room_rental: false,
   rooms: [],
   common_areas: [],
+  services: DEFAULT_SERVICES,
   occupied_now: false,
   tenant_number: undefined,
   tenant_min_age: undefined,
@@ -189,6 +200,15 @@ export const AdminPropertyForm = () => {
         rooms: property.rooms ?? [],
         common_areas: property.common_areas ?? [],
         videos_metadata: property.videos_metadata ?? [],
+        services: {
+          agua: { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual', ...(property.services?.agua || {}) },
+          electricidad: { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual', ...(property.services?.electricidad || {}) },
+          internet: { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual', ...(property.services?.internet || {}) },
+          limpieza: { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual', ...(property.services?.limpieza || {}) },
+          gas_calle: { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual', ...(property.services?.gas_calle || {}) },
+          gas_bombona: { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual', ...(property.services?.gas_bombona || {}) },
+          shared_limits: property.services?.shared_limits || []
+        },
         occupied_now: property.occupied_now ?? false,
         tenant_number: property.tenant_number ?? undefined,
         tenant_min_age: property.tenant_min_age ?? undefined,
@@ -279,6 +299,41 @@ export const AdminPropertyForm = () => {
 
   const set = (field: keyof PropertyInsert, value: unknown) =>
     setForm(prev => ({ ...prev, [field]: value }));
+
+  const updateService = (serviceKey: 'agua' | 'electricidad' | 'internet' | 'limpieza' | 'gas_calle' | 'gas_bombona', field: string, value: any) => {
+    const currentServices = form.services || {};
+    const serviceConfig = currentServices[serviceKey] || { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual' };
+    const updatedService = { ...serviceConfig, [field]: value };
+    set('services', { ...currentServices, [serviceKey]: updatedService });
+  };
+
+  const addSharedLimit = () => {
+    const currentServices = form.services || {};
+    const sharedLimits = currentServices.shared_limits || [];
+    const newGroup = {
+      id: Date.now().toString() + Math.random().toString(36).substring(2, 5),
+      services: [],
+      amount: 0,
+      period: 'mensual'
+    };
+    set('services', { ...currentServices, shared_limits: [...sharedLimits, newGroup] });
+  };
+
+  const updateSharedLimit = (id: string, field: string, value: any) => {
+    const currentServices = form.services || {};
+    const sharedLimits = currentServices.shared_limits || [];
+    const updatedLimits = sharedLimits.map(group => 
+      group.id === id ? { ...group, [field]: value } : group
+    );
+    set('services', { ...currentServices, shared_limits: updatedLimits });
+  };
+
+  const deleteSharedLimit = (id: string) => {
+    const currentServices = form.services || {};
+    const sharedLimits = currentServices.shared_limits || [];
+    const updatedLimits = sharedLimits.filter(group => group.id !== id);
+    set('services', { ...currentServices, shared_limits: updatedLimits });
+  };
 
   const allImages = useMemo(() => {
     const main = form.main_image;
@@ -1286,6 +1341,242 @@ export const AdminPropertyForm = () => {
           <ToggleField label="Chimenea" checked={form.has_fireplace ?? false} onChange={v => set('has_fireplace', v)} />
         </div>
 
+      </div>
+
+      {/* SERVICIOS Y SUMINISTROS */}
+      <div className={sectionClass}>
+        <h2 className={sectionHeaderClass}>Servicios y Gastos</h2>
+        <p className="font-primary text-[#888888] text-xs -mt-2">
+          Activa y configura las condiciones de los servicios básicos (agua, luz, internet, limpieza, gas) tanto de manera individual como agrupados en límites compartidos.
+        </p>
+
+        {/* Grid de servicios individuales */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {(['agua', 'electricidad', 'internet', 'limpieza', 'gas_calle', 'gas_bombona'] as const).map(serviceKey => {
+            const config = (form.services as any)?.[serviceKey] || { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual' };
+            
+            let label = serviceKey.charAt(0).toUpperCase() + serviceKey.slice(1);
+            if (serviceKey === 'gas_calle') label = 'Gas natural / Calle';
+            if (serviceKey === 'gas_bombona') label = 'Gas butano / Bombona';
+
+            return (
+              <div 
+                key={serviceKey} 
+                className={`p-4 border transition-all duration-300 ${
+                  config.enabled 
+                    ? 'bg-[#111111]/40 border-[#C9A962]/30 shadow-[0_0_15px_rgba(201,169,98,0.03)]' 
+                    : 'bg-[#050505] border-[#1F1F1F] opacity-60'
+                } flex flex-col gap-4`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-primary font-bold text-xs text-[#FAF8F5] tracking-wide uppercase">
+                    {label}
+                  </span>
+                  <ToggleField 
+                    label={config.enabled ? "Activo" : "Inactivo"} 
+                    checked={config.enabled} 
+                    onChange={v => updateService(serviceKey, 'enabled', v)} 
+                  />
+                </div>
+
+                {config.enabled && (
+                  <div className="flex flex-col gap-3 pt-3 border-t border-[#1F1F1F]/60">
+                    <div className="flex flex-col gap-1.5">
+                      <span className={labelClass}>Condición de Pago</span>
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer group select-none">
+                          <input 
+                            type="radio" 
+                            name={`radio-${serviceKey}`}
+                            className="hidden" 
+                            checked={config.included}
+                            onChange={() => updateService(serviceKey, 'included', true)}
+                          />
+                          <div className={`w-3.5 h-3.5 rounded-full border ${ config.included ? 'border-[#C9A962] flex items-center justify-center' : 'border-[#444444] group-hover:border-[#666666]' } transition-colors`}>
+                            {config.included && <div className="w-1.5 h-1.5 rounded-full bg-[#C9A962]" />}
+                          </div>
+                          <span className={`font-primary text-[10px] uppercase tracking-wider transition-colors ${config.included ? 'text-[#FAF8F5]' : 'text-[#888888] group-hover:text-[#FAF8F5]'}`}>
+                            Incluido
+                          </span>
+                        </label>
+                        
+                        <label className="flex items-center gap-2 cursor-pointer group select-none">
+                          <input 
+                            type="radio" 
+                            name={`radio-${serviceKey}`}
+                            className="hidden" 
+                            checked={!config.included}
+                            onChange={() => updateService(serviceKey, 'included', false)}
+                          />
+                          <div className={`w-3.5 h-3.5 rounded-full border ${ !config.included ? 'border-[#C9A962] flex items-center justify-center' : 'border-[#444444] group-hover:border-[#666666]' } transition-colors`}>
+                            {!config.included && <div className="w-1.5 h-1.5 rounded-full bg-[#C9A962]" />}
+                          </div>
+                          <span className={`font-primary text-[10px] uppercase tracking-wider transition-colors ${!config.included ? 'text-[#FAF8F5]' : 'text-[#888888] group-hover:text-[#FAF8F5]'}`}>
+                            Aparte
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <span className={labelClass}>Límite (€/período)</span>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <input 
+                            type="number" 
+                            className={`${inputClass} !h-8 !px-2`} 
+                            placeholder="Sin límite" 
+                            value={config.limit !== null && config.limit !== undefined ? config.limit : ''} 
+                            onChange={e => updateService(serviceKey, 'limit', e.target.value !== '' ? Number(e.target.value) : null)} 
+                          />
+                          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[#666666] font-bold">€</span>
+                        </div>
+                        <select 
+                          className={`${selectClass} !h-8 !px-2 w-24 flex-shrink-0 text-xs`} 
+                          value={config.limit_period || 'mensual'} 
+                          onChange={e => updateService(serviceKey, 'limit_period', e.target.value)}
+                        >
+                          <option value="semanal">Semanal</option>
+                          <option value="mensual">Mensual</option>
+                          <option value="bimensual">Bimensual</option>
+                          <option value="anual">Anual</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <span className={labelClass}>Nota / Detalles</span>
+                      <input 
+                        type="text" 
+                        className={`${inputClass} !h-8 !px-2 text-xs`}
+                        placeholder="Ej: Límite de 30€/hab..." 
+                        value={config.note || ''} 
+                        onChange={e => updateService(serviceKey, 'note', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Límites Compartidos */}
+        <div className="mt-4 pt-6 border-t border-[#1F1F1F] flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h3 className="font-primary text-[#FAF8F5] font-bold text-xs uppercase tracking-wider">
+                Límites Compartidos / Suministros Agrupados
+              </h3>
+              <p className="font-primary text-[#666666] text-[10px] mt-0.5">
+                Configura un límite de gasto global para la suma de varios servicios (ej. luz, agua y gas hasta 120€ en total).
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={addSharedLimit}
+              disabled={!(['agua', 'electricidad', 'internet', 'limpieza', 'gas_calle', 'gas_bombona'] as const).some(k => ((form.services as any)?.[k]?.enabled))}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#C9A962]/10 border border-[#C9A962]/30 text-[#C9A962] text-xs font-bold uppercase tracking-wider hover:bg-[#C9A962]/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Añadir Límite
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {((form.services as any)?.shared_limits || []).length === 0 ? (
+              <div className="py-4 text-center text-[#666666] text-xs italic bg-[#050505] border border-[#1F1F1F] rounded-sm">
+                No hay límites compartidos configurados. Activa servicios arriba para poder agruparlos.
+              </div>
+            ) : (
+              ((form.services as any).shared_limits as any[]).map((group, idx) => {
+                const activeServices = (['agua', 'electricidad', 'internet', 'limpieza', 'gas_calle', 'gas_bombona'] as const)
+                  .filter(k => ((form.services as any)?.[k]?.enabled));
+
+                return (
+                  <div key={group.id} className="p-4 bg-[#0A0A0A] border border-[#1F1F1F] flex flex-col gap-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <span className="font-primary text-xs text-[#FAF8F5] font-bold uppercase tracking-wider">
+                        Grupo #{idx + 1}
+                      </span>
+                      <button 
+                        type="button" 
+                        onClick={() => deleteSharedLimit(group.id)} 
+                        className="text-[#444444] hover:text-red-400 transition-colors"
+                        title="Eliminar este grupo de límite"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="flex flex-col gap-1.5">
+                        <span className={labelClass}>Límite (€)</span>
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <input 
+                              type="number" 
+                              className={inputClass} 
+                              placeholder="Ej: 120"
+                              value={group.amount || ''} 
+                              onChange={e => updateSharedLimit(group.id, 'amount', e.target.value !== '' ? Number(e.target.value) : 0)} 
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#666666] font-bold">€</span>
+                          </div>
+                          <select 
+                            className={`${selectClass} w-28`} 
+                            value={group.period || 'mensual'} 
+                            onChange={e => updateSharedLimit(group.id, 'period', e.target.value)}
+                          >
+                            <option value="semanal">Semanal</option>
+                            <option value="mensual">Mensual</option>
+                            <option value="bimensual">Bimensual</option>
+                            <option value="anual">Anual</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-2 flex flex-col gap-1.5">
+                        <span className={labelClass}>Selecciona los suministros incluidos en este límite</span>
+                        <div className="flex flex-wrap gap-x-4 gap-y-2 mt-1">
+                          {activeServices.map(serviceKey => {
+                            let label = serviceKey.charAt(0).toUpperCase() + serviceKey.slice(1);
+                            if (serviceKey === 'gas_calle') label = 'Gas calle';
+                            if (serviceKey === 'gas_bombona') label = 'Gas bombona';
+
+                            const isChecked = group.services.includes(serviceKey);
+
+                            return (
+                              <label key={serviceKey} className="flex items-center gap-2 cursor-pointer group">
+                                <input 
+                                  type="checkbox" 
+                                  className="hidden" 
+                                  checked={isChecked}
+                                  onChange={() => {
+                                    const nextServices = isChecked 
+                                      ? group.services.filter((k: string) => k !== serviceKey)
+                                      : [...group.services, serviceKey];
+                                    updateSharedLimit(group.id, 'services', nextServices);
+                                  }}
+                                />
+                                <div className={`w-4 h-4 rounded-sm border ${ isChecked ? 'bg-[#C9A962] border-[#C9A962]' : 'border-[#444444] group-hover:border-[#666666]' } transition-colors flex items-center justify-center`}>
+                                  {isChecked && <Check className="w-3 h-3 text-[#0A0A0A]" />}
+                                </div>
+                                <span className={`font-primary text-[11px] uppercase tracking-wider ${isChecked ? 'text-[#FAF8F5]' : 'text-[#888888] group-hover:text-[#FAF8F5]'}`}>
+                                  {label}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
       </div>
 
       {/* CONTENIDO COMERCIAL */}

@@ -1304,6 +1304,113 @@ export const FichaPropiedad = () => {
             </div>
           )}
 
+          {/* Servicios y Gastos */}
+          {property.services && Object.values(property.services).some((s: any) => s?.enabled) && (
+            <div className="flex flex-col gap-6 pt-6 border-t border-[#1F1F1F]">
+              <h2 className="font-secondary text-2xl text-[#FAF8F5]">
+                {t('property.labels.features.services_and_expenses', 'Servicios y Gastos') as string}
+              </h2>
+              
+              {/* Grid de servicios activos */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {(['agua', 'electricidad', 'internet', 'limpieza', 'gas_calle', 'gas_bombona'] as const).map(key => {
+                  const service = (property.services as any)?.[key];
+                  if (!service?.enabled) return null;
+                  
+                  let label = key.charAt(0).toUpperCase() + key.slice(1);
+                  if (key === 'agua') label = t('services.water', 'Agua') as string;
+                  if (key === 'electricidad') label = t('services.electricity', 'Electricidad') as string;
+                  if (key === 'internet') label = t('services.internet', 'Internet') as string;
+                  if (key === 'limpieza') label = t('services.cleaning', 'Limpieza') as string;
+                  if (key === 'gas_calle') label = t('services.gas_calle', 'Gas natural / Calle') as string;
+                  if (key === 'gas_bombona') label = t('services.gas_bombona', 'Gas butano / Bombona') as string;
+                  
+                  return (
+                    <div 
+                      key={key} 
+                      className="flex flex-col gap-3 p-4 bg-[#0A0A0A] border border-[#1F1F1F] rounded-lg relative overflow-hidden group hover:border-[#C9A962]/30 transition-all duration-300"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-primary text-sm font-bold text-[#FAF8F5] uppercase tracking-wide">
+                          {label}
+                        </span>
+                        <span className={`px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-sm ${
+                          service.included 
+                            ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                            : 'bg-orange-500/10 text-orange-400 border border-orange-500/20'
+                        }`}>
+                          {service.included 
+                            ? (t('services.included', 'Incluido') as string)
+                            : (t('services.separate', 'Aparte') as string)}
+                        </span>
+                      </div>
+
+                      {service.limit !== null && service.limit !== undefined && (
+                        <div className="flex items-center gap-1.5 font-primary text-xs text-[#C9A962]">
+                          <span className="font-semibold">{t('services.limit', 'Límite:') as string}</span>
+                          <span>{service.limit} € / {t(`services.periods.${service.limit_period || 'mensual'}`, service.limit_period || 'mensual') as string}</span>
+                        </div>
+                      )}
+
+                      {service.note && (
+                        <p className="font-primary text-xs text-[#888888] leading-relaxed italic border-t border-[#1F1F1F]/60 pt-2 mt-0.5">
+                          {service.note}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Grupos de límites compartidos */}
+              {property.services.shared_limits && property.services.shared_limits.length > 0 && (
+                <div className="flex flex-col gap-3 mt-2">
+                  <h3 className="font-primary text-[#FAF8F5] font-bold text-xs uppercase tracking-wider">
+                    {t('services.shared_limits_title', 'Límites de Suministros Agrupados') as string}
+                  </h3>
+                  <div className="flex flex-col gap-3">
+                    {property.services.shared_limits.map((group: any, idx: number) => {
+                      const serviceLabels = group.services.map((k: string) => {
+                        let l = k.charAt(0).toUpperCase() + k.slice(1);
+                        if (k === 'agua') l = t('services.water', 'Agua') as string;
+                        if (k === 'electricidad') l = t('services.electricity', 'Electricidad') as string;
+                        if (k === 'internet') l = t('services.internet', 'Internet') as string;
+                        if (k === 'limpieza') l = t('services.cleaning', 'Limpieza') as string;
+                        if (k === 'gas_calle') l = t('services.gas_calle', 'Gas natural') as string;
+                        if (k === 'gas_bombona') l = t('services.gas_bombona', 'Gas butano') as string;
+                        return l;
+                      }).join(', ');
+
+                      return (
+                        <div 
+                          key={group.id || idx} 
+                          className="p-4 bg-[#0A0A0A] border border-l-2 border-[#1F1F1F] border-l-[#C9A962] rounded-r-lg flex flex-col md:flex-row md:items-center justify-between gap-3"
+                        >
+                          <div className="flex flex-col gap-1">
+                            <span className="font-primary text-[10px] text-[#888888] uppercase tracking-wider font-bold">
+                              {t('services.shared_group', 'Grupo de suministros') as string}
+                            </span>
+                            <span className="font-primary text-sm text-[#FAF8F5]">
+                              {serviceLabels}
+                            </span>
+                          </div>
+                          <div className="flex flex-col items-start md:items-end justify-center flex-shrink-0">
+                            <span className="font-secondary text-lg text-[#C9A962] font-bold">
+                              {group.amount} €
+                            </span>
+                            <span className="font-primary text-[10px] text-[#888888] uppercase tracking-wider">
+                              {t(`services.periods.${group.period || 'mensual'}`, group.period || 'mensual') as string} en total
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Features & Extras unified */}
           <div className="flex flex-col gap-6 pt-6 border-t border-[#1F1F1F]">
             <h2 className="font-secondary text-2xl text-[#FAF8F5]">{t('property.labels.features.features_and_extras')}</h2>
