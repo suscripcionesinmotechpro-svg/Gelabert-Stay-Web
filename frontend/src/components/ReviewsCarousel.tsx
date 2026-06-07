@@ -105,6 +105,13 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
     return () => clearTimeout(timer);
   }, [resetKey, isPaused, reviews.length]);
 
+  // Sync progress bar and JS timer when hover out (unpaused)
+  useEffect(() => {
+    if (!isPaused && reviews.length > 0) {
+      setResetKey((k) => k + 1);
+    }
+  }, [isPaused, reviews.length]);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -130,23 +137,23 @@ export const ReviewsCarousel = ({ onExpand }: { onExpand: () => void }) => {
       onMouseLeave={() => setIsPaused(false)}
     >
       {/* Header: Google branding + score */}
-      <div className="flex flex-col items-center mb-8 sm:mb-10 space-y-3">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center shadow-lg overflow-hidden">
-            <GoogleLogo size={20} />
+      <div className="flex flex-col items-center mb-10 sm:mb-12 space-y-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white flex items-center justify-center shadow-xl overflow-hidden border border-white/10 shrink-0">
+            <GoogleLogo size={28} />
           </div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-secondary text-gradient-gold tracking-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-secondary text-gradient-gold tracking-tight font-medium">
             Google Reviews
           </h2>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex">
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((s) => (
-              <Star key={s} size={16} fill="#C9A962" className="text-[#C9A962]" />
+              <Star key={s} size={20} fill="#C9A962" className="text-[#C9A962]" />
             ))}
           </div>
-          <span className="text-xs sm:text-sm text-[#FAF8F5]/60 font-medium">
-            {loading ? '...' : `${rating.toFixed(1)} / 5.0${total > 0 ? ` · ${total} reseñas` : ''}`}
+          <span className="text-sm sm:text-base text-[#FAF8F5]/80 font-medium tracking-wide">
+            {loading ? '...' : `${rating.toFixed(1)} / 5.0 · ${total > 0 ? `${total} reseñas` : ''}`}
           </span>
         </div>
       </div>

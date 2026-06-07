@@ -131,16 +131,15 @@ export const Footer = () => {
         </div>
 
       </div>
-
-      {/* Google Reviews Badge Strip */}
-      <GoogleFooterBadge />
-
       {/* Bottom bar */}
-      <div className="relative z-10 border-t border-white/5 py-6 px-6 md:px-14 flex flex-col md:flex-row items-center justify-between gap-4 bg-black/20">
-        <span className="font-primary text-xs text-[#555555] tracking-wide">
+      <div className="relative z-10 border-t border-white/5 py-6 px-6 md:px-14 flex flex-col md:flex-row items-center justify-between gap-6 bg-black/20">
+        <span className="font-primary text-xs text-white/50 tracking-wide text-center md:text-left">
           © {new Date().getFullYear()} Gelabert Homes Real Estate · {t('footer.all_rights') || 'Todos los derechos reservados'}
         </span>
-        <span className="font-primary text-[10px] text-[#444444] uppercase tracking-widest font-bold">
+        
+        <GoogleFooterBadge />
+
+        <span className="font-primary text-[10px] text-white/30 uppercase tracking-widest font-bold text-center md:text-right">
           {t('footer.made_in') || 'Málaga, España 🇪🇸'}
         </span>
       </div>
@@ -183,30 +182,28 @@ const GoogleFooterBadge = () => {
   if (!rating) return null;
 
   return (
-    <div className="relative z-10 border-t border-white/5 py-4 px-6 md:px-14 flex items-center justify-center">
-      <a
-        href="https://www.google.es/maps/place/Gelabert+Homes+Real+Estate/@36.7183312,-4.5316685,12z/data=!3m1!4b1!4m6!3m5!1s0x4faf4ce7697fd7c1:0xd7eb17fc18c8dc7a!8m2!3d36.718222!4d-4.4492669!16s%2Fg%2F11z755b0v3"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-3 px-4 py-2 bg-white/[0.02] border border-white/6 hover:border-[#C9A962]/25 hover:bg-white/[0.04] transition-all group rounded-sm"
-      >
-        <GoogleLogoSmall />
-        <span className="font-primary text-[10px] text-[#555] uppercase tracking-[0.2em]">
-          Google Reviews
-        </span>
-        <div className="w-[1px] h-3 bg-white/10" />
-        <div className="flex items-center gap-1.5">
-          <span className="font-primary text-xs text-[#C9A962] font-bold">{rating.toFixed(1)}</span>
-          <div className="flex gap-px">
-            {[1,2,3,4,5].map((s) => (
-              <Star key={s} size={9} className={s <= Math.round(rating) ? 'fill-[#FBBC05] text-[#FBBC05]' : 'fill-transparent text-white/15'} />
-            ))}
-          </div>
-          {total > 0 && (
-            <span className="font-primary text-[10px] text-[#444]">({total})</span>
-          )}
+    <a
+      href="https://www.google.es/maps/place/Gelabert+Homes+Real+Estate/@36.7183312,-4.5316685,12z/data=!3m1!4b1!4m6!3m5!1s0x4faf4ce7697fd7c1:0xd7eb17fc18c8dc7a!8m2!3d36.718222!4d-4.4492669!16s%2Fg%2F11z755b0v3"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-3 px-4 py-2 bg-white/[0.04] border border-white/10 hover:border-[#C9A962]/35 hover:bg-white/[0.08] transition-all group rounded-sm shadow-md"
+    >
+      <GoogleLogoSmall />
+      <span className="font-primary text-[10px] text-white/60 uppercase tracking-[0.2em] group-hover:text-white transition-colors">
+        Google Reviews
+      </span>
+      <div className="w-[1px] h-3 bg-white/10" />
+      <div className="flex items-center gap-1.5">
+        <span className="font-primary text-xs text-[#C9A962] font-bold">{rating.toFixed(1)}</span>
+        <div className="flex gap-px">
+          {[1,2,3,4,5].map((s) => (
+            <Star key={s} size={9} className={s <= Math.round(rating) ? 'fill-[#FBBC05] text-[#FBBC05]' : 'fill-transparent text-white/15'} />
+          ))}
         </div>
-      </a>
-    </div>
+        {total > 0 && (
+          <span className="font-primary text-[10px] text-white/40">({total})</span>
+        )}
+      </div>
+    </a>
   );
 };
