@@ -66,7 +66,7 @@ export interface PropertyServiceConfig {
 export interface SharedLimitGroup {
   id: string;
   services: string[];
-  amount: number;
+  amount: number | null;
   period?: string | null;
 }
 

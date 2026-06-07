@@ -1317,6 +1317,9 @@ export const FichaPropiedad = () => {
                   const service = (property.services as any)?.[key];
                   if (!service?.enabled) return null;
                   
+                  const sharedLimits = property.services?.shared_limits || [];
+                  const isServiceShared = sharedLimits.some((group: any) => group.services.includes(key));
+                  
                   let label = key.charAt(0).toUpperCase() + key.slice(1);
                   if (key === 'agua') label = t('services.water', 'Agua') as string;
                   if (key === 'electricidad') label = t('services.electricity', 'Electricidad') as string;
@@ -1345,11 +1348,18 @@ export const FichaPropiedad = () => {
                         </span>
                       </div>
 
-                      {service.limit !== null && service.limit !== undefined && (
+                      {isServiceShared ? (
                         <div className="flex items-center gap-1.5 font-primary text-xs text-[#C9A962]">
                           <span className="font-semibold">{t('services.limit', 'Límite:') as string}</span>
-                          <span>{service.limit} € / {t(`services.periods.${service.limit_period || 'mensual'}`, service.limit_period || 'mensual') as string}</span>
+                          <span>{t('services.shared', 'Compartido') as string} ({t(`services.periods.${service.limit_period || 'mensual'}`, service.limit_period || 'mensual') as string})</span>
                         </div>
+                      ) : (
+                        service.limit !== null && service.limit !== undefined && (
+                          <div className="flex items-center gap-1.5 font-primary text-xs text-[#C9A962]">
+                            <span className="font-semibold">{t('services.limit', 'Límite:') as string}</span>
+                            <span>{service.limit} € / {t(`services.periods.${service.limit_period || 'mensual'}`, service.limit_period || 'mensual') as string}</span>
+                          </div>
+                        )
                       )}
 
                       {service.note && (
@@ -1396,7 +1406,7 @@ export const FichaPropiedad = () => {
                           </div>
                           <div className="flex flex-col items-start md:items-end justify-center flex-shrink-0">
                             <span className="font-secondary text-lg text-[#C9A962] font-bold">
-                              {group.amount} €
+                              {group.amount !== null && group.amount !== undefined ? `${group.amount} €` : '—'}
                             </span>
                             <span className="font-primary text-[10px] text-[#888888] uppercase tracking-wider">
                               {t(`services.periods.${group.period || 'mensual'}`, group.period || 'mensual') as string} en total

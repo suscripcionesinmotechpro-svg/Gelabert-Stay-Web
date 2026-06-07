@@ -6,12 +6,12 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 // Converts a Supabase Storage URL to use the render/image API for optimized previews.
 // Social scrapers (WhatsApp, Facebook, Instagram) work best with images < 300KB, 1200x630.
 // IMPORTANT: Keep query string minimal — WhatsApp bot sometimes fails on long/complex URLs.
-function optimizeSupabaseImage(rawUrl: string): string {
+function optimizeSupabaseImage(rawUrl: string, format = "webp"): string {
   if (!rawUrl || !rawUrl.trim()) return "";
   const clean = rawUrl.split("?")[0].split("#")[0].trim();
   // Only transform if it's a Supabase storage URL
   if (clean.includes("supabase.co") && clean.includes("/object/public/")) {
-    return clean.replace("/object/public/", "/render/image/public/") + "?width=1200&height=630&resize=cover&quality=75&format=webp";
+    return clean.replace("/object/public/", "/render/image/public/") + `?width=1200&height=630&resize=cover&quality=75&format=${format}`;
   }
   // For non-Supabase images (e.g. external CDN), return as-is without query params
   return clean;
@@ -273,7 +273,7 @@ export default async (request: Request, context: Context) => {
         cleanDesc = isEn ? (post.seo_description_en || stripHtml(rawContent).substring(0, 160)) : (post.seo_description || stripHtml(rawContent).substring(0, 160));
         
         const rawImage = post.cover_image;
-        previewImage = rawImage ? optimizeSupabaseImage(rawImage) : "https://gelaberthomes.es/logo-meta-v3.png";
+        previewImage = rawImage ? optimizeSupabaseImage(rawImage, "jpeg") : "https://gelaberthomes.es/logo-meta-v3.png";
         canonicalUrl = `https://gelaberthomes.es${isEn ? "/en" : ""}/blog/${post.slug}`;
 
         jsonLds.push({
@@ -305,7 +305,7 @@ export default async (request: Request, context: Context) => {
         `<meta property="og:image:secure_url" content="${previewImage}">`,
         `<meta property="og:image:width" content="1200">`,
         `<meta property="og:image:height" content="630">`,
-        `<meta property="og:image:type" content="image/webp">`,
+        `<meta property="og:image:type" content="${routeType === "propiedades" ? "image/webp" : "image/jpeg"}">`,
         `<meta property="og:image:alt" content="${cleanTitle}">`,
         `<meta property="og:locale" content="${isEn ? "en_US" : "es_ES"}">`,
         `<meta property="og:locale:alternate" content="${isEn ? "es_ES" : "en_US"}">`,

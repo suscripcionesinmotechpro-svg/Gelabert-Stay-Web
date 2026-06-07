@@ -313,7 +313,7 @@ export const AdminPropertyForm = () => {
     const newGroup = {
       id: Date.now().toString() + Math.random().toString(36).substring(2, 5),
       services: [],
-      amount: 0,
+      amount: null,
       period: 'mensual'
     };
     set('services', { ...currentServices, shared_limits: [...sharedLimits, newGroup] });
@@ -1354,6 +1354,8 @@ export const AdminPropertyForm = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {(['agua', 'electricidad', 'internet', 'limpieza', 'gas_calle', 'gas_bombona'] as const).map(serviceKey => {
             const config = (form.services as any)?.[serviceKey] || { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual' };
+            const sharedLimits = (form.services as any)?.shared_limits || [];
+            const isServiceShared = sharedLimits.some((group: any) => group.services.includes(serviceKey));
             
             let label = serviceKey.charAt(0).toUpperCase() + serviceKey.slice(1);
             if (serviceKey === 'gas_calle') label = 'Gas natural / Calle';
@@ -1425,8 +1427,9 @@ export const AdminPropertyForm = () => {
                           <input 
                             type="number" 
                             className={`${inputClass} !h-8 !px-2`} 
-                            placeholder="Sin límite" 
-                            value={config.limit !== null && config.limit !== undefined ? config.limit : ''} 
+                            placeholder={isServiceShared ? "Compartido" : "Sin límite"} 
+                            disabled={isServiceShared}
+                            value={isServiceShared ? "" : (config.limit !== null && config.limit !== undefined ? config.limit : '')} 
                             onChange={e => updateService(serviceKey, 'limit', e.target.value !== '' ? Number(e.target.value) : null)} 
                           />
                           <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[#666666] font-bold">€</span>
@@ -1518,8 +1521,8 @@ export const AdminPropertyForm = () => {
                               type="number" 
                               className={inputClass} 
                               placeholder="Ej: 120"
-                              value={group.amount || ''} 
-                              onChange={e => updateSharedLimit(group.id, 'amount', e.target.value !== '' ? Number(e.target.value) : 0)} 
+                              value={group.amount !== undefined && group.amount !== null ? group.amount : ''} 
+                              onChange={e => updateSharedLimit(group.id, 'amount', e.target.value !== '' ? Number(e.target.value) : null)} 
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#666666] font-bold">€</span>
                           </div>
