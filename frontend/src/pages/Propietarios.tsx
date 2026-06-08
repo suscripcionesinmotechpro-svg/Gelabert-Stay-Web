@@ -474,7 +474,7 @@ export const Propietarios = () => {
           </div>
 
           {/* Portals Section */}
-          <div className="border border-white/5 bg-[#0F0F0F] p-10 md:p-16 flex flex-col items-center">
+          <div className="border border-white/5 bg-[#161616] p-10 md:p-16 flex flex-col items-center">
             <h3 className="font-primary text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold mb-8 text-center">
               {t('owners_page.marketing.portals_title')}
             </h3>
