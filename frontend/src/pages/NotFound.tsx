@@ -9,7 +9,7 @@ export const NotFound = () => {
   const langPrefix = i18n.language.startsWith('en') ? '/en' : '';
 
   return (
-    <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center px-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center px-6 relative overflow-hidden">
       <Helmet>
         <title>404 — Página no encontrada | Gelabert Homes</title>
         <meta name="robots" content="noindex, nofollow" />

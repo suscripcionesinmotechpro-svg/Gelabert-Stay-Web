@@ -18,7 +18,7 @@ export const Privacidad = () => {
   const sections = t('legal.privacy.sections', { returnObjects: true }) as any[];
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] pt-32 pb-20 px-6 md:px-20 font-primary text-[#888888]">
+    <div className="min-h-screen bg-[#121212] pt-32 pb-20 px-6 md:px-20 font-primary text-[#888888]">
       <Helmet>
         <title>{t('legal.privacy.seo_title')}</title>
       </Helmet>
@@ -74,7 +74,7 @@ export const Privacidad = () => {
                 )}
 
                 {section.exercise && (
-                  <div className="bg-[#1A1A1A] p-6 border-l-4 border-[#C9A962] mt-4">
+                  <div className="bg-[#1C1C1C] p-6 border-l-4 border-[#C9A962] mt-4">
                     <p className="whitespace-pre-line">{renderBold(section.exercise)}</p>
                   </div>
                 )}

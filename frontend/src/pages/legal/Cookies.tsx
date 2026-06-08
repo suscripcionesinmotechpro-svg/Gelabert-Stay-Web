@@ -18,7 +18,7 @@ export const Cookies = () => {
   const sections = t('legal.cookies.sections', { returnObjects: true }) as any[];
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] pt-32 pb-20 px-6 md:px-20 font-primary text-[#888888]">
+    <div className="min-h-screen bg-[#121212] pt-32 pb-20 px-6 md:px-20 font-primary text-[#888888]">
       <Helmet>
         <title>{t('legal.cookies.seo_title')}</title>
       </Helmet>

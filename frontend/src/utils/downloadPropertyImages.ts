@@ -93,8 +93,122 @@ function collectImageUrls(property: Property): { url: string; filename: string }
 }
 
 /**
+ * Builds a lookup map: imageUrl (clean) → room label string
+ * for all room images in a room-rental property.
+ * Format: "HABITACIÓN 1 · 450€/MES" or the room name if set.
+ */
+function buildRoomLabelMap(property: Property): Map<string, string> {
+  const map = new Map<string, string>();
+  if (!property.is_room_rental) return map;
+
+  (property.rooms || []).forEach((room, idx) => {
+    const roomName = (room.name && room.name.trim()) ? room.name.trim() : `Habitación ${idx + 1}`;
+    const priceStr = room.price ? ` · ${Math.round(room.price)}€/mes` : '';
+    const label = `${roomName}${priceStr}`.toUpperCase();
+
+    (room.images || []).forEach((url) => {
+      if (!url || typeof url !== 'string') return;
+      const cleanUrl = url.trim().split('?')[0];
+      map.set(cleanUrl, label);
+    });
+  });
+
+  return map;
+}
+
+/**
+ * Applies a black badge with white text in the bottom-left corner of an image blob.
+ * Returns a new Blob with the label drawn on it.
+ * This mirrors the createLabeledImageBuffer logic from the Edge Function (server-side),
+ * but runs in the browser using Canvas.
+ */
+async function applyRoomLabelToBlob(blob: Blob, label: string): Promise<Blob> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(blob);
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        URL.revokeObjectURL(objectUrl);
+        resolve(blob); // fallback — return original
+        return;
+      }
+
+      // Draw the original image
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(objectUrl);
+
+      // ── Badge layout ─────────────────────────────────────────────────────────
+      const W = canvas.width;
+      const H = canvas.height;
+
+      // Font size scales with image width (similar to Edge Function's 22px at 900px)
+      const fontSize = Math.max(14, Math.round(W * 0.024));
+      ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+
+      const textMetrics = ctx.measureText(label);
+      const textW = textMetrics.width;
+
+      const paddingX = Math.round(W * 0.02);      // 2% of width
+      const paddingY = Math.round(H * 0.025);     // 2.5% of height
+      const badgePadH = Math.round(fontSize * 0.55); // vertical padding inside badge
+      const badgePadW = Math.round(fontSize * 0.75); // horizontal padding inside badge
+
+      const badgeW = Math.round(textW) + badgePadW * 2;
+      const badgeH = fontSize + badgePadH * 2;
+      const badgeX = paddingX;
+      const badgeY = H - paddingY - badgeH;
+
+      // Badge background (solid black with slight transparency)
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.88)';
+      ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
+
+      // White border (2px)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.90)';
+      ctx.lineWidth = Math.max(1.5, W * 0.002);
+      ctx.strokeRect(
+        badgeX + ctx.lineWidth / 2,
+        badgeY + ctx.lineWidth / 2,
+        badgeW - ctx.lineWidth,
+        badgeH - ctx.lineWidth,
+      );
+
+      // Text (white, bold, with subtle shadow for legibility)
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+      ctx.shadowColor = 'rgba(0,0,0,0.6)';
+      ctx.shadowBlur = 3;
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 1;
+      ctx.fillText(label, badgeX + badgePadW, badgeY + badgePadH + fontSize * 0.88);
+      ctx.shadowBlur = 0;
+
+      canvas.toBlob(
+        (result) => resolve(result ?? blob),
+        'image/jpeg',
+        0.88,
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(blob); // fallback on error
+    };
+
+    img.crossOrigin = 'anonymous';
+    img.src = objectUrl;
+  });
+}
+
+/**
  * Downloads all images of a property as a ZIP file.
- * Images already have the watermark applied (they were watermarked on upload).
+ * For room-rental properties, room photos get a label badge
+ * (room name + price) drawn on the bottom-left corner.
  * @param property - The property object
  * @param onProgress - Optional callback with progress (0-100)
  */
@@ -107,6 +221,9 @@ export async function downloadPropertyImagesAsZip(
   if (images.length === 0) {
     throw new Error('Esta propiedad no tiene fotos para descargar.');
   }
+
+  // Build a room label map (only populated for room-rental properties)
+  const roomLabelMap = buildRoomLabelMap(property);
 
   const zip = new JSZip();
   const folder = zip.folder(property.reference || property.id.slice(0, 8)) as JSZip;
@@ -126,8 +243,25 @@ export async function downloadPropertyImagesAsZip(
         
         const response = await fetch(cacheBustingUrl);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const blob = await response.blob();
-        folder.file(filename, blob);
+        let blob = await response.blob();
+
+        // ── Apply room label badge if this image belongs to a room ────────────
+        const cleanUrl = url.trim().split('?')[0];
+        const roomLabel = roomLabelMap.get(cleanUrl);
+        if (roomLabel) {
+          try {
+            blob = await applyRoomLabelToBlob(blob, roomLabel);
+          } catch (labelErr) {
+            console.warn(`[ZIP] Room label failed for ${url}, using original:`, labelErr);
+          }
+        }
+
+        // Force .jpg extension for labeled images (canvas outputs JPEG)
+        const finalFilename = roomLabel
+          ? filename.replace(/\.[^.]+$/, '.jpg')
+          : filename;
+
+        folder.file(finalFilename, blob);
         successfulDownloads++;
       } catch (err) {
         // Skip images that can't be fetched (CORS, 404, etc.)

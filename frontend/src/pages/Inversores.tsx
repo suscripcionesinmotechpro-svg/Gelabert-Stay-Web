@@ -7,7 +7,7 @@ const Inversores = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-[#0F0F0F]">
+    <div className="flex flex-col w-full min-h-screen bg-[#121212]">
       <Helmet>
         <title>Gelabert Homes | {t('nav.investors')}</title>
         <meta name="description" content={t('investors_page.seo.description')} />

@@ -216,7 +216,7 @@ export const FichaPropiedad = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center">
+      <div className="min-h-screen bg-[#121212] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -224,7 +224,7 @@ export const FichaPropiedad = () => {
 
   if (error || !property) {
     return (
-      <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center gap-4">
         <p className="font-primary text-[#888888] text-lg">{t('property.labels.features.not_found')}</p>
         <Link to={i18n.language.startsWith('en') ? "/en/propiedades" : "/propiedades"} className="font-primary text-[#C9A962] text-sm hover:underline">← {t('property.labels.features.back_to_catalog')}</Link>
       </div>
@@ -385,7 +385,7 @@ export const FichaPropiedad = () => {
   ].filter(Boolean).join(', ');
 
   return (
-    <div className="w-full pb-20 bg-[#0F0F0F]">
+    <div className="w-full pb-20 bg-[#121212]">
       <Helmet>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDescription} />
@@ -481,7 +481,7 @@ export const FichaPropiedad = () => {
         </script>
       </Helmet>
       {/* Breadcrumb */}
-      <div className="w-full px-6 md:px-14 py-4 border-b border-[#1F1F1F] bg-[#0A0A0A]">
+      <div className="w-full px-6 md:px-14 py-4 border-b border-[#1F1F1F] bg-[#161616]">
         <div className="flex items-center gap-2 font-primary text-xs text-[#FAF8F5]/60">
           <Link to={i18n.language.startsWith('en') ? "/en" : "/"} className="hover:text-[#FAF8F5] transition-colors">{t('nav.home')}</Link>
           <span>›</span>

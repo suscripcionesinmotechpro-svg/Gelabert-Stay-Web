@@ -306,9 +306,10 @@ async function createWatermarkedImageBuffer(imageUrl: string, statusKey: string)
     
     const img = await Image.decode(buf)
 
-    // Resize to OG dimensions (1200x630)
-    const targetW = 1200
-    const targetH = 630
+    // Resize to compact social dimensions (900x472) — saves ~44% memory vs 1200x630
+    // Facebook/Instagram still renders these at full quality in feeds
+    const targetW = 900
+    const targetH = 472
     const resized = img.resize(targetW, targetH)
 
     // ── Draw diagonal banner ──
@@ -373,9 +374,9 @@ async function createLabeledImageBuffer(imageUrl: string, label: string): Promis
     
     const img = await Image.decode(buf)
     
-    // OG resolution standard (1200x630)
-    const targetW = 1200
-    const targetH = 630
+    // Compact social dimensions (900x472) — saves ~44% memory vs 1200x630
+    const targetW = 900
+    const targetH = 472
     const resized = img.resize(targetW, targetH)
     
     // Rectangular badge at bottom-left corner with high-contrast borders
@@ -563,6 +564,38 @@ async function processAndWatermarkImage(
   }
 
   return cleanUrl;
+}
+
+// ── Process a list of raw image URLs in batches to avoid WORKER_RESOURCE_LIMIT ──
+// Each batch of BATCH_SIZE images is processed sequentially, then a short pause
+// gives the Deno runtime time to garbage-collect before the next batch.
+async function processImageUrlsInBatches(
+  urls: string[], // validated http URLs, in order
+  prop: any,
+  pid: string,
+  supabase: any,
+  needsWatermark: boolean,
+  coverIndex = 0,  // index in `urls` that should be treated as the cover
+  batchSize = 5,
+  pauseMs = 300,
+): Promise<{ url: string; type: 'IMAGE' }[]> {
+  const results: { url: string; type: 'IMAGE' }[] = []
+  for (let i = 0; i < urls.length; i += batchSize) {
+    if (i > 0) {
+      // Short pause between batches so the GC can reclaim image buffers
+      await new Promise(r => setTimeout(r, pauseMs))
+    }
+    const batch = urls.slice(i, i + batchSize)
+    for (let j = 0; j < batch.length; j++) {
+      const img = batch[j]
+      const globalIdx = i + j
+      const isCover = globalIdx === coverIndex
+      const processed = await processAndWatermarkImage(prop, pid, supabase, img, isCover, needsWatermark)
+      results.push({ url: processed, type: 'IMAGE' })
+    }
+    console.log(`[Media Sync] Batch ${Math.floor(i / batchSize) + 1} done (${Math.min(i + batchSize, urls.length)}/${urls.length} images)`)
+  }
+  return results
 }
 
 interface MediaItem {
@@ -929,22 +962,25 @@ ${text}`
     const needsWatermark = prop.commercial_status && prop.commercial_status !== 'disponible'
 
     if (selectedImages && Array.isArray(selectedImages) && selectedImages.length > 0) {
-      console.log(`[Media Sync] Using manually selected images (${selectedImages.length}):`, selectedImages)
-      for (let i = 0; i < selectedImages.length; i++) {
-        const img = selectedImages[i]
-        if (!img || !img.trim().startsWith('http')) continue
-        
-        const processedUrl = await processAndWatermarkImage(prop, pid, supabase, img, i === 0, needsWatermark)
-        mediaItems.push({ url: processedUrl, type: 'IMAGE' })
-        
-        // Video (if direct mp4) - placed immediately after the cover image as requested by the user
-        if (i === 0) {
-          const useVideo = trigger === 'manual' ? (includeVideo !== false) : true;
-          const rawVideo = trigger === 'manual' ? (customVideoUrl || prop.video_url) : prop.video_url;
-          if (useVideo && rawVideo && rawVideo.trim().startsWith('http') && rawVideo.toLowerCase().includes('.mp4')) {
-            mediaItems.push({ url: rawVideo.trim(), type: 'VIDEO' })
-          }
-        }
+      // Filter valid URLs first
+      const validSelected = selectedImages.filter((img: string) => img && img.trim().startsWith('http'))
+      console.log(`[Media Sync] Using manually selected images (${validSelected.length} valid of ${selectedImages.length})`)
+
+      // ── Insert the video BEFORE batch-processing so it lands right after the cover ──
+      const useVideo = trigger === 'manual' ? (includeVideo !== false) : true;
+      const rawVideo = trigger === 'manual' ? (customVideoUrl || prop.video_url) : prop.video_url;
+      const hasVideo = useVideo && rawVideo && rawVideo.trim().startsWith('http') && rawVideo.toLowerCase().includes('.mp4')
+
+      // Process images in batches of 5 to avoid WORKER_RESOURCE_LIMIT
+      const processedImages = await processImageUrlsInBatches(
+        validSelected, prop, pid, supabase, needsWatermark, 0, 5, 300
+      )
+
+      // Assemble mediaItems: cover → video → rest of images
+      if (processedImages.length > 0) {
+        mediaItems.push(processedImages[0]) // cover
+        if (hasVideo) mediaItems.push({ url: rawVideo.trim(), type: 'VIDEO' })
+        for (let k = 1; k < processedImages.length; k++) mediaItems.push(processedImages[k])
       }
     } else {
       // 1. Cover Image (main_image or first gallery image)
@@ -998,34 +1034,43 @@ ${text}`
         }
       }
 
-      // 4. Standard Gallery Photos (for regular properties, OR fallback for room properties)
+      // 4. Standard Gallery Photos — collected then processed in batches to avoid WORKER_RESOURCE_LIMIT
+      const galleryUrls: string[] = []
       if (prop.gallery && Array.isArray(prop.gallery)) {
         const firstGalleryImg = prop.gallery[0]
         const galleryStartIdx = (firstGalleryImg === prop.main_image) ? 1 : 0
-        
         for (let i = galleryStartIdx; i < prop.gallery.length; i++) {
           const img = prop.gallery[i]
           if (img && img.trim().startsWith('http')) {
             const rawUrl = img.trim().split('?')[0];
             if (!mediaItems.some(item => item.url.includes(rawUrl) || rawUrl.includes(item.url))) {
-              const processedUrl = await processAndWatermarkImage(prop, pid, supabase, img, false, false);
-              mediaItems.push({ url: processedUrl, type: 'IMAGE' });
+              galleryUrls.push(img)
             }
           }
         }
       }
 
-      // 5. Floor Plans
+      // 5. Floor Plans — also collected for batch processing
+      const floorPlanUrls: string[] = []
       if (prop.floor_plans && Array.isArray(prop.floor_plans)) {
         for (const img of prop.floor_plans) {
           if (img && img.trim().startsWith('http')) {
             const rawUrl = img.trim().split('?')[0];
             if (!mediaItems.some(item => item.url.includes(rawUrl) || rawUrl.includes(item.url))) {
-              const processedUrl = await processAndWatermarkImage(prop, pid, supabase, img, false, false);
-              mediaItems.push({ url: processedUrl, type: 'IMAGE' });
+              floorPlanUrls.push(img)
             }
           }
         }
+      }
+
+      // Process gallery + floor plans in batches of 5 with 300ms pause
+      const allExtraUrls = [...galleryUrls, ...floorPlanUrls]
+      if (allExtraUrls.length > 0) {
+        console.log(`[Media Sync] Processing ${allExtraUrls.length} extra images in batches...`)
+        const processedExtra = await processImageUrlsInBatches(
+          allExtraUrls, prop, pid, supabase, false, -1, 5, 300
+        )
+        for (const item of processedExtra) mediaItems.push(item)
       }
     }
 

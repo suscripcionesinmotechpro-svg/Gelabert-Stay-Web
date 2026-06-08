@@ -4,7 +4,7 @@ import { TrendingUp, Zap, Users } from 'lucide-react';
 
 export const Valoracion = () => {
   return (
-    <div className="w-full bg-[#0F0F0F] min-h-screen text-[#FAF8F5]">
+    <div className="w-full bg-[#121212] min-h-screen text-[#FAF8F5]">
       <Helmet>
         <title>Valora tu Inmueble | Gelabert Homes</title>
         <meta name="description" content="Descubre el valor real de tu propiedad en Málaga y la Costa del Sol. Valoración gratuita y en minutos." />
@@ -70,7 +70,7 @@ export const Valoracion = () => {
               </div>
 
               {/* QR Code Column */}
-              <div className="flex flex-col items-center justify-center p-8 bg-[#0A0A0A]/50 rounded-2xl border border-white/5">
+              <div className="flex flex-col items-center justify-center p-8 bg-[#1C1C1C]/50 rounded-2xl border border-white/5">
                 <p className="text-gray-400 font-primary uppercase tracking-wider text-sm mb-6 text-center">
                   ¿Prefieres usar tu móvil? Escanea el código QR
                 </p>
@@ -89,7 +89,7 @@ export const Valoracion = () => {
       </section>
 
       {/* Value Proposition Section */}
-      <section className="px-6 md:px-14 pb-32 bg-[#0A0A0A] relative z-10">
+      <section className="px-6 md:px-14 pb-32 bg-[#161616] relative z-10">
         <div className="max-w-7xl mx-auto pt-24 border-t border-white/5">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
             <motion.div 
