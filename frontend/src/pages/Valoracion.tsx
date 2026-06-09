@@ -42,46 +42,47 @@ export const Valoracion = () => {
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="max-w-5xl mx-auto w-full flex flex-col gap-8"
+          className="max-w-5xl mx-auto w-full"
         >
-          {/* Embedded Iframe Container */}
-          <div className="w-full bg-[#161616] rounded-2xl md:rounded-[2rem] p-1 border border-white/10 relative overflow-hidden shadow-[0_0_50px_rgba(201,169,98,0.05)] h-[600px] md:h-[750px]">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#C9A962] opacity-[0.03] blur-[80px] rounded-full pointer-events-none"></div>
-            <iframe 
-              src="https://valuation.lystos.com?clientId=8b18c1ba-a7b9-4282-9430-f881d50afa64" 
-              width="100%" 
-              height="100%" 
-              frameBorder="0" 
-              scrolling="no"
-              className="rounded-2xl md:rounded-[1.9rem] bg-transparent"
-              title="Valorador Lystos"
-            />
-          </div>
-
-          {/* Alternative QR / Link Section */}
-          <div className="w-full bg-[#1C1C1C]/40 backdrop-blur-sm rounded-xl p-6 md:p-8 border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex flex-col gap-2 text-center md:text-left">
-              <h3 className="font-primary text-[#FAF8F5] text-lg uppercase tracking-wider">¿Prefieres usar otro dispositivo?</h3>
-              <p className="text-gray-400 font-secondary text-sm max-w-xl">
-                Escanea el código QR para realizar la valoración cómodamente desde tu teléfono móvil, o si lo prefieres, puedes{' '}
+          {/* Lystos Access Section */}
+          <div className="w-full bg-white/5 backdrop-blur-sm rounded-2xl md:rounded-[2rem] p-8 md:p-16 border border-white/10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#C9A962] opacity-[0.05] blur-[80px] rounded-full"></div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+              
+              {/* Text & Button Column */}
+              <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+                <h2 className="text-3xl md:text-4xl font-primary uppercase tracking-tight mb-6">
+                  Inicia tu <span className="text-[#C9A962]">valoración</span>
+                </h2>
+                <p className="text-gray-400 font-secondary text-lg mb-8 max-w-md">
+                  Por medidas de seguridad de la plataforma, nuestro valorador avanzado se abrirá en una nueva ventana segura. Haz clic en el botón inferior para comenzar de inmediato.
+                </p>
                 <a 
                   href="https://valuation.lystos.com?clientId=8b18c1ba-a7b9-4282-9430-f881d50afa64" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-[#C9A962] hover:text-[#FAF8F5] underline transition-colors"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-[#C9A962] text-[#0A0A0A] font-primary uppercase tracking-wider font-semibold hover:bg-white transition-all duration-300 rounded-sm w-full sm:w-auto justify-center"
                 >
-                  abrir el valorador en una pestaña nueva
-                </a>.
-              </p>
-            </div>
-            
-            <div className="flex flex-col items-center gap-2 bg-white p-3 rounded-lg shadow-xl shrink-0">
-              <img 
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent('https://valuation.lystos.com?clientId=8b18c1ba-a7b9-4282-9430-f881d50afa64')}`} 
-                alt="Código QR Valorador Lystos"
-                className="w-32 h-32 object-contain"
-              />
-              <span className="text-[10px] text-[#0A0A0A] font-bold uppercase tracking-wider font-primary">Escanear QR</span>
+                  Abrir Valorador Gratuito
+                  <TrendingUp size={20} />
+                </a>
+              </div>
+
+              {/* QR Code Column */}
+              <div className="flex flex-col items-center justify-center p-8 bg-[#1C1C1C]/50 rounded-2xl border border-white/5">
+                <p className="text-gray-400 font-primary uppercase tracking-wider text-sm mb-6 text-center">
+                  ¿Prefieres usar tu móvil? Escanea el código QR
+                </p>
+                <div className="bg-white p-4 rounded-xl shadow-2xl">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('https://valuation.lystos.com?clientId=8b18c1ba-a7b9-4282-9430-f881d50afa64')}`} 
+                    alt="Código QR Valorador Lystos"
+                    className="w-48 h-48 object-contain"
+                  />
+                </div>
+              </div>
+
             </div>
           </div>
         </motion.div>
