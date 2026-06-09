@@ -1,4 +1,4 @@
-export const applyWatermark = async (file: File): Promise<File> => {
+export const applyWatermark = async (file: File, roomText?: string): Promise<File> => {
   if (!file.type.startsWith('image/')) {
     // Return videos, pdfs directly
     return file;
@@ -57,6 +57,54 @@ export const applyWatermark = async (file: File): Promise<File> => {
           const x = (width - wmWidth) / 2;
           const y = (height - wmHeight) / 2;
           ctx.drawImage(watermark, x, y, wmWidth, wmHeight);
+
+          // ── Add Room Text Watermark in top-left corner if provided ──
+          if (roomText) {
+            const scale = width / 1200;
+            const fontSize = Math.max(14, Math.min(56, Math.round(20 * scale)));
+            ctx.font = `bold ${fontSize}px Outfit, sans-serif`;
+            
+            const paddingX = Math.round(14 * scale);
+            const paddingY = Math.round(8 * scale);
+            const margin = Math.round(20 * scale);
+            
+            const textWidth = ctx.measureText(roomText).width;
+            const textHeight = fontSize;
+            
+            const boxX = margin;
+            const boxY = margin;
+            const boxW = textWidth + paddingX * 2;
+            const boxH = textHeight + paddingY * 2;
+            const radius = Math.round(4 * scale);
+            
+            ctx.save();
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.globalAlpha = 0.85;
+            
+            ctx.fillStyle = '#0A0A0A';
+            ctx.beginPath();
+            if (ctx.roundRect) {
+              ctx.roundRect(boxX, boxY, boxW, boxH, radius);
+            } else {
+              ctx.rect(boxX, boxY, boxW, boxH);
+            }
+            ctx.fill();
+            
+            // Gold border
+            ctx.strokeStyle = 'rgba(201, 169, 98, 0.8)';
+            ctx.lineWidth = Math.max(1, Math.round(1.5 * scale));
+            ctx.stroke();
+            
+            // Text drawing
+            ctx.fillStyle = '#C9A962'; // Gold
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText(roomText, boxX + paddingX, boxY + paddingY);
+            ctx.restore();
+          }
 
           // ── Always output as JPEG at 0.85 quality ──
           // PNG → JPEG saves ~60-80% size; JPEG stays high quality

@@ -438,6 +438,24 @@
     }
   },
   "services": {
+    "periods": {
+      "semanal": "weekly",
+      "mensual": "monthly",
+      "bimensual": "bi-monthly",
+      "anual": "yearly"
+    },
+    "water": "Water",
+    "electricity": "Electricity",
+    "internet": "Internet",
+    "cleaning": "Cleaning",
+    "gas_calle": "Natural Gas / Street",
+    "gas_bombona": "Butane Gas / Cylinder",
+    "included": "Included",
+    "separate": "Separate",
+    "limit": "Limit:",
+    "shared": "Shared",
+    "shared_limits_title": "Grouped Supply Limits",
+    "shared_group": "Supply Group",
     "tenants": {
       "badge": "For Tenants",
       "title": "Find your ideal home",

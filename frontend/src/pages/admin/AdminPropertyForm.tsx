@@ -1421,31 +1421,38 @@ export const AdminPropertyForm = () => {
                     </div>
 
                     <div className="flex flex-col gap-1">
-                      <span className={labelClass}>Límite (€/período)</span>
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
+                      <span className={labelClass}>Frecuencia de Facturación</span>
+                      <select 
+                        className={`${selectClass} !h-8 !px-2 text-xs`} 
+                        value={config.limit_period || 'mensual'} 
+                        onChange={e => updateService(serviceKey, 'limit_period', e.target.value)}
+                      >
+                        <option value="semanal">Semanal</option>
+                        <option value="mensual">Mensual</option>
+                        <option value="bimensual">Bimestral</option>
+                        <option value="anual">Anual</option>
+                      </select>
+                    </div>
+
+                    {!isServiceShared ? (
+                      <div className="flex flex-col gap-1">
+                        <span className={labelClass}>Límite (€)</span>
+                        <div className="relative">
                           <input 
                             type="number" 
-                            className={`${inputClass} !h-8 !px-2`} 
-                            placeholder={isServiceShared ? "Compartido" : "Sin límite"} 
-                            disabled={isServiceShared}
-                            value={isServiceShared ? "" : (config.limit !== null && config.limit !== undefined ? config.limit : '')} 
+                            className={`${inputClass} !h-8 !px-2 !pr-8`} 
+                            placeholder="Sin límite" 
+                            value={config.limit !== null && config.limit !== undefined ? config.limit : ''} 
                             onChange={e => updateService(serviceKey, 'limit', e.target.value !== '' ? Number(e.target.value) : null)} 
                           />
                           <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[#666666] font-bold">€</span>
                         </div>
-                        <select 
-                          className={`${selectClass} !h-8 !px-2 w-24 flex-shrink-0 text-xs`} 
-                          value={config.limit_period || 'mensual'} 
-                          onChange={e => updateService(serviceKey, 'limit_period', e.target.value)}
-                        >
-                          <option value="semanal">Semanal</option>
-                          <option value="mensual">Mensual</option>
-                          <option value="bimensual">Bimensual</option>
-                          <option value="anual">Anual</option>
-                        </select>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="bg-[#C9A962]/5 border border-[#C9A962]/10 p-2 text-[10px] text-[#C9A962] font-semibold tracking-wide text-center">
+                        Suministro en común (Límite compartido)
+                      </div>
+                    )}
 
                     <div className="flex flex-col gap-1">
                       <span className={labelClass}>Nota / Detalles</span>
@@ -1533,7 +1540,7 @@ export const AdminPropertyForm = () => {
                           >
                             <option value="semanal">Semanal</option>
                             <option value="mensual">Mensual</option>
-                            <option value="bimensual">Bimensual</option>
+                            <option value="bimensual">Bimestral</option>
                             <option value="anual">Anual</option>
                           </select>
                         </div>

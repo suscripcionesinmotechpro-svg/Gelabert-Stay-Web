@@ -49,12 +49,16 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
 
     setUploading(`images-${index}`);
     try {
+      const room = rooms[index];
+      const roomLabel = room.name || `Habitación ${index + 1}`;
+      const roomText = room.price ? `${roomLabel} - ${room.price}€` : roomLabel;
+
       const urls: string[] = [];
       for (const f of files) {
-        const url = await uploadPropertyMedia(f, 'gallery');
+        const url = await uploadPropertyMedia(f, 'gallery', roomText);
         urls.push(url);
       }
-      const currentImages = rooms[index].images || [];
+      const currentImages = room.images || [];
       updateRoom(index, { images: [...currentImages, ...urls] });
     } catch (err) {
       console.error('Error uploading room images:', err);

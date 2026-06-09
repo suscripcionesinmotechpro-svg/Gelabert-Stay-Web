@@ -410,9 +410,9 @@ export const useAgentStats = (agentId?: string) => {
 // ============================================================
 // uploadPropertyMedia — Storage helper for images, videos, and PDFs
 // ============================================================
-export const uploadPropertyMedia = async (rawFile: File, folder = 'main'): Promise<string> => {
+export const uploadPropertyMedia = async (rawFile: File, folder = 'main', roomText?: string): Promise<string> => {
   // Apply lossless watermark automatically (only affects images, leaves PDFs/Videos intact)
-  const file = await applyWatermark(rawFile);
+  const file = await applyWatermark(rawFile, roomText);
   
   const ext = file.name.split('.').pop()?.toLowerCase();
   const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;

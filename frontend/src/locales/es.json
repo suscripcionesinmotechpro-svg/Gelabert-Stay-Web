@@ -443,6 +443,24 @@
     }
   },
   "services": {
+    "periods": {
+      "semanal": "semanal",
+      "mensual": "mensual",
+      "bimensual": "bimestral",
+      "anual": "anual"
+    },
+    "water": "Agua",
+    "electricity": "Electricidad",
+    "internet": "Internet",
+    "cleaning": "Limpieza",
+    "gas_calle": "Gas natural / Calle",
+    "gas_bombona": "Gas butano / Bombona",
+    "included": "Incluido",
+    "separate": "Aparte",
+    "limit": "Límite:",
+    "shared": "Compartido",
+    "shared_limits_title": "Límites de Suministros Agrupados",
+    "shared_group": "Grupo de suministros",
     "tenants": {
       "badge": "Para Inquilinos",
       "title": "Encuentra tu hogar ideal",
