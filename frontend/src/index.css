@@ -479,3 +479,110 @@
   font-weight: 500 !important;
 }
 
+/* ==========================================================================
+   Visual Adjustments - Unify dark backgrounds to #121212 and improve contrast
+   ========================================================================== */
+
+/* Unify all dark/black backgrounds to softer dark grey #121212 */
+.bg-\[\#0A0A0A\],
+.bg-\[\#050505\],
+.bg-\[\#0F0F0F\],
+.bg-black,
+.bg-black\/20 {
+  background-color: #121212 !important;
+}
+
+/* Card and section backgrounds to #1C1C1C */
+.bg-\[\#0C0C0C\],
+.bg-\[\#0E0E0E\],
+.bg-\[\#141414\],
+.bg-\[\#161616\] {
+  background-color: #1C1C1C !important;
+}
+
+/* Opacities of dark overlays to transparent #121212 */
+.bg-\[\#0A0A0A\]\/80,
+.bg-black\/80 {
+  background-color: rgba(18, 18, 18, 0.8) !important;
+}
+
+.bg-\[\#0A0A0A\]\/95,
+.bg-black\/95 {
+  background-color: rgba(18, 18, 18, 0.95) !important;
+}
+
+.bg-\[\#0A0A0A\]\/90,
+.bg-black\/90 {
+  background-color: rgba(18, 18, 18, 0.9) !important;
+}
+
+.bg-\[\#0A0A0A\]\/85,
+.bg-black\/85 {
+  background-color: rgba(18, 18, 18, 0.85) !important;
+}
+
+.bg-\[\#0A0A0A\]\/25,
+.bg-black\/25 {
+  background-color: rgba(18, 18, 18, 0.25) !important;
+}
+
+/* Gradient stop overrides mapping dark black to soft dark grey #121212 */
+.from-\[\#0A0A0A\]\/20 {
+  --tw-gradient-from: rgba(18, 18, 18, 0.2) !important;
+  --tw-gradient-to: rgba(18, 18, 18, 0) !important;
+}
+
+.from-\[\#0A0A0A\]\/80 {
+  --tw-gradient-from: rgba(18, 18, 18, 0.8) !important;
+  --tw-gradient-to: rgba(18, 18, 18, 0) !important;
+}
+
+.to-\[\#0A0A0A\]\/80 {
+  --tw-gradient-to: rgba(18, 18, 18, 0.8) !important;
+}
+
+.from-\[\#0A0A0A\]\/85 {
+  --tw-gradient-from: rgba(18, 18, 18, 0.85) !important;
+  --tw-gradient-to: rgba(18, 18, 18, 0) !important;
+}
+
+.to-\[\#0A0A0A\]\/85 {
+  --tw-gradient-to: rgba(18, 18, 18, 0.85) !important;
+}
+
+.from-\[\#0A0A0A\] {
+  --tw-gradient-from: #121212 !important;
+  --tw-gradient-to: rgba(18, 18, 18, 0) !important;
+}
+
+.to-\[\#0A0A0A\] {
+  --tw-gradient-to: #121212 !important;
+}
+
+.via-\[\#0A0A0A\]\/40 {
+  --tw-gradient-via: rgba(18, 18, 18, 0.4) !important;
+}
+
+.via-\[\#0A0A0A\]\/80 {
+  --tw-gradient-via: rgba(18, 18, 18, 0.8) !important;
+}
+
+.via-\[\#111\] {
+  --tw-gradient-via: #1C1C1C !important;
+}
+
+.to-\[\#111\] {
+  --tw-gradient-to: #1C1C1C !important;
+}
+
+/* Ensure background mesh uses softer base */
+@utility bg-mesh {
+  background-color: #121212 !important;
+}
+
+/* Ensure glassmorphism overlays are readable */
+@utility glass-deep {
+  background-color: rgba(18, 18, 18, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
