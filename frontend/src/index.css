@@ -487,8 +487,7 @@
 .bg-\[\#0A0A0A\],
 .bg-\[\#050505\],
 .bg-\[\#0F0F0F\],
-.bg-black,
-.bg-black\/20 {
+.bg-black {
   background-color: #121212 !important;
 }
 
