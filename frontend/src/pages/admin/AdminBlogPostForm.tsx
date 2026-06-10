@@ -422,6 +422,7 @@ export const AdminBlogPostForm = () => {
           image={selectedFile}
           onClose={() => setShowCropper(false)}
           onCropComplete={onCropComplete}
+          aspectRatio={2 / 3}
         />
       )}
     </AnimatePresence>
