@@ -1141,19 +1141,19 @@ export const FichaPropiedad = () => {
                             {room.private_bathroom && (
                               <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 6 2 2-2 2"/><path d="M13.83 13A8 8 0 0 1 8 21H4"/><path d="M14 10a7 7 0 0 1 7 7v2"/><path d="M18.83 11.83a7 7 0 0 0-9.76-9.76"/></svg>
-                                Baño privado
+                                {t('property.labels.features.private_bathroom', 'Baño privado')}
                               </span>
                             )}
                             {room.private_terrace && (
                               <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>
-                                Terraza privada
+                                {t('property.labels.features.private_terrace', 'Terraza privada')}
                               </span>
                             )}
                             {room.is_exterior !== undefined && (
                               <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.8 4.38-4.38 1.8 1.8-4.38 4.38-1.8Z"/></svg>
-                                {room.is_exterior ? 'Exterior' : 'Interior'}
+                                {room.is_exterior ? t('property.labels.features.is_exterior', 'Exterior') : t('property.labels.features.is_interior', 'Interior')}
                               </span>
                             )}
                           </div>
