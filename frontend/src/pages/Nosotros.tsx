@@ -209,7 +209,7 @@ const Nosotros = () => {
                   href="https://www.linkedin.com/in/jose-carlos-delgado-gelabert-185487403"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 bg-white/5 border border-white/10 rounded-sm text-[#888888] hover:text-[#0077B5] hover:border-[#0077B5]/40 hover:bg-[#0077B5]/5 transition-all group shrink-0"
+                  className="p-2 bg-[#0077B5]/5 border border-[#0077B5]/30 rounded-sm text-[#0077B5] hover:text-white hover:border-[#0077B5]/60 hover:bg-[#0077B5]/20 transition-all group shrink-0"
                   title="LinkedIn de José Carlos"
                 >
                   <Linkedin className="w-4 h-4 transition-transform group-hover:scale-110" />

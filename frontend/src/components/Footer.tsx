@@ -127,16 +127,16 @@ export const Footer = () => {
             
             <h4 className="font-primary text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] mt-6">{t('footer.social_networks') || 'Redes Sociales'}</h4>
             <div className="flex items-center gap-3">
-              <a href="https://instagram.com/gelaberthomes" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-[#888888] hover:text-[#C9A962] hover:border-[#C9A962]/40 hover:bg-[#C9A962]/5 transition-all group">
+              <a href="https://instagram.com/gelaberthomes" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#E1306C]/5 border border-[#E1306C]/30 rounded-sm flex items-center justify-center text-[#E1306C] hover:text-white hover:border-[#E1306C]/60 hover:bg-[#E1306C]/20 transition-all group">
                 <span className="group-hover:scale-110 transition-transform"><InstagramIcon /></span>
               </a>
-              <a href="https://facebook.com/gelaberthomes" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-[#888888] hover:text-[#C9A962] hover:border-[#C9A962]/40 hover:bg-[#C9A962]/5 transition-all group">
+              <a href="https://facebook.com/gelaberthomes" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#1877F2]/5 border border-[#1877F2]/30 rounded-sm flex items-center justify-center text-[#1877F2] hover:text-white hover:border-[#1877F2]/60 hover:bg-[#1877F2]/20 transition-all group">
                 <span className="group-hover:scale-110 transition-transform"><FacebookIcon /></span>
               </a>
-              <a href="https://wa.me/34611898827" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-[#888888] hover:text-[#25D366] hover:border-[#25D366]/40 hover:bg-[#25D366]/5 transition-all group">
+              <a href="https://wa.me/34611898827" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#25D366]/5 border border-[#25D366]/30 rounded-sm flex items-center justify-center text-[#25D366] hover:text-white hover:border-[#25D366]/60 hover:bg-[#25D366]/20 transition-all group">
                 <span className="group-hover:scale-110 transition-transform"><WhatsAppIcon /></span>
               </a>
-              <a href="https://www.linkedin.com/in/jose-carlos-delgado-gelabert-185487403" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-[#888888] hover:text-[#0077B5] hover:border-[#0077B5]/40 hover:bg-[#0077B5]/5 transition-all group" title="LinkedIn">
+              <a href="https://www.linkedin.com/in/jose-carlos-delgado-gelabert-185487403" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#0077B5]/5 border border-[#0077B5]/30 rounded-sm flex items-center justify-center text-[#0077B5] hover:text-white hover:border-[#0077B5]/60 hover:bg-[#0077B5]/20 transition-all group" title="LinkedIn">
                 <span className="group-hover:scale-110 transition-transform"><LinkedInIcon /></span>
               </a>
             </div>
