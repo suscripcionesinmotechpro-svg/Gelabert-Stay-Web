@@ -132,6 +132,50 @@ export const AdminBlogPostForm = () => {
     setActiveTab('en');
   };
 
+  const generateSEOMetadata = () => {
+    const isEs = activeTab === 'es';
+    const title = isEs ? formData.title : formData.title_en;
+    const content = isEs ? formData.content : formData.content_en;
+
+    if (!title) {
+      alert(isEs ? 'El título es obligatorio para generar el SEO' : 'The title is required to generate the SEO');
+      return;
+    }
+
+    const brandSuffix = " | Gelabert Homes Blog";
+    let seoTitle = `${title}${brandSuffix}`;
+    if (seoTitle.length > 60) {
+      seoTitle = title.substring(0, 60 - brandSuffix.length).trim() + brandSuffix;
+    }
+
+    let seoDescription = '';
+    if (content) {
+      const stripped = content.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
+      seoDescription = stripped.substring(0, 152);
+      if (stripped.length > 152) {
+        seoDescription += '...';
+      }
+    } else {
+      seoDescription = isEs 
+        ? `Descubre nuestro nuevo artículo: ${title}. Lee más en el blog de Gelabert Homes.`
+        : `Discover our new article: ${title}. Read more on the Gelabert Homes blog.`;
+    }
+
+    if (isEs) {
+      setFormData(prev => ({
+        ...prev,
+        seo_title: seoTitle,
+        seo_description: seoDescription,
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        seo_title_en: seoTitle,
+        seo_description_en: seoDescription,
+      }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.content) {
@@ -292,7 +336,17 @@ export const AdminBlogPostForm = () => {
           </div>
 
           <div className="bg-[#1A1A1A] p-6 rounded-sm border border-white/10 space-y-4">
-            <h3 className="text-lg font-secondary uppercase tracking-widest text-[#FAF8F5]">Optimización SEO ({activeTab.toUpperCase()})</h3>
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <h3 className="text-lg font-secondary uppercase tracking-widest text-[#FAF8F5]">Optimización SEO ({activeTab.toUpperCase()})</h3>
+              <button
+                type="button"
+                onClick={generateSEOMetadata}
+                className="flex items-center gap-2 text-[10px] text-[#C9A962] uppercase font-bold hover:text-white transition-colors bg-[#C9A962]/5 px-3 py-1.5 border border-[#C9A962]/20 rounded-full"
+              >
+                <Sparkles className="w-3 h-3" />
+                Auto-generar SEO
+              </button>
+            </div>
             <p className="text-sm text-[#A3A3A3]">Si los dejas vacíos, se generarán automáticamente.</p>
             
             {activeTab === 'es' ? (
