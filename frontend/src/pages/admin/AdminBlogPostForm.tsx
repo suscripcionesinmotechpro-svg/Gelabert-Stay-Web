@@ -386,7 +386,12 @@ export const AdminBlogPostForm = () => {
           </div>
 
           <div className="bg-[#1A1A1A] p-6 rounded-sm border border-white/10 space-y-4">
-            <h3 className="text-lg font-secondary uppercase tracking-widest text-[#FAF8F5]">Multimedia de Portada</h3>
+            <div>
+              <h3 className="text-lg font-secondary uppercase tracking-widest text-[#FAF8F5]">Multimedia de Portada</h3>
+              <p className="text-[10px] text-[#A3A3A3] font-primary uppercase tracking-widest mt-1">
+                Formato recomendado: Vertical 2:3 (ej. 1000x1500px)
+              </p>
+            </div>
             
             <div className="relative group">
               {coverPreview ? (
