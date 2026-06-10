@@ -163,7 +163,7 @@ export const PropertyCard = memo(({
       )}
       {...props}
     >
-      <Link to={linkTo || `/propiedades/${reference || id}`} className="block flex-1 flex flex-col">
+      <Link to={linkTo || `/propiedades/${reference || id}`} data-cursor="ver" className="block flex-1 flex flex-col">
         {/* Top Section: Image Area */}
         <div className="relative aspect-[16/10] overflow-hidden">
           {/* Main Image Slider Container */}

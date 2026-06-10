@@ -1,7 +1,10 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
+"use client";
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Lock } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Footer } from './Footer';
 import { CookieBanner } from './CookieBanner';
@@ -9,10 +12,10 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { FloatingContact } from './FloatingContact';
 
 
-export const Layout = () => {
+export const Layout = ({ children }: { children: React.ReactNode }) => {
   const { t, i18n } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const location = useLocation();
+  const pathname = usePathname() || '/';
   const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export const Layout = () => {
           style={{ width: `${scrollProgress}%` }}
         />
         {/* Logo */}
-        <Link to={langPrefix || '/'} className="flex items-center">
+        <Link href={langPrefix || '/'} className="flex items-center">
           <img
             src="/logo-og.png"
             alt="Gelabert Homes Real Estate"
@@ -59,11 +62,11 @@ export const Layout = () => {
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-4 lg:gap-6 font-primary text-[15px] tracking-widest uppercase font-bold">
           {navLinks.map((link) => {
-            const isActive = location.pathname === link.path;
+            const isActive = pathname === link.path;
             return (
               <Link
                 key={link.path}
-                to={link.path}
+                href={link.path}
                 className="relative group py-1"
               >
                 <span
@@ -90,7 +93,7 @@ export const Layout = () => {
 
           {/* Acceso Privado — Premium */}
           <Link
-            to="/admin/login"
+            href="/admin/login"
             className="relative ml-2 flex items-center gap-2 px-5 py-2 overflow-hidden group
               border border-[#C9A962]/50 text-[#C9A962] text-[14px] tracking-[0.15em] font-bold
               hover:border-[#C9A962] transition-all duration-500
@@ -102,12 +105,16 @@ export const Layout = () => {
             <span>{t('nav.clientArea')}</span>
           </Link>
 
-          <LanguageSwitcher />
+          <Suspense fallback={null}>
+            <LanguageSwitcher />
+          </Suspense>
         </nav>
 
         {/* Mobile Actions */}
         <div className="md:hidden flex items-center gap-4">
-          <LanguageSwitcher />
+          <Suspense fallback={null}>
+            <LanguageSwitcher />
+          </Suspense>
           <button
             className="text-[#C9A962]"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -128,7 +135,7 @@ export const Layout = () => {
             className="fixed top-20 left-0 w-full bg-[#0A0A0A]/95 backdrop-blur-2xl border-b border-[#C9A962]/10 z-40 flex flex-col md:hidden py-8 px-8 gap-0 font-primary uppercase tracking-widest"
           >
             {navLinks.map((link, i) => {
-              const isActive = location.pathname === link.path;
+              const isActive = pathname === link.path;
               return (
                 <motion.div
                   key={link.path}
@@ -137,7 +144,7 @@ export const Layout = () => {
                   transition={{ delay: i * 0.05, duration: 0.3 }}
                 >
                   <Link
-                    to={link.path}
+                    href={link.path}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`flex items-center justify-between py-4 text-[13px] border-b border-[#1A1A1A] transition-colors duration-300 ${
                       isActive ? 'text-[#C9A962]' : 'text-[#888888] hover:text-[#FAF8F5]'
@@ -161,7 +168,7 @@ export const Layout = () => {
               className="mt-6"
             >
               <Link
-                to="/admin/login"
+                href="/admin/login"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="flex items-center justify-center gap-3 py-3 px-6 border border-[#C9A962]/50 text-[#C9A962] text-[12px] tracking-[0.15em] hover:border-[#C9A962] hover:shadow-[0_0_20px_rgba(201,169,98,0.2)] transition-all duration-500"
               >
@@ -177,14 +184,14 @@ export const Layout = () => {
       <main className="flex-1 mt-20 md:mt-24 w-full">
         <AnimatePresence mode="wait">
           <motion.div
-            key={location.pathname}
+            key={pathname}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
             className="w-full h-full"
           >
-            <Outlet />
+            {children}
           </motion.div>
         </AnimatePresence>
       </main>

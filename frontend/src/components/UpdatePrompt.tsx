@@ -1,47 +1,61 @@
+"use client";
+
 import { useEffect, useState } from 'react';
-import { useRegisterSW } from 'virtual:pwa-register/react';
 import { RefreshCw } from 'lucide-react';
 
 /**
  * UpdatePrompt — Detecta cuando hay una nueva versión del Service Worker disponible
  * y muestra un banner sutil para que el usuario actualice sin necesidad de refrescar
- * manualmente. Con skipWaiting=true en vite.config, el SW se activa de inmediato
- * en la siguiente recarga.
+ * manualmente. Utiliza las APIs nativas del navegador para ser compatible tanto con
+ * Vite como con Next.js sin depender de importaciones virtuales de empaquetador.
  */
 export const UpdatePrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
+  const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
 
-  const {
-    needRefresh: [needRefresh],
-    updateServiceWorker,
-  } = useRegisterSW({
-    onRegistered(r) {
-      // Comprueba si hay actualizaciones cada 60 segundos mientras la app está abierta
-      if (r) {
-        setInterval(() => {
-          r.update();
-        }, 60 * 1000);
-      }
-    },
-    onNeedRefresh() {
-      setShowPrompt(true);
-    },
-    onOfflineReady() {
-      // Silencioso — no molestamos al usuario con "listo para uso offline"
-    },
-  });
-
-  // Si el SW indica que hay nueva versión, mostramos el banner
   useEffect(() => {
-    if (needRefresh) {
-      setShowPrompt(true);
-    }
-  }, [needRefresh]);
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+
+    // Obtener el registro actual
+    navigator.serviceWorker.getRegistration().then((reg) => {
+      if (!reg) return;
+      setSwRegistration(reg);
+
+      const checkUpdate = () => {
+        reg.update().catch((err) => console.log('Error buscando actualizaciones:', err));
+      };
+      
+      // Buscar actualizaciones cada hora
+      const interval = setInterval(checkUpdate, 60 * 60 * 1000);
+
+      const handleStateChange = (worker: ServiceWorker) => {
+        if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+          setShowPrompt(true);
+        }
+      };
+
+      if (reg.waiting) {
+        setShowPrompt(true);
+      }
+
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => handleStateChange(newWorker));
+        }
+      });
+
+      return () => clearInterval(interval);
+    });
+  }, []);
 
   const handleUpdate = () => {
     setShowPrompt(false);
-    // Activa el nuevo SW y recarga la página
-    updateServiceWorker(true);
+    if (swRegistration?.waiting) {
+      swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    } else {
+      window.location.reload();
+    }
   };
 
   const handleDismiss = () => {

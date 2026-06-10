@@ -23,10 +23,11 @@ i18n
       escapeValue: false, // react already safes from xss
     },
     detection: {
-      order: ['path', 'querystring', 'localStorage', 'navigator'],
+      order: ['path', 'querystring', 'cookie', 'localStorage', 'navigator'],
       lookupFromPathIndex: 0,
       lookupQuerystring: 'lang',
-      caches: ['localStorage'],
+      caches: ['cookie', 'localStorage'],
+      cookieMinutes: 525600, // 1 year
     },
   });
 

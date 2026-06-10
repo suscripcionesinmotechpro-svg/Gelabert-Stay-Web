@@ -1,7 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+const getEnv = (key: string): string => {
+  if (typeof process !== 'undefined' && process.env && process.env[key]) {
+    return process.env[key] as string;
+  }
+  try {
+    // @ts-ignore
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
+      // @ts-ignore
+      return import.meta.env[key] as string;
+    }
+  } catch (e) {}
+  return '';
+};
+
+const supabaseUrl = getEnv('VITE_SUPABASE_URL');
+const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY');
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(
@@ -10,13 +24,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+const isBrowser = typeof window !== 'undefined';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
-    storage: window.sessionStorage,
-    autoRefreshToken: true,
-    detectSessionInUrl: true
+    storage: isBrowser ? window.sessionStorage : undefined,
+    autoRefreshToken: isBrowser,
+    detectSessionInUrl: isBrowser
   }
 });
 

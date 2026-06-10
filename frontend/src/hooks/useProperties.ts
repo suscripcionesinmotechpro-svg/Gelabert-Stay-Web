@@ -158,6 +158,52 @@ export const useProperties = (filters?: PropertyFilters, adminMode = false, agen
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtersString, adminMode, agentId]);
 
+  // Suscripción en tiempo real de Supabase
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const channel = supabase
+      .channel(`properties-realtime-${cacheKey}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'properties',
+        },
+        (payload) => {
+          console.log('Cambio en tiempo real recibido:', payload);
+          if (payload.eventType === 'UPDATE') {
+            const updated = payload.new as Property;
+            setProperties((prev) => {
+              if (!adminMode && updated.status !== 'publicada') {
+                return prev.filter(p => p.id !== updated.id);
+              }
+              if (prev.some(p => p.id === updated.id)) {
+                return prev.map(p => p.id === updated.id ? { ...p, ...updated } : p);
+              }
+              // Si no está en el estado pero ahora coincide con los filtros, refrescamos
+              fetchProperties(false, true);
+              return prev;
+            });
+          } else if (payload.eventType === 'INSERT') {
+            const inserted = payload.new as Property;
+            if (!adminMode && inserted.status !== 'publicada') return;
+            // Refrescar para insertar en el orden correcto y respetar paginación
+            fetchProperties(false, true);
+          } else if (payload.eventType === 'DELETE') {
+            const deletedId = payload.old.id;
+            setProperties((prev) => prev.filter(p => p.id !== deletedId));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [adminMode, cacheKey, fetchProperties]);
+
   const loadMore = () => {
     if (!loading && !loadingMore && hasMore) {
       fetchProperties(true);

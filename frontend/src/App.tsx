@@ -1,3 +1,5 @@
+"use client";
+
 import { lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
@@ -7,70 +9,70 @@ import { ScrollToTop } from './components/ScrollToTop';
 import { UpdatePrompt } from './components/UpdatePrompt';
 
 // Lazy load public pages
-const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
-const Propiedades = lazy(() => import('./pages/Propiedades').then(m => ({ default: m.Propiedades })));
-const FichaPropiedad = lazy(() => import('./pages/FichaPropiedad').then(m => ({ default: m.FichaPropiedad })));
-const Servicios = lazy(() => import('./pages/Servicios').then(m => ({ default: m.Servicios })));
-const Propietarios = lazy(() => import('./pages/Propietarios').then(m => ({ default: m.Propietarios })));
-const Contacto = lazy(() => import('./pages/Contacto').then(m => ({ default: m.Contacto })));
-const Inversores = lazy(() => import('./pages/Inversores'));
-const Nosotros = lazy(() => import('./pages/Nosotros'));
-const Valoracion = lazy(() => import('./pages/Valoracion').then(m => ({ default: m.Valoracion })));
-const Reviews = lazy(() => import('./pages/Reviews').then(m => ({ default: m.Reviews })));
+const Home = lazy(() => import('./views/Home').then(m => ({ default: m.Home })));
+const Propiedades = lazy(() => import('./views/Propiedades').then(m => ({ default: m.Propiedades })));
+const FichaPropiedad = lazy(() => import('./views/FichaPropiedad').then(m => ({ default: m.FichaPropiedad })));
+const Servicios = lazy(() => import('./views/Servicios').then(m => ({ default: m.Servicios })));
+const Propietarios = lazy(() => import('./views/Propietarios').then(m => ({ default: m.Propietarios })));
+const Contacto = lazy(() => import('./views/Contacto').then(m => ({ default: m.Contacto })));
+const Inversores = lazy(() => import('./views/Inversores'));
+const Nosotros = lazy(() => import('./views/Nosotros'));
+const Valoracion = lazy(() => import('./views/Valoracion').then(m => ({ default: m.Valoracion })));
+const Reviews = lazy(() => import('./views/Reviews').then(m => ({ default: m.Reviews })));
 
-const BlogList = lazy(() => import('./pages/BlogList').then(m => ({ default: m.BlogList })));
-const BlogPost = lazy(() => import('./pages/BlogPost').then(m => ({ default: m.BlogPost })));
+const BlogList = lazy(() => import('./views/BlogList').then(m => ({ default: m.BlogList })));
+const BlogPost = lazy(() => import('./views/BlogPost').then(m => ({ default: m.BlogPost })));
 
 // Lead forms
-const TenantLeadForm = lazy(() => import('./pages/leads/TenantLeadForm'));
-const OwnerSaleLeadForm = lazy(() => import('./pages/leads/OwnerSaleLeadForm'));
-const OwnerRentLeadForm = lazy(() => import('./pages/leads/OwnerRentLeadForm'));
+const TenantLeadForm = lazy(() => import('./views/leads/TenantLeadForm'));
+const OwnerSaleLeadForm = lazy(() => import('./views/leads/OwnerSaleLeadForm'));
+const OwnerRentLeadForm = lazy(() => import('./views/leads/OwnerRentLeadForm'));
 
 // Lazy load admin pages
-const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
-const AdminLogin = lazy(() => import('./pages/admin/AdminLogin').then(m => ({ default: m.AdminLogin })));
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
-const AdminPropertiesList = lazy(() => import('./pages/admin/AdminPropertiesList').then(m => ({ default: m.AdminPropertiesList })));
-const AdminPropertyForm = lazy(() => import('./pages/admin/AdminPropertyForm').then(m => ({ default: m.AdminPropertyForm })));
-const AdminInvoices = lazy(() => import('./pages/admin/AdminInvoices').then(m => ({ default: m.AdminInvoices })));
-const AdminInvoiceForm = lazy(() => import('./pages/admin/AdminInvoiceForm').then(m => ({ default: m.AdminInvoiceForm })));
+const AdminLayout = lazy(() => import('./views/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
+const AdminLogin = lazy(() => import('./views/admin/AdminLogin').then(m => ({ default: m.AdminLogin })));
+const AdminDashboard = lazy(() => import('./views/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const AdminPropertiesList = lazy(() => import('./views/admin/AdminPropertiesList').then(m => ({ default: m.AdminPropertiesList })));
+const AdminPropertyForm = lazy(() => import('./views/admin/AdminPropertyForm').then(m => ({ default: m.AdminPropertyForm })));
+const AdminInvoices = lazy(() => import('./views/admin/AdminInvoices').then(m => ({ default: m.AdminInvoices })));
+const AdminInvoiceForm = lazy(() => import('./views/admin/AdminInvoiceForm').then(m => ({ default: m.AdminInvoiceForm })));
 // Deleted redundant accounting import
-const AdminTenantsList = lazy(() => import('./pages/admin/AdminTenantsList').then(m => ({ default: m.AdminTenantsList })));
-const AdminTenantForm = lazy(() => import('./pages/admin/AdminTenantForm').then(m => ({ default: m.AdminTenantForm })));
-const AdminTenantDetail = lazy(() => import('./pages/admin/AdminTenantDetail').then(m => ({ default: m.AdminTenantDetail })));
-const AdminContractForm = lazy(() => import('./pages/admin/AdminContractForm').then(m => ({ default: m.AdminContractForm })));
-const AdminContractsList = lazy(() => import('./pages/admin/AdminContractsList').then(m => ({ default: m.AdminContractsList })));
-const AdminReservations = lazy(() => import('./pages/admin/AdminReservations').then(m => ({ default: m.AdminReservations })));
-const AdminLeadsCRM = lazy(() => import('./pages/admin/AdminLeadsCRM').then(m => ({ default: m.AdminLeadsCRM })));
-const AdminCaptaciones = lazy(() => import('./pages/admin/AdminCaptaciones').then(m => ({ default: m.AdminCaptaciones })));
-const AdminBlogList = lazy(() => import('./pages/admin/AdminBlogList').then(m => ({ default: m.AdminBlogList })));
-const AdminBlogPostForm = lazy(() => import('./pages/admin/AdminBlogPostForm').then(m => ({ default: m.AdminBlogPostForm })));
-const AdminPropertyReorder = lazy(() => import('./pages/admin/AdminPropertyReorder').then(m => ({ default: m.AdminPropertyReorder })));
-const AdminAgentCRM = lazy(() => import('./pages/admin/AdminAgentCRM').then(m => ({ default: m.AdminAgentCRM })));
+const AdminTenantsList = lazy(() => import('./views/admin/AdminTenantsList').then(m => ({ default: m.AdminTenantsList })));
+const AdminTenantForm = lazy(() => import('./views/admin/AdminTenantForm').then(m => ({ default: m.AdminTenantForm })));
+const AdminTenantDetail = lazy(() => import('./views/admin/AdminTenantDetail').then(m => ({ default: m.AdminTenantDetail })));
+const AdminContractForm = lazy(() => import('./views/admin/AdminContractForm').then(m => ({ default: m.AdminContractForm })));
+const AdminContractsList = lazy(() => import('./views/admin/AdminContractsList').then(m => ({ default: m.AdminContractsList })));
+const AdminReservations = lazy(() => import('./views/admin/AdminReservations').then(m => ({ default: m.AdminReservations })));
+const AdminLeadsCRM = lazy(() => import('./views/admin/AdminLeadsCRM').then(m => ({ default: m.AdminLeadsCRM })));
+const AdminCaptaciones = lazy(() => import('./views/admin/AdminCaptaciones').then(m => ({ default: m.AdminCaptaciones })));
+const AdminBlogList = lazy(() => import('./views/admin/AdminBlogList').then(m => ({ default: m.AdminBlogList })));
+const AdminBlogPostForm = lazy(() => import('./views/admin/AdminBlogPostForm').then(m => ({ default: m.AdminBlogPostForm })));
+const AdminPropertyReorder = lazy(() => import('./views/admin/AdminPropertyReorder').then(m => ({ default: m.AdminPropertyReorder })));
+const AdminAgentCRM = lazy(() => import('./views/admin/AdminAgentCRM').then(m => ({ default: m.AdminAgentCRM })));
 
 // Agent portal
-const AgentLogin = lazy(() => import('./pages/agent/AgentLogin').then(m => ({ default: m.AgentLogin })));
-const AgentLayout = lazy(() => import('./pages/agent/AgentLayout').then(m => ({ default: m.AgentLayout })));
-const AgentDashboard = lazy(() => import('./pages/agent/AgentDashboard').then(m => ({ default: m.AgentDashboard })));
-const AgentPropertiesList = lazy(() => import('./pages/agent/AgentPropertiesList').then(m => ({ default: m.AgentPropertiesList })));
-const AgentPropertyReorder = lazy(() => import('./pages/agent/AgentPropertyReorder').then(m => ({ default: m.AgentPropertyReorder })));
-const AgentPropertyForm = lazy(() => import('./pages/agent/AgentPropertyForm').then(m => ({ default: m.AgentPropertyForm })));
-const AgentInvoices = lazy(() => import('./pages/agent/AgentInvoices').then(m => ({ default: m.AgentInvoices })));
-const AgentInvoiceForm = lazy(() => import('./pages/agent/AgentInvoiceForm').then(m => ({ default: m.AgentInvoiceForm })));
-const AgentTenantsList = lazy(() => import('./pages/agent/AgentTenantsList').then(m => ({ default: m.AgentTenantsList })));
-const AgentTenantForm = lazy(() => import('./pages/agent/AgentTenantForm').then(m => ({ default: m.AgentTenantForm })));
-const AgentTenantDetail = lazy(() => import('./pages/agent/AgentTenantDetail').then(m => ({ default: m.AgentTenantDetail })));
-const AgentContractsList = lazy(() => import('./pages/agent/AgentContractsList').then(m => ({ default: m.AgentContractsList })));
-const AgentContractForm = lazy(() => import('./pages/agent/AgentContractForm').then(m => ({ default: m.AgentContractForm })));
-const AgentReservations = lazy(() => import('./pages/agent/AgentReservations').then(m => ({ default: m.AgentReservations })));
-const AgentLeadsCRM = lazy(() => import('./pages/agent/AgentLeadsCRM').then(m => ({ default: m.AgentLeadsCRM })));
-const AgentCaptaciones = lazy(() => import('./pages/agent/AgentCaptaciones').then(m => ({ default: m.AgentCaptaciones })));
+const AgentLogin = lazy(() => import('./views/agent/AgentLogin').then(m => ({ default: m.AgentLogin })));
+const AgentLayout = lazy(() => import('./views/agent/AgentLayout').then(m => ({ default: m.AgentLayout })));
+const AgentDashboard = lazy(() => import('./views/agent/AgentDashboard').then(m => ({ default: m.AgentDashboard })));
+const AgentPropertiesList = lazy(() => import('./views/agent/AgentPropertiesList').then(m => ({ default: m.AgentPropertiesList })));
+const AgentPropertyReorder = lazy(() => import('./views/agent/AgentPropertyReorder').then(m => ({ default: m.AgentPropertyReorder })));
+const AgentPropertyForm = lazy(() => import('./views/agent/AgentPropertyForm').then(m => ({ default: m.AgentPropertyForm })));
+const AgentInvoices = lazy(() => import('./views/agent/AgentInvoices').then(m => ({ default: m.AgentInvoices })));
+const AgentInvoiceForm = lazy(() => import('./views/agent/AgentInvoiceForm').then(m => ({ default: m.AgentInvoiceForm })));
+const AgentTenantsList = lazy(() => import('./views/agent/AgentTenantsList').then(m => ({ default: m.AgentTenantsList })));
+const AgentTenantForm = lazy(() => import('./views/agent/AgentTenantForm').then(m => ({ default: m.AgentTenantForm })));
+const AgentTenantDetail = lazy(() => import('./views/agent/AgentTenantDetail').then(m => ({ default: m.AgentTenantDetail })));
+const AgentContractsList = lazy(() => import('./views/agent/AgentContractsList').then(m => ({ default: m.AgentContractsList })));
+const AgentContractForm = lazy(() => import('./views/agent/AgentContractForm').then(m => ({ default: m.AgentContractForm })));
+const AgentReservations = lazy(() => import('./views/agent/AgentReservations').then(m => ({ default: m.AgentReservations })));
+const AgentLeadsCRM = lazy(() => import('./views/agent/AgentLeadsCRM').then(m => ({ default: m.AgentLeadsCRM })));
+const AgentCaptaciones = lazy(() => import('./views/agent/AgentCaptaciones').then(m => ({ default: m.AgentCaptaciones })));
 
 // Legal
-const AvisoLegal = lazy(() => import('./pages/legal/AvisoLegal').then(m => ({ default: m.AvisoLegal })));
-const Privacidad = lazy(() => import('./pages/legal/Privacidad').then(m => ({ default: m.Privacidad })));
-const Cookies = lazy(() => import('./pages/legal/Cookies').then(m => ({ default: m.Cookies })));
-const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
+const AvisoLegal = lazy(() => import('./views/legal/AvisoLegal').then(m => ({ default: m.AvisoLegal })));
+const Privacidad = lazy(() => import('./views/legal/Privacidad').then(m => ({ default: m.Privacidad })));
+const Cookies = lazy(() => import('./views/legal/Cookies').then(m => ({ default: m.Cookies })));
+const NotFound = lazy(() => import('./views/NotFound').then(m => ({ default: m.NotFound })));
 
 import { ServiceCartProvider } from './context/ServiceCartContext';
 

@@ -585,3 +585,17 @@
   border-color: rgba(255, 255, 255, 0.05) !important;
 }
 
+@layer base {
+  body.custom-cursor-active,
+  body.custom-cursor-active a,
+  body.custom-cursor-active button,
+  body.custom-cursor-active input,
+  body.custom-cursor-active select,
+  body.custom-cursor-active textarea,
+  body.custom-cursor-active [role="button"],
+  body.custom-cursor-active [data-cursor] {
+    cursor: none !important;
+  }
+}
+
+
