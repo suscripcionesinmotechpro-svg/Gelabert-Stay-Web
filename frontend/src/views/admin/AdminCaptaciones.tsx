@@ -4,13 +4,14 @@ import { supabase } from '../../lib/supabase';
 import { 
   Briefcase, Search, Plus, Trash2, Mail, Phone, MapPin, 
   Calendar, Filter, X, ChevronRight, User, ExternalLink,
-  Download, Printer, Sparkles
+  Download, Printer, Sparkles, MessageCircle
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
 import { CAPTACION_STATUS_LABELS, CAPTACION_STATUS_COLORS } from '../../types/captacion';
 import type { Captacion, CaptacionStatus } from '../../types/captacion';
+import { CaptacionHistory } from '../../components/captaciones/CaptacionHistory';
 
 export const AdminCaptaciones = () => {
   const [selectedAgentId, setSelectedAgentId] = useState<string>('all');
@@ -910,39 +911,77 @@ export const AdminCaptaciones = () => {
               </div>
             ) : (
               <div className="divide-y divide-[#1F1F1F]">
-                {filteredCaptaciones.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleSelect(item)}
-                    className={`w-full text-left p-4 hover:bg-[#111111] transition-colors border-l-2 flex justify-between items-center ${selectedCaptacion?.id === item.id ? 'bg-[#111111] border-l-[#C9A962]' : 'border-l-2 border-transparent'}`}
-                  >
-                    <div className="flex-1 min-w-0 pr-2">
-                      <h4 className="font-primary font-medium text-[#FAF8F5] text-sm truncate mb-1">
-                        {item.property_address}
-                      </h4>
-                      <p className="text-xs text-zinc-200 truncate mb-1">{item.owner_name}</p>
-                      
-                      <div className="flex items-center gap-3 text-[10px] text-zinc-400 font-primary font-medium">
-                        <span className="text-[#C9A962]">{getAgentName(item.agent_id)}</span>
-                        <span>•</span>
-                        <span>{format(new Date(item.contact_date), "d MMM yyyy", { locale: es })}</span>
-                      </div>
-                    </div>
+                {filteredCaptaciones.map((item) => {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const contactDay = new Date(item.contact_date);
+                  contactDay.setHours(0, 0, 0, 0);
+                  const daysSince = differenceInDays(today, contactDay);
 
-                    <div className="flex flex-col items-end gap-1.5">
-                      <span className={`text-[9px] px-2.5 py-0.5 rounded-full border uppercase tracking-wider font-primary font-bold ${CAPTACION_STATUS_COLORS[item.status]}`}>
-                        {CAPTACION_STATUS_LABELS[item.status]}
-                      </span>
-                      {item.status === 'visita_planificada' && item.visit_date && (
-                        <span className="text-[9px] text-[#C9A962] font-semibold flex items-center gap-1">
-                          <Calendar className="w-2.5 h-2.5" />
-                          {format(new Date(item.visit_date), 'dd/MM HH:mm')}
+                  let followUpBadge = null;
+                  if (item.follow_up_date) {
+                    const fDate = new Date(item.follow_up_date);
+                    fDate.setHours(0, 0, 0, 0);
+                    if (fDate.getTime() < today.getTime()) {
+                      followUpBadge = (
+                        <span className="text-[9px] px-2 py-0.5 rounded border border-red-500/30 text-red-400 bg-red-500/10 font-bold uppercase tracking-wider flex-shrink-0">
+                          Vencido
                         </span>
-                      )}
-                      <ChevronRight className="w-4 h-4 text-[#333]" />
-                    </div>
-                  </button>
-                ))}
+                      );
+                    } else if (fDate.getTime() === today.getTime()) {
+                      followUpBadge = (
+                        <span className="text-[9px] px-2 py-0.5 rounded border border-orange-500/30 text-orange-400 bg-orange-500/10 font-bold uppercase tracking-wider animate-pulse flex-shrink-0">
+                          Llamar Hoy
+                        </span>
+                      );
+                    } else {
+                      followUpBadge = (
+                        <span className="text-[9px] px-2 py-0.5 rounded border border-zinc-800 text-zinc-400 bg-zinc-900/40 font-medium tracking-wider flex-shrink-0">
+                          Seguimiento: {format(fDate, "d MMM", { locale: es })}
+                        </span>
+                      );
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleSelect(item)}
+                      className={`w-full text-left p-4 hover:bg-[#111111] transition-colors border-l-2 flex justify-between items-center ${selectedCaptacion?.id === item.id ? 'bg-[#111111] border-l-[#C9A962]' : 'border-l-2 border-transparent'}`}
+                    >
+                      <div className="flex-1 min-w-0 pr-2">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-primary font-medium text-[#FAF8F5] text-sm truncate flex-1">
+                            {item.property_address}
+                          </h4>
+                          {followUpBadge}
+                        </div>
+                        <p className="text-xs text-zinc-200 truncate mb-1">{item.owner_name}</p>
+                        
+                        <div className="flex items-center gap-3 text-[10px] text-zinc-400 font-primary font-medium">
+                          <span className="text-[#C9A962]">{getAgentName(item.agent_id)}</span>
+                          <span>•</span>
+                          <span>{format(new Date(item.contact_date), "d MMM yyyy", { locale: es })}</span>
+                          <span>•</span>
+                          <span className="text-zinc-500">Hace {daysSince} {daysSince === 1 ? 'día' : 'días'}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1.5 flex-shrink-0 ml-2">
+                        <span className={`text-[9px] px-2.5 py-0.5 rounded-full border uppercase tracking-wider font-primary font-bold ${CAPTACION_STATUS_COLORS[item.status]}`}>
+                          {CAPTACION_STATUS_LABELS[item.status]}
+                        </span>
+                        {item.status === 'visita_planificada' && item.visit_date && (
+                          <span className="text-[9px] text-[#C9A962] font-semibold flex items-center gap-1">
+                            <Calendar className="w-2.5 h-2.5" />
+                            {format(new Date(item.visit_date), 'dd/MM HH:mm')}
+                          </span>
+                        )}
+                        <ChevronRight className="w-4 h-4 text-[#333]" />
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -1431,13 +1470,25 @@ export const AdminCaptaciones = () => {
                       {selectedCaptacion.owner_phone ? (
                         <div>
                           <span className="block text-xs text-zinc-400 mb-1">Teléfono</span>
-                          <a 
-                            href={`tel:${selectedCaptacion.owner_phone}`} 
-                            className="text-[#FAF8F5] hover:text-[#C9A962] font-medium text-sm flex items-center gap-1.5 hover:underline"
-                          >
-                            <Phone className="w-3.5 h-3.5 text-[#C9A962]" />
-                            {selectedCaptacion.owner_phone}
-                          </a>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <a 
+                              href={`tel:${selectedCaptacion.owner_phone}`} 
+                              className="text-[#FAF8F5] hover:text-[#C9A962] font-medium text-sm flex items-center gap-1.5 hover:underline"
+                            >
+                              <Phone className="w-3.5 h-3.5 text-[#C9A962]" />
+                              {selectedCaptacion.owner_phone}
+                            </a>
+                            <a
+                              href={`https://wa.me/${selectedCaptacion.owner_phone.replace(/[^\d+]/g,'')}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center gap-1 px-2 py-0.5 bg-green-500/10 border border-green-500/30 text-green-400 text-[10px] font-bold uppercase tracking-wider hover:bg-green-500/20 transition-colors rounded-sm"
+                              title="Abrir WhatsApp"
+                            >
+                              <MessageCircle className="w-3 h-3" />
+                              WhatsApp
+                            </a>
+                          </div>
                         </div>
                       ) : (
                         <div>
@@ -1571,6 +1622,109 @@ export const AdminCaptaciones = () => {
                     </section>
                   )}
 
+                  {/* Follow-up Section */}
+                  <section className="border border-[#1F1F1F] rounded-md p-5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-[#C9A962] text-xs font-bold uppercase tracking-widest">
+                          Fecha de Siguiente Llamada / Seguimiento
+                        </h4>
+                        <p className="text-[10px] text-zinc-400">
+                          Programa cuándo debes volver a contactar con este propietario.
+                        </p>
+                      </div>
+                      {selectedCaptacion.follow_up_date ? (
+                        <span className="text-xs px-2.5 py-0.5 rounded-full border border-orange-400/30 text-orange-400 bg-orange-400/10 font-bold uppercase tracking-wider">
+                          Programado: {format(new Date(selectedCaptacion.follow_up_date), "d MMM yyyy", { locale: es })}
+                        </span>
+                      ) : (
+                        <span className="text-xs px-2.5 py-0.5 rounded-full border border-zinc-700 text-zinc-500 bg-zinc-800/10 uppercase tracking-wider font-semibold">
+                          Sin Programar
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3 pt-1">
+                      <input
+                        type="date"
+                        value={selectedCaptacion.follow_up_date || ''}
+                        onChange={(e) => {
+                          const dateVal = e.target.value || null;
+                          updateCaptacion(selectedCaptacion.id, { follow_up_date: dateVal }, selectedCaptacion)
+                            .then(() => {
+                              toast.success('Fecha de seguimiento actualizada');
+                              setSelectedCaptacion({ ...selectedCaptacion, follow_up_date: dateVal });
+                            })
+                            .catch((err) => toast.error('Error al actualizar: ' + err.message));
+                        }}
+                        className="bg-[#0A0A0A] border border-[#1F1F1F] text-[#FAF8F5] px-3 py-1.5 text-xs focus:outline-none focus:border-[#C9A962] transition-colors rounded"
+                      />
+
+                      <div className="flex gap-1.5">
+                        <button
+                          onClick={() => {
+                            const d = new Date(); d.setDate(d.getDate() + 3);
+                            const str = format(d, 'yyyy-MM-dd');
+                            updateCaptacion(selectedCaptacion.id, { follow_up_date: str }, selectedCaptacion)
+                              .then(() => {
+                                toast.success('Seguimiento en 3 días');
+                                setSelectedCaptacion({ ...selectedCaptacion, follow_up_date: str });
+                              })
+                              .catch((err) => toast.error(err.message));
+                          }}
+                          className="px-2 py-1 bg-[#1A1A1A] border border-[#1F1F1F] hover:border-[#C9A962] hover:text-[#C9A962] text-[10px] font-bold uppercase tracking-wider rounded transition-colors text-zinc-300"
+                        >
+                          +3 días
+                        </button>
+                        <button
+                          onClick={() => {
+                            const d = new Date(); d.setDate(d.getDate() + 7);
+                            const str = format(d, 'yyyy-MM-dd');
+                            updateCaptacion(selectedCaptacion.id, { follow_up_date: str }, selectedCaptacion)
+                              .then(() => {
+                                toast.success('Seguimiento en 1 semana');
+                                setSelectedCaptacion({ ...selectedCaptacion, follow_up_date: str });
+                              })
+                              .catch((err) => toast.error(err.message));
+                          }}
+                          className="px-2 py-1 bg-[#1A1A1A] border border-[#1F1F1F] hover:border-[#C9A962] hover:text-[#C9A962] text-[10px] font-bold uppercase tracking-wider rounded transition-colors text-zinc-300"
+                        >
+                          +1 sem.
+                        </button>
+                        <button
+                          onClick={() => {
+                            const d = new Date(); d.setMonth(d.getMonth() + 1);
+                            const str = format(d, 'yyyy-MM-dd');
+                            updateCaptacion(selectedCaptacion.id, { follow_up_date: str }, selectedCaptacion)
+                              .then(() => {
+                                toast.success('Seguimiento en 1 mes');
+                                setSelectedCaptacion({ ...selectedCaptacion, follow_up_date: str });
+                              })
+                              .catch((err) => toast.error(err.message));
+                          }}
+                          className="px-2 py-1 bg-[#1A1A1A] border border-[#1F1F1F] hover:border-[#C9A962] hover:text-[#C9A962] text-[10px] font-bold uppercase tracking-wider rounded transition-colors text-zinc-300"
+                        >
+                          +1 mes
+                        </button>
+                        {selectedCaptacion.follow_up_date && (
+                          <button
+                            onClick={() => {
+                              updateCaptacion(selectedCaptacion.id, { follow_up_date: null }, selectedCaptacion)
+                                .then(() => {
+                                  toast.success('Seguimiento eliminado');
+                                  setSelectedCaptacion({ ...selectedCaptacion, follow_up_date: null });
+                                })
+                                .catch((err) => toast.error(err.message));
+                            }}
+                            className="px-2 py-1 bg-[#1A1A1A] border border-red-900/30 hover:bg-red-950/20 text-red-400 text-[10px] font-bold uppercase tracking-wider rounded transition-colors"
+                          >
+                            Eliminar
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </section>
+
                   {/* Tracking Detail */}
                   <section>
                     <h3 className="text-[#C9A962] text-xs font-bold uppercase tracking-widest border-b border-[#1F1F1F] pb-1.5 mb-4">
@@ -1630,6 +1784,11 @@ export const AdminCaptaciones = () => {
                       placeholder="Añade aquí comentarios de llamadas, visitas, progresos..."
                       className="w-full bg-[#111] border border-[#1F1F1F] rounded p-3 text-sm text-[#FAF8F5] focus:outline-none focus:border-[#C9A962] min-h-[150px] resize-none leading-relaxed"
                     />
+                  </section>
+
+                  {/* Historial de Actividad */}
+                  <section className="border-t border-[#1F1F1F] pt-6">
+                    <CaptacionHistory captacionId={selectedCaptacion.id} />
                   </section>
 
                 </div>
