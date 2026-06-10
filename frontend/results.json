@@ -1,0 +1,338 @@
+[
+  {
+    "testId": "Property01",
+    "desc": "Auth error - Invalid token (Token inválido)",
+    "expectedStatus": 401,
+    "actualStatus": 401,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"Unauthorized: Invalid access token\"}"
+  },
+  {
+    "testId": "Property02",
+    "desc": "Error - invalid feedkey (Feedkey inválido)",
+    "expectedStatus": 403,
+    "actualStatus": 403,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"Forbidden: Invalid feedKey\"}"
+  },
+  {
+    "testId": "Property03",
+    "desc": "New property Operation - sale",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_beuhax4\"}"
+  },
+  {
+    "testId": "Property04",
+    "desc": "New property Operation - rent",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_jm9yv44\"}"
+  },
+  {
+    "testId": "Property05",
+    "desc": "New property Scope - Idealista",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_ebeoxpd\"}"
+  },
+  {
+    "testId": "Property06",
+    "desc": "New property Scope - microsite",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_4d6mjrd\"}"
+  },
+  {
+    "testId": "Property07",
+    "desc": "New property Visibility - full",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_mr2j89j\"}"
+  },
+  {
+    "testId": "Property08",
+    "desc": "New property Visibility - street",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_x9gpmqr\"}"
+  },
+  {
+    "testId": "Property09",
+    "desc": "New property Visibility - hidden",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_fzrjuyr\"}"
+  },
+  {
+    "testId": "Flat01",
+    "desc": "New property Type - flat (Enviar todos los campos del CRM)",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_fvto1cb\"}"
+  },
+  {
+    "testId": "Flat02",
+    "desc": "Basic validation error - areaConstructed < 10",
+    "expectedStatus": 400,
+    "actualStatus": 400,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"areaConstructed cannot be less than 10\"}"
+  },
+  {
+    "testId": "Flat03",
+    "desc": "Business validation error - areaConstructed < areaUsable",
+    "expectedStatus": 400,
+    "actualStatus": 400,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"areaConstructed cannot be lower than areaUsable\"}"
+  },
+  {
+    "testId": "Flat04",
+    "desc": "Business validation error - conservation='good' and bathroomNumber=0",
+    "expectedStatus": 400,
+    "actualStatus": 400,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"conservation status 'good' is incompatible with 0 bathrooms\"}"
+  },
+  {
+    "testId": "Flat05",
+    "desc": "Business validation error - parkingAvailable=false, parkingIncludedInPrice=true",
+    "expectedStatus": 400,
+    "actualStatus": 400,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"parking space should not define price when parking is not available\"}"
+  },
+  {
+    "testId": "House01",
+    "desc": "New property Type - house",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_xg2v0sk\"}"
+  },
+  {
+    "testId": "CountryHouse01",
+    "desc": "New property Type - countryhouse",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_an46s2e\"}"
+  },
+  {
+    "testId": "Garage01",
+    "desc": "New property Type - garage",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_n3cesvf\"}"
+  },
+  {
+    "testId": "Office01",
+    "desc": "New property Type - office",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_kiu02ly\"}"
+  },
+  {
+    "testId": "Commercial01",
+    "desc": "New property Type - commercial",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_7g882t8\"}"
+  },
+  {
+    "testId": "Commercial02",
+    "desc": "New property Type - commercial / Valid transfer (isTransfer=true and classificationCommercial)",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_0zjgvld\"}"
+  },
+  {
+    "testId": "Commercial03",
+    "desc": "Business validation error - transfer (isTransfer=true sin clasificación)",
+    "expectedStatus": 400,
+    "actualStatus": 400,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"commercial activity is mandatory for transfer\"}"
+  },
+  {
+    "testId": "Land01",
+    "desc": "New property Type - land / Features type - urban",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_efqw71m\"}"
+  },
+  {
+    "testId": "Land02",
+    "desc": "New property Type - land / Features type - countrybuildable",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_6saiyba\"}"
+  },
+  {
+    "testId": "Land03",
+    "desc": "New property Type - land / Features type - countrynonbuildable",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_mh5pbrw\"}"
+  },
+  {
+    "testId": "Land04",
+    "desc": "Business validation error - feature not compatible (countrynonbuildable + electricity=true)",
+    "expectedStatus": 400,
+    "actualStatus": 400,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"feature sent is not compatible with the land type\"}"
+  },
+  {
+    "testId": "Land05",
+    "desc": "Business validation error - road access (roadAccess=false y accessType definido)",
+    "expectedStatus": 400,
+    "actualStatus": 400,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"accessType is only allowed when roadAccess is true\"}"
+  },
+  {
+    "testId": "StorageRoom01",
+    "desc": "New property Type - storage (trastero)",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_w7g7gjk\"}"
+  },
+  {
+    "testId": "Building01",
+    "desc": "New property Type - building",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_kz1l992\"}"
+  },
+  {
+    "testId": "Building02",
+    "desc": "Basic validation error - building classification (sin clasificación)",
+    "expectedStatus": 400,
+    "actualStatus": 400,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"validation error: you need to send at least one classification field\"}"
+  },
+  {
+    "testId": "Room01",
+    "desc": "New property Type - room / Operation - rent",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_06yy2su\"}"
+  },
+  {
+    "testId": "Room02",
+    "desc": "Basic validation error - room operation type (room en venta)",
+    "expectedStatus": 400,
+    "actualStatus": 400,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"operation type for rooms can only be rent\"}"
+  },
+  {
+    "testId": "Property10",
+    "desc": "Find property (Obtener propiedad creada)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "status": "SUCCESS",
+    "body": "{\"propertyId\":\"mock_prop_beuhax4\",\"type\":\"flat\",\"code\":\"GH-PROP03-1781129542001\",\"reference\":\"GH-PROP03\",\"contactId\":101,\"address\":{\"streetName\":\"Call"
+  },
+  {
+    "testId": "Property11",
+    "desc": "Find property Error not found (ID inexistente)",
+    "expectedStatus": 404,
+    "actualStatus": 404,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "testId": "Property12",
+    "desc": "Find all properties (Paginación correcta)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "status": "SUCCESS",
+    "body": "{\"properties\":[{\"propertyId\":\"mock_prop_beuhax4\",\"type\":\"flat\",\"code\":\"GH-PROP03-1781129542001\",\"reference\":\"GH-PROP03\",\"contactId\":101,\"address\":{\"st"
+  },
+  {
+    "testId": "Property13",
+    "desc": "Update property (Modificar características)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "status": "SUCCESS",
+    "body": "{\"success\":true}"
+  },
+  {
+    "testId": "Property14",
+    "desc": "Update property Business errors - type (Cambio de tipo 'flat' a 'house')",
+    "expectedStatus": 400,
+    "actualStatus": 400,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"the type of the property cannot be changed\"}"
+  },
+  {
+    "testId": "Property15",
+    "desc": "Update property Error not found (ID inexistente)",
+    "expectedStatus": 404,
+    "actualStatus": 404,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "testId": "Property16",
+    "desc": "Deactivate property (Desactivar anuncio activo)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "status": "SUCCESS",
+    "body": "{\"success\":true}"
+  },
+  {
+    "testId": "Property17",
+    "desc": "Deactivate property Error not found (ID inexistente)",
+    "expectedStatus": 404,
+    "actualStatus": 404,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "testId": "Property18",
+    "desc": "Reactivate property",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "status": "SUCCESS",
+    "body": "{\"success\":true}"
+  },
+  {
+    "testId": "Property19",
+    "desc": "Reactivate property Error not found",
+    "expectedStatus": 404,
+    "actualStatus": 404,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "testId": "Property19",
+    "desc": "Reactivate property Error not found (usando endpoint /activate)",
+    "expectedStatus": 404,
+    "actualStatus": 404,
+    "status": "SUCCESS",
+    "body": "{\"error\":\"Property not found\"}"
+  }
+]
