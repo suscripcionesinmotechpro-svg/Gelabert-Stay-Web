@@ -234,16 +234,16 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
 
                 <button
                   type="button"
-                  onClick={() => updateRoom(idx, { is_exterior: room.is_exterior === undefined ? false : !room.is_exterior })}
+                  onClick={() => updateRoom(idx, { is_exterior: !room.is_exterior })}
                   className={`flex items-center gap-2 px-3 py-2 border rounded-sm transition-all text-xs font-bold uppercase tracking-tight ${
-                    room.is_exterior !== false
+                    room.is_exterior === true
                       ? 'bg-[#4ADE80]/10 border-[#4ADE80]/30 text-[#4ADE80]'
                       : 'bg-[#0A0A0A] border-[#1F1F1F] text-[#555] hover:border-[#444] hover:text-[#888]'
                   }`}
                 >
                   <Compass className="w-3.5 h-3.5" />
-                  {room.is_exterior !== false ? 'Exterior' : 'Interior'}
-                  <span className={`ml-1 w-1.5 h-1.5 rounded-full ${room.is_exterior !== false ? 'bg-[#4ADE80]' : 'bg-[#333]'}`} />
+                  {room.is_exterior === true ? 'Exterior' : 'Interior'}
+                  <span className={`ml-1 w-1.5 h-1.5 rounded-full ${room.is_exterior === true ? 'bg-[#4ADE80]' : 'bg-[#333]'}`} />
                 </button>
               </div>
 
