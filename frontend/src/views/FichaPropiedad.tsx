@@ -59,6 +59,7 @@ export const FichaPropiedad = () => {
   const [activePlanIdx, setActivePlanIdx] = useState(0);
   const [linkCopied, setLinkCopied] = useState(false);
   const [roomStatuses, setRoomStatuses] = useState<Record<string, string>>({});
+  const [roomAvailabilities, setRoomAvailabilities] = useState<Record<string, string | null>>({});
   const [videoError, setVideoError] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [videoReadyMessage, setVideoReadyMessage] = useState(false);
@@ -131,10 +132,13 @@ export const FichaPropiedad = () => {
           
           if (data) {
             const statusMap: Record<string, string> = {};
-            data.forEach((status: any) => {
-              statusMap[status.room_id] = status.status;
+            const availabilityMap: Record<string, string | null> = {};
+            data.forEach((item: any) => {
+              statusMap[item.room_id] = item.status;
+              availabilityMap[item.room_id] = item.availability;
             });
             setRoomStatuses(statusMap);
+            setRoomAvailabilities(availabilityMap);
           }
         } catch (err) {
           console.error('Error fetching room statuses:', err);
@@ -1158,18 +1162,21 @@ export const FichaPropiedad = () => {
                               )} />
                               {roomStatus === 'disponible' ? t('property.labels.features.available') : roomStatus === 'reservado' ? t('property.labels.features.reserved') : t('property.labels.features.rented')}
                             </span>
-                            {roomStatus !== 'disponible' && room.availability && (
-                              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
-                                <CalendarClock className="w-3 h-3" />
-                                {t('property.labels.features.available_again', 'Disponible nuevamente el')}{' '}
-                                {(() => {
-                                  const d = new Date(room.availability);
-                                  return isNaN(d.getTime())
-                                    ? room.availability
-                                    : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                                })()}
-                              </span>
-                            )}
+                            {(() => {
+                              const roomAvailability = roomAvailabilities[room.id] || room.availability;
+                              return roomStatus !== 'disponible' && roomAvailability ? (
+                                <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
+                                  <CalendarClock className="w-3 h-3" />
+                                  {t('property.labels.features.available_again', 'Disponible nuevamente el')}{' '}
+                                  {(() => {
+                                    const d = new Date(roomAvailability);
+                                    return isNaN(d.getTime())
+                                      ? roomAvailability
+                                      : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                                  })()}
+                                </span>
+                              ) : null;
+                            })()}
                             {room.private_bathroom && (
                               <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 6 2 2-2 2"/><path d="M13.83 13A8 8 0 0 1 8 21H4"/><path d="M14 10a7 7 0 0 1 7 7v2"/><path d="M18.83 11.83a7 7 0 0 0-9.76-9.76"/></svg>
