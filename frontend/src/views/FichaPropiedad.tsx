@@ -1083,9 +1083,7 @@ export const FichaPropiedad = () => {
               <h2 className="font-secondary text-2xl text-[#FAF8F5]">{t('property.labels.features.room_distribution', { defaultValue: 'Distribución por Habitaciones' })}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {property.rooms.map((room: PropertyRoom, idx: number) => {
-                  const roomStatusRaw = (room.status && room.status !== 'disponible')
-                    ? room.status
-                    : (roomStatuses[room.id] || room._calculated_status || 'disponible');
+                  const roomStatusRaw = roomStatuses[room.id] || room.status || 'disponible';
 
                   const roomStatus = roomStatusRaw.toLowerCase().startsWith('reser')
                     ? 'reservado'
@@ -1163,7 +1161,9 @@ export const FichaPropiedad = () => {
                               {roomStatus === 'disponible' ? t('property.labels.features.available') : roomStatus === 'reservado' ? t('property.labels.features.reserved') : t('property.labels.features.rented')}
                             </span>
                             {(() => {
-                              const roomAvailability = roomAvailabilities[room.id] || room.availability;
+                              const roomAvailability = roomAvailabilities[room.id] !== undefined
+                                ? roomAvailabilities[room.id]
+                                : room.availability;
                               return roomStatus !== 'disponible' && roomAvailability ? (
                                 <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
                                   <CalendarClock className="w-3 h-3" />

@@ -490,8 +490,9 @@ export const Propiedades = () => {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             {sortedProperties.map((p, index: number) => (
-              <motion.div 
+              <PropertyCard
                 key={p.id}
+                layout
                 variants={{
                   hidden: { opacity: 0, y: 20 },
                   show: { 
@@ -503,9 +504,6 @@ export const Propiedades = () => {
                     } 
                   }
                 }}
-                layout
-              >
-              <PropertyCard
                 index={index}
                 title={p.title}
                 title_en={p.title_en ?? undefined}
@@ -545,7 +543,6 @@ export const Propiedades = () => {
                 isInCompare={isInCompare(p.id)}
                 onToggleCompare={(e) => handleToggleCompare(p, e)}
               />
-              </motion.div>
             ))}
           </motion.div>
         )}

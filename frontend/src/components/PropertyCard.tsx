@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { useAutoTranslate } from '../hooks/useAutoTranslate';
 import { type CommercialStatus, COMMERCIAL_STATUS_LABELS, type PropertyType } from '../types/property';
 import { ChevronLeft, ChevronRight, Heart, GitCompare, Maximize2, BedDouble, Bath, Camera, Video, Map, CalendarClock, X } from 'lucide-react';
-import { useState, useMemo, memo } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
+import { supabase } from '../lib/supabase';
 import { PremiumImage } from './PremiumImage';
 import { getOptimizedImage } from '../utils/images';
 import { formatPropertyPrice } from '../utils/textUtils';
@@ -99,6 +100,32 @@ export const PropertyCard = memo(({
   const { t, i18n } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAvailabilityPopover, setShowAvailabilityPopover] = useState(false);
+  const [roomStatuses, setRoomStatuses] = useState<Record<string, string>>({});
+  const [roomAvailabilities, setRoomAvailabilities] = useState<Record<string, string | null>>({});
+
+  useEffect(() => {
+    if (showAvailabilityPopover && id && (is_room_rental || property_type === 'habitacion')) {
+      const fetchStatuses = async () => {
+        try {
+          const { data, error } = await supabase.rpc('get_property_room_statuses', { p_property_id: id });
+          if (error) throw error;
+          if (data) {
+            const statusMap: Record<string, string> = {};
+            const availabilityMap: Record<string, string | null> = {};
+            data.forEach((item: any) => {
+              statusMap[item.room_id] = item.status;
+              availabilityMap[item.room_id] = item.availability;
+            });
+            setRoomStatuses(statusMap);
+            setRoomAvailabilities(availabilityMap);
+          }
+        } catch (err) {
+          console.error('Error fetching room statuses in card:', err);
+        }
+      };
+      fetchStatuses();
+    }
+  }, [showAvailabilityPopover, id, is_room_rental, property_type]);
 
   const handleOpenAvailabilityPopover = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -184,9 +211,13 @@ export const PropertyCard = memo(({
       }}
       className={cn(
         "group relative flex flex-col bg-[#0A0A0A] border border-white/5 transition-all duration-700 rounded-2xl hover:border-[#C9A962]/30 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]",
-        showAvailabilityPopover ? "overflow-visible z-50" : "overflow-hidden",
+        showAvailabilityPopover ? "overflow-visible" : "overflow-hidden",
         className
       )}
+      style={{
+        ...props.style,
+        zIndex: showAvailabilityPopover ? 50 : 1
+      }}
       {...props}
     >
       <Link to={linkTo || `/propiedades/${reference || id}`} data-cursor="ver" className="block flex-1 flex flex-col">
@@ -378,7 +409,7 @@ export const PropertyCard = memo(({
             <button
               type="button"
               onClick={handleOpenAvailabilityPopover}
-              className="font-primary text-[10px] uppercase tracking-widest text-[#C9A962] hover:text-[#FAF8F5] hover:underline font-black ml-auto border border-[#C9A962]/20 hover:border-[#C9A962]/40 bg-[#C9A962]/5 px-2 py-0.5 rounded-sm transition-all duration-300"
+              className="font-primary text-[10px] uppercase tracking-widest text-[#C9A962] hover:text-[#FAF8F5] hover:underline font-black ml-auto border border-[#C9A962]/20 hover:border-[#C9A962]/40 bg-[#C9A962]/5 px-2 py-0.5 rounded-sm transition-all duration-300 relative z-20"
             >
               {t('property.labels.features.check_availability', 'Consultar')}
             </button>
@@ -407,12 +438,15 @@ export const PropertyCard = memo(({
                   </div>
                   <div className="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
                     {(rooms || []).map((room) => {
-                      const roomStatusRaw = room.status || 'disponible';
+                      const roomStatusRaw = roomStatuses[room.id] || room.status || 'disponible';
                       const roomStatus = roomStatusRaw.toLowerCase().startsWith('reser')
                         ? 'reservado'
                         : roomStatusRaw.toLowerCase().startsWith('alqui')
                           ? 'alquilado'
                           : 'disponible';
+                      const roomAvailability = roomAvailabilities[room.id] !== undefined
+                        ? roomAvailabilities[room.id]
+                        : room.availability;
                       return (
                         <div key={room.id} className="flex justify-between items-center text-[10px] uppercase tracking-wider font-bold">
                           <span className="text-white/80">{room.name}</span>
@@ -429,13 +463,13 @@ export const PropertyCard = memo(({
                                   ? t('property.labels.features.reserved', 'Reservada')
                                   : t('property.labels.features.rented', 'Alquilada')}
                             </span>
-                            {roomStatus !== 'disponible' && room.availability && (
+                            {roomStatus !== 'disponible' && roomAvailability && (
                               <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] text-[9px] font-black tracking-tight rounded-sm shrink-0">
                                 <CalendarClock className="w-3 h-3" />
                                 {(() => {
-                                  const d = new Date(room.availability);
+                                  const d = new Date(roomAvailability);
                                   return isNaN(d.getTime())
-                                    ? room.availability
+                                    ? roomAvailability
                                     : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
                                 })()}
                               </span>
