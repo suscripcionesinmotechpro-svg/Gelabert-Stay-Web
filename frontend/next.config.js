@@ -9,6 +9,7 @@ const nextConfig = {
   env: {
     VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL || 'https://aumqjpqngmhpbwytpets.supabase.co',
     VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1bXFqcHFuZ21ocGJ3eXRwZXRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxODgyNjMsImV4cCI6MjA4ODc2NDI2M30.OHi4bRiyFUv2lBHu3wb1IKchj2qF6rZ354uhCQeeAlU',
+    VITE_GOOGLE_MAPS_API_KEY: process.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyDFHHIhz6Xh-ZdFahhh-MzUoup7d25vbX0',
   },
   images: {
     loader: 'custom',

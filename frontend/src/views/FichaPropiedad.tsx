@@ -980,14 +980,13 @@ export const FichaPropiedad = () => {
                       "w-1.5 h-1.5 rounded-full",
                       property.commercial_status === 'disponible' ? "bg-green-400" : "bg-current animate-pulse"
                     )} />
-                    {(property.commercial_status === 'alquilado' || property.commercial_status === 'reservado') && (() => {
-                      if (!property.availability) return false;
+                    {((property.commercial_status === 'alquilado' || property.commercial_status === 'reservado') && property.availability && (() => {
                       const d = new Date(property.availability);
                       if (isNaN(d.getTime())) return false;
                       const today = new Date();
                       today.setHours(0, 0, 0, 0);
-                      return d.getTime() >= today.getTime();
-                    })() ? (
+                      return d.getTime() > today.getTime();
+                    })()) ? (
                       (() => {
                         const d = new Date(property.availability);
                         const formatted = isNaN(d.getTime())
@@ -1164,7 +1163,13 @@ export const FichaPropiedad = () => {
                               const roomAvailability = roomAvailabilities[room.id] !== undefined
                                 ? roomAvailabilities[room.id]
                                 : room.availability;
-                              return roomStatus !== 'disponible' && roomAvailability ? (
+                              return roomStatus !== 'disponible' && roomAvailability && (() => {
+                                const d = new Date(roomAvailability);
+                                if (isNaN(d.getTime())) return false;
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                return d.getTime() > today.getTime();
+                              })() ? (
                                 <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
                                   <CalendarClock className="w-3 h-3" />
                                   {t('property.labels.features.available_again', 'Disponible nuevamente el')}{' '}
@@ -1509,7 +1514,7 @@ export const FichaPropiedad = () => {
                     if (isNaN(d.getTime())) return false;
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
-                    return d.getTime() >= today.getTime();
+                    return d.getTime() > today.getTime();
                   }
                   return true;
                 })() && (

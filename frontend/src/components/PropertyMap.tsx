@@ -41,7 +41,7 @@ export const PropertyMap = ({ lat, lng, address, editable, onChange }: PropertyM
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
+    googleMapsApiKey: (typeof process !== 'undefined' && process.env.VITE_GOOGLE_MAPS_API_KEY) || "",
     libraries: GOOGLE_MAPS_LIBRARIES
   });
 

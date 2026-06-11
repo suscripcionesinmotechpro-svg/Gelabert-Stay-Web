@@ -194,7 +194,7 @@ export const PropertyCard = memo(({
       if (isNaN(d.getTime())) return false;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      return d.getTime() >= today.getTime();
+      return d.getTime() > today.getTime();
     }
     return true;
   }, [availability, commercialStatus]);
@@ -274,7 +274,13 @@ export const PropertyCard = memo(({
                 commercialStatus === 'vendido' && "bg-red-600 text-white border-red-300",
                 commercialStatus === 'traspasado' && "bg-blue-600 text-white border-blue-300",
               )}>
-                {commercialStatus === 'alquilado' && availability ? (
+                {commercialStatus === 'alquilado' && availability && (() => {
+                  const d = new Date(availability);
+                  if (isNaN(d.getTime())) return false;
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  return d.getTime() > today.getTime();
+                })() ? (
                   (() => {
                     const d = new Date(availability);
                     const formatted = isNaN(d.getTime())
@@ -463,7 +469,13 @@ export const PropertyCard = memo(({
                                   ? t('property.labels.features.reserved', 'Reservada')
                                   : t('property.labels.features.rented', 'Alquilada')}
                             </span>
-                            {roomStatus !== 'disponible' && roomAvailability && (
+                            {roomStatus !== 'disponible' && roomAvailability && (() => {
+                              const d = new Date(roomAvailability);
+                              if (isNaN(d.getTime())) return false;
+                              const today = new Date();
+                              today.setHours(0, 0, 0, 0);
+                              return d.getTime() > today.getTime();
+                            })() && (
                               <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] text-[9px] font-black tracking-tight rounded-sm shrink-0">
                                 <CalendarClock className="w-3 h-3" />
                                 {(() => {
