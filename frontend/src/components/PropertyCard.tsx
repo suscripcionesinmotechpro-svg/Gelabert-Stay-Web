@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAutoTranslate } from '../hooks/useAutoTranslate';
 import { type CommercialStatus, COMMERCIAL_STATUS_LABELS, type PropertyType } from '../types/property';
-import { ChevronLeft, ChevronRight, Heart, GitCompare, Maximize2, BedDouble, Bath, Camera, Video, Map, CalendarClock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, GitCompare, Maximize2, BedDouble, Bath, Camera, Video, Map, CalendarClock, X } from 'lucide-react';
 import { useState, useMemo, memo } from 'react';
 import { PremiumImage } from './PremiumImage';
 import { getOptimizedImage } from '../utils/images';
@@ -98,6 +98,19 @@ export const PropertyCard = memo(({
 }: PropertyCardProps) => {
   const { t, i18n } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showAvailabilityPopover, setShowAvailabilityPopover] = useState(false);
+
+  const handleOpenAvailabilityPopover = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowAvailabilityPopover(true);
+  };
+
+  const handleCloseAvailabilityPopover = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowAvailabilityPopover(false);
+  };
   
   const { translatedText: autoTitle } = useAutoTranslate(title, title_en);
   const displayTitle = autoTitle;
@@ -337,24 +350,93 @@ export const PropertyCard = memo(({
             )}
           </div>
 
-          {/* Availability Date */}
-          {availability && (
-            <div className="flex items-center gap-2 pt-3 border-t border-white/5">
+          {/* Availability Date / Popover for Rooms */}
+          {is_room_rental && rooms && rooms.length > 0 ? (
+            <div className="flex items-center gap-2 pt-3 border-t border-white/5 relative">
               <CalendarClock className="w-3.5 h-3.5 text-[#C9A962]/70 shrink-0" />
               <span className="font-primary text-[10px] uppercase tracking-widest text-white/50 font-bold">
-                {commercialStatus === 'alquilado'
-                  ? t('property.labels.features.available_again', 'Disponible nuevamente el')
-                  : t('property.labels.features.available_from', 'Disponible desde')}
+                {t('property.labels.features.rooms_availability', 'Disponibilidad')}
               </span>
-              <span className="font-primary text-xs text-[#C9A962] font-bold ml-auto">
-                {(() => {
-                  const d = new Date(availability);
-                  return isNaN(d.getTime())
-                    ? availability
-                    : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-                })()}
-              </span>
+              <button
+                type="button"
+                onClick={handleOpenAvailabilityPopover}
+                className="font-primary text-[10px] uppercase tracking-widest text-[#C9A962] hover:text-[#FAF8F5] hover:underline font-black ml-auto border border-[#C9A962]/20 hover:border-[#C9A962]/40 bg-[#C9A962]/5 px-2 py-0.5 rounded-sm transition-all duration-300 pointer-events-auto"
+              >
+                {t('property.labels.features.check_availability', 'Consultar')}
+              </button>
+
+              <AnimatePresence>
+                {showAvailabilityPopover && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute bottom-full mb-2 right-0 left-0 bg-[#0A0A0A]/98 border border-white/10 p-4 rounded-sm shadow-2xl z-[60] backdrop-blur-md flex flex-col gap-2.5 pointer-events-auto"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  >
+                    <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
+                      <span className="font-secondary text-xs uppercase tracking-wider text-[#C9A962] font-black">
+                        {t('property.labels.features.rooms_status', 'Estado de Habitaciones')}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleCloseAvailabilityPopover}
+                        className="text-white/65 hover:text-white p-0.5 transition-colors"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
+                      {rooms.map((room) => {
+                        const roomStatus = room.status || 'disponible';
+                        return (
+                          <div key={room.id} className="flex justify-between items-center text-[10px] uppercase tracking-wider font-bold">
+                            <span className="text-white/80">{room.name}</span>
+                            <span className={cn(
+                              "px-1.5 py-0.5 rounded-sm border text-[9px] font-black shrink-0",
+                              roomStatus === 'disponible' ? "bg-green-500/10 text-green-400 border-green-500/20" :
+                              roomStatus === 'reservado' ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
+                              "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                            )}>
+                              {(() => {
+                                if (roomStatus === 'disponible') return t('property.labels.features.available', 'Disponible');
+                                const label = roomStatus === 'reservado' ? t('property.labels.features.reserved', 'Reservada') : t('property.labels.features.rented', 'Alquilada');
+                                if (!room.availability) return label;
+                                const d = new Date(room.availability);
+                                const formatted = isNaN(d.getTime())
+                                  ? room.availability
+                                  : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: '2-digit' });
+                                return `${label} (${formatted})`;
+                              })()}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
+          ) : (
+            availability && (
+              <div className="flex items-center gap-2 pt-3 border-t border-white/5">
+                <CalendarClock className="w-3.5 h-3.5 text-[#C9A962]/70 shrink-0" />
+                <span className="font-primary text-[10px] uppercase tracking-widest text-white/50 font-bold">
+                  {commercialStatus === 'alquilado'
+                    ? t('property.labels.features.available_again', 'Disponible nuevamente el')
+                    : t('property.labels.features.available_from', 'Disponible desde')}
+                </span>
+                <span className="font-primary text-xs text-[#C9A962] font-bold ml-auto">
+                  {(() => {
+                    const d = new Date(availability);
+                    return isNaN(d.getTime())
+                      ? availability
+                      : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                  })()}
+                </span>
+              </div>
+            )
           )}
         </div>
       </Link>
