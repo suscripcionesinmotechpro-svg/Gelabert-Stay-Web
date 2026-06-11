@@ -2,8 +2,11 @@
   publish = ".next"
   command = "npm run build"
 
+[build.environment]
+  NETLIFY_NEXT_PLUGIN_SKIP_FORMS = "true"
+
 [[plugins]]
-  package = "@netlify/plugin-nextjs@4"
+  package = "@netlify/plugin-nextjs"
 
 [[edge_functions]]
   path = "/propiedades/*"
