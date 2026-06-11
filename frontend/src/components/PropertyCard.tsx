@@ -103,7 +103,7 @@ export const PropertyCard = memo(({
   const handleOpenAvailabilityPopover = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setShowAvailabilityPopover(true);
+    setShowAvailabilityPopover(prev => !prev);
   };
 
   const handleCloseAvailabilityPopover = (e: React.MouseEvent) => {
@@ -183,7 +183,8 @@ export const PropertyCard = memo(({
         delay: index !== undefined ? Math.min(index % 8, 8) * 0.1 : 0.05 
       }}
       className={cn(
-        "group relative flex flex-col bg-[#0A0A0A] border border-white/5 transition-all duration-700 rounded-2xl overflow-hidden hover:border-[#C9A962]/30 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]",
+        "group relative flex flex-col bg-[#0A0A0A] border border-white/5 transition-all duration-700 rounded-2xl hover:border-[#C9A962]/30 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]",
+        showAvailabilityPopover ? "overflow-visible z-50" : "overflow-hidden",
         className
       )}
       {...props}
