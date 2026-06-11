@@ -1234,11 +1234,17 @@ export const AdminPropertyForm = () => {
           <div className="flex flex-col gap-2">
             <label className={labelClass}>Disponibilidad</label>
             <input 
+              type={(form.commercial_status === 'alquilado' || form.commercial_status === 'reservado') ? 'date' : 'text'}
               className={inputClass} 
-              placeholder="Ej: Inmediata, Mayo 2024..."
+              placeholder={(form.commercial_status === 'alquilado' || form.commercial_status === 'reservado') ? 'AAAA-MM-DD' : 'Ej: Inmediata, Mayo 2024...'}
               value={form.availability ?? ''} 
               onChange={e => set('availability', e.target.value)}
             />
+            {(form.commercial_status === 'alquilado' || form.commercial_status === 'reservado') && (
+              <p className="text-[10px] text-[#C9A962] leading-tight">
+                Indica la fecha en que se liberará (volverá a disponible automáticamente).
+              </p>
+            )}
           </div>
         </div>
 

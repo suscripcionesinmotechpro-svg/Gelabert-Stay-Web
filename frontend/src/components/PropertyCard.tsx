@@ -217,7 +217,17 @@ export const PropertyCard = memo(({
                 commercialStatus === 'vendido' && "bg-red-600 text-white border-red-300",
                 commercialStatus === 'traspasado' && "bg-blue-600 text-white border-blue-300",
               )}>
-                {t(COMMERCIAL_STATUS_LABELS[commercialStatus])}
+                {commercialStatus === 'alquilado' && availability ? (
+                  (() => {
+                    const d = new Date(availability);
+                    const formatted = isNaN(d.getTime())
+                      ? availability
+                      : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: '2-digit' });
+                    return `${i18n.language.startsWith('en') ? 'FREE' : 'LIBRE'} ${formatted}`;
+                  })()
+                ) : (
+                  t(COMMERCIAL_STATUS_LABELS[commercialStatus])
+                )}
               </span>
             </motion.div>
           )}
@@ -332,7 +342,9 @@ export const PropertyCard = memo(({
             <div className="flex items-center gap-2 pt-3 border-t border-white/5">
               <CalendarClock className="w-3.5 h-3.5 text-[#C9A962]/70 shrink-0" />
               <span className="font-primary text-[10px] uppercase tracking-widest text-white/50 font-bold">
-                {t('property.labels.features.available_from', 'Disponible desde')}
+                {commercialStatus === 'alquilado'
+                  ? t('property.labels.features.available_again', 'Disponible nuevamente el')
+                  : t('property.labels.features.available_from', 'Disponible desde')}
               </span>
               <span className="font-primary text-xs text-[#C9A962] font-bold ml-auto">
                 {(() => {

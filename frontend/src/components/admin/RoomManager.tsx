@@ -180,7 +180,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
                     </select>
                     {activeContract && (
                       <p className="text-[10px] text-[#A78BFA] leading-tight font-semibold mt-1">
-                        ⚠️ Alquilada automáticamente por contrato activo con {activeTenantName || 'inquilino'}.
+                        ⚠️ Alquilada automáticamente por contrato activo con {activeTenantName || 'inquilino'} (hasta {new Date(activeContract.end_date).toLocaleDateString()}).
                       </p>
                     )}
                     {upcomingContract && (
@@ -189,6 +189,17 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
                       </p>
                     )}
                   </div>
+                  {(room.status === 'alquilado' || room.status === 'reservado') && (
+                    <div className="flex flex-col gap-2">
+                      <label className={labelClass}>Próxima Disponibilidad (Manual)</label>
+                      <input
+                        type="date"
+                        className={inputClass}
+                        value={room.availability || ''}
+                        onChange={(e) => updateRoom(idx, { availability: e.target.value || null })}
+                      />
+                    </div>
+                  )}
                 </div>
 
               {/* Private Bathroom, Terrace & Exterior/Interior Toggles */}

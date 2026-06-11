@@ -44,6 +44,7 @@ export interface PropertyRoom {
   is_exterior?: boolean;
   status?: 'disponible' | 'reservado' | 'alquilado';
   _calculated_status?: 'disponible' | 'reservada' | 'alquilada';
+  availability?: string | null;
 }
 
 export interface PropertyCommonArea {

@@ -7,7 +7,7 @@ import { useAutoTranslate, useAutoTranslateArray } from '../hooks/useAutoTransla
 import { PropertyCard } from '../components/PropertyCard';
 import { PremiumImage } from '../components/PremiumImage';
 import { getOptimizedImage } from '../utils/images';
-import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass, Copy, CheckCheck, Send, AlertCircle, Camera, Video, ExternalLink } from 'lucide-react';
+import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass, Copy, CheckCheck, Send, AlertCircle, Camera, Video, ExternalLink, CalendarClock } from 'lucide-react';
 import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import type { PropertyVideo, PropertyRoom } from '../types/property';
 import { cn } from '../lib/utils';
@@ -976,7 +976,17 @@ export const FichaPropiedad = () => {
                       "w-1.5 h-1.5 rounded-full",
                       property.commercial_status === 'disponible' ? "bg-green-400" : "bg-current animate-pulse"
                     )} />
-                    {t(COMMERCIAL_STATUS_LABELS[property.commercial_status])}
+                    {property.commercial_status === 'alquilado' && property.availability ? (
+                      (() => {
+                        const d = new Date(property.availability);
+                        const formatted = isNaN(d.getTime())
+                          ? property.availability
+                          : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        return `${t('property.labels.features.available_again', 'Disponible nuevamente el')} ${formatted}`;
+                      })()
+                    ) : (
+                      t(COMMERCIAL_STATUS_LABELS[property.commercial_status])
+                    )}
                   </div>
                 )}
               </div>
@@ -1141,6 +1151,18 @@ export const FichaPropiedad = () => {
                               )} />
                               {roomStatus === 'disponible' ? t('property.labels.features.available') : roomStatus === 'reservado' ? t('property.labels.features.reserved') : t('property.labels.features.rented')}
                             </span>
+                            {roomStatus !== 'disponible' && room.availability && (
+                              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
+                                <CalendarClock className="w-3 h-3" />
+                                {t('property.labels.features.available_again', 'Disponible nuevamente el')}{' '}
+                                {(() => {
+                                  const d = new Date(room.availability);
+                                  return isNaN(d.getTime())
+                                    ? room.availability
+                                    : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                                })()}
+                              </span>
+                            )}
                             {room.private_bathroom && (
                               <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 6 2 2-2 2"/><path d="M13.83 13A8 8 0 0 1 8 21H4"/><path d="M14 10a7 7 0 0 1 7 7v2"/><path d="M18.83 11.83a7 7 0 0 0-9.76-9.76"/></svg>
@@ -1469,8 +1491,19 @@ export const FichaPropiedad = () => {
                 )}
                 {property.availability && (
                   <div className="flex justify-between items-center text-sm font-primary">
-                    <span className="text-[#FAF8F5]/70 uppercase tracking-wider text-xs">{t('property.labels.features.availability')}</span>
-                    <span className="text-[#FAF8F5] font-bold">{autoAvailability}</span>
+                    <span className="text-[#FAF8F5]/70 uppercase tracking-wider text-xs">
+                      {property.commercial_status === 'alquilado'
+                        ? t('property.labels.features.available_again', 'Disponible nuevamente el')
+                        : t('property.labels.features.availability')}
+                    </span>
+                    <span className="text-[#FAF8F5] font-bold">
+                      {(() => {
+                        const d = new Date(property.availability);
+                        return isNaN(d.getTime())
+                          ? autoAvailability
+                          : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                      })()}
+                    </span>
                   </div>
                 )}
               </div>
