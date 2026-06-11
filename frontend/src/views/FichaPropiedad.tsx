@@ -976,7 +976,14 @@ export const FichaPropiedad = () => {
                       "w-1.5 h-1.5 rounded-full",
                       property.commercial_status === 'disponible' ? "bg-green-400" : "bg-current animate-pulse"
                     )} />
-                    {property.commercial_status === 'alquilado' && property.availability ? (
+                    {(property.commercial_status === 'alquilado' || property.commercial_status === 'reservado') && (() => {
+                      if (!property.availability) return false;
+                      const d = new Date(property.availability);
+                      if (isNaN(d.getTime())) return false;
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      return d.getTime() >= today.getTime();
+                    })() ? (
                       (() => {
                         const d = new Date(property.availability);
                         const formatted = isNaN(d.getTime())
@@ -1489,10 +1496,19 @@ export const FichaPropiedad = () => {
                     </span>
                   </div>
                 )}
-                {property.availability && (
+                {property.availability && (() => {
+                  if (property.commercial_status === 'alquilado' || property.commercial_status === 'reservado') {
+                    const d = new Date(property.availability);
+                    if (isNaN(d.getTime())) return false;
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return d.getTime() >= today.getTime();
+                  }
+                  return true;
+                })() && (
                   <div className="flex justify-between items-center text-sm font-primary">
                     <span className="text-[#FAF8F5]/70 uppercase tracking-wider text-xs">
-                      {property.commercial_status === 'alquilado'
+                      {property.commercial_status === 'alquilado' || property.commercial_status === 'reservado'
                         ? t('property.labels.features.available_again', 'Disponible nuevamente el')
                         : t('property.labels.features.availability')}
                     </span>
@@ -1816,6 +1832,7 @@ export const FichaPropiedad = () => {
                 bedrooms={p.bedrooms}
                 bathrooms={p.bathrooms}
                 operation={p.operation.toUpperCase() as 'ALQUILER' | 'VENTA' | 'TRASPASO'}
+                commercialStatus={p.commercial_status}
                 isFeatured={p.is_featured}
                 imageUrl={p.main_image ?? ''}
                 linkTo={`${i18n.language.startsWith('en') ? '/en' : ''}/propiedades/${p.reference || p.slug || p.id}`}

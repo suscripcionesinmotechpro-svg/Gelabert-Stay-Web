@@ -160,6 +160,18 @@ export const PropertyCard = memo(({
     [price, price_type, max_price, currency, i18n.language]
   );
 
+  const showGeneralAvailability = useMemo(() => {
+    if (!availability) return false;
+    if (commercialStatus === 'alquilado' || commercialStatus === 'reservado') {
+      const d = new Date(availability);
+      if (isNaN(d.getTime())) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return d.getTime() >= today.getTime();
+    }
+    return true;
+  }, [availability, commercialStatus]);
+
   const card = (
     <motion.div 
       initial={{ opacity: 0, y: 50, scale: 0.95 }}
@@ -204,7 +216,7 @@ export const PropertyCard = memo(({
           {/* Top Left: Operation Badge */}
           <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
             <div className="bg-[#C9A962] text-[#0A0A0A] px-3 py-1 text-[9px] font-bold uppercase tracking-[0.2em] rounded-sm shadow-xl">
-              {operation.toLowerCase() === 'alquiler' && is_room_rental
+              {operation.toLowerCase() === 'alquiler' && (is_room_rental || (rooms && rooms.length > 0))
                 ? t('property.labels.features.room_rental') 
                 : `${t(`property.labels.operation.${operation.toLowerCase()}`)} ${property_type ? t(`property.labels.type.${property_type}`) : ''}`}
             </div>
@@ -351,7 +363,7 @@ export const PropertyCard = memo(({
           </div>
 
           {/* Availability Date / Popover for Rooms */}
-          {is_room_rental && rooms && rooms.length > 0 ? (
+          {rooms && rooms.length > 0 ? (
             <div className="flex items-center gap-2 pt-3 border-t border-white/5 relative">
               <CalendarClock className="w-3.5 h-3.5 text-[#C9A962]/70 shrink-0" />
               <span className="font-primary text-[10px] uppercase tracking-widest text-white/50 font-bold">
@@ -401,13 +413,14 @@ export const PropertyCard = memo(({
                             )}>
                               {(() => {
                                 if (roomStatus === 'disponible') return t('property.labels.features.available', 'Disponible');
-                                const label = roomStatus === 'reservado' ? t('property.labels.features.reserved', 'Reservada') : t('property.labels.features.rented', 'Alquilada');
-                                if (!room.availability) return label;
+                                if (!room.availability) {
+                                  return roomStatus === 'reservado' ? t('property.labels.features.reserved', 'Reservada') : t('property.labels.features.rented', 'Alquilada');
+                                }
                                 const d = new Date(room.availability);
                                 const formatted = isNaN(d.getTime())
                                   ? room.availability
-                                  : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: '2-digit' });
-                                return `${label} (${formatted})`;
+                                  : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                                return `${t('property.labels.features.available_again', 'Disponible nuevamente el')} ${formatted}`;
                               })()}
                             </span>
                           </div>
@@ -419,11 +432,11 @@ export const PropertyCard = memo(({
               </AnimatePresence>
             </div>
           ) : (
-            availability && (
+            showGeneralAvailability && (
               <div className="flex items-center gap-2 pt-3 border-t border-white/5">
                 <CalendarClock className="w-3.5 h-3.5 text-[#C9A962]/70 shrink-0" />
                 <span className="font-primary text-[10px] uppercase tracking-widest text-white/50 font-bold">
-                  {commercialStatus === 'alquilado'
+                  {commercialStatus === 'alquilado' || commercialStatus === 'reservado'
                     ? t('property.labels.features.available_again', 'Disponible nuevamente el')
                     : t('property.labels.features.available_from', 'Disponible desde')}
                 </span>

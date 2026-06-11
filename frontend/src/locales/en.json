@@ -147,6 +147,8 @@
         "rooms_status": "Rooms Status",
         "rooms_availability": "Availability",
         "check_availability": "Check",
+        "available_again": "Available again on",
+        "available_from": "Available from",
         "view_tour": "View Tour Video",
         "room_distribution": "Room Distribution",
         "common_areas": "Common Areas",
