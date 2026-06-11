@@ -68,7 +68,7 @@ export const getCommunityShareMessage = (property: {
     ? `${property.price.toLocaleString('es-ES')}€${property.operation === 'alquiler' ? '/mes' : ''}`
     : 'Consultar';
   
-  return `🏠 *¡NUEVA PROPIEDAD DISPONIBLE!*\n\n*${property.title.toUpperCase()}*\n💰 *Precio:* ${priceStr}\n\n📸 *Ver más detalles y fotos en la web:*\n${propertyUrl}`;
+  return `🏠 *¡NUEVA PROPIEDAD DISPONIBLE!*\n\n*${property.title.toUpperCase()}*\n📌 *Ref:* ${property.reference || ''}\n💰 *Precio:* ${priceStr}\n\n📸 *Ver más detalles y fotos en la web:*\n${propertyUrl}`;
 };
 
 /**
