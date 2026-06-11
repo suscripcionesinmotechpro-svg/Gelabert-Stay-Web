@@ -142,6 +142,7 @@ BEGIN
         DECLARE
             v_total_rooms int;
             v_occupied_rooms int;
+            v_min_availability date;
         BEGIN
             -- Get total rooms from JSONB array length
             SELECT jsonb_array_length(rooms) INTO v_total_rooms 
@@ -156,10 +157,7 @@ BEGIN
                 FROM public.contracts
                 WHERE property_id = v_property_id
                   AND status = 'active'
-                  AND (
-                      (start_date <= CURRENT_DATE AND end_date >= CURRENT_DATE)
-                      OR (start_date > CURRENT_DATE)
-                  )
+                  AND end_date >= CURRENT_DATE
                 UNION
                 -- Rooms occupied manually
                 SELECT x.id as r_id
@@ -168,9 +166,21 @@ BEGIN
             ) occupied;
 
             IF v_total_rooms > 0 AND v_occupied_rooms >= v_total_rooms THEN
-                UPDATE public.properties SET commercial_status = 'alquilado' WHERE id = v_property_id;
+                -- Find minimum room availability
+                SELECT MIN(r.availability::date) INTO v_min_availability
+                FROM jsonb_to_recordset(v_updated_rooms) as r(status text, availability text)
+                WHERE r.status IN ('alquilado', 'reservado')
+                  AND r.availability ~ '^\d{4}-\d{2}-\d{2}$';
+
+                UPDATE public.properties 
+                SET commercial_status = 'alquilado',
+                    availability = COALESCE(v_min_availability::text, NULL)
+                WHERE id = v_property_id;
             ELSE
-                UPDATE public.properties SET commercial_status = 'disponible' WHERE id = v_property_id;
+                UPDATE public.properties 
+                SET commercial_status = 'disponible',
+                    availability = NULL
+                WHERE id = v_property_id;
             END IF;
         END;
     END IF;
@@ -398,6 +408,7 @@ BEGIN
                 DECLARE
                     v_total_rooms int;
                     v_occupied_rooms int;
+                    v_min_availability date;
                 BEGIN
                     SELECT jsonb_array_length(rooms) INTO v_total_rooms 
                     FROM public.properties 
@@ -410,10 +421,7 @@ BEGIN
                         FROM public.contracts
                         WHERE property_id = prop.id
                           AND status = 'active'
-                          AND (
-                              (start_date <= CURRENT_DATE AND end_date >= CURRENT_DATE)
-                              OR (start_date > CURRENT_DATE)
-                          )
+                          AND end_date >= CURRENT_DATE
                         UNION
                         -- Habitaciones ocupadas manualmente
                         SELECT x.id as r_id
@@ -423,8 +431,18 @@ BEGIN
 
                     IF v_total_rooms > 0 AND v_occupied_rooms >= v_total_rooms THEN
                         v_new_status := 'alquilado';
+                        -- Calculate min availability
+                        SELECT MIN(r.availability::date) INTO v_min_availability
+                        FROM jsonb_to_recordset(v_updated_rooms) as r(status text, availability text)
+                        WHERE r.status IN ('alquilado', 'reservado')
+                          AND r.availability ~ '^\d{4}-\d{2}-\d{2}$';
+                        
+                        UPDATE public.properties 
+                        SET availability = COALESCE(v_min_availability::text, NULL) 
+                        WHERE id = prop.id;
                     ELSE
                         v_new_status := 'disponible';
+                        UPDATE public.properties SET availability = NULL WHERE id = prop.id;
                     END IF;
                 END;
             END IF;
