@@ -1428,9 +1428,8 @@ export const AgentPropertyForm = () => {
                         value={config.limit_period || 'mensual'} 
                         onChange={e => updateService(serviceKey, 'limit_period', e.target.value)}
                       >
-                        <option value="semanal">Semanal</option>
                         <option value="mensual">Mensual</option>
-                        <option value="bimensual">Bimestral</option>
+                        <option value="bimensual">Bimensual</option>
                         <option value="anual">Anual</option>
                       </select>
                     </div>
@@ -1520,11 +1519,11 @@ export const AgentPropertyForm = () => {
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="flex flex-col gap-1.5">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                      <div className="flex flex-col gap-1.5 md:col-span-5">
                         <span className={labelClass}>Límite (€)</span>
                         <div className="flex gap-2">
-                          <div className="relative flex-1">
+                          <div className="relative flex-1 min-w-[100px]">
                             <input 
                               type="number" 
                               className={inputClass} 
@@ -1539,9 +1538,8 @@ export const AgentPropertyForm = () => {
                             value={group.period || 'mensual'} 
                             onChange={e => updateSharedLimit(group.id, 'period', e.target.value)}
                           >
-                            <option value="semanal">Semanal</option>
                             <option value="mensual">Mensual</option>
-                            <option value="bimensual">Bimestral</option>
+                            <option value="bimensual">Bimensual</option>
                             <option value="anual">Anual</option>
                           </select>
                         </div>

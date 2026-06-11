@@ -449,7 +449,7 @@
     "periods": {
       "semanal": "weekly",
       "mensual": "monthly",
-      "bimensual": "bi-monthly",
+      "bimensual": "bimonthly",
       "anual": "yearly"
     },
     "water": "Water",
