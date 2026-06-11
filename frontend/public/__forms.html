@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Netlify Forms</title>
+</head>
+<body>
+  <!-- This file is used by Netlify to detect forms at build time for Next.js -->
+
+  <form name="general-contact" data-netlify="true" hidden>
+    <input type="text" name="name" />
+    <input type="email" name="email" />
+    <input type="tel" name="phone" />
+    <input type="text" name="inquiry_type" />
+    <textarea name="message"></textarea>
+    <input type="checkbox" name="privacy_accepted" />
+    <input type="text" name="bot-field" />
+  </form>
+
+  <form name="property-owners-contact" data-netlify="true" hidden>
+    <input type="text" name="name" />
+    <input type="email" name="email" />
+    <input type="tel" name="phone" />
+    <input type="text" name="city" />
+    <input type="text" name="operation_type" />
+    <textarea name="message"></textarea>
+    <input type="checkbox" name="privacy_accepted" />
+    <input type="text" name="bot-field" />
+  </form>
+
+  <form name="property-inquiry" data-netlify="true" hidden>
+    <input type="text" name="name" />
+    <input type="email" name="email" />
+    <input type="tel" name="phone" />
+    <textarea name="message"></textarea>
+    <input type="text" name="property_id" />
+    <input type="text" name="property_reference" />
+    <input type="checkbox" name="privacy_accepted" />
+  </form>
+
+  <form name="service-inquiry" data-netlify="true" hidden>
+    <input type="text" name="name" />
+    <input type="email" name="email" />
+    <input type="tel" name="phone" />
+    <input type="text" name="services" />
+    <textarea name="message"></textarea>
+    <input type="text" name="bot-field" />
+  </form>
+
+  <form name="owner-venta-form" data-netlify="true" hidden>
+    <input type="text" name="full_name" />
+    <input type="email" name="email" />
+    <input type="tel" name="phone" />
+    <input type="text" name="address" />
+    <input type="text" name="price" />
+    <textarea name="features"></textarea>
+    <input type="url" name="ad_url" />
+    <input type="checkbox" name="privacy_accepted" />
+  </form>
+
+  <form name="owner-alquiler-form" data-netlify="true" hidden>
+    <input type="text" name="full_name" />
+    <input type="email" name="email" />
+    <input type="tel" name="phone" />
+    <input type="text" name="address" />
+    <input type="text" name="price" />
+    <textarea name="features"></textarea>
+    <input type="url" name="ad_url" />
+    <input type="checkbox" name="privacy_accepted" />
+  </form>
+
+  <form name="tenant-lead-form" data-netlify="true" hidden>
+    <input type="text" name="full_name" />
+    <input type="email" name="email" />
+    <input type="tel" name="phone" />
+    <input type="text" name="num_people" />
+    <input type="text" name="max_price" />
+    <input type="text" name="min_bedrooms" />
+    <input type="text" name="min_area" />
+    <textarea name="additional_notes"></textarea>
+    <textarea name="occupants_details"></textarea>
+    <input type="checkbox" name="privacy_accepted" />
+  </form>
+</body>
+</html>
