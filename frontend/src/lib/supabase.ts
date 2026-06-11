@@ -1,21 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
-const getEnv = (key: string): string => {
-  if (typeof process !== 'undefined' && process.env && process.env[key]) {
-    return process.env[key] as string;
-  }
-  try {
-    // @ts-ignore
-    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
-      // @ts-ignore
-      return import.meta.env[key] as string;
-    }
-  } catch (e) {}
-  return '';
-};
+// Access variables directly as static literals so Webpack/Next.js DefinePlugin can inline them at build time
+const supabaseUrl = 
+  (typeof process !== 'undefined' && process.env.VITE_SUPABASE_URL) ||
+  (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SUPABASE_URL) ||
+  '';
 
-const supabaseUrl = getEnv('VITE_SUPABASE_URL');
-const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY');
+const supabaseAnonKey = 
+  (typeof process !== 'undefined' && process.env.VITE_SUPABASE_ANON_KEY) ||
+  (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) ||
+  '';
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(
