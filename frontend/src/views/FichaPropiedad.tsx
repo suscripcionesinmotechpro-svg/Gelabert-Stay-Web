@@ -556,7 +556,7 @@ export const FichaPropiedad = () => {
             <div className="flex flex-col md:flex-row gap-3">
               {/* Main image */}
             <div
-              className="flex-1 md:w-2/3 h-[280px] sm:h-[360px] md:h-[600px] overflow-hidden border border-[#1F1F1F] relative cursor-zoom-in group bg-[#0A0A0A]"
+              className="w-full md:w-2/3 h-[280px] sm:h-[360px] md:h-[600px] overflow-hidden border border-[#1F1F1F] relative cursor-zoom-in group bg-[#0A0A0A] flex-shrink-0"
               onClick={() => generalImages.length > 0 && openLightbox(generalImages, activeImg)}
             >
             {generalImages.length > 0 ? (
