@@ -201,14 +201,16 @@ export const PropertyCard = memo(({
 
   const card = (
     <motion.div 
-      initial={{ opacity: 0, y: 50, scale: 0.95 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ 
-        duration: 0.8, 
-        ease: [0.16, 1, 0.3, 1], 
-        delay: index !== undefined ? Math.min(index % 8, 8) * 0.1 : 0.05 
-      }}
+      {...(!props.variants ? {
+        initial: { opacity: 0, y: 50, scale: 0.95 },
+        whileInView: { opacity: 1, y: 0, scale: 1 },
+        viewport: { once: true, margin: "-50px" },
+        transition: { 
+          duration: 0.8, 
+          ease: [0.16, 1, 0.3, 1], 
+          delay: index !== undefined ? Math.min(index % 8, 8) * 0.1 : 0.05 
+        }
+      } : {})}
       className={cn(
         "group relative flex flex-col bg-[#0A0A0A] border border-white/5 transition-all duration-700 rounded-2xl hover:border-[#C9A962]/30 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]",
         showAvailabilityPopover ? "overflow-visible" : "overflow-hidden",

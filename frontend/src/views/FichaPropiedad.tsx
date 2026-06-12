@@ -1095,12 +1095,12 @@ export const FichaPropiedad = () => {
                   <div key={room.id} className="flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] rounded-sm overflow-hidden group hover:border-[#C9A962] transition-colors relative">
                     {validImages.length > 0 ? (
                       <div 
-                        className="w-full aspect-[16/10] overflow-hidden cursor-pointer relative flex-shrink-0"
+                        className="w-full h-40 overflow-hidden cursor-pointer relative flex-shrink-0 bg-[#0A0A0A]"
                         onClick={() => {
                           openLightbox(validImages, 0);
                         }}
                       >
-                        <PremiumImage src={validImages[0]} alt={room.name} wrapperClassName="w-full h-full group-hover:scale-105 transition-transform duration-500" />
+                        <PremiumImage src={validImages[0]} alt={room.name} objectFit="contain" wrapperClassName="w-full h-full" />
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
                         
                         {/* Dynamic watermark mapping main property image behavior */}
@@ -1123,7 +1123,7 @@ export const FichaPropiedad = () => {
                         )}
                       </div>
                     ) : (
-                      <div className="w-full aspect-[16/10] bg-[#161616] flex flex-col items-center justify-center font-primary text-[10px] text-[#444444] uppercase tracking-widest relative overflow-hidden flex-shrink-0">
+                      <div className="w-full h-40 bg-[#161616] flex flex-col items-center justify-center font-primary text-[10px] text-[#444444] uppercase tracking-widest relative overflow-hidden flex-shrink-0">
                         {t('common.no_image')}
                         
                         {/* Dynamic watermark matching main property images behavior */}

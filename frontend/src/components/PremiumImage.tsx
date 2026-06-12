@@ -12,6 +12,7 @@ interface PremiumImageProps {
   wrapperClassName?: string;
   priority?: boolean;
   sizes?: string;
+  objectFit?: 'cover' | 'contain';
 }
 
 export function PremiumImage({
@@ -20,7 +21,8 @@ export function PremiumImage({
   className,
   wrapperClassName,
   priority = false,
-  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
+  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
+  objectFit = 'cover'
 }: PremiumImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(false);
@@ -49,7 +51,7 @@ export function PremiumImage({
         priority={priority}
         onLoad={() => setIsLoaded(true)}
         onError={() => setError(true)}
-        style={{ objectFit: 'cover' }}
+        style={{ objectFit }}
         className={cn(
           'transition-all duration-1000 ease-in-out',
           isLoaded && !error ? 'opacity-100 scale-100' : 'opacity-0 scale-110',
