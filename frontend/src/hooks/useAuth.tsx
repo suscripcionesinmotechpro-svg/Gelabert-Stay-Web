@@ -4,10 +4,14 @@ import { useState, useEffect, createContext, useContext, type ReactNode } from '
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
-const SUPABASE_URL = 
+let SUPABASE_URL = 
   (typeof process !== 'undefined' && process.env.VITE_SUPABASE_URL) ||
   (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SUPABASE_URL) ||
   'https://aumqjpqngmhpbwytpets.supabase.co';
+
+if (!SUPABASE_URL || SUPABASE_URL === 'undefined' || SUPABASE_URL === 'null' || !SUPABASE_URL.startsWith('http')) {
+  SUPABASE_URL = 'https://aumqjpqngmhpbwytpets.supabase.co';
+}
 const SUPABASE_CONFIGURED = 
   SUPABASE_URL.startsWith('https://') && 
   !SUPABASE_URL.includes('your-project') && 
