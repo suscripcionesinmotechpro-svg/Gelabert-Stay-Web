@@ -157,6 +157,7 @@ export default async (request: Request, context: Context) => {
     if (dbData) {
       let cleanTitle = "";
       let cleanDesc = "";
+      let cleanSharingTitle = "";
       let previewImage = "";
       let canonicalUrl = "";
       let jsonLds: any[] = [];
@@ -208,6 +209,25 @@ export default async (request: Request, context: Context) => {
           title = prop.meta_title || prop.title || baseSharingTitle;
         }
         cleanTitle = (title || "Propiedad").trim();
+
+        // Structured sharing title (e.g. "Alquiler Piso · Málaga · 800 €/mes · 40 m² · Baños 1 · Planta 5º")
+        const priceFormatter = new Intl.NumberFormat(isEn ? "en-US" : "es-ES", {
+          style: "currency",
+          currency: prop.currency || "EUR",
+          maximumFractionDigits: 0,
+        });
+        const feeLabel = prop.operation === "alquiler" ? (isEn ? "/month" : "/mes") : "";
+        const formattedPrice = prop.price ? `${priceFormatter.format(prop.price)}${feeLabel}` : "";
+
+        const sharingTitleElements = [
+          opLabel && typeLabel ? `${opLabel} ${typeLabel}` : null,
+          prop.city || null,
+          formattedPrice || null,
+          prop.area_m2 ? `${prop.area_m2} m²` : null,
+          prop.bathrooms ? (isEn ? `Baths ${prop.bathrooms}` : `Baños ${prop.bathrooms}`) : null,
+          prop.floor ? (isEn ? `Floor ${prop.floor}` : `Planta ${prop.floor}`) : null
+        ];
+        cleanSharingTitle = sharingTitleElements.filter(Boolean).join(" · ");
 
         const features: string[] = [];
         if (prop.city) features.push(prop.city);
@@ -307,6 +327,7 @@ export default async (request: Request, context: Context) => {
       // ── Clean & sanitize ──
       cleanTitle = (cleanTitle || "Gelabert Homes").replace(/"/g, "&quot;").replace(/[\r\n]+/g, " ").trim();
       cleanDesc = (cleanDesc || "").replace(/"/g, "&quot;").replace(/[\r\n]+/g, " ").trim();
+      cleanSharingTitle = (cleanSharingTitle || cleanTitle).replace(/"/g, "&quot;").replace(/[\r\n]+/g, " ").trim();
 
       const tags = [
         `<title>${cleanTitle} | Gelabert Homes</title>`,
@@ -316,22 +337,22 @@ export default async (request: Request, context: Context) => {
         `<meta property="og:type" content="website">`,
         `<meta property="og:site_name" content="Gelabert Homes Real Estate">`,
         `<meta property="og:url" content="${canonicalUrl}">`,
-        `<meta property="og:title" content="${cleanTitle} | Gelabert Homes">`,
+        `<meta property="og:title" content="${cleanSharingTitle}">`,
         `<meta property="og:description" content="${cleanDesc}">`,
         `<meta property="og:image" content="${previewImage}">`,
         `<meta property="og:image:secure_url" content="${previewImage}">`,
         `<meta property="og:image:width" content="1200">`,
         `<meta property="og:image:height" content="630">`,
         `<meta property="og:image:type" content="${routeType === "propiedades" ? "image/webp" : "image/jpeg"}">`,
-        `<meta property="og:image:alt" content="${cleanTitle}">`,
+        `<meta property="og:image:alt" content="${cleanSharingTitle}">`,
         `<meta property="og:locale" content="${isEn ? "en_US" : "es_ES"}">`,
         `<meta property="og:locale:alternate" content="${isEn ? "es_ES" : "en_US"}">`,
         `<meta name="twitter:card" content="summary_large_image">`,
         `<meta name="twitter:site" content="@GelabertHomes">`,
-        `<meta name="twitter:title" content="${cleanTitle} | Gelabert Homes">`,
+        `<meta name="twitter:title" content="${cleanSharingTitle}">`,
         `<meta name="twitter:description" content="${cleanDesc}">`,
         `<meta name="twitter:image" content="${previewImage}">`,
-        `<meta name="twitter:image:alt" content="${cleanTitle}">`,
+        `<meta name="twitter:image:alt" content="${cleanSharingTitle}">`,
         `<link rel="alternate" hrefLang="es" href="https://gelaberthomes.es${routeType === "propiedades" ? "/propiedades/" : "/blog/"}${identifier}">`,
         `<link rel="alternate" hrefLang="en" href="https://gelaberthomes.es/en/${routeType === "propiedades" ? "propiedades" : "blog"}/${identifier}">`,
         `<link rel="alternate" hrefLang="x-default" href="https://gelaberthomes.es${routeType === "propiedades" ? "/propiedades/" : "/blog/"}${identifier}">`,
