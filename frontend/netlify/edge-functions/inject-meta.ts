@@ -224,6 +224,7 @@ export default async (request: Request, context: Context) => {
           prop.city || null,
           formattedPrice || null,
           prop.area_m2 ? `${prop.area_m2} m²` : null,
+          prop.bedrooms > 0 ? (isEn ? `${prop.bedrooms} ${prop.bedrooms === 1 ? 'Bed' : 'Beds'}` : `${prop.bedrooms} Hab.`) : null,
           prop.bathrooms ? (isEn ? `Baths ${prop.bathrooms}` : `Baños ${prop.bathrooms}`) : null,
           prop.floor ? (isEn ? `Floor ${prop.floor}` : `Planta ${prop.floor}`) : null
         ];

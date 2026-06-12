@@ -324,6 +324,7 @@ export const FichaPropiedad = () => {
     property.city,
     formatPrice(property.price, property.operation),
     property.area_m2 ? `${property.area_m2} m²` : null,
+    property.bedrooms > 0 ? `${property.bedrooms} ${t('property.labels.features.bedrooms')}` : null,
     property.bathrooms ? `Baños ${property.bathrooms}` : null,
     property.floor ? `Planta ${property.floor}` : null
   ].filter(Boolean).join(' · ');

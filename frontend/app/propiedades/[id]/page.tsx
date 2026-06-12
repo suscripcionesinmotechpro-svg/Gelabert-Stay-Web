@@ -123,6 +123,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     property.city || null,
     formattedPrice || null,
     property.area_m2 ? `${property.area_m2} m²` : null,
+    property.bedrooms > 0 ? `${property.bedrooms} Hab.` : null,
     property.bathrooms ? `Baños ${property.bathrooms}` : null,
     property.floor ? `Planta ${property.floor}` : null
   ];
