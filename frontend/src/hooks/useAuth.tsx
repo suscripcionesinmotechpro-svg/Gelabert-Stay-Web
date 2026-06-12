@@ -4,11 +4,10 @@ import { useState, useEffect, createContext, useContext, type ReactNode } from '
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
-// Access variables directly as static literals so Webpack/Next.js DefinePlugin can inline them at build time
 const SUPABASE_URL = 
   (typeof process !== 'undefined' && process.env.VITE_SUPABASE_URL) ||
   (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SUPABASE_URL) ||
-  '';
+  'https://aumqjpqngmhpbwytpets.supabase.co';
 const SUPABASE_CONFIGURED = 
   SUPABASE_URL.startsWith('https://') && 
   !SUPABASE_URL.includes('your-project') && 

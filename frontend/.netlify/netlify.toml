@@ -1,15 +1,17 @@
-redirectsOrigin = "config"
-plugins = []
+headers = []
+redirects = []
 
 [build]
 edge_functions = "C:\\Users\\lenovo\\Desktop\\Gelabert Homes\\04_Desarrollo_y_Sistemas\\WEB\\frontend\\netlify\\edge-functions"
-publish = "C:\\Users\\lenovo\\Desktop\\Gelabert Homes\\04_Desarrollo_y_Sistemas\\WEB\\frontend\\dist"
+publish = "C:\\Users\\lenovo\\Desktop\\Gelabert Homes\\04_Desarrollo_y_Sistemas\\WEB\\frontend\\.next"
 publishOrigin = "config"
 commandOrigin = "config"
 base = "C:\\Users\\lenovo\\Desktop\\Gelabert Homes\\04_Desarrollo_y_Sistemas\\WEB\\frontend"
 command = "npm run build"
 
 [build.environment]
+NETLIFY_NEXT_PLUGIN_SKIP_FORMS = "true"
+NETLIFY_NEXT_VERIFY_FORMS = "false"
 
 [build.processing]
 
@@ -32,6 +34,14 @@ path = "/en/propiedades/*"
 function = "inject-meta"
 
 [[edge_functions]]
+path = "/blog/*"
+function = "inject-meta"
+
+[[edge_functions]]
+path = "/en/blog/*"
+function = "inject-meta"
+
+[[edge_functions]]
 path = "/sitemap.xml"
 function = "sitemap"
 
@@ -39,98 +49,8 @@ function = "sitemap"
 
 [functions."*"]
 
-[[headers]]
-for = "/assets/*"
+[[plugins]]
+origin = "config"
+package = "@netlify/plugin-nextjs"
 
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "/*.png"
-
-[headers.values]
-Cache-Control = "public, max-age=0, must-revalidate"
-
-[[headers]]
-for = "/*.jpg"
-
-[headers.values]
-Cache-Control = "public, max-age=0, must-revalidate"
-
-[[headers]]
-for = "/*.jpeg"
-
-[headers.values]
-Cache-Control = "public, max-age=0, must-revalidate"
-
-[[headers]]
-for = "/*.webp"
-
-[headers.values]
-Cache-Control = "public, max-age=0, must-revalidate"
-
-[[headers]]
-for = "/*.svg"
-
-[headers.values]
-Cache-Control = "public, max-age=0, must-revalidate"
-
-[[headers]]
-for = "/*.ico"
-
-[headers.values]
-Cache-Control = "public, max-age=0, must-revalidate"
-
-[[headers]]
-for = "/*.woff"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "/*.woff2"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "/*.ttf"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "/sitemap.xml"
-
-[headers.values]
-Cache-Control = "public, max-age=0, must-revalidate"
-Content-Type = "application/xml; charset=utf-8"
-
-[[headers]]
-for = "/robots.txt"
-
-[headers.values]
-Cache-Control = "public, max-age=0, must-revalidate"
-
-[[headers]]
-for = "/*"
-
-[headers.values]
-Cache-Control = "no-cache, no-store, must-revalidate"
-X-Frame-Options = "SAMEORIGIN"
-X-Content-Type-Options = "nosniff"
-Referrer-Policy = "strict-origin-when-cross-origin"
-Permissions-Policy = "camera=(), microphone=(), geolocation=(self)"
-Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
-
-[[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200.0
-force = false
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
+[plugins.inputs]

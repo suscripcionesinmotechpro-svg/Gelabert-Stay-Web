@@ -1,15 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Access variables directly as static literals so Webpack/Next.js DefinePlugin can inline them at build time
 const supabaseUrl = 
   (typeof process !== 'undefined' && process.env.VITE_SUPABASE_URL) ||
   (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SUPABASE_URL) ||
-  '';
+  'https://aumqjpqngmhpbwytpets.supabase.co';
 
 const supabaseAnonKey = 
   (typeof process !== 'undefined' && process.env.VITE_SUPABASE_ANON_KEY) ||
   (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) ||
-  '';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1bXFqcHFuZ21ocGJ3eXRwZXRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxODgyNjMsImV4cCI6MjA4ODc2NDI2M30.OHi4bRiyFUv2lBHu3wb1IKchj2qF6rZ354uhCQeeAlU';
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(
