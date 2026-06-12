@@ -73,7 +73,7 @@ export const useGoogleReviews = () => {
       try {
         const invokePromise = supabase.functions.invoke('google-reviews');
         const timeoutPromise = new Promise<any>((_, reject) =>
-          setTimeout(() => reject(new Error('Timeout invoking google-reviews')), 3500)
+          setTimeout(() => reject(new Error('Timeout invoking google-reviews')), 6000)
         );
 
         const response = await Promise.race([invokePromise, timeoutPromise]);

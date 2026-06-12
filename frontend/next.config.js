@@ -26,6 +26,20 @@ const nextConfig = {
     config.resolve.alias['react-router-dom$'] = path.resolve(__dirname, './src/components/ReactRouterDomShim.tsx');
     return config;
   },
+  async redirects() {
+    return [
+      {
+        source: '/reseñas',
+        destination: '/resenas',
+        permanent: true,
+      },
+      {
+        source: '/rese%C3%B1as',
+        destination: '/resenas',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

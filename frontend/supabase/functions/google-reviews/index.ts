@@ -30,8 +30,20 @@ serve(async (req) => {
     // Init Supabase admin client
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
-    // ── 1. Try to sync fresh reviews from Google Places API ──────────────
-    if (GOOGLE_MAPS_API_KEY) {
+    // Fetch place stats first to verify cache freshness in DB
+    const { data: statsRows } = await supabase
+      .from('google_place_stats')
+      .select('*')
+      .eq('id', 1)
+      .maybeSingle();
+
+    const stats = statsRows || { rating: 5.0, total_ratings: 0, last_synced_at: null };
+    const lastSynced = stats.last_synced_at ? new Date(stats.last_synced_at).getTime() : 0;
+    const isFresh = (Date.now() - lastSynced) < 12 * 60 * 60 * 1000; // 12 hours freshness
+
+    // ── 1. Try to sync fresh reviews from Google Places API only if expired 
+    if (!isFresh && GOOGLE_MAPS_API_KEY) {
+      console.log('Database reviews cache is older than 12h or empty. Syncing from Google Places API...');
       try {
         const placeId = 'ChIJwdd_aedMr08RetzIGPwX69c';
         const detailsUrl = new URL(`https://places.googleapis.com/v1/places/${placeId}`);
@@ -74,29 +86,27 @@ serve(async (req) => {
           }, { onConflict: 'id' });
 
           console.log(`Synced ${freshReviews.length} reviews from Google Places API`);
+          
+          // Update local variables for return
+          stats.rating = place.rating || 5.0;
+          stats.total_ratings = place.userRatingCount || 0;
         } else {
           console.warn('Google Places API returned non-ok status:', detailsRes.status);
         }
       } catch (googleErr) {
         console.warn('Could not reach Google Places API, serving from DB:', googleErr);
       }
+    } else {
+      console.log('Database reviews cache is fresh. Serving from database directly.');
     }
 
-    // ── 2. Read ALL reviews from Supabase DB (never capped at 5) ─────────
+    // ── 2. Read ALL reviews from Supabase DB ─────────
     const { data: dbReviews, error: dbErr } = await supabase
       .from('google_reviews')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (dbErr) throw dbErr;
-
-    const { data: statsRows } = await supabase
-      .from('google_place_stats')
-      .select('*')
-      .eq('id', 1)
-      .single();
-
-    const stats = statsRows || { rating: 5.0, total_ratings: 0 };
 
     // Map to legacy format expected by frontend
     const legacyReviews = (dbReviews || []).map((r: any) => ({

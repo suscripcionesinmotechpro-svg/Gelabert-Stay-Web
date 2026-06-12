@@ -97,7 +97,7 @@ function App() {
           <Route path="contacto" element={<Contacto />} />
           <Route path="nosotros" element={<Nosotros />} />
           <Route path="valoracion" element={<Valoracion />} />
-          <Route path="reseñas" element={<Reviews />} />
+          <Route path="resenas" element={<Reviews />} />
           <Route path="blog" element={<BlogList />} />
           <Route path="blog/:slug" element={<BlogPost />} />
           <Route path="aviso-legal" element={<AvisoLegal />} />
