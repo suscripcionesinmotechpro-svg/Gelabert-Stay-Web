@@ -636,11 +636,12 @@ export const FichaPropiedad = () => {
                 <button 
                   key={i} 
                   onClick={() => { setActiveImg(i); openLightbox(generalImages, i); }} 
-                  className={`w-20 md:w-full h-20 md:h-28 flex-shrink-0 overflow-hidden border ${i === activeImg ? 'border-[#C9A962]' : 'border-[#1F1F1F] hover:border-[#888888]'} transition-colors cursor-zoom-in relative bg-[#0A0A0A]`}
+                  className={`w-20 md:w-full h-20 md:h-28 flex-shrink-0 overflow-hidden border ${i === activeImg ? 'border-[#C9A962]' : 'border-[#1F1F1F] hover:border-[#888888]'} transition-colors cursor-zoom-in relative`}
                 >
-                  <PremiumImage src={img} alt={`${i}`} wrapperClassName="w-full h-full" objectFit="contain" />
+                  <PremiumImage src={img} alt={`${i}`} wrapperClassName="w-full h-full" />
                 </button>
               ))}
+
             </div>
           )}
           </div>
