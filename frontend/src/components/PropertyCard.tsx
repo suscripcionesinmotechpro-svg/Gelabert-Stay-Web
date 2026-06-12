@@ -474,7 +474,7 @@ export const PropertyCard = memo(({
                               if (isNaN(d.getTime())) return false;
                               const today = new Date();
                               today.setHours(0, 0, 0, 0);
-                              return d.getTime() > today.getTime();
+                              return d.getTime() >= today.getTime();
                             })() && (
                               <span className="flex items-center gap-1.5 px-2 py-0.5 bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] text-xs font-black tracking-tight rounded-sm shrink-0">
                                 <CalendarClock className="w-3.5 h-3.5" />

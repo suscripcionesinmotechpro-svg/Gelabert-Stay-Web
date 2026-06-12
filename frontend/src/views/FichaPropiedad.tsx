@@ -1095,7 +1095,7 @@ export const FichaPropiedad = () => {
                   <div key={room.id} className="flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] rounded-sm overflow-hidden group hover:border-[#C9A962] transition-colors relative">
                     {validImages.length > 0 ? (
                       <div 
-                        className="w-full h-40 overflow-hidden cursor-pointer relative flex-shrink-0"
+                        className="w-full aspect-[16/10] overflow-hidden cursor-pointer relative flex-shrink-0"
                         onClick={() => {
                           openLightbox(validImages, 0);
                         }}
@@ -1123,7 +1123,7 @@ export const FichaPropiedad = () => {
                         )}
                       </div>
                     ) : (
-                      <div className="w-full h-40 bg-[#161616] flex flex-col items-center justify-center font-primary text-[10px] text-[#444444] uppercase tracking-widest relative overflow-hidden flex-shrink-0">
+                      <div className="w-full aspect-[16/10] bg-[#161616] flex flex-col items-center justify-center font-primary text-[10px] text-[#444444] uppercase tracking-widest relative overflow-hidden flex-shrink-0">
                         {t('common.no_image')}
                         
                         {/* Dynamic watermark matching main property images behavior */}
@@ -1168,7 +1168,7 @@ export const FichaPropiedad = () => {
                                 if (isNaN(d.getTime())) return false;
                                 const today = new Date();
                                 today.setHours(0, 0, 0, 0);
-                                return d.getTime() > today.getTime();
+                                return d.getTime() >= today.getTime();
                               })() ? (
                                 <span className="flex items-center gap-1.5 px-2.5 py-1 bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] font-primary text-xs font-bold uppercase tracking-tight rounded-sm">
                                   <CalendarClock className="w-3.5 h-3.5" />

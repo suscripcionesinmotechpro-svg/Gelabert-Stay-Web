@@ -7,7 +7,25 @@ const corsHeaders = {
 }
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').trim();
+  if (!html) return "";
+  return html
+    .replace(/<[^>]*>?/gm, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&middot;/g, "·")
+    .replace(/&aacute;/g, "á")
+    .replace(/&eacute;/g, "é")
+    .replace(/&iacute;/g, "í")
+    .replace(/&oacute;/g, "ó")
+    .replace(/&uacute;/g, "ú")
+    .replace(/&ntilde;/g, "ñ")
+    .replace(/&#[0-9]+;/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 serve(async (req) => {
@@ -40,7 +58,7 @@ serve(async (req) => {
 
   const cleanDescription = stripHtml(property.description || '');
   const title = `${property.title} | Gelabert Homes`
-  const description = `${property.operation === 'alquiler' ? 'Alquiler' : 'Venta'}: ${property.price?.toLocaleString('es-ES')}€ - ${cleanDescription.substring(0, 160)}...`
+  const description = `${property.operation === 'alquiler' ? 'Alquiler' : 'Venta'}: ${parseFloat(String(property.price || 0)).toLocaleString('es-ES')}€ - ${cleanDescription.substring(0, 160)}...`
   const image = property.main_image || 'https://gelaberthomes.es/logo-meta-v3.png'
   const targetUrl = `https://gelaberthomes.es/propiedades/${property.slug}`
 
