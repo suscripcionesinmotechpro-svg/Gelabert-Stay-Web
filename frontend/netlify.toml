@@ -28,3 +28,15 @@
 [[edge_functions]]
   path = "/sitemap.xml"
   function = "sitemap"
+
+[[redirects]]
+  from = "/reseñas"
+  to = "/resenas"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/rese%C3%B1as"
+  to = "/resenas"
+  status = 301
+  force = true
