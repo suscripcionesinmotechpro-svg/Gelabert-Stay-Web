@@ -492,22 +492,7 @@
   border-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-@layer base {
-  body.custom-cursor-active,
-  body.custom-cursor-active * {
-    cursor: none !important;
-  }
 
-  body.custom-cursor-active input[type="text"],
-  body.custom-cursor-active input[type="email"],
-  body.custom-cursor-active input[type="password"],
-  body.custom-cursor-active input[type="search"],
-  body.custom-cursor-active input[type="tel"],
-  body.custom-cursor-active input[type="url"],
-  body.custom-cursor-active textarea {
-    cursor: text !important;
-  }
-}
 
 /* ==========================================================================
    Restauración del Color Gris Carbón (#1C1C1C) y Gris Suave (#252525)
