@@ -35,18 +35,141 @@ async function getProperty(idOrSlug: string) {
 
 type Params = Promise<{ id: string }>;
 
+function stripHtml(html: string): string {
+  if (!html) return "";
+  return html
+    .replace(/<[^>]*>?/gm, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&middot;/g, "·")
+    .replace(/&aacute;/g, "á")
+    .replace(/&eacute;/g, "é")
+    .replace(/&iacute;/g, "í")
+    .replace(/&oacute;/g, "ó")
+    .replace(/&uacute;/g, "ú")
+    .replace(/&ntilde;/g, "ñ")
+    .replace(/&Aacute;/g, "Á")
+    .replace(/&Eacute;/g, "É")
+    .replace(/&Iacute;/g, "Í")
+    .replace(/&Oacute;/g, "Ó")
+    .replace(/&Uacute;/g, "Ú")
+    .replace(/&Ntilde;/g, "Ñ")
+    .replace(/&#[0-9]+;/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function formatPrice(price: number | null, operation: string, isEn: boolean, currency?: string) {
+  if (!price) return null;
+  const formatter = new Intl.NumberFormat(isEn ? "en-US" : "es-ES", {
+    style: "currency",
+    currency: currency || "EUR",
+    maximumFractionDigits: 0,
+  });
+  const feeLabel = operation === "alquiler" ? (isEn ? "/month" : "/mes") : "";
+  return `${formatter.format(price)}${feeLabel}`;
+}
+
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const resolvedParams = await params;
   const property = await getProperty(resolvedParams.id);
   if (!property) return { title: 'Propiedad | Gelabert Homes' };
 
+  const isEn = false;
+
+  const typeLabels: Record<string, { es: string; en: string }> = {
+    piso: { es: "Piso", en: "Apartment" },
+    casa: { es: "Casa", en: "House" },
+    chalet: { es: "Chalet", en: "Villa" },
+    atico: { es: "Ático", en: "Penthouse" },
+    estudio: { es: "Estudio", en: "Studio" },
+    loft: { es: "Loft", en: "Loft" },
+    local: { es: "Local", en: "Commercial" },
+    oficina: { es: "Oficina", en: "Office" },
+    nave: { es: "Nave", en: "Warehouse" },
+    terreno: { es: "Terreno", en: "Land" },
+    negocio: { es: "Negocio", en: "Business" },
+    habitacion: { es: "Habitación", en: "Room" },
+    otro: { es: "Propiedad", en: "Property" }
+  };
+
+  const type = property.property_type || "otro";
+  const typeLabel = typeLabels[type]?.es || typeLabels.otro.es;
+
+  let opLabel = "";
+  if (property.operation === "alquiler") {
+    if (property.is_room_rental) {
+      opLabel = "Alquiler por habitaciones";
+    } else {
+      opLabel = "Alquiler";
+    }
+  } else if (property.operation === "venta") {
+    opLabel = "Venta";
+  } else if (property.operation === "traspaso") {
+    opLabel = "Traspaso";
+  }
+
+  const baseTitle = property.meta_title || property.title || `${opLabel} ${typeLabel}`;
+  const cleanBaseTitle = (baseTitle || "").replace(/"/g, "&quot;").replace(/[\r\n]+/g, " ").trim();
+
+  // Structured sharing title (e.g. "Alquiler Piso · Málaga · 800 €/mes · 40 m² · Baños 1 · Planta 5º")
+  const formattedPrice = formatPrice(property.price, property.operation, isEn, property.currency);
+  const sharingTitleElements = [
+    opLabel && typeLabel ? `${opLabel} ${typeLabel}` : null,
+    property.city || null,
+    formattedPrice || null,
+    property.area_m2 ? `${property.area_m2} m²` : null,
+    property.bathrooms ? `Baños ${property.bathrooms}` : null,
+    property.floor ? `Planta ${property.floor}` : null
+  ];
+  const cleanSharingTitle = sharingTitleElements.filter(Boolean).join(" · ").replace(/"/g, "&quot;").replace(/[\r\n]+/g, " ").trim();
+
+  // Structured description (features list + clean text)
+  const featuresList = [];
+  if (property.city) featuresList.push(property.city);
+  if (formattedPrice) featuresList.push(formattedPrice);
+  if (property.area_m2) featuresList.push(`${property.area_m2} m²`);
+  if (property.bedrooms > 0) featuresList.push(`Hab. ${property.bedrooms}`);
+  if (property.bathrooms > 0) featuresList.push(`Baños ${property.bathrooms}`);
+  if (property.floor) featuresList.push(`Planta ${property.floor}`);
+  if (property.has_elevator) featuresList.push("Ascensor");
+  if (property.has_pool) featuresList.push("Piscina");
+  if (property.sea_views) featuresList.push("Vistas al mar");
+
+  const rawShort = property.short_description || property.meta_description;
+  const rawLong = property.description;
+
+  let descriptionBody = "";
+  if (rawShort) {
+    descriptionBody = stripHtml(rawShort);
+  } else if (rawLong) {
+    descriptionBody = stripHtml(rawLong).substring(0, 160);
+  }
+
+  let cleanSharingDesc = featuresList.join(" · ");
+  if (descriptionBody) {
+    cleanSharingDesc += ` | ${descriptionBody}`;
+  }
+  cleanSharingDesc = cleanSharingDesc.trim() || cleanBaseTitle;
+  cleanSharingDesc = cleanSharingDesc.replace(/"/g, "&quot;").replace(/[\r\n]+/g, " ").trim();
+
   return {
-    title: `${property.title} - ${property.city || ''} | Gelabert Homes`,
-    description: property.description ? property.description.substring(0, 155) + '...' : 'Detalles de la propiedad.',
+    title: `${cleanBaseTitle} | Gelabert Homes`,
+    description: cleanSharingDesc,
     openGraph: {
-      title: property.title,
-      description: property.description,
+      title: cleanSharingTitle,
+      description: cleanSharingDesc,
       images: property.main_image ? [{ url: property.main_image }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: cleanSharingTitle,
+      description: cleanSharingDesc,
+      images: property.main_image ? [property.main_image] : [],
     }
   };
 }
