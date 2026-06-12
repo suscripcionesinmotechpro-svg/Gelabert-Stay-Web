@@ -1095,12 +1095,12 @@ export const FichaPropiedad = () => {
                   <div key={room.id} className="flex flex-col bg-[#0A0A0A] border border-[#1F1F1F] rounded-sm overflow-hidden group hover:border-[#C9A962] transition-colors relative">
                     {validImages.length > 0 ? (
                       <div 
-                        className="w-full h-40 overflow-hidden cursor-pointer relative flex-shrink-0 bg-[#0A0A0A]"
+                        className="w-full h-40 overflow-hidden cursor-pointer relative flex-shrink-0"
                         onClick={() => {
                           openLightbox(validImages, 0);
                         }}
                       >
-                        <PremiumImage src={validImages[0]} alt={room.name} objectFit="contain" wrapperClassName="w-full h-full" />
+                        <PremiumImage src={validImages[0]} alt={room.name} wrapperClassName="w-full h-full group-hover:scale-105 transition-transform duration-500" />
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
                         
                         {/* Dynamic watermark mapping main property image behavior */}
