@@ -38,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className="dark">
+    <html lang="es" className="dark bg-[#121212]">
       <body className="antialiased bg-[#121212] text-[#FAF8F5] min-h-screen flex flex-col font-sans">
         <Providers>
           <Toaster 

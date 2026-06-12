@@ -12,8 +12,8 @@ export const CustomCursor = () => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  // Premium spring physics for smooth tracking
-  const springConfig = { stiffness: 220, damping: 24, mass: 0.15 };
+  // Trailing spring configurations for smooth but responsive ring tracking (snapped up for instant feel)
+  const springConfig = { stiffness: 850, damping: 42, mass: 0.04 };
   const cursorX = useSpring(mouseX, springConfig);
   const cursorY = useSpring(mouseY, springConfig);
 
@@ -32,22 +32,19 @@ export const CustomCursor = () => {
       const target = e.target as HTMLElement | null;
       if (!target) return;
 
+      let nextType: 'default' | 'ver' | 'pointer' = 'default';
       const cursorEl = target.closest('[data-cursor]');
       if (cursorEl) {
         const type = cursorEl.getAttribute('data-cursor');
         if (type === 'ver') {
-          setCursorType('ver');
-          return;
+          nextType = 'ver';
         }
+      } else if (target.closest('a, button, input[type="submit"], input[type="button"], select, [role="button"]')) {
+        nextType = 'pointer';
       }
 
-      // Detect general clickable elements
-      const isPointer = target.closest('a, button, input[type="submit"], input[type="button"], select, [role="button"]');
-      if (isPointer) {
-        setCursorType('pointer');
-      } else {
-        setCursorType('default');
-      }
+      // Prevent redundant state updates & unnecessary re-renders
+      setCursorType((prev) => (prev !== nextType ? nextType : prev));
     };
 
     const handleMouseLeave = () => {
@@ -77,10 +74,10 @@ export const CustomCursor = () => {
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
-      {/* Tiny solid golden center dot */}
+      {/* Tiny solid golden center dot - instant raw tracking for perfect responsive feel */}
       <motion.div
         className="fixed w-1.5 h-1.5 rounded-full bg-[#C9A962] -translate-x-1/2 -translate-y-1/2 z-10"
-        style={{ x: cursorX, y: cursorY }}
+        style={{ x: mouseX, y: mouseY }}
       />
 
       {/* Trailing blurred/expanded circle */}
@@ -94,7 +91,7 @@ export const CustomCursor = () => {
           borderColor: cursorType === 'ver' ? 'rgba(201, 169, 98, 0.95)' : 'rgba(201, 169, 98, 0.6)',
           boxShadow: cursorType === 'ver' ? '0 0 24px rgba(201, 169, 98, 0.45)' : 'none',
         }}
-        transition={{ type: 'spring', stiffness: 220, damping: 20, mass: 0.1 }}
+        transition={{ type: 'spring', stiffness: 350, damping: 28, mass: 0.1 }}
       >
         {cursorType === 'ver' && (
           <motion.span

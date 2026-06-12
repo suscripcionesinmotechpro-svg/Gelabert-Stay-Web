@@ -43,7 +43,7 @@
     }
   }
 
-  body, #root {
+  html, body, #root {
     height: 100%;
     background-color: var(--background);
     color: var(--foreground);
@@ -587,14 +587,18 @@
 
 @layer base {
   body.custom-cursor-active,
-  body.custom-cursor-active a,
-  body.custom-cursor-active button,
-  body.custom-cursor-active input,
-  body.custom-cursor-active select,
-  body.custom-cursor-active textarea,
-  body.custom-cursor-active [role="button"],
-  body.custom-cursor-active [data-cursor] {
+  body.custom-cursor-active * {
     cursor: none !important;
+  }
+
+  body.custom-cursor-active input[type="text"],
+  body.custom-cursor-active input[type="email"],
+  body.custom-cursor-active input[type="password"],
+  body.custom-cursor-active input[type="search"],
+  body.custom-cursor-active input[type="tel"],
+  body.custom-cursor-active input[type="url"],
+  body.custom-cursor-active textarea {
+    cursor: text !important;
   }
 }
 

@@ -1,4 +1,4 @@
-headers = []
+headersOrigin = "inline"
 redirects = []
 
 [build]
@@ -54,3 +54,9 @@ origin = "config"
 package = "@netlify/plugin-nextjs"
 
 [plugins.inputs]
+
+[[headers]]
+for = "/_next/static/*"
+
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"

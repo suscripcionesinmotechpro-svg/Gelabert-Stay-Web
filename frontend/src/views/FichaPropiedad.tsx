@@ -969,7 +969,7 @@ export const FichaPropiedad = () => {
 
                 {property.commercial_status && (
                   <div className={cn(
-                    "px-3 py-1 font-primary text-[10px] font-black uppercase tracking-wider flex items-center gap-2 rounded-sm shadow-xl",
+                    "px-3.5 py-1.5 font-primary text-xs font-black uppercase tracking-wider flex items-center gap-2 rounded-sm shadow-xl",
                     property.commercial_status === 'disponible' && "bg-[#4ADE80] text-[#0A0A0A]",
                     property.commercial_status === 'reservado' && "bg-[#FB923C] text-[#0A0A0A]",
                     property.commercial_status === 'alquilado' && "bg-[#A78BFA] text-[#0A0A0A]",
@@ -1148,13 +1148,13 @@ export const FichaPropiedad = () => {
                           </h4>
                           <div className="flex flex-wrap items-center gap-1.5">
                             <span className={cn(
-                              "font-primary text-[10px] uppercase font-bold self-start px-1.5 py-0.5 rounded-sm border",
+                              "font-primary text-xs uppercase font-bold self-start px-2.5 py-1 rounded-sm border flex items-center",
                               roomStatus === 'disponible' ? "bg-green-500/10 text-green-400 border-green-500/20" :
                               roomStatus === 'reservado' ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
                               "bg-purple-500/10 text-purple-400 border-purple-500/20"
                             )}>
                               <span className={cn(
-                                "inline-block w-1 h-1 rounded-full mr-1.5 align-middle",
+                                "inline-block w-1.5 h-1.5 rounded-full mr-2 align-middle",
                                 roomStatus === 'disponible' ? "bg-green-400" : "bg-current animate-pulse"
                               )} />
                               {roomStatus === 'disponible' ? t('property.labels.features.available') : roomStatus === 'reservado' ? t('property.labels.features.reserved') : t('property.labels.features.rented')}
@@ -1170,8 +1170,8 @@ export const FichaPropiedad = () => {
                                 today.setHours(0, 0, 0, 0);
                                 return d.getTime() > today.getTime();
                               })() ? (
-                                <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
-                                  <CalendarClock className="w-3 h-3" />
+                                <span className="flex items-center gap-1.5 px-2.5 py-1 bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] font-primary text-xs font-bold uppercase tracking-tight rounded-sm">
+                                  <CalendarClock className="w-3.5 h-3.5" />
                                   {t('property.labels.features.available_again', 'Disponible nuevamente el')}{' '}
                                   {(() => {
                                     const d = new Date(roomAvailability);
@@ -1183,14 +1183,14 @@ export const FichaPropiedad = () => {
                               ) : null;
                             })()}
                             {room.private_bathroom && (
-                              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 6 2 2-2 2"/><path d="M13.83 13A8 8 0 0 1 8 21H4"/><path d="M14 10a7 7 0 0 1 7 7v2"/><path d="M18.83 11.83a7 7 0 0 0-9.76-9.76"/></svg>
+                              <span className="flex items-center gap-1.5 px-2.5 py-1 bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] font-primary text-xs font-bold uppercase tracking-tight rounded-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 6 2 2-2 2"/><path d="M13.83 13A8 8 0 0 1 8 21H4"/><path d="M14 10a7 7 0 0 1 7 7v2"/><path d="M18.83 11.83a7 7 0 0 0-9.76-9.76"/></svg>
                                 {t('property.labels.features.private_bathroom', 'Baño privado')}
                               </span>
                             )}
                             {room.private_terrace && (
-                              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] font-primary text-[10px] font-bold uppercase tracking-tight rounded-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>
+                              <span className="flex items-center gap-1.5 px-2.5 py-1 bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] font-primary text-xs font-bold uppercase tracking-tight rounded-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>
                                 {t('property.labels.features.private_terrace', 'Terraza privada')}
                               </span>
                             )}

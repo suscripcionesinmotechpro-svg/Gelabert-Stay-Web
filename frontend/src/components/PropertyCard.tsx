@@ -409,13 +409,13 @@ export const PropertyCard = memo(({
         {is_room_rental || (rooms && rooms.length > 0) ? (
           <div className="flex items-center gap-2 pt-3 border-t border-white/5 relative">
             <CalendarClock className="w-3.5 h-3.5 text-[#C9A962]/70 shrink-0" />
-            <span className="font-primary text-[10px] uppercase tracking-widest text-white/50 font-bold">
+            <span className="font-primary text-xs uppercase tracking-widest text-[#B0A99A] font-bold">
               {t('property.labels.features.rooms_availability', 'Disponibilidad')}
             </span>
             <button
               type="button"
               onClick={handleOpenAvailabilityPopover}
-              className="font-primary text-[10px] uppercase tracking-widest text-[#C9A962] hover:text-[#FAF8F5] hover:underline font-black ml-auto border border-[#C9A962]/20 hover:border-[#C9A962]/40 bg-[#C9A962]/5 px-2 py-0.5 rounded-sm transition-all duration-300 relative z-20"
+              className="font-primary text-xs uppercase tracking-widest text-[#C9A962] hover:text-[#FAF8F5] hover:underline font-black ml-auto border border-[#C9A962]/30 hover:border-[#C9A962]/60 bg-[#C9A962]/10 px-3 py-1 rounded-sm transition-all duration-300 relative z-20 shadow-md"
             >
               {t('property.labels.features.check_availability', 'Consultar')}
             </button>
@@ -454,11 +454,11 @@ export const PropertyCard = memo(({
                         ? roomAvailabilities[room.id]
                         : room.availability;
                       return (
-                        <div key={room.id} className="flex justify-between items-center text-[10px] uppercase tracking-wider font-bold">
-                          <span className="text-white/80">{room.name}</span>
+                        <div key={room.id} className="flex justify-between items-center text-xs uppercase tracking-wider font-bold">
+                          <span className="text-[#FAF8F5]/90">{room.name}</span>
                           <div className="flex items-center gap-1.5">
                             <span className={cn(
-                              "px-1.5 py-0.5 rounded-sm border text-[9px] font-black shrink-0",
+                              "px-2 py-0.5 rounded-sm border text-[11px] font-black shrink-0",
                               roomStatus === 'disponible' ? "bg-green-500/10 text-green-400 border-green-500/20" :
                               roomStatus === 'reservado' ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
                               "bg-purple-500/10 text-purple-400 border-purple-500/20"
@@ -476,8 +476,8 @@ export const PropertyCard = memo(({
                               today.setHours(0, 0, 0, 0);
                               return d.getTime() > today.getTime();
                             })() && (
-                              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] text-[9px] font-black tracking-tight rounded-sm shrink-0">
-                                <CalendarClock className="w-3 h-3" />
+                              <span className="flex items-center gap-1.5 px-2 py-0.5 bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] text-xs font-black tracking-tight rounded-sm shrink-0">
+                                <CalendarClock className="w-3.5 h-3.5" />
                                 {(() => {
                                   const d = new Date(roomAvailability);
                                   return isNaN(d.getTime())
@@ -499,12 +499,12 @@ export const PropertyCard = memo(({
           showGeneralAvailability && (
             <div className="flex items-center gap-2 pt-3 border-t border-white/5">
               <CalendarClock className="w-3.5 h-3.5 text-[#C9A962]/70 shrink-0" />
-              <span className="font-primary text-[10px] uppercase tracking-widest text-white/50 font-bold">
+              <span className="font-primary text-xs uppercase tracking-widest text-[#B0A99A] font-bold">
                 {commercialStatus === 'alquilado' || commercialStatus === 'reservado'
                   ? t('property.labels.features.available_again', 'Disponible nuevamente el')
                   : t('property.labels.features.available_from', 'Disponible desde')}
               </span>
-              <span className="font-primary text-xs text-[#C9A962] font-bold ml-auto">
+              <span className="font-primary text-xs text-[#C9A962] font-black ml-auto">
                 {(() => {
                   const d = new Date(availability);
                   return isNaN(d.getTime())
