@@ -26,16 +26,17 @@ export const RouterDetectorProvider = ({ children }: { children: React.ReactNode
 const getReactRouterDom = () => {
   if (typeof window !== 'undefined') {
     try {
-      return require('react-router-dom');
-    } catch (e) {
+      return require('../../node_modules/react-router-dom');
+    } catch (e: any) {
       return null;
     }
   }
   return null;
 };
 
+const rrd = getReactRouterDom();
+
 export const BrowserRouter = ({ children }: any) => {
-  const rrd = getReactRouterDom();
   if (rrd?.BrowserRouter) {
     const OriginalBrowserRouter = rrd.BrowserRouter;
     return (
@@ -49,32 +50,11 @@ export const BrowserRouter = ({ children }: any) => {
   return <RouterDetectorProvider>{children}</RouterDetectorProvider>;
 };
 
-export const Routes = ({ children }: any) => {
-  const rrd = getReactRouterDom();
-  if (rrd?.Routes) {
-    const OriginalRoutes = rrd.Routes;
-    return <OriginalRoutes>{children}</OriginalRoutes>;
-  }
-  return <>{children}</>;
-};
+export const Routes = rrd?.Routes || (({ children }: any) => <>{children}</>);
 
-export const Route = ({ children, ...props }: any) => {
-  const rrd = getReactRouterDom();
-  if (rrd?.Route) {
-    const OriginalRoute = rrd.Route;
-    return <OriginalRoute {...props}>{children}</OriginalRoute>;
-  }
-  return null;
-};
+export const Route = rrd?.Route || (({ children }: any) => null);
 
-export const Outlet = (props: any) => {
-  const rrd = getReactRouterDom();
-  if (rrd?.Outlet) {
-    const OriginalOutlet = rrd.Outlet;
-    return <OriginalOutlet {...props} />;
-  }
-  return null;
-};
+export const Outlet = rrd?.Outlet || (() => null);
 
 // Shimmed Link component
 export const Link = React.forwardRef(({ to, href, children, ...props }: any, ref: any) => {
@@ -82,7 +62,6 @@ export const Link = React.forwardRef(({ to, href, children, ...props }: any, ref
   const target = to || href || '';
   
   if (inRouter) {
-    const rrd = getReactRouterDom();
     if (rrd?.Link) {
       const OriginalLink = rrd.Link;
       return <OriginalLink to={target} {...props} ref={ref}>{children}</OriginalLink>;
@@ -99,7 +78,6 @@ export const NavLink = React.forwardRef(({ to, href, className, children, ...pro
   const target = to || href || '';
   
   if (inRouter) {
-    const rrd = getReactRouterDom();
     if (rrd?.NavLink) {
       const OriginalNavLink = rrd.NavLink;
       return <OriginalNavLink to={target} className={className} {...props} ref={ref}>{children}</OriginalNavLink>;
@@ -122,7 +100,6 @@ NavLink.displayName = 'NavLink';
 export const useLocation = () => {
   const inRouter = useContext(InRouterContext);
   if (inRouter) {
-    const rrd = getReactRouterDom();
     if (rrd?.useLocation) {
       return rrd.useLocation();
     }
@@ -136,7 +113,6 @@ export const useNavigate = () => {
   const router = useRouter();
   
   if (inRouter) {
-    const rrd = getReactRouterDom();
     if (rrd?.useNavigate) {
       return rrd.useNavigate();
     }
@@ -158,7 +134,6 @@ export const useNavigate = () => {
 export const useParams = () => {
   const inRouter = useContext(InRouterContext);
   if (inRouter) {
-    const rrd = getReactRouterDom();
     if (rrd?.useParams) {
       return rrd.useParams();
     }
@@ -169,7 +144,6 @@ export const useParams = () => {
 export const useSearchParams = () => {
   const inRouter = useContext(InRouterContext);
   if (inRouter) {
-    const rrd = getReactRouterDom();
     if (rrd?.useSearchParams) {
       return rrd.useSearchParams();
     }

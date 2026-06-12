@@ -4,7 +4,6 @@ import { Providers } from './providers';
 import { Toaster } from 'react-hot-toast';
 import { ScrollToTop } from '../src/components/ScrollToTop';
 import { UpdatePrompt } from '../src/components/UpdatePrompt';
-import { CustomCursor } from '../src/components/CustomCursor';
 
 export const metadata: Metadata = {
   title: {
@@ -56,7 +55,6 @@ export default function RootLayout({
           />
           <ScrollToTop />
           <UpdatePrompt />
-          <CustomCursor />
           {children}
         </Providers>
       </body>

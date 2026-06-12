@@ -7,7 +7,6 @@ import { Layout } from './components/Layout';
 import { PageLoading } from './components/PageLoading';
 import { ScrollToTop } from './components/ScrollToTop';
 import { UpdatePrompt } from './components/UpdatePrompt';
-
 // Lazy load public pages
 const Home = lazy(() => import('./views/Home').then(m => ({ default: m.Home })));
 const Propiedades = lazy(() => import('./views/Propiedades').then(m => ({ default: m.Propiedades })));
