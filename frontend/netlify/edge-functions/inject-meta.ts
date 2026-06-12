@@ -53,21 +53,15 @@ export default async (request: Request, context: Context) => {
     // 1. Clean identifier
     const identifier = cleanId.trim();
 
-    // 2. Resolve template (index.html)
+    // 2. Resolve template (Next.js SSR/ISR response)
     const pageRes = await context.next();
-    let html: string;
     let originStatus = pageRes.status;
 
-    if (pageRes.ok && pageRes.headers.get("content-type")?.includes("text/html")) {
-      html = await pageRes.text();
-    } else {
-      const rootRes = await fetch(new URL("/index.html", request.url).href);
-      if (rootRes.ok) {
-        html = await rootRes.text();
-      } else {
-        return pageRes;
-      }
+    if (!pageRes.ok || !pageRes.headers.get("content-type")?.includes("text/html")) {
+      return pageRes;
     }
+
+    let html = await pageRes.text();
 
     // 3. Identification and Normalization
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -288,8 +282,8 @@ export default async (request: Request, context: Context) => {
       }
 
       // ── Clean & sanitize ──
-      cleanTitle = cleanTitle.replace(/"/g, "&quot;").replace(/[\r\n]+/g, " ").trim();
-      cleanDesc = cleanDesc.replace(/"/g, "&quot;").replace(/[\r\n]+/g, " ").trim();
+      cleanTitle = (cleanTitle || "Gelabert Homes").replace(/"/g, "&quot;").replace(/[\r\n]+/g, " ").trim();
+      cleanDesc = (cleanDesc || "").replace(/"/g, "&quot;").replace(/[\r\n]+/g, " ").trim();
 
       const tags = [
         `<title>${cleanTitle} | Gelabert Homes</title>`,
