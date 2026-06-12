@@ -2,12 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
 
 export const CustomCursor = () => {
-  const { i18n } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
-  const [cursorType, setCursorType] = useState<'default' | 'ver' | 'pointer'>('default');
+  const [cursorType, setCursorType] = useState<'default' | 'pointer'>('default');
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -33,14 +31,10 @@ export const CustomCursor = () => {
       const target = e.target as HTMLElement | null;
       if (!target) return;
 
-      let nextType: 'default' | 'ver' | 'pointer' = 'default';
-      const cursorEl = target.closest('[data-cursor]');
-      if (cursorEl) {
-        const type = cursorEl.getAttribute('data-cursor');
-        if (type === 'ver') {
-          nextType = 'ver';
-        }
-      } else if (target.closest('a, button, input[type="submit"], input[type="button"], select, [role="button"]')) {
+      let nextType: 'default' | 'pointer' = 'default';
+      if (
+        target.closest('a, button, input[type="submit"], input[type="button"], select, [role="button"], [data-cursor]')
+      ) {
         nextType = 'pointer';
       }
 
@@ -84,32 +78,21 @@ export const CustomCursor = () => {
 
       {/* Trailing blurred/expanded circle */}
       <motion.div
-        className="fixed w-6 h-6 rounded-full -translate-x-1/2 -translate-y-1/2 flex items-center justify-center font-primary text-[10px] font-bold tracking-[0.2em] uppercase transition-[background-color,border-color,box-shadow,color] duration-200 pointer-events-none"
+        className="fixed w-6 h-6 rounded-full -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-[background-color,border-color,box-shadow] duration-200 pointer-events-none"
         style={{
           x: cursorX,
           y: cursorY,
-          backgroundColor: cursorType === 'ver' ? 'rgba(201, 169, 98, 0.95)' : 'rgba(201, 169, 98, 0)',
-          borderColor: cursorType === 'ver' ? 'rgba(201, 169, 98, 0.95)' : 'rgba(201, 169, 98, 0.6)',
-          borderWidth: '1px',
+          backgroundColor: 'transparent',
+          borderColor: 'rgba(201, 169, 98, 0.6)',
+          borderWidth: '1.5px',
           borderStyle: 'solid',
-          boxShadow: cursorType === 'ver' ? '0 0 24px rgba(201, 169, 98, 0.45)' : 'none',
-          color: cursorType === 'ver' ? '#0A0A0A' : 'transparent',
+          boxShadow: 'none',
         }}
         animate={{
-          scale: cursorType === 'ver' ? 3.16 : cursorType === 'pointer' ? 1.5 : 1,
+          scale: cursorType === 'pointer' ? 1.5 : 1,
         }}
         transition={{ type: 'spring', stiffness: 350, damping: 28, mass: 0.1 }}
-      >
-        {cursorType === 'ver' && (
-          <motion.span
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.05 }}
-          >
-            {i18n.language.startsWith('en') ? 'VIEW' : 'VER'}
-          </motion.span>
-        )}
-      </motion.div>
+      />
     </div>
   );
 };

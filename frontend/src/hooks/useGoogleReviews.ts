@@ -57,26 +57,34 @@ const FALLBACK_REVIEWS: GoogleReview[] = [
 ];
 
 export const useGoogleReviews = () => {
-  const [data, setData] = useState<GoogleReviewsData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<GoogleReviewsData>({
+    name: 'Gelabert Homes',
+    rating: 5.0,
+    total: 124,
+    reviews: FALLBACK_REVIEWS,
+  });
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [usingFallback, setUsingFallback] = useState(false);
+  const [usingFallback, setUsingFallback] = useState(true);
 
   useEffect(() => {
+    let active = true;
     const fetchReviews = async () => {
       try {
-        setLoading(true);
-        const { data: result, error: fnError } = await supabase.functions.invoke('google-reviews');
+        const invokePromise = supabase.functions.invoke('google-reviews');
+        const timeoutPromise = new Promise<any>((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout invoking google-reviews')), 3500)
+        );
+
+        const response = await Promise.race([invokePromise, timeoutPromise]);
+        
+        if (!active) return;
+
+        const result = response.data;
+        const fnError = response.error;
 
         if (fnError || !result || result.error || !result.reviews || result.reviews.length === 0) {
-          console.warn('Google Reviews API unavailable or empty, using fallback data.');
-          setUsingFallback(true);
-          setData({
-            name: 'Gelabert Homes',
-            rating: 5.0,
-            total: 124,
-            reviews: FALLBACK_REVIEWS,
-          });
+          console.warn('Google Reviews API unavailable or empty, keeping fallback data.');
         } else {
           // Mapear los datos de la API de Google al formato esperado por el frontend
           const mappedReviews = (result.reviews || []).map((r: any) => ({
@@ -97,21 +105,14 @@ export const useGoogleReviews = () => {
           setUsingFallback(false);
         }
       } catch (e) {
-        console.error('useGoogleReviews error:', e);
-        setUsingFallback(true);
-        setData({
-          name: 'Gelabert Homes',
-          rating: 5.0,
-          total: 124,
-          reviews: FALLBACK_REVIEWS,
-        });
-        setError('Could not load reviews');
-      } finally {
-        setLoading(false);
+        console.warn('useGoogleReviews background sync error, keeping fallback data:', e);
       }
     };
 
     fetchReviews();
+    return () => {
+      active = false;
+    };
   }, []);
 
   return { data, loading, error, usingFallback };
