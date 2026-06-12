@@ -16,36 +16,23 @@ export const UpdatePrompt = () => {
   useEffect(() => {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
 
-    // Obtener el registro actual
-    navigator.serviceWorker.getRegistration().then((reg) => {
-      if (!reg) return;
-      setSwRegistration(reg);
-
-      const checkUpdate = () => {
-        reg.update().catch((err) => console.log('Error buscando actualizaciones:', err));
-      };
-      
-      // Buscar actualizaciones cada hora
-      const interval = setInterval(checkUpdate, 60 * 60 * 1000);
-
-      const handleStateChange = (worker: ServiceWorker) => {
-        if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-          setShowPrompt(true);
+    // Unregister any old service workers from the previous Vite PWA setup
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      if (registrations.length > 0) {
+        console.log("Desregistrando Service Workers antiguos para evitar caché...");
+        let unregisteredCount = 0;
+        for (const reg of registrations) {
+          reg.unregister().then((success) => {
+            if (success) {
+              unregisteredCount++;
+              if (unregisteredCount === registrations.length) {
+                console.log("Todos los Service Workers desregistrados, recargando...");
+                window.location.reload();
+              }
+            }
+          });
         }
-      };
-
-      if (reg.waiting) {
-        setShowPrompt(true);
       }
-
-      reg.addEventListener('updatefound', () => {
-        const newWorker = reg.installing;
-        if (newWorker) {
-          newWorker.addEventListener('statechange', () => handleStateChange(newWorker));
-        }
-      });
-
-      return () => clearInterval(interval);
     });
   }, []);
 
