@@ -3,12 +3,14 @@ import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export const LanguageSwitcher = () => {
   const { i18n } = useTranslation();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const nextRouter = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -20,8 +22,6 @@ export const LanguageSwitcher = () => {
   const currentLanguage = languages.find(lang => i18n.language.startsWith(lang.code)) || languages[0];
 
   const toggleLanguage = (code: string) => {
-    i18n.changeLanguage(code);
-    
     // Sincronizar con la URL
     const currentPath = location.pathname;
     let newPath = currentPath;
@@ -36,13 +36,44 @@ export const LanguageSwitcher = () => {
       }
     }
 
-    // Mantener query params si los hay
-    const searchString = searchParams.toString();
-    const finalPath = searchString ? `${newPath}?${searchString}` : newPath;
-
-    navigate(finalPath, { replace: true });
+    // Si la ruta cambia, delegamos el cambio de idioma a LanguageInitializer al montar el componente destino,
+    // eliminando el doble ciclo de renderizado (re-traducir página actual y luego navegar)
+    if (newPath !== currentPath) {
+      const searchString = searchParams.toString();
+      const finalPath = searchString ? `${newPath}?${searchString}` : newPath;
+      navigate(finalPath, { replace: true });
+    } else {
+      i18n.changeLanguage(code);
+    }
+    
     setIsOpen(false);
   };
+
+  // Prefetch de la ruta alternativa para que la navegación sea instantánea al hacer click
+  useEffect(() => {
+    const otherCode = currentLanguage.code === 'es' ? 'en' : 'es';
+    const currentPath = location.pathname;
+    let otherPath = currentPath;
+
+    if (otherCode === 'en') {
+      if (!currentPath.startsWith('/en')) {
+        otherPath = `/en${currentPath === '/' ? '' : currentPath}`;
+      }
+    } else {
+      if (currentPath.startsWith('/en')) {
+        otherPath = currentPath.replace(/^\/en/, '') || '/';
+      }
+    }
+
+    const searchString = searchParams.toString();
+    const finalPrefetchPath = searchString ? `${otherPath}?${searchString}` : otherPath;
+    
+    try {
+      nextRouter.prefetch(finalPrefetchPath);
+    } catch (e) {
+      // Ignorar en entornos que no sean Next.js
+    }
+  }, [location.pathname, searchParams, currentLanguage.code, nextRouter]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
