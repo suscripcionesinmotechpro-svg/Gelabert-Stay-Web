@@ -13,8 +13,8 @@ export const LanguageSwitcher = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const languages = [
-    { code: 'es', name: 'ES', flag: '🇪🇸', label: 'Castellano' },
-    { code: 'en', name: 'EN', flag: '🇬🇧', label: 'English' }
+    { code: 'es', name: 'ES', flagUrl: 'https://flagcdn.com/w40/es.png', label: 'Castellano' },
+    { code: 'en', name: 'EN', flagUrl: 'https://flagcdn.com/w40/gb.png', label: 'English' }
   ];
 
   const currentLanguage = languages.find(lang => i18n.language.startsWith(lang.code)) || languages[0];
@@ -58,9 +58,9 @@ export const LanguageSwitcher = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 border border-[#C9A962]/30 bg-[#0A0A0A]/80 backdrop-blur-md rounded-full text-[#FAF8F5] hover:border-[#C9A962] transition-all duration-500 group shadow-[0_0_15px_rgba(201,169,98,0.1)]"
+        className="flex items-center gap-2.5 px-4 py-2 border border-[#C9A962]/30 bg-[#0A0A0A]/80 backdrop-blur-md rounded-full text-[#FAF8F5] hover:border-[#C9A962] transition-all duration-500 group shadow-[0_0_15px_rgba(201,169,98,0.1)]"
       >
-        <span className="text-sm">{currentLanguage.flag}</span>
+        <img src={currentLanguage.flagUrl} alt={currentLanguage.name} className="w-5 h-3.5 object-cover rounded-xs border border-white/10" />
         <span className="text-[11px] font-bold tracking-[0.2em] font-primary uppercase">{currentLanguage.name}</span>
         <ChevronDown 
           size={12} 
@@ -91,7 +91,7 @@ export const LanguageSwitcher = () => {
                 `}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-sm transition-all duration-500">{lang.flag}</span>
+                  <img src={lang.flagUrl} alt={lang.name} className="w-5 h-3.5 object-cover rounded-xs border border-white/10" />
                   <span className="uppercase">{lang.label}</span>
                 </div>
                 {i18n.language.startsWith(lang.code) && (

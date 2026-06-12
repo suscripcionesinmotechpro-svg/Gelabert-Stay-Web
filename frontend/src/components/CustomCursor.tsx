@@ -27,8 +27,9 @@ export const CustomCursor = () => {
     const handleMouseMove = (e: MouseEvent) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
+    };
 
-      // Detect hover states by inspecting closest data-cursor attributes
+    const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
       if (!target) return;
 
@@ -43,8 +44,7 @@ export const CustomCursor = () => {
         nextType = 'pointer';
       }
 
-      // Prevent redundant state updates & unnecessary re-renders
-      setCursorType((prev) => (prev !== nextType ? nextType : prev));
+      setCursorType(nextType);
     };
 
     const handleMouseLeave = () => {
@@ -55,7 +55,8 @@ export const CustomCursor = () => {
       setIsVisible(true);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('mouseover', handleMouseOver, { passive: true });
     document.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('mouseenter', handleMouseEnter);
 
@@ -64,6 +65,7 @@ export const CustomCursor = () => {
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseover', handleMouseOver);
       document.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mouseenter', handleMouseEnter);
       document.body.classList.remove('custom-cursor-active');
@@ -82,14 +84,19 @@ export const CustomCursor = () => {
 
       {/* Trailing blurred/expanded circle */}
       <motion.div
-        className="fixed rounded-full -translate-x-1/2 -translate-y-1/2 flex items-center justify-center font-primary text-[10px] font-bold tracking-[0.2em] uppercase text-[#0A0A0A] bg-transparent border border-[#C9A962]/60"
-        style={{ x: cursorX, y: cursorY }}
-        animate={{
-          width: cursorType === 'ver' ? 76 : cursorType === 'pointer' ? 36 : 24,
-          height: cursorType === 'ver' ? 76 : cursorType === 'pointer' ? 36 : 24,
+        className="fixed w-6 h-6 rounded-full -translate-x-1/2 -translate-y-1/2 flex items-center justify-center font-primary text-[10px] font-bold tracking-[0.2em] uppercase transition-[background-color,border-color,box-shadow,color] duration-200 pointer-events-none"
+        style={{
+          x: cursorX,
+          y: cursorY,
           backgroundColor: cursorType === 'ver' ? 'rgba(201, 169, 98, 0.95)' : 'rgba(201, 169, 98, 0)',
           borderColor: cursorType === 'ver' ? 'rgba(201, 169, 98, 0.95)' : 'rgba(201, 169, 98, 0.6)',
+          borderWidth: '1px',
+          borderStyle: 'solid',
           boxShadow: cursorType === 'ver' ? '0 0 24px rgba(201, 169, 98, 0.45)' : 'none',
+          color: cursorType === 'ver' ? '#0A0A0A' : 'transparent',
+        }}
+        animate={{
+          scale: cursorType === 'ver' ? 3.16 : cursorType === 'pointer' ? 1.5 : 1,
         }}
         transition={{ type: 'spring', stiffness: 350, damping: 28, mass: 0.1 }}
       >

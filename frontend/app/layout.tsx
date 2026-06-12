@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#121212',
+  themeColor: '#1C1C1C',
   width: 'device-width',
   initialScale: 1,
 };
@@ -39,7 +39,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className="dark">
-      <body className="antialiased bg-[#121212] text-[#FAF8F5] min-h-screen flex flex-col font-sans">
+      <body className="antialiased bg-[#1C1C1C] text-[#FAF8F5] min-h-screen flex flex-col font-sans">
         <Providers>
           <Toaster 
             position="top-right" 

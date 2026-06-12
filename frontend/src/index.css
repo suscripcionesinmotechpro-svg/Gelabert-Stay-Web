@@ -5,17 +5,17 @@
   --font-secondary: 'Playfair Display', serif;
 }
 :root {
-  --background: #121212;
+  --background: #1C1C1C;
   --foreground: #FAF8F5;
   --primary: #C9A962;
   --primary-hover: #D4B673;
-  --secondary: #1C1C1C;
+  --secondary: #252525;
   --border: #262626;
   --muted: #A1A1AA;
   
-  --bg-page: #121212;
-  --bg-card: #1C1C1C;
-  --bg-sidebar: #0A0A0A;
+  --bg-page: #1C1C1C;
+  --bg-card: #252525;
+  --bg-sidebar: #121212;
   
   --gold: #C9A962;
   --gold-tint-10: rgba(201, 169, 98, 0.1);
@@ -253,7 +253,7 @@
 
 /* PWA theme color meta fallback */
 :root {
-  --theme-color: #0F0F0F;
+  --theme-color: #1C1C1C;
 }
 
 @utility animate-fade-in {
@@ -483,12 +483,12 @@
 
 /* Ensure background mesh uses softer base */
 @utility bg-mesh {
-  background-color: #121212 !important;
+  background-color: #1C1C1C !important;
 }
 
 /* Ensure glassmorphism overlays are readable */
 @utility glass-deep {
-  background-color: rgba(18, 18, 18, 0.75) !important;
+  background-color: rgba(28, 28, 28, 0.75) !important;
   border-color: rgba(255, 255, 255, 0.05) !important;
 }
 
@@ -508,5 +508,51 @@
     cursor: text !important;
   }
 }
+
+/* ==========================================================================
+   Restauración del Color Gris Carbón (#1C1C1C) y Gris Suave (#252525)
+   ========================================================================== */
+
+/* 1. Fondos principales de página y secciones (Gris Carbón #1C1C1C) */
+.bg-\[\#121212\],
+.bg-\[\#0A0A0A\],
+.bg-\[\#050505\],
+.bg-\[\#0D0D0D\],
+.bg-\[\#0F0F0F\],
+body,
+html.dark body {
+  background-color: #1C1C1C !important;
+}
+
+/* Opacidades de fondo de página */
+.bg-\[\#121212\]\/80 {
+  background-color: rgba(28, 28, 28, 0.8) !important;
+}
+
+.bg-\[\#121212\]\/90 {
+  background-color: rgba(28, 28, 28, 0.9) !important;
+}
+
+/* 2. Tarjetas, bloques, campos, modales e inputs (Gris Suave #252525) */
+.bg-\[\#1C1C1C\],
+.bg-\[\#161616\],
+.bg-\[\#1A1A1A\],
+.bg-\[\#0E0E0E\],
+.bg-\[\#0C0C0C\],
+.bg-\[\#111111\],
+.bg-\[\#181818\],
+.bg-\[\#1D1D1D\] {
+  background-color: #252525 !important;
+}
+
+/* Opacidades de tarjetas y modales */
+.bg-\[\#0A0A0A\]\/98,
+.bg-\[\#0F0F0F\]\/80,
+.bg-\[\#1C1C1C\]\/50,
+.bg-\[\#0A0A0A\]\/80,
+.bg-\[\#0A0A0A\]\/95 {
+  background-color: rgba(37, 37, 37, 0.85) !important;
+}
+
 
 

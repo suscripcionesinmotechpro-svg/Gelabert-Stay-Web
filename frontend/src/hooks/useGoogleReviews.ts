@@ -68,8 +68,8 @@ export const useGoogleReviews = () => {
         setLoading(true);
         const { data: result, error: fnError } = await supabase.functions.invoke('google-reviews');
 
-        if (fnError || !result || result.error) {
-          console.warn('Google Reviews API unavailable, using fallback data.');
+        if (fnError || !result || result.error || !result.reviews || result.reviews.length === 0) {
+          console.warn('Google Reviews API unavailable or empty, using fallback data.');
           setUsingFallback(true);
           setData({
             name: 'Gelabert Homes',
