@@ -162,13 +162,13 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     title: `${cleanBaseTitle} | Gelabert Homes`,
     description: cleanSharingDesc,
     openGraph: {
-      title: cleanSharingTitle,
+      title: `${cleanBaseTitle} | Gelabert Homes`,
       description: cleanSharingDesc,
       images: property.main_image ? [{ url: property.main_image }] : [],
     },
     twitter: {
       card: 'summary_large_image',
-      title: cleanSharingTitle,
+      title: `${cleanBaseTitle} | Gelabert Homes`,
       description: cleanSharingDesc,
       images: property.main_image ? [property.main_image] : [],
     }
