@@ -27,6 +27,7 @@ const emptyTenant = {
 interface CoTenantForm {
   id?: string;
   first_name: string;
+  lastName?: string; // fallback in case of dynamic types
   last_name: string;
   dni: string;
   email: string;
@@ -34,6 +35,7 @@ interface CoTenantForm {
   monthly_income: number;
   age?: number | null;
   nationality?: string | null;
+  tenant_type?: 'titular' | 'avalista';
 }
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -99,7 +101,8 @@ export const AgentTenantForm = () => {
               phone: c.phone || '',
               monthly_income: Number(c.monthly_income || 0),
               age: c.age || null,
-              nationality: c.nationality || ''
+              nationality: c.nationality || '',
+              tenant_type: c.tenant_type || 'titular'
             })));
           }
         });
@@ -141,7 +144,8 @@ export const AgentTenantForm = () => {
               phone: co.phone || null,
               monthly_income: co.monthly_income || null,
               age: co.age || null,
-              nationality: co.nationality || null
+              nationality: co.nationality || null,
+              tenant_type: co.tenant_type || 'titular'
             })
             .eq('id', co.id);
           if (coErr) throw coErr;
@@ -159,7 +163,8 @@ export const AgentTenantForm = () => {
               phone: co.phone || null,
               monthly_income: co.monthly_income || null,
               age: co.age || null,
-              nationality: co.nationality || null
+              nationality: co.nationality || null,
+              tenant_type: co.tenant_type || 'titular'
             }]);
           if (coErr) throw coErr;
         }
@@ -306,7 +311,7 @@ export const AgentTenantForm = () => {
           <h2 className="font-primary font-bold text-xs uppercase tracking-wider text-[#666]">Co-inquilinos / Personas Asociadas</h2>
           <button
             type="button"
-            onClick={() => setCoTenants(prev => [...prev, { first_name: '', last_name: '', dni: '', email: '', phone: '', monthly_income: 0, age: null, nationality: '' }])}
+            onClick={() => setCoTenants(prev => [...prev, { first_name: '', last_name: '', dni: '', email: '', phone: '', monthly_income: 0, age: null, nationality: '', tenant_type: 'titular' }])}
             className="flex items-center gap-1 text-[10px] text-[#C9A962] hover:underline font-primary uppercase tracking-wider font-bold"
           >
             <Plus className="w-3.5 h-3.5" /> Añadir Persona
@@ -391,6 +396,19 @@ export const AgentTenantForm = () => {
                       }}
                       placeholder="Española"
                     />
+                  </Field>
+                  <Field label="Rol en Contrato">
+                    <select
+                      className={inputClass}
+                      value={co.tenant_type || 'titular'}
+                      onChange={e => {
+                        const val = e.target.value as 'titular' | 'avalista';
+                        setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, tenant_type: val } : c));
+                      }}
+                    >
+                      <option value="titular">Titular</option>
+                      <option value="avalista">Avalista</option>
+                    </select>
                   </Field>
                   <Field label="Teléfono">
                     <input

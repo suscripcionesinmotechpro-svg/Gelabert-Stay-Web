@@ -239,7 +239,12 @@ export const AgentTenantDetail = () => {
             {tenant.first_name[0]}{tenant.last_name[0]}
           </div>
           <div>
-            <h1 className="font-secondary text-3xl text-[#FAF8F5]">{tenant.first_name} {tenant.last_name}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="font-secondary text-3xl text-[#FAF8F5]">{tenant.first_name} {tenant.last_name}</h1>
+              <span className="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-sm bg-green-500/10 text-green-400 border border-green-500/20">
+                Inquilino Principal
+              </span>
+            </div>
             {tenant.dni && <p className="font-primary text-[#555] text-sm">DNI/NIE: {tenant.dni}</p>}
           </div>
         </div>
@@ -358,9 +363,14 @@ export const AgentTenantDetail = () => {
               <div className="flex flex-col gap-3">
                 {coTenants.map(co => (
                   <div key={co.id} className="border border-[#1A1A1A] p-3 rounded-sm bg-black/40 flex flex-col gap-1">
-                    <Link to={`/agente/inquilinos/${co.id}`} className="font-primary text-sm text-[#FAF8F5] font-semibold hover:text-[#C9A962] hover:underline">
-                      {co.first_name} {co.last_name}
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link to={`/agente/inquilinos/${co.id}`} className="font-primary text-sm text-[#FAF8F5] font-semibold hover:text-[#C9A962] hover:underline">
+                        {co.first_name} {co.last_name}
+                      </Link>
+                      <span className={`text-[8px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded-sm ${co.tenant_type === 'avalista' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'}`}>
+                        {co.tenant_type === 'avalista' ? 'Avalista' : 'Titular'}
+                      </span>
+                    </div>
                     {co.dni && <p className="font-primary text-[10px] text-[#555]">DNI: {co.dni}</p>}
                     {(co.age || co.nationality) && (
                       <p className="font-primary text-[10px] text-[#555]">

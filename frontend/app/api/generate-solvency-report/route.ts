@@ -72,7 +72,98 @@ export async function POST(req: Request) {
     const colorRed = rgb(244 / 255, 67 / 255, 54 / 255);
     const colorYellow = rgb(255 / 255, 193 / 255, 7 / 255);
 
-    // DIBUJAR CABECERA BRANDED
+    // Helpers para multipágina
+    let currentPage = page;
+
+    function createNewPage() {
+      const newPage = pdfDoc.addPage([595.27, 841.89]);
+      
+      // Cabecera simplificada
+      newPage.drawRectangle({
+        x: 0,
+        y: height - 50,
+        width: width,
+        height: 50,
+        color: colorCharcoal,
+      });
+
+      newPage.drawLine({
+        start: { x: 0, y: height - 50 },
+        end: { x: width, y: height - 50 },
+        thickness: 2,
+        color: colorGold,
+      });
+
+      newPage.drawText('GELABERT HOMES — ESTUDIO DE SOLVENCIA', {
+        x: 40,
+        y: height - 32,
+        size: 9,
+        font: fontHelveticaBold,
+        color: colorGold,
+      });
+
+      // Pie de página corporativo
+      newPage.drawText('Gelabert Homes — www.gelaberthomes.com', {
+        x: 40,
+        y: 25,
+        size: 8,
+        font: fontHelvetica,
+        color: colorGrey,
+      });
+
+      return newPage;
+    }
+
+    function drawParagraph(text: string, titleText?: string) {
+      if (titleText) {
+        if (currentY - 25 < 55) {
+          currentPage = createNewPage();
+          currentY = height - 80;
+        }
+        currentPage.drawText(titleText, {
+          x: 40,
+          y: currentY,
+          size: 9,
+          font: fontHelveticaBold,
+          color: colorCharcoal,
+        });
+        currentY -= 15;
+      }
+
+      const words = text.split(' ');
+      let line = '';
+      const lines: string[] = [];
+
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const testWidth = fontHelvetica.widthOfTextAtSize(testLine, 8.5);
+        if (testWidth > width - 100 && n > 0) {
+          lines.push(line.trim());
+          line = words[n] + ' ';
+        } else {
+          line = testLine;
+        }
+      }
+      lines.push(line.trim());
+
+      for (const lineStr of lines) {
+        if (currentY - 14 < 55) {
+          currentPage = createNewPage();
+          currentY = height - 80;
+        }
+        currentPage.drawText(lineStr, {
+          x: 45,
+          y: currentY,
+          size: 8,
+          font: fontHelvetica,
+          color: colorGrey,
+        });
+        currentY -= 12;
+      }
+      currentY -= 8; // Espacio entre párrafos
+    }
+
+    // DIBUJAR CABECERA BRANDED (Primera página)
     // Fondo de cabecera oscura
     page.drawRectangle({
       x: 0,
@@ -204,7 +295,7 @@ export async function POST(req: Request) {
     currentY -= 90;
 
     // ITERAR POR INQUILINOS Y DIBUJAR SUS PERFILES
-    page.drawText('PERFILES DE LOS INQUILINOS', {
+    currentPage.drawText('PERFILES DE LOS INQUILINOS', {
       x: 40,
       y: currentY,
       size: 12,
@@ -212,7 +303,7 @@ export async function POST(req: Request) {
       color: colorGold,
     });
 
-    page.drawLine({
+    currentPage.drawLine({
       start: { x: 40, y: currentY - 5 },
       end: { x: width - 40, y: currentY - 5 },
       thickness: 1,
@@ -224,16 +315,18 @@ export async function POST(req: Request) {
     for (let i = 0; i < allTenants.length; i++) {
       const tenant = allTenants[i];
       const isPrimary = !tenant.parent_tenant_id;
+      const roleLabel = tenant.tenant_type === 'avalista' 
+        ? 'Avalista del Grupo' 
+        : (isPrimary ? 'Inquilino Principal (Titular)' : 'Co-inquilino (Titular)');
 
-      // Si nos quedamos sin espacio vertical, podemos añadir una página. 
-      // Generalmente para 2-3 personas cabe bien en A4, pero hacemos un chequeo básico.
-      if (currentY < 120) {
-        // En una implementación de producción más compleja añadiríamos páginas.
-        // Mantenemos esto compacto para asegurar que quepa.
+      // Espacio para la tarjeta de perfil
+      if (currentY - 110 < 55) {
+        currentPage = createNewPage();
+        currentY = height - 80;
       }
 
       // Dibujar caja de perfil del inquilino
-      page.drawRectangle({
+      currentPage.drawRectangle({
         x: 40,
         y: currentY - 100,
         width: width - 80,
@@ -244,7 +337,7 @@ export async function POST(req: Request) {
       });
 
       // Título del Inquilino
-      page.drawText(`${tenant.first_name} ${tenant.last_name} ${isPrimary ? '(Inquilino Principal)' : '(Co-inquilino)'}`, {
+      currentPage.drawText(`${tenant.first_name} ${tenant.last_name} (${roleLabel})`, {
         x: 50,
         y: currentY - 18,
         size: 10,
@@ -259,21 +352,21 @@ export async function POST(req: Request) {
         tenant.nationality ? `Nac.: ${tenant.nationality}` : null
       ].filter(Boolean).join('  |  ');
 
-      page.drawText(personalDetails, {
+      currentPage.drawText(personalDetails, {
         x: 50,
         y: currentY - 34,
         size: 8.5,
         font: fontHelvetica,
         color: colorGrey,
       });
-      page.drawText(`Email: ${tenant.email || 'No aportado'}`, {
+      currentPage.drawText(`Email: ${tenant.email || 'No aportado'}`, {
         x: 50,
         y: currentY - 46,
         size: 8.5,
         font: fontHelvetica,
         color: colorGrey,
       });
-      page.drawText(`Teléfono: ${tenant.phone || 'No aportado'}`, {
+      currentPage.drawText(`Teléfono: ${tenant.phone || 'No aportado'}`, {
         x: 50,
         y: currentY - 58,
         size: 8.5,
@@ -282,28 +375,28 @@ export async function POST(req: Request) {
       });
 
       // Datos laborales/solvencia
-      page.drawText(`Situación Laboral: ${tenant.employment_status || 'No especificada'}`, {
+      currentPage.drawText(`Situación Laboral: ${tenant.employment_status || 'No especificada'}`, {
         x: 280,
         y: currentY - 34,
         size: 8.5,
         font: fontHelvetica,
         color: colorCharcoal,
       });
-      page.drawText(`Empresa: ${tenant.company_name || 'No especificada'}`, {
+      currentPage.drawText(`Empresa: ${tenant.company_name || 'No especificada'}`, {
         x: 280,
         y: currentY - 46,
         size: 8.5,
         font: fontHelvetica,
         color: colorCharcoal,
       });
-      page.drawText(`Tipo de Contrato: ${tenant.contract_type || 'No especificado'}`, {
+      currentPage.drawText(`Tipo de Contrato: ${tenant.contract_type || 'No especificado'}`, {
         x: 280,
         y: currentY - 58,
         size: 8.5,
         font: fontHelvetica,
         color: colorCharcoal,
       });
-      page.drawText(`Ingresos Declarados: ${(Number(tenant.monthly_income || 0)).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} / mes`, {
+      currentPage.drawText(`Ingresos Declarados: ${(Number(tenant.monthly_income || 0)).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} / mes`, {
         x: 280,
         y: currentY - 70,
         size: 9,
@@ -321,7 +414,7 @@ export async function POST(req: Request) {
         return d.file_name;
       });
 
-      page.drawText(`Docs: ${docLabels.length > 0 ? docLabels.join(', ') : 'Ninguno aportado'}`, {
+      currentPage.drawText(`Docs: ${docLabels.length > 0 ? docLabels.join(', ') : 'Ninguno aportado'}`, {
         x: 50,
         y: currentY - 88,
         size: 7.5,
@@ -332,9 +425,15 @@ export async function POST(req: Request) {
       currentY -= 115;
     }
 
-    // ANÁLISIS DE LA IA / COMENTARIO COMERCIAL
-    if (primaryTenant.ai_analysis_notes) {
-      page.drawText('VALORACIÓN DEL AGENTE Y ANÁLISIS DE IA', {
+    // ANÁLISIS DE LA IA / COMENTARIOS DE SOLVENCIA CONSOLIDADOS
+    const hasNotes = allTenants.some(t => t.ai_analysis_notes);
+    if (hasNotes) {
+      if (currentY - 30 < 55) {
+        currentPage = createNewPage();
+        currentY = height - 80;
+      }
+
+      currentPage.drawText('VALORACIÓN DEL AGENTE Y ANÁLISIS DE IA', {
         x: 40,
         y: currentY,
         size: 11,
@@ -342,7 +441,7 @@ export async function POST(req: Request) {
         color: colorGold,
       });
 
-      page.drawLine({
+      currentPage.drawLine({
         start: { x: 40, y: currentY - 5 },
         end: { x: width - 40, y: currentY - 5 },
         thickness: 1,
@@ -351,39 +450,20 @@ export async function POST(req: Request) {
 
       currentY -= 20;
 
-      // Dibujar caja para notas del análisis comercial
-      page.drawRectangle({
-        x: 40,
-        y: currentY - 80,
-        width: width - 80,
-        height: 80,
-        color: rgb(252 / 255, 251 / 255, 249 / 255),
-        borderColor: colorLightGrey,
-        borderWidth: 1,
-      });
+      for (const tenant of allTenants) {
+        if (tenant.ai_analysis_notes) {
+          const isPrimary = !tenant.parent_tenant_id;
+          const label = tenant.tenant_type === 'avalista' 
+            ? 'Avalista' 
+            : (isPrimary ? 'Inquilino Principal' : 'Co-inquilino');
 
-      // Envolver el texto para que quepa en la caja (máximo de caracteres por línea)
-      const text = primaryTenant.ai_analysis_notes;
-      const words = text.split(' ');
-      let line = '';
-      let textY = currentY - 18;
-
-      for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
-        const testWidth = fontHelvetica.widthOfTextAtSize(testLine, 8.5);
-        if (testWidth > width - 110 && n > 0) {
-          page.drawText(line, { x: 50, y: textY, size: 8.5, font: fontHelvetica, color: colorCharcoal });
-          line = words[n] + ' ';
-          textY -= 12;
-        } else {
-          line = testLine;
+          const title = `Valoración de ${tenant.first_name} ${tenant.last_name} (${label})`;
+          drawParagraph(tenant.ai_analysis_notes, title);
         }
       }
-      page.drawText(line, { x: 50, y: textY, size: 8.5, font: fontHelvetica, color: colorCharcoal });
-      currentY -= 100;
     }
 
-    // PIE DE PÁGINA CORPORATIVO
+    // PIE DE PÁGINA CORPORATIVO (En primera página)
     page.drawText('Gelabert Homes — www.gelaberthomes.com', {
       x: 40,
       y: 30,

@@ -52,6 +52,7 @@ interface GroupedTenant {
   notes: string;
   age: number | null;
   nationality: string;
+  tenantType: 'titular' | 'avalista';
   documents: {
     queueItemId: string;
     fileName: string;
@@ -234,6 +235,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
             notes: data.notes || '',
             age: data.age || null,
             nationality: data.nationality || '',
+            tenantType: 'titular',
             documents: []
           };
         }
@@ -314,6 +316,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
       notes: '',
       age: null,
       nationality: '',
+      tenantType: 'titular',
       documents: []
     };
     setGroupedTenants(prev => [...prev, newT]);
@@ -357,7 +360,8 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
             monthly_income: gt.monthlyIncome || null,
             ai_analysis_notes: gt.notes || null,
             age: gt.age || null,
-            nationality: gt.nationality || null
+            nationality: gt.nationality || null,
+            tenant_type: gt.tenantType || 'titular'
           }])
           .select('id')
           .single();
@@ -712,6 +716,18 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                           onChange={(e) => handleTenantFieldChange(tenantIdx, 'nationality', e.target.value)}
                           className="bg-black border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] transition-colors"
                         />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-primary text-[10px] uppercase tracking-wider text-[#555]">Rol en Contrato</label>
+                        <select
+                          value={tenant.tenantType || 'titular'}
+                          disabled={tenantIdx === 0}
+                          onChange={(e) => handleTenantFieldChange(tenantIdx, 'tenantType', e.target.value)}
+                          className="bg-black border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] transition-colors"
+                        >
+                          <option value="titular">Titular</option>
+                          <option value="avalista">Avalista</option>
+                        </select>
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <label className="font-primary text-[10px] uppercase tracking-wider text-[#555]">Email</label>
