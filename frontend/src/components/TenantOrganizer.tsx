@@ -456,6 +456,17 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
       setReportUrl(res.fileUrl);
       toast.success('Ficha de Solvencia generada');
 
+      // Save solvency report pdf in documents
+      await supabase.from('tenant_documents').insert([{
+        user_id: (await supabase.auth.getUser()).data.user?.id,
+        tenant_id: savedGroupId,
+        document_type: 'otro',
+        file_name: res.fileName,
+        file_path: res.filePath,
+        file_url: res.fileUrl,
+        category: 'tenant'
+      }]);
+
     } catch (e: any) {
       toast.error(`Error: ${e.message}`);
     } finally {

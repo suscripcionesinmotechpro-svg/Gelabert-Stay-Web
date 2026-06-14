@@ -15,6 +15,7 @@ export const useTenants = (search?: string, agentId?: string) => {
       let query = supabase
         .from('tenants')
         .select('*')
+        .is('parent_tenant_id', null)
         .order('last_name', { ascending: true });
 
       // Filter by agent if provided
