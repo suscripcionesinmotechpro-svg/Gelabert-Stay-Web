@@ -2,6 +2,9 @@
   publish = ".next"
   command = "npm run build"
 
+[functions]
+  timeout = 26
+
 [build.environment]
   NETLIFY_NEXT_PLUGIN_SKIP_FORMS = "true"
   NETLIFY_NEXT_VERIFY_FORMS = "false"

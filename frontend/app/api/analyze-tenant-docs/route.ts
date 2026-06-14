@@ -25,14 +25,14 @@ export async function POST(req: Request) {
     }
 
     const rawApiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || '';
-    const apiKey = (rawApiKey && rawApiKey !== 'undefined' && rawApiKey !== 'null' && rawApiKey.trim() !== '')
-      ? rawApiKey
-      : 'AIzaSyBxGBnV6xDd9KxtKbpajkILOOPEEL8Ymdo';
+    const apiKey = rawApiKey.trim();
 
-    console.log(`[API] Using Gemini API Key starting with: ${apiKey.substring(0, 6)}... (Length: ${apiKey.length})`);
+    console.log(`[API] Using Gemini API Key starting with: ${apiKey ? apiKey.substring(0, 6) : 'None'}... (Length: ${apiKey.length})`);
 
-    if (!apiKey) {
-      return NextResponse.json({ error: 'La API Key de Gemini no está configurada en el servidor' }, { status: 500 });
+    if (!apiKey || apiKey === 'undefined' || apiKey === 'null') {
+      return NextResponse.json({ 
+        error: 'La API Key de Gemini no está configurada en el servidor. Por favor, configura la variable de entorno GEMINI_API_KEY en Netlify.' 
+      }, { status: 500 });
     }
 
     const supabase = createServerSupabase(req);
