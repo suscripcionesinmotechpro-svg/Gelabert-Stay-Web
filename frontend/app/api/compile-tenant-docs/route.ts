@@ -51,12 +51,12 @@ async function createTenantSeparatorPage(pdfDoc: PDFDocument, name: string, role
   try {
     const logoImageBytes = Buffer.from(LOGO_B64.split(',')[1] || LOGO_B64, 'base64');
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    logoHeight = 35;
+    logoHeight = 55;
     logoWidth = (logoImage.width / logoImage.height) * logoHeight;
 
     page.drawImage(logoImage, {
       x: 60,
-      y: height - 125,
+      y: height - 140,
       width: logoWidth,
       height: logoHeight,
     });
