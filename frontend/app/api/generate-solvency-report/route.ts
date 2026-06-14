@@ -361,31 +361,51 @@ export async function POST(req: Request) {
       });
 
 
+      const formatDate = (dateStr?: string | null) => {
+        if (!dateStr) return 'No especificada';
+        try {
+          const parts = dateStr.split('-');
+          if (parts.length === 3) {
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+          }
+          return dateStr;
+        } catch {
+          return dateStr;
+        }
+      };
+
       // Datos laborales/solvencia
       currentPage.drawText(`Situación Laboral: ${tenant.employment_status || 'No especificada'}`, {
         x: 280,
-        y: currentY - 34,
+        y: currentY - 30,
         size: 8.5,
         font: fontHelvetica,
         color: colorCharcoal,
       });
       currentPage.drawText(`Empresa: ${tenant.company_name || 'No especificada'}`, {
         x: 280,
-        y: currentY - 46,
+        y: currentY - 41,
         size: 8.5,
         font: fontHelvetica,
         color: colorCharcoal,
       });
       currentPage.drawText(`Tipo de Contrato: ${tenant.contract_type || 'No especificado'}`, {
         x: 280,
-        y: currentY - 58,
+        y: currentY - 52,
+        size: 8.5,
+        font: fontHelvetica,
+        color: colorCharcoal,
+      });
+      currentPage.drawText(`Antigüedad Laboral: ${formatDate(tenant.seniority_date)}`, {
+        x: 280,
+        y: currentY - 63,
         size: 8.5,
         font: fontHelvetica,
         color: colorCharcoal,
       });
       currentPage.drawText(`Ingresos Declarados: ${(Number(tenant.monthly_income || 0)).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} / mes`, {
         x: 280,
-        y: currentY - 70,
+        y: currentY - 75,
         size: 9,
         font: fontHelveticaBold,
         color: colorGold,
