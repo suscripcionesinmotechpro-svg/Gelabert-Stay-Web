@@ -56,7 +56,7 @@ interface GroupedTenant {
   documents: {
     queueItemId: string;
     fileName: string;
-    documentType: string;
+    documentTypes: string[];
     tempPath: string;
   }[];
 }
@@ -245,10 +245,12 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
         }
 
         if (item.tempPath) {
+          const detectedTypes = item.extractedData?.document_types || 
+                               (item.extractedData?.document_type ? [item.extractedData.document_type] : ['otro']);
           tenantsMap[fullNameKey].documents.push({
             queueItemId: item.id,
             fileName: item.file.name,
-            documentType: item.extractedData.document_type || 'otro',
+            documentTypes: detectedTypes,
             tempPath: item.tempPath
           });
         }
@@ -265,10 +267,19 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
     setGroupedTenants(prev => prev.map((t, idx) => idx === index ? { ...t, [key]: value } : t));
   };
 
-  const handleDocumentTypeChange = (tenantIdx: number, docIdx: number, value: string) => {
+  const handleToggleDocType = (tenantIdx: number, docIdx: number, typeValue: string) => {
     setGroupedTenants(prev => prev.map((t, idx) => {
       if (idx !== tenantIdx) return t;
-      const docs = t.documents.map((d, dIdx) => dIdx === docIdx ? { ...d, documentType: value } : d);
+      const docs = t.documents.map((d, dIdx) => {
+        if (dIdx !== docIdx) return d;
+        const currentTypes = d.documentTypes || [];
+        const newTypes = currentTypes.includes(typeValue)
+          ? currentTypes.filter(x => x !== typeValue)
+          : [...currentTypes, typeValue];
+        
+        // Al menos un tipo debe estar seleccionado
+        return { ...d, documentTypes: newTypes.length > 0 ? newTypes : [typeValue] };
+      });
       return { ...t, documents: docs };
     }));
   };
@@ -295,7 +306,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
         documents: [...t.documents, {
           queueItemId: doc.queueItemId,
           fileName: doc.fileName,
-          documentType: 'otro',
+          documentTypes: ['otro'],
           tempPath: doc.tempPath
         }]
       };
@@ -428,20 +439,23 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
 
           const fileUrl = urlData?.signedUrl ?? '';
 
-          // Insert document row
-          const { error: docErr } = await supabase
-            .from('tenant_documents')
-            .insert([{
-              user_id: user.id,
-              tenant_id: insertedTenant.id,
-              document_type: doc.documentType,
-              file_name: doc.fileName,
-              file_path: finalPath,
-              file_url: fileUrl,
-              category: 'tenant'
-            }]);
+          // Insert a document row for each selected type
+          const typesToSave = doc.documentTypes && doc.documentTypes.length > 0 ? doc.documentTypes : ['otro'];
+          for (const type of typesToSave) {
+            const { error: docErr } = await supabase
+              .from('tenant_documents')
+              .insert([{
+                user_id: user.id,
+                tenant_id: insertedTenant.id,
+                document_type: type,
+                file_name: doc.fileName,
+                file_path: finalPath,
+                file_url: fileUrl,
+                category: 'tenant'
+              }]);
 
-          if (docErr) console.error('Error insertando registro de documento:', docErr);
+            if (docErr) console.error('Error insertando registro de documento:', docErr);
+          }
         }
       }
 
@@ -887,18 +901,35 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                                 <span className="font-primary text-xs text-[#FAF8F5] truncate">{doc.fileName}</span>
                               </div>
                               <div className="flex items-center gap-3">
-                                <select 
-                                  value={doc.documentType}
-                                  onChange={(e) => handleDocumentTypeChange(tenantIdx, docIdx, e.target.value)}
-                                  className="bg-[#111] border border-[#1F1F1F] text-[#FAF8F5] px-2 py-1 font-primary text-[11px] outline-none cursor-pointer focus:border-[#C9A962]"
-                                >
-                                  <option value="dni">DNI / NIE / Pasaporte</option>
-                                  <option value="nomina">Nómina de Trabajo</option>
-                                  <option value="contrato_trabajo">Contrato Laboral</option>
-                                  <option value="declaracion_renta">Renta (Modelo 100)</option>
-                                  <option value="modelo_autonomo">Impuestos Autónomo (IVA/IRPF)</option>
-                                  <option value="otro">Otro Documento</option>
-                                </select>
+                                <div className="flex flex-col gap-1.5 items-start">
+                                  <span className="font-primary text-[9px] uppercase tracking-wider text-[#555] font-bold">Tipo de Documento (Selecciona varios si aplica):</span>
+                                  <div className="flex flex-wrap gap-1">
+                                    {[
+                                      { value: 'dni', label: 'DNI / NIE / Pas' },
+                                      { value: 'nomina', label: 'Nómina' },
+                                      { value: 'contrato_trabajo', label: 'Contrato' },
+                                      { value: 'declaracion_renta', label: 'Renta' },
+                                      { value: 'modelo_autonomo', label: 'Autónomo' },
+                                      { value: 'otro', label: 'Otro' }
+                                    ].map(type => {
+                                      const isSelected = (doc.documentTypes || []).includes(type.value);
+                                      return (
+                                        <button
+                                          key={type.value}
+                                          type="button"
+                                          onClick={() => handleToggleDocType(tenantIdx, docIdx, type.value)}
+                                          className={`px-2 py-1 text-[9px] font-primary font-bold uppercase tracking-wider border transition-all ${
+                                            isSelected 
+                                              ? 'bg-[#C9A962] text-black border-[#C9A962]' 
+                                              : 'bg-[#0A0A0A] text-[#888] border-[#1F1F1F] hover:border-[#FAF8F5]/30'
+                                          }`}
+                                        >
+                                          {type.label}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
                                 <button 
                                   onClick={() => removeDocFromTenant(tenantIdx, docIdx)}
                                   className="text-[#444] hover:text-red-400 transition-colors"

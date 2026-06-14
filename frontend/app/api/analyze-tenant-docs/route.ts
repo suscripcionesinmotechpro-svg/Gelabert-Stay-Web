@@ -42,21 +42,22 @@ export async function POST(req: Request) {
     // Prompt instructivo para el análisis de solvencia
     const prompt = `Analiza las siguientes imágenes o páginas de documentos y extrae la información en un formato JSON estructurado. 
 Estas páginas corresponden al mismo documento o al mismo grupo de documentos de alquiler. 
-Clasifica el documento en una de las siguientes categorías: 
+Clasifica el documento identificando todos los tipos de documentos de la siguiente lista que estén presentes en el archivo (puesto que un mismo PDF puede contener varios de ellos, como el DNI, una nómina y el contrato a la vez):
 - 'dni' (DNI, NIE, Pasaporte)
 - 'nomina' (Nómina de salario)
 - 'contrato_trabajo' (Contrato laboral)
 - 'declaracion_renta' (Impuestos, Declaración de la renta o modelos trimestrales 100/130/303)
+- 'modelo_autonomo' (Modelos fiscales de autónomos, IVA/IRPF)
 - 'otro' (Cualquier otro documento)
 
 Extrae todos los datos que puedas identificar. Si no encuentras un valor, devuélvelo como null.
 
 Es MUY importante que identifiques el nombre y apellidos del inquilino al que pertenecen. 
-Si el documento tiene varias páginas (como un contrato de trabajo de 10 hojas), analiza todas las páginas juntas para extraer la información global.
 
 Devuelve la respuesta en formato JSON que cumpla exactamente con este esquema:
 {
-  "document_type": "dni" | "nomina" | "contrato_trabajo" | "declaracion_renta" | "otro",
+  "document_type": "dni" | "nomina" | "contrato_trabajo" | "declaracion_renta" | "modelo_autonomo" | "otro", (El tipo de documento principal o más relevante)
+  "document_types": ["dni", "nomina", "contrato_trabajo", "declaracion_renta", "modelo_autonomo", "otro"], (Lista conteniendo TODOS los tipos de documentos identificados en el archivo)
   "confidence": 0.0 a 1.0,
   "extracted_data": {
     "first_name": "Nombre de pila del inquilino (texto o null)",
