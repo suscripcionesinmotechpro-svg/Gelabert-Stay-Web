@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { LOGO_B64 } from './logoData';
 
 // Helper to initialize Supabase server client with user's token
 function createServerSupabase(req: Request) {
@@ -44,9 +45,30 @@ async function createTenantSeparatorPage(pdfDoc: PDFDocument, name: string, role
     borderWidth: 2,
   });
 
-  // Branded Header
+  // Embed and draw logo
+  let logoWidth = 0;
+  let logoHeight = 0;
+  try {
+    const logoImageBytes = Buffer.from(LOGO_B64.split(',')[1] || LOGO_B64, 'base64');
+    const logoImage = await pdfDoc.embedPng(logoImageBytes);
+    logoHeight = 35;
+    logoWidth = (logoImage.width / logoImage.height) * logoHeight;
+
+    page.drawImage(logoImage, {
+      x: 60,
+      y: height - 125,
+      width: logoWidth,
+      height: logoHeight,
+    });
+  } catch (err) {
+    console.error('Error embedding logo watermark in separator page:', err);
+  }
+
+  // Branded Header (shifted to the right if logo was successfully loaded)
+  const textX = logoWidth > 0 ? 60 + logoWidth + 15 : 60;
+
   page.drawText('GELABERT HOMES', {
-    x: 60,
+    x: textX,
     y: height - 100,
     size: 16,
     font: fontBold,
@@ -54,7 +76,7 @@ async function createTenantSeparatorPage(pdfDoc: PDFDocument, name: string, role
   });
 
   page.drawText('DOSSIER DE DOCUMENTACIÓN', {
-    x: 60,
+    x: textX,
     y: height - 120,
     size: 10,
     font: fontRegular,

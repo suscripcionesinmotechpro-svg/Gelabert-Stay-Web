@@ -22,6 +22,7 @@ const emptyTenant = {
   ai_analysis_notes: '',
   age: '',
   nationality: '',
+  tenant_type: '',
 };
 
 interface CoTenantForm {
@@ -83,6 +84,7 @@ export const AdminTenantForm = () => {
         ai_analysis_notes: tenant.ai_analysis_notes ?? '',
         age: tenant.age ?? '',
         nationality: tenant.nationality ?? '',
+        tenant_type: tenant.tenant_type ?? '',
       });
 
       // Fetch co-tenants
@@ -102,7 +104,7 @@ export const AdminTenantForm = () => {
               monthly_income: Number(c.monthly_income || 0),
               age: c.age || null,
               nationality: c.nationality || '',
-              tenant_type: c.tenant_type || 'titular'
+              tenant_type: c.tenant_type || ''
             })));
           }
         });
@@ -116,6 +118,14 @@ export const AdminTenantForm = () => {
     e.preventDefault();
     if (!form.first_name.trim() || !form.last_name.trim()) {
       setError('El nombre y apellido son obligatorios.');
+      return;
+    }
+    if (!form.tenant_type) {
+      setError('Por favor, selecciona el Rol en Contrato (Titular o Avalista) para el inquilino principal.');
+      return;
+    }
+    if (coTenants.some(c => !c.tenant_type)) {
+      setError('Por favor, selecciona el Rol en Contrato (Titular o Avalista) para todos los co-inquilinos.');
       return;
     }
     setSaving(true);
@@ -266,6 +276,13 @@ export const AdminTenantForm = () => {
           <Field label="Email">
             <input type="email" className={inputClass} value={form.email || ''} onChange={e => set('email', e.target.value)} placeholder="juan@email.com" />
           </Field>
+          <Field label="Rol en Contrato *">
+            <select className={inputClass} value={form.tenant_type || ''} onChange={e => set('tenant_type', e.target.value)}>
+              <option value="">-- Seleccionar --</option>
+              <option value="titular">Titular</option>
+              <option value="avalista">Avalista</option>
+            </select>
+          </Field>
         </div>
       </div>
 
@@ -311,7 +328,7 @@ export const AdminTenantForm = () => {
           <h2 className="font-primary font-bold text-xs uppercase tracking-wider text-[#666]">Co-inquilinos / Personas Asociadas</h2>
           <button
             type="button"
-            onClick={() => setCoTenants(prev => [...prev, { first_name: '', last_name: '', dni: '', email: '', phone: '', monthly_income: 0, age: null, nationality: '', tenant_type: 'titular' }])}
+            onClick={() => setCoTenants(prev => [...prev, { first_name: '', last_name: '', dni: '', email: '', phone: '', monthly_income: 0, age: null, nationality: '', tenant_type: '' }])}
             className="flex items-center gap-1 text-[10px] text-[#C9A962] hover:underline font-primary uppercase tracking-wider font-bold"
           >
             <Plus className="w-3.5 h-3.5" /> Añadir Persona
@@ -397,15 +414,16 @@ export const AdminTenantForm = () => {
                       placeholder="Española"
                     />
                   </Field>
-                  <Field label="Rol en Contrato">
+                  <Field label="Rol en Contrato *">
                     <select
                       className={inputClass}
-                      value={co.tenant_type || 'titular'}
+                      value={co.tenant_type || ''}
                       onChange={e => {
-                        const val = e.target.value as 'titular' | 'avalista';
+                        const val = e.target.value as 'titular' | 'avalista' | '';
                         setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, tenant_type: val } : c));
                       }}
                     >
+                      <option value="">-- Seleccionar --</option>
                       <option value="titular">Titular</option>
                       <option value="avalista">Avalista</option>
                     </select>

@@ -52,7 +52,7 @@ interface GroupedTenant {
   notes: string;
   age: number | null;
   nationality: string;
-  tenantType: 'titular' | 'avalista';
+  tenantType: 'titular' | 'avalista' | '';
   documents: {
     queueItemId: string;
     fileName: string;
@@ -239,7 +239,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
             notes: data.notes || '',
             age: data.age || null,
             nationality: data.nationality || '',
-            tenantType: 'titular',
+            tenantType: '',
             documents: []
           };
         }
@@ -320,7 +320,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
       notes: '',
       age: null,
       nationality: '',
-      tenantType: 'titular',
+      tenantType: '',
       documents: []
     };
     setGroupedTenants(prev => [...prev, newT]);
@@ -329,6 +329,14 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
   // Sync to Database
   const commitToDatabase = async () => {
     if (groupedTenants.length === 0) return;
+    
+    // Validar que todos tengan un rol seleccionado
+    const hasUnselectedRole = groupedTenants.some(gt => !gt.tenantType);
+    if (hasUnselectedRole) {
+      toast.error('Por favor, selecciona el Rol en Contrato (Titular o Avalista) para todos los inquilinos.');
+      return;
+    }
+
     setSavingToDb(true);
     
     try {
@@ -696,7 +704,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                         </div>
                         <div>
                           <p className="font-primary text-[10px] uppercase tracking-widest text-[#666] font-bold">
-                            {tenantIdx === 0 ? 'Titular / Inquilino Principal' : `Co-inquilino #${tenantIdx}`}
+                            {tenantIdx === 0 ? 'Inquilino Principal' : `Co-inquilino #${tenantIdx}`}
                           </p>
                           <h3 className="font-primary text-md text-[#FAF8F5] font-semibold">
                             {tenant.firstName} {tenant.lastName || ''}
@@ -753,13 +761,13 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="font-primary text-[10px] uppercase tracking-wider text-[#555]">Rol en Contrato</label>
+                        <label className="font-primary text-[10px] uppercase tracking-wider text-[#555]">Rol en Contrato *</label>
                         <select
-                          value={tenant.tenantType || 'titular'}
-                          disabled={tenantIdx === 0}
+                          value={tenant.tenantType || ''}
                           onChange={(e) => handleTenantFieldChange(tenantIdx, 'tenantType', e.target.value)}
                           className="bg-black border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] transition-colors"
                         >
+                          <option value="">-- Seleccionar --</option>
                           <option value="titular">Titular</option>
                           <option value="avalista">Avalista</option>
                         </select>
