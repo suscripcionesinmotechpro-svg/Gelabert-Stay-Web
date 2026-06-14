@@ -1,12 +1,14 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useTenant, useTenantMutations } from '../../hooks/useTenants';
 import { useContracts, useContractMutations } from '../../hooks/useContracts';
 import { useTenantDocuments, uploadTenantDocument, deleteTenantDocument, getSignedDocUrl } from '../../hooks/useTenantDocuments';
+import { supabase } from '../../lib/supabase';
+import { toast } from 'react-hot-toast';
 import {
   ArrowLeft, Edit3, PlusCircle, Trash2, FileText, Upload,
   ExternalLink, Loader2, AlertTriangle, Home, Phone,
-  Mail, MapPin, BadgeCheck, Users
+  Mail, MapPin, BadgeCheck, Users, Calendar, Globe
 } from 'lucide-react';
 import {
   DOCUMENT_TYPE_LABELS, CONTRACT_STATUS_COLORS, CONTRACT_STATUS_LABELS,
@@ -15,7 +17,7 @@ import {
 import type { DocumentType } from '../../types/tenant';
 
 const TENANT_DOC_TYPES: DocumentType[] = [
-  'dni', 'contrato_arrendamiento', 'documento_reserva', 'encargo_servicios', 'ficha_visita', 'otro'
+  'dni', 'contrato_arrendamiento', 'documento_reserva', 'encargo_servicios', 'ficha_visita', 'nomina', 'contrato_trabajo', 'declaracion_renta', 'modelo_autonomo', 'otro'
 ];
 
 const OWNER_DOC_TYPES: DocumentType[] = [
@@ -34,23 +36,47 @@ export const AdminTenantDetail = () => {
   const activeContract = contracts.find(c => c.status === 'active') || contracts[0] || null;
   const displayContract = contracts.find(c => c.id === selectedContractId) || activeContract;
 
-  const { documents, loading: loadingDocs, refetch: refetchDocs } = useTenantDocuments(displayContract?.id);
+  const { documents, loading: loadingDocs, refetch: refetchDocs } = useTenantDocuments(displayContract?.id || undefined);
   const [uploadingType, setUploadingType] = useState<DocumentType | null>(null);
   const [pendingDocType, setPendingDocType] = useState<{ type: DocumentType, category: 'tenant' | 'owner' } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [coTenants, setCoTenants] = useState<any[]>([]);
+  const [generatingReport, setGeneratingReport] = useState(false);
+  const [generatingUnified, setGeneratingUnified] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      supabase
+        .from('tenants')
+        .select('*')
+        .eq('parent_tenant_id', id)
+        .then(({ data }) => {
+          if (data) setCoTenants(data);
+        });
+    }
+  }, [id]);
+
   const handleDeleteTenant = async () => {
-    if (!confirm(`¿Eliminar a ${tenant?.first_name} ${tenant?.last_name}? Esta acción no se puede deshacer.`)) return;
-    try { await deleteTenant(id!); navigate('/admin/inquilinos'); }
-    catch (e: any) { setError(e.message); }
+    if (!confirm(`¿Eliminar a ${tenant?.first_name} ${tenant?.last_name}? Esta acción no se puede deshacer y borrará a todos sus co-inquilinos asociados.`)) return;
+    try { 
+      await deleteTenant(id!); 
+      navigate('/admin/inquilinos'); 
+    } catch (e: any) { 
+      setError(e.message); 
+    }
   };
 
   const handleDeleteContract = async (contractId: string) => {
     if (!confirm('¿Eliminar este contrato y todos sus documentos asociados?')) return;
-    try { await deleteContract(contractId); refetchContracts(); }
-    catch (e: any) { setError(e.message); }
+    try { 
+      await deleteContract(contractId); 
+      refetchContracts(); 
+    } catch (e: any) { 
+      setError(e.message); 
+    }
   };
 
   const triggerUpload = (docType: DocumentType, category: 'tenant' | 'owner') => {
@@ -65,12 +91,14 @@ export const AdminTenantDetail = () => {
     try {
       await uploadTenantDocument(displayContract.id, file, pendingDocType.type, pendingDocType.category);
       await refetchDocs();
-    } catch (err: any) { setError(err.message); }
-    finally { setUploadingType(null); setPendingDocType(null); e.target.value = ''; }
+    } catch (err: any) { 
+      setError(err.message); 
+    } finally { 
+      setUploadingType(null); 
+      setPendingDocType(null); 
+      e.target.value = ''; 
+    }
   };
-
-  // ... (handleDownload, handleDeleteDoc, loading/null checks remain the same) ...
-  // [Skipping lines 69-105 for brevity in this manual-like view, but they will be preserved]
 
   const handleDownload = async (docId: string, filePath: string, url: string, name: string) => {
     setDownloading(docId);
@@ -81,13 +109,100 @@ export const AdminTenantDetail = () => {
       a.download = name;
       a.target = '_blank';
       a.click();
-    } finally { setDownloading(null); }
+    } finally { 
+      setDownloading(null); 
+    }
   };
 
   const handleDeleteDoc = async (docId: string, filePath: string) => {
     if (!confirm('¿Eliminar este documento?')) return;
-    try { await deleteTenantDocument(docId, filePath); await refetchDocs(); }
-    catch (err: any) { setError(err.message); }
+    try { 
+      await deleteTenantDocument(docId, filePath); 
+      await refetchDocs(); 
+    } catch (err: any) { 
+      setError(err.message); 
+    }
+  };
+
+  const handleGenerateSolvencyReport = async () => {
+    setGeneratingReport(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || '';
+
+      const response = await fetch('/api/generate-solvency-report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        body: JSON.stringify({
+          tenantId: id,
+          monthlyRent: displayContract?.monthly_rent || 0
+        })
+      });
+
+      if (!response.ok) {
+        const errJson = await response.json();
+        throw new Error(errJson.error);
+      }
+
+      const res = await response.json();
+      window.open(res.fileUrl, '_blank');
+      toast.success('Ficha de Solvencia generada');
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setGeneratingReport(false);
+    }
+  };
+
+  const handleGenerateUnifiedPdf = async () => {
+    setGeneratingUnified(true);
+    try {
+      const savedIds = [id, ...coTenants.map(t => t.id)];
+
+      // Query documents from DB linked to these tenants
+      const { data: finalDocs } = await supabase
+        .from('tenant_documents')
+        .select('file_path')
+        .in('tenant_id', savedIds);
+
+      const paths = finalDocs?.map(d => d.file_path) || [];
+
+      if (paths.length === 0) {
+        throw new Error('No hay documentos asociados a los inquilinos de este expediente.');
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || '';
+
+      const response = await fetch('/api/compile-tenant-docs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        body: JSON.stringify({
+          contractId: displayContract?.id || 'general_docs',
+          tenantId: id,
+          filePaths: paths
+        })
+      });
+
+      if (!response.ok) {
+        const errJson = await response.json();
+        throw new Error(errJson.error);
+      }
+
+      const res = await response.json();
+      window.open(res.fileUrl, '_blank');
+      toast.success('Expediente consolidado generado');
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setGeneratingUnified(false);
+    }
   };
 
   if (loadingTenant) {
@@ -128,7 +243,23 @@ export const AdminTenantDetail = () => {
             {tenant.dni && <p className="font-primary text-[#555] text-sm">DNI/NIE: {tenant.dni}</p>}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={handleGenerateSolvencyReport}
+            disabled={generatingReport}
+            className="flex items-center gap-2 px-4 py-2 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-xs uppercase tracking-wider hover:bg-[#D4B673] transition-all disabled:opacity-50"
+          >
+            {generatingReport ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
+            Ficha Solvencia
+          </button>
+          <button
+            onClick={handleGenerateUnifiedPdf}
+            disabled={generatingUnified}
+            className="flex items-center gap-2 px-4 py-2 border border-[#C9A962] text-[#C9A962] font-primary font-bold text-xs uppercase tracking-wider hover:bg-[#C9A962]/10 transition-all disabled:opacity-50"
+          >
+            {generatingUnified ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
+            Expediente PDF
+          </button>
           <Link
             to={`/admin/inquilinos/${id}/editar`}
             className="flex items-center gap-2 px-4 py-2 border border-[#333] text-[#888] font-primary text-xs hover:text-[#FAF8F5] hover:border-[#555] transition-colors"
@@ -151,7 +282,7 @@ export const AdminTenantDetail = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left: Personal data */}
+        {/* Left: Personal data & Solvency */}
         <div className="flex flex-col gap-4">
           <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-5 flex flex-col gap-4">
             <p className="font-primary text-[10px] uppercase tracking-wider text-[#555] font-semibold">Datos de Contacto</p>
@@ -177,11 +308,82 @@ export const AdminTenantDetail = () => {
                 <div><p className="font-primary text-[10px] text-[#555]">DNI / NIE</p><p className="font-primary text-sm text-[#FAF8F5]">{tenant.dni}</p></div>
               </div>
             )}
+            {tenant.age && (
+              <div className="flex items-start gap-2"><Calendar className="w-4 h-4 text-[#C9A962] flex-shrink-0 mt-0.5" />
+                <div><p className="font-primary text-[10px] text-[#555]">Edad</p><p className="font-primary text-sm text-[#FAF8F5]">{tenant.age} años</p></div>
+              </div>
+            )}
+            {tenant.nationality && (
+              <div className="flex items-start gap-2"><Globe className="w-4 h-4 text-[#C9A962] flex-shrink-0 mt-0.5" />
+                <div><p className="font-primary text-[10px] text-[#555]">Nacionalidad</p><p className="font-primary text-sm text-[#FAF8F5]">{tenant.nationality}</p></div>
+              </div>
+            )}
           </div>
+
+          {/* Solvency Section */}
+          <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-5 flex flex-col gap-4">
+            <p className="font-primary text-[10px] uppercase tracking-wider text-[#C9A962] font-semibold">Perfil de Solvencia</p>
+            <div className="flex flex-col gap-2">
+              <div>
+                <p className="font-primary text-[10px] text-[#555]">Situación Laboral</p>
+                <p className="font-primary text-sm text-[#FAF8F5] capitalize">{tenant.employment_status || 'No especificada'}</p>
+              </div>
+              {tenant.company_name && (
+                <div>
+                  <p className="font-primary text-[10px] text-[#555]">Empresa / Cargo</p>
+                  <p className="font-primary text-sm text-[#FAF8F5]">{tenant.company_name} {tenant.job_title ? `— ${tenant.job_title}` : ''}</p>
+                </div>
+              )}
+              {tenant.seniority_date && (
+                <div>
+                  <p className="font-primary text-[10px] text-[#555]">Antigüedad</p>
+                  <p className="font-primary text-sm text-[#FAF8F5]">{new Date(tenant.seniority_date).toLocaleDateString('es-ES')}</p>
+                </div>
+              )}
+              {tenant.monthly_income && (
+                <div>
+                  <p className="font-primary text-[10px] text-[#555]">Ingresos Netos</p>
+                  <p className="font-primary text-sm text-[#C9A962] font-semibold">{(Number(tenant.monthly_income)).toLocaleString('es-ES')} € / mes</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Co-tenants Section */}
+          {coTenants.length > 0 && (
+            <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-5 flex flex-col gap-4">
+              <p className="font-primary text-[10px] uppercase tracking-wider text-[#666] font-semibold flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5" /> Personas Asociadas ({coTenants.length})
+              </p>
+              <div className="flex flex-col gap-3">
+                {coTenants.map(co => (
+                  <div key={co.id} className="border border-[#1A1A1A] p-3 rounded-sm bg-black/40 flex flex-col gap-1">
+                    <Link to={`/admin/inquilinos/${co.id}`} className="font-primary text-sm text-[#FAF8F5] font-semibold hover:text-[#C9A962] hover:underline">
+                      {co.first_name} {co.last_name}
+                    </Link>
+                    {co.dni && <p className="font-primary text-[10px] text-[#555]">DNI: {co.dni}</p>}
+                    {(co.age || co.nationality) && (
+                      <p className="font-primary text-[10px] text-[#555]">
+                        {[co.age ? `${co.age} años` : null, co.nationality].filter(Boolean).join(' • ')}
+                      </p>
+                    )}
+                    {co.monthly_income && <p className="font-primary text-xs text-[#C9A962]">{(Number(co.monthly_income)).toLocaleString('es-ES')} €/mes</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {tenant.ai_analysis_notes && (
+            <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-5">
+              <p className="font-primary text-[10px] uppercase tracking-wider text-[#C9A962] font-semibold mb-2">Informe de Solvencia (IA)</p>
+              <p className="font-primary text-xs text-[#888] leading-relaxed italic">{tenant.ai_analysis_notes}</p>
+            </div>
+          )}
 
           {tenant.notes && (
             <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-5">
-              <p className="font-primary text-[10px] uppercase tracking-wider text-[#555] font-semibold mb-2">Notas</p>
+              <p className="font-primary text-[10px] uppercase tracking-wider text-[#555] font-semibold mb-2">Notas Internas</p>
               <p className="font-primary text-sm text-[#888] leading-relaxed">{tenant.notes}</p>
             </div>
           )}

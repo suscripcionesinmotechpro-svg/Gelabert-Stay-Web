@@ -16,6 +16,10 @@ export type DocumentType =
   | 'factura_wifi'
   | 'recibo_ibi'
   | 'recibo_comunidad'
+  | 'nomina'
+  | 'contrato_trabajo'
+  | 'declaracion_renta'
+  | 'modelo_autonomo'
   | 'otro';
 
 // ─── LANDLORD ─────────────────────────────────────
@@ -39,6 +43,7 @@ export interface Tenant {
   created_at: string;
   user_id: string;
   agent_id?: string | null;
+  parent_tenant_id?: string | null;
   first_name: string;
   last_name: string;
   dni: string | null;
@@ -50,6 +55,17 @@ export interface Tenant {
   country: string | null;
   notes: string | null;
   avatar_color: string | null;
+  employment_status?: string | null;
+  company_name?: string | null;
+  job_title?: string | null;
+  seniority_date?: string | null;
+  contract_type?: string | null;
+  monthly_income?: number | null;
+  annual_income?: number | null;
+  solvency_score?: string | null;
+  ai_analysis_notes?: string | null;
+  age?: number | null;
+  nationality?: string | null;
 }
 
 export type TenantInsert = Omit<Tenant, 'id' | 'created_at' | 'user_id'>;
@@ -95,6 +111,7 @@ export interface TenantDocument {
   uploaded_at: string;
   user_id: string;
   contract_id: string;
+  tenant_id?: string | null;
   document_type: DocumentType;
   category: DocumentCategory;
   file_name: string;
@@ -127,6 +144,10 @@ export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
   factura_wifi: 'Última Factura WIFI',
   recibo_ibi: 'Recibo Último Pago IBI',
   recibo_comunidad: 'Recibo Último Pago Comunidad',
+  nomina: 'Nómina de Trabajo',
+  contrato_trabajo: 'Contrato de Trabajo',
+  declaracion_renta: 'Declaración de la Renta',
+  modelo_autonomo: 'Modelo Impuestos Autónomo',
   otro: 'Otro Documento',
 };
 

@@ -38,6 +38,7 @@ const AdminInvoiceForm = lazy(() => import('./views/admin/AdminInvoiceForm').the
 // Deleted redundant accounting import
 const AdminTenantsList = lazy(() => import('./views/admin/AdminTenantsList').then(m => ({ default: m.AdminTenantsList })));
 const AdminTenantForm = lazy(() => import('./views/admin/AdminTenantForm').then(m => ({ default: m.AdminTenantForm })));
+const AdminTenantOrganizer = lazy(() => import('./views/admin/AdminTenantOrganizer').then(m => ({ default: m.AdminTenantOrganizer })));
 const AdminTenantDetail = lazy(() => import('./views/admin/AdminTenantDetail').then(m => ({ default: m.AdminTenantDetail })));
 const AdminContractForm = lazy(() => import('./views/admin/AdminContractForm').then(m => ({ default: m.AdminContractForm })));
 const AdminContractsList = lazy(() => import('./views/admin/AdminContractsList').then(m => ({ default: m.AdminContractsList })));
@@ -60,6 +61,7 @@ const AgentInvoices = lazy(() => import('./views/agent/AgentInvoices').then(m =>
 const AgentInvoiceForm = lazy(() => import('./views/agent/AgentInvoiceForm').then(m => ({ default: m.AgentInvoiceForm })));
 const AgentTenantsList = lazy(() => import('./views/agent/AgentTenantsList').then(m => ({ default: m.AgentTenantsList })));
 const AgentTenantForm = lazy(() => import('./views/agent/AgentTenantForm').then(m => ({ default: m.AgentTenantForm })));
+const AgentTenantOrganizer = lazy(() => import('./views/agent/AgentTenantOrganizer').then(m => ({ default: m.AgentTenantOrganizer })));
 const AgentTenantDetail = lazy(() => import('./views/agent/AgentTenantDetail').then(m => ({ default: m.AgentTenantDetail })));
 const AgentContractsList = lazy(() => import('./views/agent/AgentContractsList').then(m => ({ default: m.AgentContractsList })));
 const AgentContractForm = lazy(() => import('./views/agent/AgentContractForm').then(m => ({ default: m.AgentContractForm })));
@@ -147,6 +149,7 @@ function App() {
           <Route path="facturas/nueva" element={<AdminInvoiceForm />} />
           <Route path="facturas/:id/editar" element={<AdminInvoiceForm />} />
           <Route path="inquilinos" element={<AdminTenantsList />} />
+          <Route path="inquilinos/organizador" element={<AdminTenantOrganizer />} />
           <Route path="inquilinos/nuevo" element={<AdminTenantForm />} />
           <Route path="inquilinos/:id" element={<AdminTenantDetail />} />
           <Route path="inquilinos/:id/editar" element={<AdminTenantForm />} />
@@ -177,6 +180,7 @@ function App() {
           <Route path="facturas/nueva" element={<AgentInvoiceForm />} />
           <Route path="facturas/:id/editar" element={<AgentInvoiceForm />} />
           <Route path="inquilinos" element={<AgentTenantsList />} />
+          <Route path="inquilinos/organizador" element={<AgentTenantOrganizer />} />
           <Route path="inquilinos/nuevo" element={<AgentTenantForm />} />
           <Route path="inquilinos/:id" element={<AgentTenantDetail />} />
           <Route path="inquilinos/:id/editar" element={<AgentTenantForm />} />
