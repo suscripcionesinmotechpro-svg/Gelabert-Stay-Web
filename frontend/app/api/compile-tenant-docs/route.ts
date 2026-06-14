@@ -176,6 +176,17 @@ async function createDocumentSeparatorPage(pdfDoc: PDFDocument, typeLabel: strin
   });
 }
 
+// Priority order for document types (lower index = earlier in PDF)
+// Order: DNI → Contrato de trabajo → Nóminas → Renta → Autónomo → Otros
+const DOC_TYPE_PRIORITY: Record<string, number> = {
+  dni: 0,
+  contrato_trabajo: 1,
+  nomina: 2,
+  declaracion_renta: 3,
+  modelo_autonomo: 4,
+  otro: 5,
+};
+
 function getDocumentTypeLabel(type: string) {
   switch (type) {
     case 'dni':
@@ -186,9 +197,45 @@ function getDocumentTypeLabel(type: string) {
       return 'Contrato de Trabajo / Relación Laboral';
     case 'declaracion_renta':
       return 'Declaración de la Renta / IRPF / Modelos Fiscales';
+    case 'modelo_autonomo':
+      return 'Modelos Fiscales Autónomo';
     default:
       return 'Documentación Adicional';
   }
+}
+
+/**
+ * Groups DB document rows by file_path so each physical file is embedded once.
+ * Merges all document_type labels for that file into a combined label.
+ * Sorts files by the highest-priority type they contain.
+ */
+function groupAndSortDocs(docs: { id: string; tenant_id: string; document_type: string; file_name: string; file_path: string }[]) {
+  const fileMap: Record<string, { file_path: string; file_name: string; types: string[] }> = {};
+
+  for (const doc of docs) {
+    if (!fileMap[doc.file_path]) {
+      fileMap[doc.file_path] = { file_path: doc.file_path, file_name: doc.file_name, types: [] };
+    }
+    if (!fileMap[doc.file_path].types.includes(doc.document_type)) {
+      fileMap[doc.file_path].types.push(doc.document_type);
+    }
+  }
+
+  const grouped = Object.values(fileMap);
+
+  // Sort each file's types by priority
+  grouped.forEach(f => {
+    f.types.sort((a, b) => (DOC_TYPE_PRIORITY[a] ?? 99) - (DOC_TYPE_PRIORITY[b] ?? 99));
+  });
+
+  // Sort files by the priority of their primary (first) type
+  grouped.sort((a, b) => {
+    const pa = DOC_TYPE_PRIORITY[a.types[0]] ?? 99;
+    const pb = DOC_TYPE_PRIORITY[b.types[0]] ?? 99;
+    return pa - pb;
+  });
+
+  return grouped;
 }
 
 export async function POST(req: Request) {
@@ -237,23 +284,28 @@ export async function POST(req: Request) {
 
     // Iterar por inquilinos y compilar sus documentos
     for (const tenant of allTenants) {
-      const tenantDocs = dbDocs.filter(d => d.tenant_id === tenant.id);
-      if (tenantDocs.length === 0) continue;
+      const rawTenantDocs = dbDocs.filter(d => d.tenant_id === tenant.id);
+      if (rawTenantDocs.length === 0) continue;
 
       // Generar Portada de Inquilino
       const roleLabel = tenant.tenant_type === 'avalista' ? 'Avalista' : 'Titular';
-
       await createTenantSeparatorPage(mergedPdf, `${tenant.first_name} ${tenant.last_name}`, roleLabel);
 
-      // Iterar por documentos
-      for (const doc of tenantDocs) {
-        const typeLabel = getDocumentTypeLabel(doc.document_type);
-        await createDocumentSeparatorPage(mergedPdf, typeLabel, doc.file_name);
+      // Agrupar por archivo físico y ordenar por prioridad de tipo
+      // Esto evita que el mismo PDF aparezca múltiples veces si tiene varios tipos asignados
+      const groupedDocs = groupAndSortDocs(rawTenantDocs);
 
-        const { data: fileData, error: downloadErr } = await supabase.storage.from('tenant-docs').download(doc.file_path);
+      for (const docFile of groupedDocs) {
+        // Construir etiqueta combinada para el separador (e.g. "DNI / NIE + Contrato de Trabajo")
+        const typeLabel = docFile.types.map(t => getDocumentTypeLabel(t)).join(' + ');
+        await createDocumentSeparatorPage(mergedPdf, typeLabel, docFile.file_name);
+
+        const { data: fileData, error: downloadErr } = await supabase.storage
+          .from('tenant-docs')
+          .download(docFile.file_path);
 
         if (downloadErr || !fileData) {
-          console.error(`Error descargando para fusionar: ${doc.file_path}`, downloadErr);
+          console.error(`Error descargando para fusionar: ${docFile.file_path}`, downloadErr);
           continue;
         }
 
@@ -297,7 +349,7 @@ export async function POST(req: Request) {
             console.warn(`Tipo de archivo no soportado para fusionar en PDF: ${mimeType}`);
           }
         } catch (pdfErr) {
-          console.error(`Error al procesar archivo en pdf-lib: ${doc.file_path}`, pdfErr);
+          console.error(`Error al procesar archivo en pdf-lib: ${docFile.file_path}`, pdfErr);
         }
       }
     }
