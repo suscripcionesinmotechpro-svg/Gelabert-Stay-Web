@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
-import { LOGO_B64 } from '../compile-tenant-docs/logoData';
 
 // Helper to initialize Supabase server client with user's token
 function createServerSupabase(req: Request) {
@@ -58,15 +57,6 @@ export async function POST(req: Request) {
 
     // 4. Crear documento PDF
     const pdfDoc = await PDFDocument.create();
-    
-    // Embed logo
-    let logoImage: any = null;
-    try {
-      const logoImageBytes = Buffer.from(LOGO_B64.split(',')[1] || LOGO_B64, 'base64');
-      logoImage = await pdfDoc.embedPng(logoImageBytes);
-    } catch (err) {
-      console.error('Error embedding logo in solvency report:', err);
-    }
 
     const page = pdfDoc.addPage([595.27, 841.89]); // A4 Size
     const { width, height } = page.getSize();
@@ -105,24 +95,8 @@ export async function POST(req: Request) {
         color: colorGold,
       });
 
-      // Draw small logo on new page header
-      let logoWidth = 0;
-      let logoHeight = 0;
-      if (logoImage) {
-        logoHeight = 30;
-        logoWidth = (logoImage.width / logoImage.height) * logoHeight;
-        newPage.drawImage(logoImage, {
-          x: 40,
-          y: height - 40,
-          width: logoWidth,
-          height: logoHeight,
-        });
-      }
-
-      const textX = logoWidth > 0 ? 40 + logoWidth + 10 : 40;
-
       newPage.drawText('GELABERT HOMES — ESTUDIO DE SOLVENCIA', {
-        x: textX,
+        x: 40,
         y: height - 32,
         size: 9,
         font: fontHelveticaBold,
@@ -208,21 +182,7 @@ export async function POST(req: Request) {
       color: colorGold,
     });
 
-    // Embed and draw logo in first page header
-    let firstPageLogoWidth = 0;
-    let firstPageLogoHeight = 0;
-    if (logoImage) {
-      firstPageLogoHeight = 60;
-      firstPageLogoWidth = (logoImage.width / logoImage.height) * firstPageLogoHeight;
-      page.drawImage(logoImage, {
-        x: 40,
-        y: height - 80,
-        width: firstPageLogoWidth,
-        height: firstPageLogoHeight,
-      });
-    }
-
-    const headerTextX = firstPageLogoWidth > 0 ? 40 + firstPageLogoWidth + 15 : 40;
+    const headerTextX = 40;
 
     // Nombre de marca
     page.drawText('GELABERT HOMES', {
