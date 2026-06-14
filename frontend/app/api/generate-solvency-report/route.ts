@@ -315,9 +315,7 @@ export async function POST(req: Request) {
     for (let i = 0; i < allTenants.length; i++) {
       const tenant = allTenants[i];
       const isPrimary = !tenant.parent_tenant_id;
-      const roleLabel = tenant.tenant_type === 'avalista' 
-        ? 'Avalista del Grupo' 
-        : (isPrimary ? 'Inquilino Principal (Titular)' : 'Co-inquilino (Titular)');
+      const roleLabel = tenant.tenant_type === 'avalista' ? 'Avalista' : 'Titular';
 
       // Espacio para la tarjeta de perfil
       if (currentY - 110 < 55) {
@@ -460,9 +458,7 @@ export async function POST(req: Request) {
       for (const tenant of allTenants) {
         if (tenant.ai_analysis_notes) {
           const isPrimary = !tenant.parent_tenant_id;
-          const label = tenant.tenant_type === 'avalista' 
-            ? 'Avalista' 
-            : (isPrimary ? 'Inquilino Principal' : 'Co-inquilino');
+          const label = tenant.tenant_type === 'avalista' ? 'Avalista' : 'Titular';
 
           const title = `Valoración de ${tenant.first_name} ${tenant.last_name} (${label})`;
           drawParagraph(tenant.ai_analysis_notes, title);

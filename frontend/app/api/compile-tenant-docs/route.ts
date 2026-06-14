@@ -241,10 +241,7 @@ export async function POST(req: Request) {
       if (tenantDocs.length === 0) continue;
 
       // Generar Portada de Inquilino
-      const isPrimary = tenant.id === tenantId;
-      const roleLabel = tenant.tenant_type === 'avalista' 
-        ? 'Avalista del Grupo' 
-        : (isPrimary ? 'Inquilino Principal (Titular)' : 'Co-inquilino (Titular)');
+      const roleLabel = tenant.tenant_type === 'avalista' ? 'Avalista' : 'Titular';
 
       await createTenantSeparatorPage(mergedPdf, `${tenant.first_name} ${tenant.last_name}`, roleLabel);
 
