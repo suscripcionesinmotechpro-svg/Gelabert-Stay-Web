@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth.tsx';
 import { supabase } from '../../lib/supabase';
 import {
   LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X,
-  Receipt, Users, FileText, Bot, CalendarDays, Briefcase
+  Receipt, Users, FileText, Bot, CalendarDays, Briefcase, Sparkles
 } from 'lucide-react';
 
 export const AgentLayout = () => {
@@ -67,6 +67,7 @@ export const AgentLayout = () => {
     { to: '/agente/propiedades/nueva', icon: <PlusCircle className="w-4 h-4" />, label: 'Nueva Propiedad' },
     { to: '/agente/facturas', icon: <Receipt className="w-4 h-4" />, label: 'Mis Facturas' },
     { to: '/agente/inquilinos', icon: <Users className="w-4 h-4" />, label: 'Mis Inquilinos' },
+    { to: '/agente/inquilinos/organizador', icon: <Sparkles className="w-4 h-4" />, label: 'Análisis de documentación' },
     { to: '/agente/contratos', icon: <FileText className="w-4 h-4" />, label: 'Mis Contratos' },
     { to: '/agente/reservas', icon: <CalendarDays className="w-4 h-4" />, label: 'Mis Reservas' },
     { to: '/agente/captaciones', icon: <Briefcase className="w-4 h-4" />, label: 'Captaciones' },

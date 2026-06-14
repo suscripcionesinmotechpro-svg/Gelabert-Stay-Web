@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTenants } from '../../hooks/useTenants';
 import { useContracts } from '../../hooks/useContracts';
 import { useAuth } from '../../hooks/useAuth.tsx';
-import { Search, PlusCircle, Users, AlertTriangle, ChevronRight, Phone, Mail, Eye, Filter, Upload } from 'lucide-react';
+import { Search, PlusCircle, Users, AlertTriangle, ChevronRight, Phone, Mail, Eye, Filter } from 'lucide-react';
 import { CONTRACT_STATUS_COLORS, CONTRACT_STATUS_LABELS, daysUntilExpiry } from '../../types/tenant';
 import type { Contract } from '../../types/tenant';
 
@@ -91,13 +91,6 @@ export const AgentTenantsList = () => {
           <p className="font-primary text-[#666] text-sm mt-1">Gestión de inquilinos y contratos de alquiler</p>
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            to="/agente/inquilinos/organizador"
-            className="flex items-center gap-2 px-5 py-2.5 border border-[#C9A962] text-[#C9A962] font-primary font-bold text-xs uppercase tracking-wider hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-all"
-          >
-            <Upload className="w-4 h-4" />
-            Analizar Lote
-          </Link>
           <Link
             to="/agente/inquilinos/nuevo"
             className="flex items-center gap-2 px-5 py-2.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-xs uppercase tracking-wider hover:bg-[#D4B673] transition-colors"

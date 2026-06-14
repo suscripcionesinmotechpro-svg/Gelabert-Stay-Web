@@ -96,8 +96,8 @@ Devuelve la respuesta en formato JSON que cumpla exactamente con este esquema:
       return NextResponse.json({ error: 'No se pudieron descargar los archivos para analizar' }, { status: 400 });
     }
 
-    // Llamar a Gemini API (Modelo Gemini 2.0 Flash)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    // Llamar a Gemini API (Modelo Gemini 2.5 Flash)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     const response = await fetch(url, {
       method: 'POST',
       headers: {

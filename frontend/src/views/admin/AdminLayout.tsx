@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth.tsx';
 import { supabase } from '../../lib/supabase';
 import {
   LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X,
-  Receipt, Users, CalendarDays, Bot, FileText, LayoutGrid, BarChart3, Briefcase
+  Receipt, Users, CalendarDays, Bot, FileText, LayoutGrid, BarChart3, Briefcase, Sparkles
 } from 'lucide-react';
 import { CaptacionesNotifications } from '../../components/captaciones/CaptacionesNotifications';
 
@@ -43,6 +43,7 @@ export const AdminLayout = () => {
     { to: `/admin/propiedades/nueva`, icon: <PlusCircle className="w-4 h-4" />, label: "Nueva Propiedad" },
     { to: `/admin/facturas`, icon: <Receipt className="w-4 h-4" />, label: "Contabilidad" },
     { to: `/admin/inquilinos`, icon: <Users className="w-4 h-4" />, label: "Inquilinos" },
+    { to: `/admin/inquilinos/organizador`, icon: <Sparkles className="w-4 h-4" />, label: "Análisis de documentación" },
     { to: `/admin/contratos`, icon: <FileText className="w-4 h-4" />, label: "Contratos" },
     { to: `/admin/reservas`, icon: <CalendarDays className="w-4 h-4" />, label: "Reservas" },
     { to: `/admin/captaciones`, icon: <Briefcase className="w-4 h-4" />, label: "Control Captaciones" },
