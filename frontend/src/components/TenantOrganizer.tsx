@@ -52,7 +52,7 @@ interface GroupedTenant {
   notes: string;
   age: number | null;
   nationality: string;
-  tenantType: 'titular' | 'avalista' | '';
+  tenantType: 'titular_principal' | 'titular' | 'avalista' | '';
   documents: {
     queueItemId: string;
     fileName: string;
@@ -333,7 +333,18 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
     // Validar que todos tengan un rol seleccionado
     const hasUnselectedRole = groupedTenants.some(gt => !gt.tenantType);
     if (hasUnselectedRole) {
-      toast.error('Por favor, selecciona el Rol en Contrato (Titular o Avalista) para todos los inquilinos.');
+      toast.error('Por favor, selecciona el Rol en Contrato para todos los inquilinos.');
+      return;
+    }
+
+    // Validar que haya exactamente un Titular Principal
+    const principalCount = groupedTenants.filter(gt => gt.tenantType === 'titular_principal').length;
+    if (principalCount === 0) {
+      toast.error('Debes seleccionar exactamente un Titular Principal para el grupo de alquiler.');
+      return;
+    }
+    if (principalCount > 1) {
+      toast.error('Solo puede haber un Titular Principal en el grupo de alquiler.');
       return;
     }
 
@@ -343,15 +354,25 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuario no autenticado.');
 
+      // Reordenar los inquilinos para que el Titular Principal quede en el índice 0
+      const sortedTenants = [...groupedTenants];
+      const principalIdx = sortedTenants.findIndex(gt => gt.tenantType === 'titular_principal');
+      if (principalIdx > 0) {
+        const [principalTenant] = sortedTenants.splice(principalIdx, 1);
+        sortedTenants.unshift(principalTenant);
+      }
+
       let primaryTenantId = '';
       const savedTenantIds: string[] = [];
 
       // Loop and save tenants
-      for (let i = 0; i < groupedTenants.length; i++) {
-        const gt = groupedTenants[i];
+      for (let i = 0; i < sortedTenants.length; i++) {
+        const gt = sortedTenants[i];
         
         // Define if it is a co-tenant (primary is the first card)
         const parentId = i === 0 ? null : primaryTenantId;
+
+        const dbTenantType = gt.tenantType === 'titular_principal' ? 'titular' : gt.tenantType;
 
         const { data: insertedTenant, error: tErr } = await supabase
           .from('tenants')
@@ -373,7 +394,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
             ai_analysis_notes: gt.notes || null,
             age: gt.age || null,
             nationality: gt.nationality || null,
-            tenant_type: gt.tenantType || 'titular'
+            tenant_type: dbTenantType || 'titular'
           }])
           .select('id')
           .single();
@@ -768,6 +789,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                           className="bg-black border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] transition-colors"
                         >
                           <option value="">-- Seleccionar --</option>
+                          <option value="titular_principal">Titular Principal</option>
                           <option value="titular">Titular</option>
                           <option value="avalista">Avalista</option>
                         </select>

@@ -109,7 +109,7 @@ async function createTenantSeparatorPage(pdfDoc: PDFDocument, name: string, role
   });
 
   // Footer
-  page.drawText('www.gelaberthomes.com', {
+  page.drawText('www.gelaberthomes.es', {
     x: 60,
     y: 60,
     size: 8,
@@ -167,7 +167,7 @@ async function createDocumentSeparatorPage(pdfDoc: PDFDocument, typeLabel: strin
   });
 
   // Footer
-  page.drawText('Gelabert Homes — www.gelaberthomes.com', {
+  page.drawText('Gelabert Homes — www.gelaberthomes.es', {
     x: 40,
     y: 40,
     size: 8,

@@ -84,7 +84,7 @@ export const AgentTenantForm = () => {
         ai_analysis_notes: tenant.ai_analysis_notes ?? '',
         age: tenant.age ?? '',
         nationality: tenant.nationality ?? '',
-        tenant_type: tenant.tenant_type ?? '',
+        tenant_type: tenant.tenant_type === 'avalista' ? 'avalista' : 'titular_principal',
       });
 
       // Fetch co-tenants
@@ -135,10 +135,14 @@ export const AgentTenantForm = () => {
       if (!user) throw new Error('Usuario no autenticado.');
 
       let mainTenantId = id;
+      const dbForm = {
+        ...form,
+        tenant_type: form.tenant_type === 'titular_principal' ? 'titular' : form.tenant_type
+      };
       if (isEdit && id) {
-        await updateTenant(id, form);
+        await updateTenant(id, dbForm);
       } else {
-        mainTenantId = await createTenant(form as unknown as TenantInsert);
+        mainTenantId = await createTenant(dbForm as unknown as TenantInsert);
       }
 
       // Save co-tenants
@@ -279,7 +283,7 @@ export const AgentTenantForm = () => {
           <Field label="Rol en Contrato *">
             <select className={inputClass} value={form.tenant_type || ''} onChange={e => set('tenant_type', e.target.value)}>
               <option value="">-- Seleccionar --</option>
-              <option value="titular">Titular</option>
+              <option value="titular_principal">Titular Principal</option>
               <option value="avalista">Avalista</option>
             </select>
           </Field>
