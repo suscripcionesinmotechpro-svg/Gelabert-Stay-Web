@@ -1,3 +1,4 @@
+// Forced rebuild to reload env variables: 2026-06-14T19:04:00
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
