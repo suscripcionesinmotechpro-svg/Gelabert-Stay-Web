@@ -24,7 +24,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Faltan los archivos para analizar' }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || 'AIzaSyBxGBnV6xDd9KxtKbpajkILOOPEEL8Ymdo';
+    const rawApiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || '';
+    const apiKey = (rawApiKey && rawApiKey !== 'undefined' && rawApiKey !== 'null' && rawApiKey.trim() !== '')
+      ? rawApiKey
+      : 'AIzaSyBxGBnV6xDd9KxtKbpajkILOOPEEL8Ymdo';
+
+    console.log(`[API] Using Gemini API Key starting with: ${apiKey.substring(0, 6)}... (Length: ${apiKey.length})`);
+
     if (!apiKey) {
       return NextResponse.json({ error: 'La API Key de Gemini no está configurada en el servidor' }, { status: 500 });
     }
