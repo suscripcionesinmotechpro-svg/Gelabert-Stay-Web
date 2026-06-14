@@ -177,14 +177,17 @@ async function createDocumentSeparatorPage(pdfDoc: PDFDocument, typeLabel: strin
 }
 
 // Priority order for document types (lower index = earlier in PDF)
-// Order: DNI → Contrato de trabajo → Nóminas → Renta → Autónomo → Otros
+// DNI siempre primero. Luego contrato/renta, nominas/trimestrales, etc. El resto al final.
 const DOC_TYPE_PRIORITY: Record<string, number> = {
   dni: 0,
   contrato_trabajo: 1,
-  nomina: 2,
-  declaracion_renta: 3,
-  modelo_autonomo: 4,
-  otro: 5,
+  declaracion_renta: 2,
+  nomina: 3,
+  ingresos_trimestrales: 4,
+  modelo_autonomo: 5,
+  vida_laboral: 6,
+  extracto_bancario: 7,
+  otro: 99,
 };
 
 function getDocumentTypeLabel(type: string) {
@@ -196,9 +199,15 @@ function getDocumentTypeLabel(type: string) {
     case 'contrato_trabajo':
       return 'Contrato de Trabajo / Relación Laboral';
     case 'declaracion_renta':
-      return 'Declaración de la Renta / IRPF / Modelos Fiscales';
+      return 'Declaración de la Renta / IRPF';
     case 'modelo_autonomo':
-      return 'Modelos Fiscales Autónomo';
+      return 'Modelos Fiscales Autónomo (Mod. 130/303)';
+    case 'ingresos_trimestrales':
+      return 'Ingresos Trimestrales / Mod. 130';
+    case 'vida_laboral':
+      return 'Vida Laboral';
+    case 'extracto_bancario':
+      return 'Extracto Bancario';
     default:
       return 'Documentación Adicional';
   }

@@ -17,7 +17,9 @@ import {
 import type { DocumentType } from '../../types/tenant';
 
 const TENANT_DOC_TYPES: DocumentType[] = [
-  'dni', 'contrato_arrendamiento', 'documento_reserva', 'encargo_servicios', 'ficha_visita', 'nomina', 'contrato_trabajo', 'declaracion_renta', 'modelo_autonomo', 'otro'
+  'dni', 'nomina', 'contrato_trabajo', 'declaracion_renta',
+  'modelo_autonomo', 'ingresos_trimestrales', 'vida_laboral', 'extracto_bancario',
+  'contrato_arrendamiento', 'documento_reserva', 'encargo_servicios', 'ficha_visita', 'otro'
 ];
 
 const OWNER_DOC_TYPES: DocumentType[] = [

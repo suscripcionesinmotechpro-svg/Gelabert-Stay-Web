@@ -905,11 +905,14 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                                   <span className="font-primary text-[9px] uppercase tracking-wider text-[#555] font-bold">Tipo de Documento (Selecciona varios si aplica):</span>
                                   <div className="flex flex-wrap gap-1">
                                     {[
-                                      { value: 'dni', label: 'DNI / NIE / Pas' },
-                                      { value: 'nomina', label: 'Nómina' },
+                                      { value: 'dni', label: 'DNI / NIE / Pas.' },
                                       { value: 'contrato_trabajo', label: 'Contrato' },
+                                      { value: 'nomina', label: 'Nómina' },
                                       { value: 'declaracion_renta', label: 'Renta' },
-                                      { value: 'modelo_autonomo', label: 'Autónomo' },
+                                      { value: 'modelo_autonomo', label: 'Mod. Fiscal' },
+                                      { value: 'ingresos_trimestrales', label: 'Trimestral' },
+                                      { value: 'vida_laboral', label: 'Vida Laboral' },
+                                      { value: 'extracto_bancario', label: 'Extracto' },
                                       { value: 'otro', label: 'Otro' }
                                     ].map(type => {
                                       const isSelected = (doc.documentTypes || []).includes(type.value);

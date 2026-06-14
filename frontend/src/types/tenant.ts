@@ -20,6 +20,9 @@ export type DocumentType =
   | 'contrato_trabajo'
   | 'declaracion_renta'
   | 'modelo_autonomo'
+  | 'ingresos_trimestrales'
+  | 'vida_laboral'
+  | 'extracto_bancario'
   | 'otro';
 
 // ─── LANDLORD ─────────────────────────────────────
@@ -147,7 +150,10 @@ export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
   nomina: 'Nómina de Trabajo',
   contrato_trabajo: 'Contrato de Trabajo',
   declaracion_renta: 'Declaración de la Renta',
-  modelo_autonomo: 'Modelo Impuestos Autónomo',
+  modelo_autonomo: 'Modelos Fiscales Autónomo (Mod. 130/303)',
+  ingresos_trimestrales: 'Ingresos Trimestrales / Mod. 130',
+  vida_laboral: 'Vida Laboral',
+  extracto_bancario: 'Extracto Bancario',
   otro: 'Otro Documento',
 };
 
