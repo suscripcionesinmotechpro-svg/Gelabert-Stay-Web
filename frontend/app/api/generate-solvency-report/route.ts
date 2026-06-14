@@ -359,20 +359,7 @@ export async function POST(req: Request) {
         font: fontHelvetica,
         color: colorGrey,
       });
-      currentPage.drawText(`Email: ${tenant.email || 'No aportado'}`, {
-        x: 50,
-        y: currentY - 46,
-        size: 8.5,
-        font: fontHelvetica,
-        color: colorGrey,
-      });
-      currentPage.drawText(`Teléfono: ${tenant.phone || 'No aportado'}`, {
-        x: 50,
-        y: currentY - 58,
-        size: 8.5,
-        font: fontHelvetica,
-        color: colorGrey,
-      });
+
 
       // Datos laborales/solvencia
       currentPage.drawText(`Situación Laboral: ${tenant.employment_status || 'No especificada'}`, {

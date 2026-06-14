@@ -77,6 +77,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
   const [savedGroupId, setSavedGroupId] = useState<string | null>(null);
   const [savingToDb, setSavingToDb] = useState(false);
   const [monthlyRent, setMonthlyRent] = useState<string>('');
+  const [batchNotes, setBatchNotes] = useState<string>('');
 
   const [generatingReport, setGeneratingReport] = useState(false);
   const [generatingUnified, setGeneratingUnified] = useState(false);
@@ -139,7 +140,10 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
               'Content-Type': 'application/json',
               'Authorization': token ? `Bearer ${token}` : ''
             },
-            body: JSON.stringify({ filePaths: [tempPath] })
+            body: JSON.stringify({ 
+              filePaths: [tempPath],
+              additionalNotes: batchNotes
+            })
           });
 
           if (!response.ok) {
@@ -564,6 +568,26 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
               multiple 
               className="hidden" 
               onChange={(e) => handleFilesAdded(e.target.files)} 
+            />
+          </div>
+
+          {/* ADDITIONAL NOTES / GENERAL PROFILE */}
+          <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-6 flex flex-col gap-3">
+            <label htmlFor="batch-notes" className="font-primary font-bold text-xs uppercase tracking-wider text-[#C9A962]">
+              Notas del agente / Perfil general de los inquilinos
+            </label>
+            <p className="font-primary text-[#666] text-xs">
+              Introduce o pega datos relevantes de los inquilinos (por ejemplo, perfiles generales por separado, notas de contacto, aclaraciones) para que la IA los combine con la documentación y mejore el análisis de solvencia.
+            </p>
+            <textarea
+              id="batch-notes"
+              value={batchNotes}
+              onChange={(e) => setBatchNotes(e.target.value)}
+              placeholder={`Ejemplo:
+- Inquilino 1: Juan López, 35 años, nacionalidad española. Autónomo con ingresos de unos 3000€/mes.
+- Inquilino 2: María López (avalista), madre de Juan, pensionista con 1500€/mes de pensión.`}
+              rows={4}
+              className="w-full bg-black border border-[#1F1F1F] text-[#FAF8F5] p-3 text-sm focus:outline-none focus:border-[#C9A962] transition-colors placeholder-[#444] font-primary resize-y"
             />
           </div>
 
@@ -995,6 +1019,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                 setUnassignedDocs([]);
                 setReportUrl(null);
                 setUnifiedUrl(null);
+                setBatchNotes('');
               }}
               className="px-6 py-3 border border-[#1F1F1F] text-[#FAF8F5] font-primary text-sm hover:border-[#333] transition-colors"
             >

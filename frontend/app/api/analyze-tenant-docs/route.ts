@@ -18,7 +18,7 @@ function createServerSupabase(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const { filePaths } = await req.json();
+    const { filePaths, additionalNotes } = await req.json();
 
     if (!filePaths || !Array.isArray(filePaths) || filePaths.length === 0) {
       return NextResponse.json({ error: 'Faltan los archivos para analizar' }, { status: 400 });
@@ -76,6 +76,12 @@ Devuelve la respuesta en formato JSON que cumpla exactamente con este esquema:
 }`;
 
     parts.push({ text: prompt });
+
+    if (additionalNotes && additionalNotes.trim() !== '') {
+      parts.push({
+        text: `INFORMACIÓN ADICIONAL Y NOTAS DEL AGENTE SOBRE EL PERFIL DE LOS INQUILINOS:\n${additionalNotes}\n\nUsa esta información para complementar, validar o rellenar campos que no figuren en los archivos (como la edad, nacionalidad, ingresos o situación laboral) y enriquecer el resumen final.`
+      });
+    }
 
     // Descargar archivos de Supabase Storage y convertirlos a Base64 para Gemini
     for (const filePath of filePaths) {
