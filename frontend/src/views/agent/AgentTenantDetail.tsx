@@ -241,8 +241,12 @@ export const AgentTenantDetail = () => {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="font-secondary text-3xl text-[#FAF8F5]">{tenant.first_name} {tenant.last_name}</h1>
-              <span className="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-sm bg-green-500/10 text-green-400 border border-green-500/20">
-                Inquilino Principal
+              <span className={`text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-sm ${
+                tenant.tenant_type === 'avalista'
+                  ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20'
+                  : 'bg-green-500/10 text-green-400 border border-green-500/20'
+              }`}>
+                {tenant.tenant_type === 'avalista' ? 'Avalista' : tenant.tenant_type === 'titular' ? 'Titular' : 'Titular Principal'}
               </span>
             </div>
             {tenant.dni && <p className="font-primary text-[#555] text-sm">DNI/NIE: {tenant.dni}</p>}

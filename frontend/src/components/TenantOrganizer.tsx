@@ -735,11 +735,11 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                     <div className="flex flex-wrap items-center justify-between gap-4 bg-black/40 p-4 border border-[#111] rounded-sm">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-[#C9A962]/10 border border-[#C9A962]/30 flex items-center justify-center text-[#C9A962]">
-                          {tenantIdx === 0 ? <User className="w-5 h-5" /> : <Users className="w-5 h-5" />}
+                          {tenant.tenantType === 'titular_principal' ? <User className="w-5 h-5" /> : <Users className="w-5 h-5" />}
                         </div>
                         <div>
                           <p className="font-primary text-[10px] uppercase tracking-widest text-[#666] font-bold">
-                            {tenantIdx === 0 ? 'Inquilino Principal' : `Co-inquilino #${tenantIdx}`}
+                            {tenant.tenantType === 'titular_principal' ? 'Titular Principal' : tenant.tenantType === 'avalista' ? 'Avalista' : tenant.tenantType === 'titular' ? 'Titular' : `Persona #${tenantIdx + 1}`}
                           </p>
                           <h3 className="font-primary text-md text-[#FAF8F5] font-semibold">
                             {tenant.firstName} {tenant.lastName || ''}

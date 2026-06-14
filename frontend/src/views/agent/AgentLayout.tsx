@@ -92,7 +92,7 @@ export const AgentLayout = () => {
           <NavLink
             key={item.to}
             to={item.to}
-            end={['/agente/dashboard', '/agente/propiedades'].includes(item.to)}
+            end={['/agente/dashboard', '/agente/propiedades', '/agente/inquilinos', '/agente/inquilinos/organizador'].includes(item.to)}
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
               `flex items-center justify-between px-3 py-2.5 font-primary text-sm transition-all ${
