@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Falta el ID del inquilino (tenantId)' }, { status: 400 });
     }
 
-    const rentPrice = monthlyRent ? Number(monthlyRent) : 0;
+    let rentPrice = monthlyRent ? Number(monthlyRent) : 0;
     const supabase = createServerSupabase(req);
 
     // 1. Obtener inquilino principal
@@ -55,6 +55,11 @@ export async function POST(req: Request) {
       if (parentTenant) {
         primaryTenant = parentTenant;
       }
+    }
+
+    // Usar la renta propuesta como fallback si no hay renta mensual del contrato activa
+    if (!rentPrice && primaryTenant.proposed_rent) {
+      rentPrice = Number(primaryTenant.proposed_rent);
     }
 
     // 2. Obtener co-inquilinos asociados al inquilino principal
