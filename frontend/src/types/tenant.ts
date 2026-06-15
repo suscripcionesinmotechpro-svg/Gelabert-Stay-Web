@@ -66,6 +66,7 @@ export interface Tenant {
   monthly_income?: number | null;
   annual_income?: number | null;
   currency?: string | null;
+  proposed_rent?: number | null;
   solvency_score?: string | null;
   ai_analysis_notes?: string | null;
   age?: number | null;

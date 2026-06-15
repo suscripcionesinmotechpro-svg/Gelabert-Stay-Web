@@ -29,3 +29,6 @@ ALTER TABLE public.tenant_documents ADD CONSTRAINT tenant_documents_document_typ
     'nomina', 'contrato_trabajo', 'declaracion_renta', 'modelo_autonomo', 'otro',
     'ingresos_trimestrales', 'vida_laboral', 'extracto_bancario', 'foto_perfil'
   ));
+
+-- 5. Agregar renta propuesta para el cálculo de solvencia
+ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS proposed_rent NUMERIC(10,2);

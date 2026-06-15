@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { 
   Upload, FileText, User, Users, Trash2, Plus, ArrowLeft, 
-  CheckCircle, Loader2, AlertCircle, RefreshCw, ChevronRight, File
+  CheckCircle, Loader2, AlertCircle, RefreshCw, ChevronRight, File, Save
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -168,6 +168,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
   const [savedGroupId, setSavedGroupId] = useState<string | null>(null);
   const [savingToDb, setSavingToDb] = useState(false);
   const [monthlyRent, setMonthlyRent] = useState<string>('');
+  const [savingRent, setSavingRent] = useState(false);
   const [batchNotes, setBatchNotes] = useState<string>('');
 
   const [generatingReport, setGeneratingReport] = useState(false);
@@ -621,11 +622,36 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
     }
   };
 
+  // Save proposed rent to database explicitly
+  const saveProposedRent = async () => {
+    if (!savedGroupId) return;
+    setSavingRent(true);
+    try {
+      const { error } = await supabase
+        .from('tenants')
+        .update({ proposed_rent: monthlyRent ? Number(monthlyRent) : null })
+        .eq('id', savedGroupId);
+
+      if (error) throw error;
+      toast.success('Renta propuesta guardada con éxito');
+    } catch (e: any) {
+      toast.error(`Error al guardar la renta: ${e.message}`);
+    } finally {
+      setSavingRent(false);
+    }
+  };
+
   // Call API for Ficha de Solvencia PDF
   const generateSolvencyReport = async () => {
     if (!savedGroupId) return;
     setGeneratingReport(true);
     try {
+      // Auto-save the rent to the database first
+      await supabase
+        .from('tenants')
+        .update({ proposed_rent: monthlyRent ? Number(monthlyRent) : null })
+        .eq('id', savedGroupId);
+
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token || '';
 
@@ -1215,13 +1241,23 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
             {/* Rent input for Report */}
             <div className="flex flex-col gap-1.5">
               <label className="font-primary text-[10px] uppercase tracking-wider text-[#666]">Renta de alquiler propuesta (€/mes)</label>
-              <input 
-                type="number" 
-                placeholder="Ej. 900"
-                value={monthlyRent}
-                onChange={(e) => setMonthlyRent(e.target.value)}
-                className="bg-[#0A0A0A] border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] placeholder-[#444]"
-              />
+              <div className="flex gap-2">
+                <input 
+                  type="number" 
+                  placeholder="Ej. 900"
+                  value={monthlyRent}
+                  onChange={(e) => setMonthlyRent(e.target.value)}
+                  className="bg-[#0A0A0A] border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] placeholder-[#444] flex-1 min-w-0"
+                />
+                <button
+                  onClick={saveProposedRent}
+                  disabled={savingRent || !monthlyRent}
+                  className="bg-[#C9A962] hover:bg-[#B59550] text-black px-4 py-2 text-xs font-primary font-bold uppercase tracking-wider transition-all disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {savingRent ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                  Guardar
+                </button>
+              </div>
             </div>
 
             {/* Generator buttons */}
