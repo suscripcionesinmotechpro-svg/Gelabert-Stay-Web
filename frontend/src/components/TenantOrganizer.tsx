@@ -234,12 +234,31 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
             })
           });
 
+          let analysisResult: any;
+          const contentType = response.headers.get('content-type') || '';
+          
           if (!response.ok) {
-            const errRes = await response.json();
-            throw new Error(errRes.error || 'Fallo en la clasificación de IA');
+            let errorMsg = 'Fallo en la clasificación de IA';
+            if (contentType.includes('application/json')) {
+              try {
+                const errRes = await response.json();
+                errorMsg = errRes.error || errorMsg;
+              } catch (e) {}
+            } else {
+              errorMsg = `Error de red (${response.status}): El servidor no pudo procesar el archivo. Es probable que sea un archivo muy grande o que haya ocurrido un timeout de red.`;
+            }
+            throw new Error(errorMsg);
           }
 
-          const analysisResult = await response.json();
+          if (!contentType.includes('application/json')) {
+            throw new Error('El servidor devolvió una respuesta no válida (HTML/Texto) en lugar de JSON. Es probable que haya ocurrido un timeout en el análisis del documento.');
+          }
+
+          try {
+            analysisResult = await response.json();
+          } catch (jsonErr) {
+            throw new Error('Error al decodificar la respuesta JSON del servidor.');
+          }
 
           updateQueueItem(item.id, { 
             status: 'completed', 

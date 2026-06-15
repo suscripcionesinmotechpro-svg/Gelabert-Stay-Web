@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { LOGO_B64 } from './logoData';
 
+// Aumentar el tiempo de espera máximo a 60 segundos en Netlify/Next.js
+export const maxDuration = 60;
+
 // Helper to initialize Supabase server client with user's token
 function createServerSupabase(req: Request) {
   const authHeader = req.headers.get('Authorization') || '';
