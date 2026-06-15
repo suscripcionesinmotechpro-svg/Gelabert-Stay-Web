@@ -14,6 +14,7 @@ export default function supabaseImageLoader({ src, width, quality = 80 }: ImageL
     params.append('width', width.toString());
     params.append('quality', quality.toString());
     params.append('format', 'avif'); // Request AVIF next-gen format
+    params.append('resize', 'contain');
     
     return `${baseUrl}?${params.toString()}`;
   }
