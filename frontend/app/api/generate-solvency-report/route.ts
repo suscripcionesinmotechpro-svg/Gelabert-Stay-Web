@@ -294,6 +294,70 @@ export async function POST(req: Request) {
       return `${localAmountString} ${localSymbol} (${eurString})`;
     };
 
+    const convertForeignAmountsInText = (text: string): string => {
+      if (!text) return '';
+
+      const regex = /(?:(R\$|BRL|\$|USD|£|GBP)\s*)?(\b\d+(?:[.,\s]\d+)*)(?:\s*(R\$|BRL|\$|USD|£|GBP|reales|dólares|libras))?/gi;
+
+      return text.replace(regex, (match, prefix, numStr, suffix) => {
+        const currencyIndicator = (prefix || suffix || '').toUpperCase();
+        if (!currencyIndicator) return match;
+
+        let currency = '';
+        if (currencyIndicator.includes('R$') || currencyIndicator.includes('BRL') || currencyIndicator.includes('REAL')) {
+          currency = 'BRL';
+        } else if (currencyIndicator.includes('$') || currencyIndicator.includes('USD') || currencyIndicator.includes('DÓLAR') || currencyIndicator.includes('DOLAR')) {
+          currency = 'USD';
+        } else if (currencyIndicator.includes('£') || currencyIndicator.includes('GBP') || currencyIndicator.includes('LIBRA')) {
+          currency = 'GBP';
+        }
+
+        if (!currency || currency === 'EUR') {
+          return match;
+        }
+
+        let cleanNumStr = numStr.trim();
+        const hasComma = cleanNumStr.includes(',');
+        const hasDot = cleanNumStr.includes('.');
+
+        if (hasComma && hasDot) {
+          const commaIndex = cleanNumStr.indexOf(',');
+          const dotIndex = cleanNumStr.indexOf('.');
+          if (commaIndex > dotIndex) {
+            cleanNumStr = cleanNumStr.replace(/\./g, '').replace(/,/g, '.');
+          } else {
+            cleanNumStr = cleanNumStr.replace(/,/g, '');
+          }
+        } else if (hasComma) {
+          const parts = cleanNumStr.split(',');
+          if (parts[1] && parts[1].length === 2) {
+            cleanNumStr = cleanNumStr.replace(/,/g, '.');
+          } else if (parts[1] && parts[1].length === 3) {
+            cleanNumStr = cleanNumStr.replace(/,/g, '');
+          } else {
+            cleanNumStr = cleanNumStr.replace(/,/g, '.');
+          }
+        } else if (hasDot) {
+          const parts = cleanNumStr.split('.');
+          if (parts[1] && parts[1].length === 2) {
+            // decimal dot
+          } else if (parts[1] && parts[1].length === 3) {
+            cleanNumStr = cleanNumStr.replace(/\./g, '');
+          }
+        }
+
+        const value = parseFloat(cleanNumStr);
+        if (isNaN(value)) return match;
+
+        const rate = rates[currency] || FALLBACK_RATES[currency] || 1;
+        const valueInEur = value / rate;
+
+        const eurString = valueInEur.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+        
+        return `${match} (${eurString})`;
+      });
+    };
+
     const totalIncome = allTenants.reduce((acc, t) => {
       const tIncome = Number(t.monthly_income || 0);
       const tCurrency = t.currency || 'EUR';
@@ -572,7 +636,8 @@ export async function POST(req: Request) {
             combinedNotes = tenant.ai_analysis_notes || tenant.notes || '';
           }
 
-          drawParagraph(combinedNotes, title);
+          const processedNotes = convertForeignAmountsInText(combinedNotes);
+          drawParagraph(processedNotes, title);
         }
       }
     }
