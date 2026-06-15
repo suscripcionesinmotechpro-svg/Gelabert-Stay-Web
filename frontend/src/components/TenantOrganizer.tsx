@@ -66,6 +66,89 @@ interface GroupedTenant {
   }[];
 }
 
+// Helper functions for fuzzy name matching and document merging
+const cleanDni = (dni: string): string => {
+  return dni.toLowerCase().replace(/[^a-z0-9]/g, '');
+};
+
+const cleanNameForMatching = (name: string): string => {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/\b(de|del|la|y|da|do|dos|e|o|s)\b/g, "") // remove common Spanish/Portuguese particles
+    .replace(/[^a-z0-9 ]/g, "") // remove special chars
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const areNamesSimilar = (cleanA: string, cleanB: string): boolean => {
+  if (cleanA === cleanB) return true;
+
+  // Split into word tokens of length > 2
+  const wordsA = cleanA.split(/\s+/).filter(w => w.length > 2);
+  const wordsB = cleanB.split(/\s+/).filter(w => w.length > 2);
+
+  if (wordsA.length === 0 || wordsB.length === 0) return false;
+
+  let commonCount = 0;
+  for (const wA of wordsA) {
+    if (wordsB.some(wB => wB === wA || wB.startsWith(wA) || wA.startsWith(wB))) {
+      commonCount++;
+    }
+  }
+
+  const minWords = Math.min(wordsA.length, wordsB.length);
+  if (minWords <= 2) {
+    return commonCount >= minWords;
+  }
+
+  const ratio = commonCount / minWords;
+  return ratio >= 0.75;
+};
+
+const mergeTenants = (existing: GroupedTenant, incoming: GroupedTenant): GroupedTenant => {
+  // Prefer the longer/more complete name
+  const existingNameLen = existing.firstName.length + existing.lastName.length;
+  const incomingNameLen = incoming.firstName.length + incoming.lastName.length;
+  const keepIncomingName = incomingNameLen > existingNameLen;
+
+  // Combine documents avoiding duplicates by queueItemId
+  const existingDocIds = new Set(existing.documents.map(d => d.queueItemId));
+  const mergedDocs = [...existing.documents];
+  for (const doc of incoming.documents) {
+    if (!existingDocIds.has(doc.queueItemId)) {
+      mergedDocs.push(doc);
+    }
+  }
+
+  // Combine notes, avoiding exact duplicate substrings
+  let mergedNotes = existing.notes || '';
+  if (incoming.notes && !mergedNotes.includes(incoming.notes)) {
+    mergedNotes = mergedNotes ? `${mergedNotes}\n\n${incoming.notes}` : incoming.notes;
+  }
+
+  return {
+    tempId: existing.tempId,
+    firstName: keepIncomingName ? incoming.firstName : existing.firstName,
+    lastName: keepIncomingName ? incoming.lastName : existing.lastName,
+    dni: existing.dni || incoming.dni,
+    email: existing.email || incoming.email,
+    phone: existing.phone || incoming.phone,
+    employmentStatus: existing.employmentStatus || incoming.employmentStatus,
+    companyName: existing.companyName || incoming.companyName,
+    jobTitle: existing.jobTitle || incoming.jobTitle,
+    seniorityDate: existing.seniorityDate || incoming.seniorityDate,
+    contractType: existing.contractType || incoming.contractType,
+    monthlyIncome: Math.max(existing.monthlyIncome, incoming.monthlyIncome),
+    notes: mergedNotes,
+    age: existing.age || incoming.age,
+    nationality: existing.nationality || incoming.nationality,
+    tenantType: existing.tenantType || incoming.tenantType,
+    documents: mergedDocs
+  };
+};
+
 export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -192,11 +275,12 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
 
   // Group analyzed documents by detected person name
   const organizeDocuments = () => {
-    const tenantsMap: Record<string, GroupedTenant> = {};
     const unassigned: typeof unassignedDocs = [];
 
     // Fetch the updated queue items
     setQueue(prevQueue => {
+      const tempTenantsList: GroupedTenant[] = [];
+
       prevQueue.forEach(item => {
         if (item.status !== 'completed' || !item.extractedData) {
           if (item.tempPath) {
@@ -210,8 +294,8 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
         }
 
         const data = item.extractedData.extracted_data;
-        const firstName = data.first_name || '';
-        const lastName = data.last_name || '';
+        const firstName = (data.first_name || '').trim();
+        const lastName = (data.last_name || '').trim();
         
         // If we can't extract a name, keep it unassigned
         if (!firstName && !lastName) {
@@ -225,43 +309,68 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
           return;
         }
 
-        const fullNameKey = `${firstName} ${lastName}`.trim().toLowerCase();
+        const detectedTypes = item.extractedData?.document_types || 
+                             (item.extractedData?.document_type ? [item.extractedData.document_type] : ['otro']);
 
-        if (!tenantsMap[fullNameKey]) {
-          tenantsMap[fullNameKey] = {
-            tempId: Math.random().toString(36).substring(7),
-            firstName: firstName || 'Inquilino',
-            lastName: lastName || 'Nuevo',
-            dni: data.dni || '',
-            email: '',
-            phone: '',
-            employmentStatus: data.employment_status || 'empleado',
-            companyName: data.company_name || '',
-            jobTitle: data.job_title || '',
-            seniorityDate: data.seniority_date || '',
-            contractType: data.contract_type || 'indefinido',
-            monthlyIncome: data.monthly_income || 0,
-            notes: data.notes || '',
-            age: data.age || null,
-            nationality: data.nationality || '',
-            tenantType: '',
-            documents: []
-          };
-        }
-
-        if (item.tempPath) {
-          const detectedTypes = item.extractedData?.document_types || 
-                               (item.extractedData?.document_type ? [item.extractedData.document_type] : ['otro']);
-          tenantsMap[fullNameKey].documents.push({
+        // Build a temporary GroupedTenant object for this file
+        const newTenant: GroupedTenant = {
+          tempId: Math.random().toString(36).substring(7),
+          firstName: firstName || 'Inquilino',
+          lastName: lastName || 'Nuevo',
+          dni: data.dni || '',
+          email: '',
+          phone: '',
+          employmentStatus: data.employment_status || 'empleado',
+          companyName: data.company_name || '',
+          jobTitle: data.job_title || '',
+          seniorityDate: data.seniority_date || '',
+          contractType: data.contract_type || 'indefinido',
+          monthlyIncome: data.monthly_income || 0,
+          notes: data.notes || '',
+          age: data.age || null,
+          nationality: data.nationality || '',
+          tenantType: '',
+          documents: item.tempPath ? [{
             queueItemId: item.id,
             fileName: item.file.name,
             documentTypes: detectedTypes,
             tempPath: item.tempPath
-          });
+          }] : []
+        };
+
+        // Try to find an existing tenant in tempTenantsList that is similar to newTenant
+        const cleanNameA = cleanNameForMatching(`${newTenant.firstName} ${newTenant.lastName}`);
+        const cleanDniA = newTenant.dni ? cleanDni(newTenant.dni) : '';
+
+        let matchedIdx = -1;
+        for (let idx = 0; idx < tempTenantsList.length; idx++) {
+          const t = tempTenantsList[idx];
+          const cleanNameB = cleanNameForMatching(`${t.firstName} ${t.lastName}`);
+          const cleanDniB = t.dni ? cleanDni(t.dni) : '';
+
+          // 1. Match by non-empty DNI/CPF
+          if (cleanDniA && cleanDniB && cleanDniA === cleanDniB) {
+            matchedIdx = idx;
+            break;
+          }
+
+          // 2. Match by Name Similarity
+          if (areNamesSimilar(cleanNameA, cleanNameB)) {
+            matchedIdx = idx;
+            break;
+          }
+        }
+
+        if (matchedIdx !== -1) {
+          // Merge newTenant into existing tenant
+          tempTenantsList[matchedIdx] = mergeTenants(tempTenantsList[matchedIdx], newTenant);
+        } else {
+          // Add as a new tenant profile
+          tempTenantsList.push(newTenant);
         }
       });
 
-      setGroupedTenants(Object.values(tenantsMap));
+      setGroupedTenants(tempTenantsList);
       setUnassignedDocs(unassigned);
       return prevQueue;
     });
@@ -931,6 +1040,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                                       { value: 'ingresos_trimestrales', label: 'Trimestral' },
                                       { value: 'vida_laboral', label: 'Vida Laboral' },
                                       { value: 'extracto_bancario', label: 'Extracto' },
+                                      { value: 'foto_perfil', label: 'Foto Perfil' },
                                       { value: 'otro', label: 'Otro' }
                                     ].map(type => {
                                       const isSelected = (doc.documentTypes || []).includes(type.value);

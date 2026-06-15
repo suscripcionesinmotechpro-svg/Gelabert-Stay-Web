@@ -187,6 +187,7 @@ const DOC_TYPE_PRIORITY: Record<string, number> = {
   modelo_autonomo: 5,
   vida_laboral: 6,
   extracto_bancario: 7,
+  foto_perfil: 90,
   otro: 99,
 };
 
@@ -208,6 +209,8 @@ function getDocumentTypeLabel(type: string) {
       return 'Vida Laboral';
     case 'extracto_bancario':
       return 'Extracto Bancario';
+    case 'foto_perfil':
+      return 'Foto de Perfil / Pareja / Familia';
     default:
       return 'Documentación Adicional';
   }

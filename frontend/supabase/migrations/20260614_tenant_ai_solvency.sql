@@ -25,5 +25,6 @@ ALTER TABLE public.tenant_documents ADD CONSTRAINT tenant_documents_document_typ
     'dni', 'contrato_arrendamiento', 'documento_reserva', 'encargo_servicios', 
     'ficha_visita', 'recibo_ibi', 'recibo_comunidad', 'factura_electricidad', 
     'factura_agua', 'factura_wifi', 'nota_simple',
-    'nomina', 'contrato_trabajo', 'declaracion_renta', 'modelo_autonomo', 'otro'
+    'nomina', 'contrato_trabajo', 'declaracion_renta', 'modelo_autonomo', 'otro',
+    'ingresos_trimestrales', 'vida_laboral', 'extracto_bancario', 'foto_perfil'
   ));
