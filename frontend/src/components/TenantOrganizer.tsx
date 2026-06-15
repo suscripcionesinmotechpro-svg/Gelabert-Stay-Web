@@ -16,6 +16,11 @@ interface UploadQueueItem {
   tempPath?: string;
   extractedData?: {
     document_type: string;
+    document_types?: string[];
+    pages?: {
+      page_number: number;
+      document_types: string[];
+    }[];
     confidence: number;
     extracted_data: {
       first_name: string | null;
@@ -441,7 +446,19 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
 
           // Insert a document row for each selected type
           const typesToSave = doc.documentTypes && doc.documentTypes.length > 0 ? doc.documentTypes : ['otro'];
+          const queueItem = queue.find(q => q.id === doc.queueItemId);
+          
           for (const type of typesToSave) {
+            let pageNumbers: number[] | null = null;
+            if (queueItem?.extractedData?.pages) {
+              const matchedPages = queueItem.extractedData.pages
+                .filter(p => p.document_types?.includes(type))
+                .map(p => p.page_number);
+              if (matchedPages.length > 0) {
+                pageNumbers = matchedPages;
+              }
+            }
+
             const { error: docErr } = await supabase
               .from('tenant_documents')
               .insert([{
@@ -451,7 +468,8 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                 file_name: doc.fileName,
                 file_path: finalPath,
                 file_url: fileUrl,
-                category: 'tenant'
+                category: 'tenant',
+                pages: pageNumbers
               }]);
 
             if (docErr) console.error('Error insertando registro de documento:', docErr);

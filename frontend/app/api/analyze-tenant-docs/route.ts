@@ -50,6 +50,8 @@ Clasifica el documento identificando todos los tipos de documentos de la siguien
 - 'modelo_autonomo' (Modelos fiscales de autónomos, IVA/IRPF)
 - 'otro' (Cualquier otro documento)
 
+Si el archivo tiene múltiples páginas (por ejemplo, es un PDF multi-página), debes clasificar CADA página individualmente indicando su número de página (1-based, es decir, 1, 2, 3...) y el tipo de documento correspondiente de la lista anterior. Devuelve este desglose en la clave "pages".
+
 Extrae todos los datos que puedas identificar. Si no encuentras un valor, devuélvelo como null.
 
 Es MUY importante que identifiques el nombre y apellidos del inquilino al que pertenecen. 
@@ -58,6 +60,12 @@ Devuelve la respuesta en formato JSON que cumpla exactamente con este esquema:
 {
   "document_type": "dni" | "nomina" | "contrato_trabajo" | "declaracion_renta" | "modelo_autonomo" | "otro", (El tipo de documento principal o más relevante)
   "document_types": ["dni", "nomina", "contrato_trabajo", "declaracion_renta", "modelo_autonomo", "otro"], (Lista conteniendo TODOS los tipos de documentos identificados en el archivo)
+  "pages": [
+    {
+      "page_number": 1,
+      "document_types": ["dni"] (Lista de tipos de documentos presentes en esta página concreta. Si una página contiene a la vez un DNI y una nómina, ponlos ambos: ["dni", "nomina"])
+    }
+  ],
   "confidence": 0.0 a 1.0,
   "extracted_data": {
     "first_name": "Nombre de pila del inquilino (texto o null)",

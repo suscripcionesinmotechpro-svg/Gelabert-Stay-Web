@@ -280,11 +280,27 @@ export async function POST(req: Request) {
     // 3. Obtener todos los documentos de la DB
     const { data: dbDocs } = await supabase
       .from('tenant_documents')
-      .select('id, tenant_id, document_type, file_name, file_path')
+      .select('id, tenant_id, document_type, file_name, file_path, pages')
       .in('tenant_id', tenantIds);
 
     if (!dbDocs || dbDocs.length === 0) {
       return NextResponse.json({ error: 'No se encontraron documentos en la base de datos para este grupo de inquilinos' }, { status: 400 });
+    }
+
+    // Filtrar reportes y expedientes ya unificados para evitar duplicaciones recursivas o mezclar la ficha de solvencia
+    const filteredDocs = dbDocs.filter(doc => {
+      const fileNameLower = (doc.file_name || '').toLowerCase();
+      const filePathLower = (doc.file_path || '').toLowerCase();
+      return !fileNameLower.includes('expediente_consolidado') &&
+             !fileNameLower.includes('ficha_solvencia') &&
+             !fileNameLower.includes('estudio_solvencia') &&
+             !filePathLower.includes('expediente_consolidado') &&
+             !filePathLower.includes('ficha_solvencia') &&
+             !filePathLower.includes('estudio_solvencia');
+    });
+
+    if (filteredDocs.length === 0) {
+      return NextResponse.json({ error: 'No se encontraron documentos válidos para compilar' }, { status: 400 });
     }
 
     const mergedPdf = await PDFDocument.create();
@@ -293,28 +309,31 @@ export async function POST(req: Request) {
 
     // Iterar por inquilinos y compilar sus documentos
     for (const tenant of allTenants) {
-      const rawTenantDocs = dbDocs.filter(d => d.tenant_id === tenant.id);
+      const rawTenantDocs = filteredDocs.filter(d => d.tenant_id === tenant.id);
       if (rawTenantDocs.length === 0) continue;
 
       // Generar Portada de Inquilino
       const roleLabel = tenant.tenant_type === 'avalista' ? 'Avalista' : 'Titular';
       await createTenantSeparatorPage(mergedPdf, `${tenant.first_name} ${tenant.last_name}`, roleLabel);
 
-      // Agrupar por archivo físico y ordenar por prioridad de tipo
-      // Esto evita que el mismo PDF aparezca múltiples veces si tiene varios tipos asignados
-      const groupedDocs = groupAndSortDocs(rawTenantDocs);
+      // Ordenar por prioridad de tipo de documento
+      const sortedDocs = [...rawTenantDocs].sort((a, b) => {
+        const pa = DOC_TYPE_PRIORITY[a.document_type] ?? 99;
+        const pb = DOC_TYPE_PRIORITY[b.document_type] ?? 99;
+        return pa - pb;
+      });
 
-      for (const docFile of groupedDocs) {
-        // Construir etiqueta combinada para el separador (e.g. "DNI / NIE + Contrato de Trabajo")
-        const typeLabel = docFile.types.map(t => getDocumentTypeLabel(t)).join(' + ');
-        await createDocumentSeparatorPage(mergedPdf, typeLabel, docFile.file_name);
+      for (const doc of sortedDocs) {
+        // Generar separador de documento para este tipo concreto
+        const typeLabel = getDocumentTypeLabel(doc.document_type);
+        await createDocumentSeparatorPage(mergedPdf, typeLabel, doc.file_name);
 
         const { data: fileData, error: downloadErr } = await supabase.storage
           .from('tenant-docs')
-          .download(docFile.file_path);
+          .download(doc.file_path);
 
         if (downloadErr || !fileData) {
-          console.error(`Error descargando para fusionar: ${docFile.file_path}`, downloadErr);
+          console.error(`Error descargando para fusionar: ${doc.file_path}`, downloadErr);
           continue;
         }
 
@@ -324,7 +343,17 @@ export async function POST(req: Request) {
         try {
           if (mimeType.includes('pdf')) {
             const pdf = await PDFDocument.load(buffer);
-            const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+            
+            // Si tiene páginas específicas asignadas a este tipo, extraer solo esas páginas (1-based a 0-based)
+            let pageIndicesToCopy = pdf.getPageIndices();
+            if (doc.pages && doc.pages.length > 0) {
+              const mapped = doc.pages.map((p: any) => Number(p) - 1).filter((idx: number) => idx >= 0 && idx < pdf.getPageCount());
+              if (mapped.length > 0) {
+                pageIndicesToCopy = mapped;
+              }
+            }
+
+            const copiedPages = await mergedPdf.copyPages(pdf, pageIndicesToCopy);
             copiedPages.forEach((page) => mergedPdf.addPage(page));
           } else if (mimeType.includes('image/jpeg') || mimeType.includes('image/jpg')) {
             const image = await mergedPdf.embedJpg(buffer);
@@ -358,7 +387,7 @@ export async function POST(req: Request) {
             console.warn(`Tipo de archivo no soportado para fusionar en PDF: ${mimeType}`);
           }
         } catch (pdfErr) {
-          console.error(`Error al procesar archivo en pdf-lib: ${docFile.file_path}`, pdfErr);
+          console.error(`Error al procesar archivo en pdf-lib: ${doc.file_path}`, pdfErr);
         }
       }
     }

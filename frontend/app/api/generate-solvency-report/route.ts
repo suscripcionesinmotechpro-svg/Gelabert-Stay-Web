@@ -29,21 +29,36 @@ export async function POST(req: Request) {
     const supabase = createServerSupabase(req);
 
     // 1. Obtener inquilino principal
-    const { data: primaryTenant, error: primaryErr } = await supabase
+    // 1. Obtener inquilino inicial
+    const { data: initialTenant, error: primaryErr } = await supabase
       .from('tenants')
       .select('*')
       .eq('id', tenantId)
       .single();
 
-    if (primaryErr || !primaryTenant) {
-      return NextResponse.json({ error: 'Inquilino principal no encontrado' }, { status: 404 });
+    if (primaryErr || !initialTenant) {
+      return NextResponse.json({ error: 'Inquilino no encontrado' }, { status: 404 });
     }
 
-    // 2. Obtener co-inquilinos asociados
-    const { data: coTenants, error: coErr } = await supabase
+    // Si es un co-inquilino, buscar el inquilino principal real
+    let primaryTenant = initialTenant;
+    const parentId = initialTenant.parent_tenant_id;
+    if (parentId) {
+      const { data: parentTenant } = await supabase
+        .from('tenants')
+        .select('*')
+        .eq('id', parentId)
+        .single();
+      if (parentTenant) {
+        primaryTenant = parentTenant;
+      }
+    }
+
+    // 2. Obtener co-inquilinos asociados al inquilino principal
+    const { data: coTenants } = await supabase
       .from('tenants')
       .select('*')
-      .eq('parent_tenant_id', tenantId);
+      .eq('parent_tenant_id', primaryTenant.id);
 
     const allTenants = [primaryTenant, ...(coTenants || [])];
 
@@ -434,7 +449,7 @@ export async function POST(req: Request) {
     }
 
     // ANÁLISIS DE LA IA / COMENTARIOS DE SOLVENCIA CONSOLIDADOS
-    const hasNotes = allTenants.some(t => t.ai_analysis_notes);
+    const hasNotes = allTenants.some(t => t.ai_analysis_notes || t.notes);
     if (hasNotes) {
       if (currentY - 30 < 55) {
         currentPage = createNewPage();
@@ -459,12 +474,18 @@ export async function POST(req: Request) {
       currentY -= 20;
 
       for (const tenant of allTenants) {
-        if (tenant.ai_analysis_notes) {
-          const isPrimary = !tenant.parent_tenant_id;
+        if (tenant.ai_analysis_notes || tenant.notes) {
           const label = tenant.tenant_type === 'avalista' ? 'Avalista' : 'Titular';
-
           const title = `Valoración de ${tenant.first_name} ${tenant.last_name} (${label})`;
-          drawParagraph(tenant.ai_analysis_notes, title);
+          
+          let combinedNotes = '';
+          if (tenant.notes && tenant.ai_analysis_notes) {
+            combinedNotes = `Notas del Agente:\n${tenant.notes}\n\nAnálisis de la IA:\n${tenant.ai_analysis_notes}`;
+          } else {
+            combinedNotes = tenant.ai_analysis_notes || tenant.notes || '';
+          }
+
+          drawParagraph(combinedNotes, title);
         }
       }
     }
