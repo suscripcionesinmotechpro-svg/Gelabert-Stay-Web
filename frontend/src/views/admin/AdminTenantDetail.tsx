@@ -354,7 +354,11 @@ export const AdminTenantDetail = () => {
               {tenant.monthly_income && (
                 <div>
                   <p className="font-primary text-[10px] text-[#555]">Ingresos Netos</p>
-                  <p className="font-primary text-sm text-[#C9A962] font-semibold">{(Number(tenant.monthly_income)).toLocaleString('es-ES')} € / mes</p>
+                  <p className="font-primary text-sm text-[#C9A962] font-semibold">
+                    {(Number(tenant.monthly_income)).toLocaleString('es-ES')}{' '}
+                    {tenant.currency === 'BRL' ? 'R$' : tenant.currency === 'USD' ? '$' : tenant.currency === 'GBP' ? '£' : '€'}{' '}
+                    / mes
+                  </p>
                 </div>
               )}
             </div>
@@ -383,7 +387,13 @@ export const AdminTenantDetail = () => {
                         {[co.age ? `${co.age} años` : null, co.nationality].filter(Boolean).join(' • ')}
                       </p>
                     )}
-                    {co.monthly_income && <p className="font-primary text-xs text-[#C9A962]">{(Number(co.monthly_income)).toLocaleString('es-ES')} €/mes</p>}
+                    {co.monthly_income && (
+                      <p className="font-primary text-xs text-[#C9A962]">
+                        {(Number(co.monthly_income)).toLocaleString('es-ES')}{' '}
+                        {co.currency === 'BRL' ? 'R$' : co.currency === 'USD' ? '$' : co.currency === 'GBP' ? '£' : '€'}{' '}
+                        / mes
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>

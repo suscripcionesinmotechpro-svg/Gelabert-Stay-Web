@@ -88,6 +88,7 @@ Devuelve la respuesta en formato JSON que cumpla exactamente con este esquema:
     "contract_type": "indefinido" | "temporal" | "otro" | null,
     "monthly_income": 1250.50 (Salario neto mensual extraído de nómina como número, o null),
     "annual_income": 18500.00 (Ingresos netos anuales extraídos de declaración de la renta como número, o null),
+    "currency": "EUR" | "BRL" | "USD" | "GBP" | null, (Código de la moneda de los ingresos o extractos, ej. 'EUR' para euros €, 'BRL' para reales brasileños R$, 'USD' para dólares $, etc. Default a 'EUR' si son documentos españoles),
     "age": 32 (Edad del inquilino como número entero, o null. Dúcela a partir de su fecha de nacimiento en el DNI si está disponible),
     "nationality": "Nacionalidad o país de origen del inquilino (texto o null, ej. 'española', 'italiana', 'colombiana')",
     "document_date": "Fecha del documento en formato YYYY-MM-DD (texto o null)",

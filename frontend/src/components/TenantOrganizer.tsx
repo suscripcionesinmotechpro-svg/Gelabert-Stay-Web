@@ -33,6 +33,7 @@ interface UploadQueueItem {
       contract_type: string | null;
       monthly_income: number | null;
       annual_income: number | null;
+      currency?: string | null;
       age: number | null;
       nationality: string | null;
       document_date: string | null;
@@ -54,6 +55,7 @@ interface GroupedTenant {
   seniorityDate: string;
   contractType: string;
   monthlyIncome: number;
+  currency: string;
   notes: string;
   age: number | null;
   nationality: string;
@@ -141,6 +143,7 @@ const mergeTenants = (existing: GroupedTenant, incoming: GroupedTenant): Grouped
     seniorityDate: existing.seniorityDate || incoming.seniorityDate,
     contractType: existing.contractType || incoming.contractType,
     monthlyIncome: Math.max(existing.monthlyIncome, incoming.monthlyIncome),
+    currency: existing.currency && existing.currency !== 'EUR' ? existing.currency : (incoming.currency || 'EUR'),
     notes: mergedNotes,
     age: existing.age || incoming.age,
     nationality: existing.nationality || incoming.nationality,
@@ -345,6 +348,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
           seniorityDate: data.seniority_date || '',
           contractType: data.contract_type || 'indefinido',
           monthlyIncome: data.monthly_income || 0,
+          currency: (data as any).currency || 'EUR',
           notes: data.notes || '',
           age: data.age || null,
           nationality: data.nationality || '',
@@ -538,7 +542,8 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
             ai_analysis_notes: gt.notes || null,
             age: gt.age || null,
             nationality: gt.nationality || null,
-            tenant_type: dbTenantType || 'titular'
+            tenant_type: dbTenantType || 'titular',
+            currency: gt.currency || 'EUR'
           }])
           .select('id')
           .single();
@@ -1003,13 +1008,25 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="font-primary text-[10px] uppercase tracking-wider text-[#555]">Ingresos Mensuales Netos (€)</label>
-                        <input 
-                          type="number" 
-                          value={tenant.monthlyIncome}
-                          onChange={(e) => handleTenantFieldChange(tenantIdx, 'monthlyIncome', Number(e.target.value))}
-                          className="bg-black border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] transition-colors"
-                        />
+                        <label className="font-primary text-[10px] uppercase tracking-wider text-[#555]">Ingresos Mensuales Netos</label>
+                        <div className="flex gap-2">
+                          <input 
+                            type="number" 
+                            value={tenant.monthlyIncome}
+                            onChange={(e) => handleTenantFieldChange(tenantIdx, 'monthlyIncome', Number(e.target.value))}
+                            className="bg-black border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] transition-colors flex-1 min-w-0"
+                          />
+                          <select 
+                            value={tenant.currency || 'EUR'}
+                            onChange={(e) => handleTenantFieldChange(tenantIdx, 'currency', e.target.value)}
+                            className="bg-black border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] transition-colors cursor-pointer w-24"
+                          >
+                            <option value="EUR">EUR (€)</option>
+                            <option value="BRL">BRL (R$)</option>
+                            <option value="USD">USD ($)</option>
+                            <option value="GBP">GBP (£)</option>
+                          </select>
+                        </div>
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <label className="font-primary text-[10px] uppercase tracking-wider text-[#555]">Situación Laboral</label>

@@ -246,8 +246,60 @@ export async function POST(req: Request) {
 
     let currentY = height - 140;
 
-    // RESUMEN FINANCIERO Y DE ESFUERZO
-    const totalIncome = allTenants.reduce((acc, t) => acc + Number(t.monthly_income || 0), 0);
+    // RESUMEN FINANCIERO Y DE ESFUERZO CON DYNAMIC EXCHANGE RATES
+    const FALLBACK_RATES: Record<string, number> = {
+      EUR: 1,
+      BRL: 6.0,
+      USD: 1.08,
+      GBP: 0.85
+    };
+    let rates = FALLBACK_RATES;
+    try {
+      const res = await fetch('https://open.er-api.com/v6/latest/EUR', { 
+        signal: AbortSignal.timeout(4000) 
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.result === 'success' && data.rates) {
+          rates = { ...FALLBACK_RATES, ...data.rates };
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching exchange rates:', err);
+    }
+
+    const getIncomeInEur = (income: number, currency?: string | null) => {
+      const cleanCurrency = (currency || 'EUR').toUpperCase();
+      const rate = rates[cleanCurrency] || FALLBACK_RATES[cleanCurrency] || 1;
+      return income / rate;
+    };
+
+    const formatTenantIncome = (income: number, currency?: string | null) => {
+      const cleanCurrency = (currency || 'EUR').toUpperCase();
+      const rate = rates[cleanCurrency] || FALLBACK_RATES[cleanCurrency] || 1;
+      const incomeInEur = income / rate;
+
+      const eurString = incomeInEur.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+
+      if (cleanCurrency === 'EUR') {
+        return eurString;
+      }
+
+      let localSymbol = cleanCurrency;
+      if (cleanCurrency === 'BRL') localSymbol = 'R$';
+      else if (cleanCurrency === 'USD') localSymbol = '$';
+      else if (cleanCurrency === 'GBP') localSymbol = '£';
+
+      const localAmountString = income.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return `${localAmountString} ${localSymbol} (${eurString})`;
+    };
+
+    const totalIncome = allTenants.reduce((acc, t) => {
+      const tIncome = Number(t.monthly_income || 0);
+      const tCurrency = t.currency || 'EUR';
+      return acc + getIncomeInEur(tIncome, tCurrency);
+    }, 0);
+
     const effortRate = totalIncome > 0 && rentPrice > 0 ? (rentPrice / totalIncome) * 100 : 0;
 
     // Determinar nivel de riesgo y recomendación
@@ -433,7 +485,7 @@ export async function POST(req: Request) {
         font: fontHelvetica,
         color: colorCharcoal,
       });
-      currentPage.drawText(`Ingresos Declarados: ${(Number(tenant.monthly_income || 0)).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} / mes`, {
+      currentPage.drawText(`Ingresos Declarados: ${formatTenantIncome(Number(tenant.monthly_income || 0), tenant.currency)} / mes`, {
         x: 280,
         y: currentY - 75,
         size: 9,

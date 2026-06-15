@@ -12,6 +12,7 @@ ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS monthly_income NUMERIC(10,2)
 ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS annual_income NUMERIC(10,2);
 ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS solvency_score TEXT;
 ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS ai_analysis_notes TEXT;
+ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS currency TEXT DEFAULT 'EUR';
 
 -- 3. Vincular documentos a un inquilino específico (además de al contrato)
 ALTER TABLE public.tenant_documents ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES public.tenants(id) ON DELETE SET NULL;
