@@ -797,6 +797,29 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                   </button>
                 </div>
               </div>
+              {queue.filter(x => x.status === 'error').length > 0 && !isProcessing && (
+                <div className="bg-red-950/20 border border-red-500/25 p-4 rounded-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-primary text-xs text-red-200 font-semibold">
+                        {queue.filter(x => x.status === 'error').length === 1 
+                          ? '1 documento falló al ser analizado.' 
+                          : `${queue.filter(x => x.status === 'error').length} documentos fallaron al ser analizados.`}
+                      </p>
+                      <p className="font-primary text-[11px] text-[#888] mt-0.5">
+                        Esto puede deberse a un límite de tiempo (timeout) si el archivo es muy grande. Puedes reintentar procesar los documentos fallidos.
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={startProcessing}
+                    className="flex-shrink-0 px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-200 font-primary font-bold text-[10px] uppercase tracking-wider transition-all self-stretch sm:self-auto text-center"
+                  >
+                    Reintentar fallidos
+                  </button>
+                </div>
+              )}
 
               {/* Progress items */}
               <div className="max-h-60 overflow-y-auto flex flex-col gap-2 pr-2">
@@ -804,8 +827,15 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                   <div key={item.id} className="flex items-center justify-between bg-black/40 border border-[#111] px-4 py-3 rounded-sm">
                     <div className="flex items-center gap-3 truncate mr-4">
                       <FileText className="w-4 h-4 text-[#C9A962] flex-shrink-0" />
-                      <span className="font-primary text-sm text-[#FAF8F5] truncate">{item.file.name}</span>
-                      <span className="font-primary text-[10px] text-[#555]">({(item.file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                      <div className="flex flex-col truncate">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-primary text-sm text-[#FAF8F5] truncate">{item.file.name}</span>
+                          <span className="font-primary text-[10px] text-[#555]">({(item.file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                        </div>
+                        {item.status === 'error' && item.errorMsg && (
+                          <span className="font-primary text-[11px] text-red-400 mt-0.5 truncate">{item.errorMsg}</span>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-3 flex-shrink-0">
