@@ -1397,7 +1397,7 @@ export const FichaPropiedad = () => {
                         }`}>
                           {service.included 
                             ? (t('services.included', 'Incluido') as string)
-                            : (t('services.separate', 'Aparte') as string)}
+                            : `${t('services.separate', 'Aparte') as string} ${t(`services.periods.${service.limit_period || 'mensual'}`, service.limit_period || 'mensual') as string}`}
                         </span>
                       </div>
 
