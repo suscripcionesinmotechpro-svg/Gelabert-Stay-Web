@@ -685,7 +685,11 @@ export const AdminPropertiesList = () => {
       );
       const result = await res.json();
       if (result.error) {
-        toast.error(`Idealista: ${result.error}`);
+        showError(
+          'Error al sincronizar con Idealista',
+          result.error,
+          JSON.stringify(result, null, 2)
+        );
         setIdealistaStatuses(prev => ({ ...prev, [p.id]: 'error' }));
       } else {
         const newStatus = action === 'publish' ? 'published' : 'not_published';
@@ -693,7 +697,11 @@ export const AdminPropertiesList = () => {
         toast.success(action === 'publish' ? '✅ Publicado en Idealista' : '☁️ Desactivado en Idealista');
       }
     } catch (err: any) {
-      toast.error(`Error de conexión: ${err.message}`);
+      showError(
+        'Error de conexión con Idealista',
+        err.message,
+        err.stack || undefined
+      );
       setIdealistaStatuses(prev => ({ ...prev, [p.id]: 'error' }));
     } finally {
       setIdealistaLoading(null);
@@ -740,17 +748,29 @@ export const AdminPropertiesList = () => {
       
       if (!res.ok || result.error) {
         const errMsg = result.error || 'Error desconocido del servidor.';
-        toast.error(`${platformLabel}: ${errMsg}`);
+        showError(
+          `Error de servidor en ${platformLabel}`,
+          errMsg,
+          JSON.stringify(result, null, 2)
+        );
         setStatuses(prev => ({ ...prev, [p.id]: 'error' }));
         return;
       }
 
       const platformResult = result[platform];
       if (platformResult?.error) {
-        toast.error(`${platformLabel}: ${platformResult.error}`);
+        showError(
+          `Error al publicar en ${platformLabel}`,
+          platformResult.error,
+          JSON.stringify(platformResult, null, 2)
+        );
         setStatuses(prev => ({ ...prev, [p.id]: 'error' }));
       } else if (!isPublished && !platformResult?.postId) {
-        toast.error(`${platformLabel}: No se pudo publicar. Verifique la configuración en Supabase.`);
+        showError(
+          `Error al publicar en ${platformLabel}`,
+          'No se pudo publicar. Verifique la configuración en Supabase.',
+          JSON.stringify(result, null, 2)
+        );
         setStatuses(prev => ({ ...prev, [p.id]: 'error' }));
       } else {
         const newStatus = isPublished ? 'not_published' : 'published';
@@ -758,7 +778,11 @@ export const AdminPropertiesList = () => {
         toast.success(isPublished ? `☁️ Desactivado en ${platformLabel}` : `✅ Publicado en ${platformLabel}`);
       }
     } catch (err: any) {
-      toast.error(`Error de conexión: ${err.message}`);
+      showError(
+        `Error de conexión en ${platformLabel}`,
+        err.message,
+        err.stack || undefined
+      );
       setStatuses(prev => ({ ...prev, [p.id]: 'error' }));
     } finally {
       setLoading(null);
@@ -841,7 +865,11 @@ export const AdminPropertiesList = () => {
       );
       const result = await res.json();
       if (result.error) {
-        toast.error(`Error guardando: ${result.error}`);
+        showError(
+          'Error al guardar vinculación de Idealista',
+          result.error,
+          JSON.stringify(result, null, 2)
+        );
       } else {
         toast.success(`✅ ${result.saved} propiedades vinculadas con Idealista`);
         setImportModalOpen(false);
@@ -854,7 +882,11 @@ export const AdminPropertiesList = () => {
         });
       }
     } catch (err: any) {
-      toast.error(`Error: ${err.message}`);
+      showError(
+        'Error de conexión al guardar vinculación de Idealista',
+        err.message,
+        err.stack || undefined
+      );
     } finally {
       setImportSaving(false);
     }

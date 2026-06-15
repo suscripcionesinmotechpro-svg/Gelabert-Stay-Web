@@ -16,6 +16,7 @@ import { useJsApiLoader, Autocomplete } from '@react-google-maps/api';
 import { RoomManager } from '../../components/admin/RoomManager';
 import { CommonAreaManager } from '../../components/admin/CommonAreaManager';
 import type { PropertyVideo } from '../../types/property';
+import { ErrorDetailBox, useErrorDetail } from '../../components/admin/ErrorDetailBox';
 import { triggerNetlifyBuild } from '../../utils/triggerBuild';
 
 const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"];
@@ -139,7 +140,7 @@ export const AgentPropertyForm = () => {
   const { createProperty, updateProperty } = usePropertyMutations();
   const [form, setForm] = useState<Partial<PropertyInsert>>(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { errorDetail, showError, clearError } = useErrorDetail();
   const [uploadingImages, setUploadingImages] = useState(false);
   const [enhanceImages, setEnhanceImages] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -393,7 +394,7 @@ export const AgentPropertyForm = () => {
     if (!files.length) return;
     setUploadingImages(true);
     setUploadProgress({ current: 0, total: files.length, status: 'Iniciando procesamiento...' });
-    setError(null);
+    clearError();
     try {
       const urls: string[] = [];
       let currentIdx = 0;
@@ -413,7 +414,7 @@ export const AgentPropertyForm = () => {
       }
       handleImagesChange([...allImages, ...urls]);
     } catch (err) { 
-      setError(err instanceof Error ? err.message : 'Error subiendo imágenes'); 
+      showError('Error al subir imágenes', err instanceof Error ? err.message : 'Error desconocido'); 
     } finally { 
       setUploadingImages(false); 
       setUploadProgress(null);
@@ -425,7 +426,7 @@ export const AgentPropertyForm = () => {
     if (files.length === 0) return;
     
     setUploadingVideo(true);
-    setError(null);
+    clearError();
     try {
       const urls: string[] = [];
       for (const file of files) {
@@ -441,7 +442,7 @@ export const AgentPropertyForm = () => {
       const newVids: PropertyVideo[] = urls.map(url => ({ url, title: 'Vídeo' }));
       handleVideosChange([...currentVideos, ...newVids]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error subiendo vídeo');
+      showError('Error al subir vídeo', err instanceof Error ? err.message : 'Error desconocido');
     } finally {
       setUploadingVideo(false);
     }
@@ -546,7 +547,7 @@ export const AgentPropertyForm = () => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
     setUploadingFloorPlan(true);
-    setError(null);
+    clearError();
     try {
       const urls: string[] = [];
       for (const file of files) {
@@ -558,7 +559,7 @@ export const AgentPropertyForm = () => {
       }
       handleFloorPlansChange([...allFloorPlans, ...urls]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error subiendo plano');
+      showError('Error al subir plano', err instanceof Error ? err.message : 'Error desconocido');
     } finally {
       setUploadingFloorPlan(false);
     }
@@ -601,7 +602,11 @@ export const AgentPropertyForm = () => {
       }
     } catch (err: any) {
       console.error('Error generando descripción con IA:', err);
-      alert('Hubo un error al generar la descripción: ' + (err.message || err));
+      showError(
+        'Error al generar descripción con IA',
+        err.message || String(err),
+        err.stack || undefined
+      );
     } finally {
       setGeneratingAIDesc(false);
     }
@@ -653,11 +658,11 @@ export const AgentPropertyForm = () => {
   };
 
   const handleSave = async (targetStatus?: PropertyStatus) => {
-    if (!form.title?.trim()) { setError('El título es obligatorio'); return; }
-    if (!form.operation) { setError('El tipo de operación es obligatorio'); return; }
+    if (!form.title?.trim()) { showError('Campo obligatorio', 'El título es obligatorio'); return; }
+    if (!form.operation) { showError('Campo obligatorio', 'El tipo de operación es obligatorio'); return; }
     
     setSaving(true);
-    setError(null);
+    clearError();
     
     try {
       // 1. Clonar el estado para limpieza
@@ -785,11 +790,19 @@ export const AgentPropertyForm = () => {
       
       // Control de errores de duplicados (23505)
       if (err.code === '23505' && (err.message?.includes('properties_reference_key') || err.details?.includes('properties_reference_key'))) {
-        setError('El número de referencia introducido ya está en uso por otra propiedad. Por favor, especifica una referencia única o añade una variación (ej. GEL-102-01).');
+        showError(
+          'Error al guardar la propiedad',
+          'El número de referencia introducido ya está en uso por otra propiedad. Por favor, especifica una referencia única o añade una variación (ej. GEL-102-01).',
+          JSON.stringify(err, null, 2)
+        );
       } else {
         const errorMessage = err.message || err.details || 'Error al guardar';
         const errorCode = err.code ? ` (${err.code})` : '';
-        setError(`${errorMessage}${errorCode}`);
+        showError(
+          'Error al guardar la propiedad',
+          `${errorMessage}${errorCode}`,
+          JSON.stringify(err, null, 2)
+        );
       }
     } finally {
       setSaving(false);
@@ -857,7 +870,14 @@ export const AgentPropertyForm = () => {
         </div>
       </div>
 
-      {error && <div className="bg-red-500/10 border border-red-500/30 p-4"><p className="font-primary text-red-400 text-sm">{error}</p></div>}
+      {errorDetail && (
+        <ErrorDetailBox
+          title={errorDetail.title}
+          error={errorDetail.error}
+          details={errorDetail.details}
+          onClose={clearError}
+        />
+      )}
 
       {/* INFORMACIÓN PRINCIPAL */}
       <div className={sectionClass}>

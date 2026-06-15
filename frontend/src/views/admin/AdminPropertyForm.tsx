@@ -601,7 +601,11 @@ export const AdminPropertyForm = () => {
       }
     } catch (err: any) {
       console.error('Error generando descripción con IA:', err);
-      alert('Hubo un error al generar la descripción: ' + (err.message || err));
+      showError(
+        'Error al generar descripción con IA',
+        err.message || String(err),
+        err.stack || undefined
+      );
     } finally {
       setGeneratingAIDesc(false);
     }

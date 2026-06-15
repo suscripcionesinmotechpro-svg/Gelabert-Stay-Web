@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
+import { Copy, Check, ChevronDown, ChevronUp, AlertTriangle, X } from 'lucide-react';
 
 interface ErrorDetailBoxProps {
   title: string;        // e.g. "Error al publicar en Idealista"
@@ -9,12 +9,12 @@ interface ErrorDetailBoxProps {
 }
 
 /**
- * Shows a styled error box with the full error detail and a one-click copy button.
- * Designed for admin panels so users can copy & paste errors for support.
+ * Shows a styled error box as a MODAL overlay with the full error detail and a one-click copy button.
+ * Designed for admin and agent panels so users can copy & paste errors easily.
  */
 export const ErrorDetailBox = ({ title, error, details, onClose }: ErrorDetailBoxProps) => {
   const [copied, setCopied] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true); // Default to true so they see everything
 
   const fullText = [
     `=== ${title} ===`,
@@ -43,85 +43,111 @@ export const ErrorDetailBox = ({ title, error, details, onClose }: ErrorDetailBo
   };
 
   return (
-    <div className="w-full border border-red-500/30 bg-red-500/5 rounded-sm overflow-hidden">
-      {/* Header row */}
-      <div className="flex items-start justify-between gap-3 p-3 border-b border-red-500/20">
-        <div className="flex items-start gap-2 min-w-0">
-          <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-          <div className="min-w-0">
-            <p className="font-primary text-red-400 text-xs font-bold uppercase tracking-wide">
-              {title}
-            </p>
-            <p className="font-primary text-red-300/80 text-xs mt-0.5 break-words">
-              {error}
-            </p>
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-xs z-[99999] flex items-center justify-center p-4">
+      {/* Modal Card */}
+      <div className="w-full max-w-2xl bg-[#0A0A0A] border border-red-500/40 rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-150">
+        
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3 p-4 border-b border-red-500/20 bg-red-950/10">
+          <div className="flex items-start gap-2.5 min-w-0">
+            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <h3 className="font-primary text-red-400 text-sm font-bold uppercase tracking-wider">
+                {title}
+              </h3>
+              <p className="font-primary text-white/40 text-[10px] mt-0.5">
+                {new Date().toLocaleString('es-ES')}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          {/* Copy button */}
-          <button
-            type="button"
-            onClick={handleCopy}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider border rounded-sm transition-all font-primary ${
-              copied
-                ? 'bg-green-500/10 border-green-500/30 text-green-400'
-                : 'bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20'
-            }`}
-            title="Copiar error completo"
-          >
-            {copied ? (
-              <><Check className="w-3 h-3" /> Copiado</>
-            ) : (
-              <><Copy className="w-3 h-3" /> Copiar</>
-            )}
-          </button>
-          {/* Expand/collapse if there are details */}
-          {details && (
-            <button
-              type="button"
-              onClick={() => setExpanded(e => !e)}
-              className="flex items-center gap-1 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider border border-red-500/20 text-red-400/60 hover:text-red-400 rounded-sm transition-all font-primary"
-              title="Ver detalles técnicos"
-            >
-              {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              {expanded ? 'Menos' : 'Más'}
-            </button>
-          )}
-          {/* Close button */}
           {onClose && (
             <button
               type="button"
               onClick={onClose}
-              className="w-6 h-6 flex items-center justify-center text-red-400/40 hover:text-red-400 transition-colors text-lg leading-none"
+              className="w-6 h-6 flex items-center justify-center text-white/30 hover:text-white transition-colors hover:bg-white/5 rounded"
               title="Cerrar"
             >
-              ×
+              <X className="w-4 h-4" />
             </button>
           )}
         </div>
-      </div>
 
-      {/* Expandable technical details */}
-      {details && expanded && (
-        <div className="p-3 bg-black/30">
-          <pre className="font-mono text-[10px] text-red-300/60 whitespace-pre-wrap break-all leading-relaxed">
-            {details}
-          </pre>
+        {/* Scrollable Error Info */}
+        <div className="p-5 flex flex-col gap-4 overflow-y-auto min-h-0">
+          {/* Main error message */}
+          <div className="flex flex-col gap-1.5">
+            <span className="font-primary text-[10px] text-white/40 uppercase tracking-widest font-black">
+              Mensaje de Error
+            </span>
+            <div className="w-full bg-[#050505] border border-[#1A1A1A] p-4 max-h-48 overflow-y-auto whitespace-pre-wrap break-words font-mono text-xs text-red-400/90 rounded selection:bg-red-500/20 leading-relaxed">
+              {error}
+            </div>
+          </div>
+
+          {/* Technical Details */}
+          {details && (
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <span className="font-primary text-[10px] text-white/40 uppercase tracking-widest font-black">
+                  Detalles Técnicos / Stack Trace
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setExpanded(e => !e)}
+                  className="font-primary text-[10px] text-[#C9A962] hover:underline uppercase tracking-wider"
+                >
+                  {expanded ? 'Ocultar Detalles' : 'Ver Detalles'}
+                </button>
+              </div>
+              
+              {expanded && (
+                <pre className="w-full bg-[#050505] border border-[#1A1A1A] p-4 max-h-72 overflow-y-auto whitespace-pre-wrap break-all font-mono text-[10px] text-red-400/60 rounded leading-relaxed selection:bg-red-500/20">
+                  {details}
+                </pre>
+              )}
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Footer Actions */}
+        <div className="flex items-center justify-between gap-3 p-4 bg-[#050505] border-t border-[#1F1F1F]">
+          <span className="text-[10px] font-primary text-white/20 select-none">
+            Gelabert Homes CRM
+          </span>
+          <div className="flex items-center gap-2">
+            {/* Copy button */}
+            <button
+              type="button"
+              onClick={handleCopy}
+              className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold uppercase tracking-wider border rounded transition-all font-primary ${
+                copied
+                  ? 'bg-green-500/10 border-green-500/30 text-green-400'
+                  : 'bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500/20'
+              }`}
+              title="Copiar error al portapapeles"
+            >
+              {copied ? (
+                <><Check className="w-4 h-4" /> ¡Copiado!</>
+              ) : (
+                <><Copy className="w-4 h-4" /> Copiar Error</>
+              )}
+            </button>
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2.5 text-xs font-bold uppercase tracking-wider border border-[#1F1F1F] bg-[#0A0A0A] hover:bg-[#151515] text-[#FAF8F5]/80 hover:text-white rounded transition-all font-primary"
+              >
+                Cerrar
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-/**
- * Hook to manage a single error detail state.
- * Usage:
- *   const { errorDetail, showError, clearError } = useErrorDetail();
- *   ...
- *   showError('Error en Idealista', result.error, JSON.stringify(result, null, 2));
- *   ...
- *   {errorDetail && <ErrorDetailBox {...errorDetail} onClose={clearError} />}
- */
 export interface ErrorDetailState {
   title: string;
   error: string;
