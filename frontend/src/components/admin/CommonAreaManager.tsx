@@ -7,6 +7,7 @@ import { SortableImageGallery } from './SortableImageGallery';
 interface CommonAreaManagerProps {
   areas: PropertyCommonArea[];
   onChange: (areas: PropertyCommonArea[]) => void;
+  autoEnhance?: boolean;
 }
 
 const inputClass = "w-full h-10 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
@@ -24,16 +25,16 @@ const COMMON_AREA_TYPES = [
   { value: 'otro', label: 'Otro' }
 ];
 
-export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({ areas, onChange }) => {
+export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({ areas, onChange, autoEnhance = true }) => {
   const [uploading, setUploading] = useState<string | null>(null);
 
   const addArea = () => {
     const newArea: PropertyCommonArea = {
       id: Math.random().toString(36).substr(2, 9),
-      type: 'otro',
+      type: 'general',
       name: '',
       images: [],
-      is_private: false
+      videos: []
     };
     onChange([...areas, newArea]);
   };
@@ -58,7 +59,7 @@ export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({ areas, onC
     try {
       const urls: string[] = [];
       for (const f of files) {
-        const url = await uploadPropertyMedia(f, 'gallery');
+        const url = await uploadPropertyMedia(f, 'gallery', undefined, undefined, autoEnhance);
         urls.push(url);
       }
       const currentImages = areas[index].images || [];

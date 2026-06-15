@@ -460,12 +460,13 @@ export const uploadPropertyMedia = async (
   rawFile: File, 
   folder = 'main', 
   roomText?: string,
-  onProgress?: (status: string) => void
+  onProgress?: (status: string) => void,
+  autoEnhance = true
 ): Promise<string> => {
   // Apply lossless watermark automatically (only affects images, leaves PDFs/Videos intact)
   // Disable AI enhancement for floor plans (they should keep original contrast/colors)
-  const autoEnhance = folder !== 'floor-plans';
-  const file = await applyWatermark(rawFile, roomText, autoEnhance, onProgress);
+  const shouldEnhance = folder !== 'floor-plans' && autoEnhance;
+  const file = await applyWatermark(rawFile, roomText, shouldEnhance, onProgress);
   
   const ext = file.name.split('.').pop()?.toLowerCase();
   const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;

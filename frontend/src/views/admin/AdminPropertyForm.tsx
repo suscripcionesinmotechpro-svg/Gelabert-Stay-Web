@@ -139,6 +139,7 @@ export const AdminPropertyForm = () => {
   const [saving, setSaving] = useState(false);
   const { errorDetail, showError, clearError } = useErrorDetail();
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [enhanceImages, setEnhanceImages] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadingFloorPlan, setUploadingFloorPlan] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number; status: string } | null>(null);
@@ -393,7 +394,8 @@ export const AdminPropertyForm = () => {
           undefined,
           (statusText) => {
             setUploadProgress(prev => prev ? { ...prev, status: `${f.name}: ${statusText}` } : null);
-          }
+          },
+          enhanceImages
         );
         urls.push(processed);
       }
@@ -1157,6 +1159,7 @@ export const AdminPropertyForm = () => {
             rooms={form.rooms || []} 
             onChange={(rooms: any[]) => set('rooms', rooms)}
             propertyId={isEditing ? id : undefined}
+            autoEnhance={enhanceImages}
           />
         </div>
       )}
@@ -1167,6 +1170,7 @@ export const AdminPropertyForm = () => {
           <CommonAreaManager 
             areas={form.common_areas || []} 
             onChange={(areas: any[]) => set('common_areas', areas)}
+            autoEnhance={enhanceImages}
           />
         </div>
       )}
@@ -1694,6 +1698,20 @@ export const AdminPropertyForm = () => {
               ? 'Zonas Comunes (Fotos)'
               : "Multimedia"}
         </h2>
+
+        <div className="flex items-center gap-3 mb-4 select-none">
+          <label className="flex items-center gap-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={enhanceImages}
+              onChange={(e) => setEnhanceImages(e.target.checked)}
+              className="w-4 h-4 rounded border-[#1F1F1F] bg-[#0A0A0A] text-[#C9A962] accent-[#C9A962] focus:ring-0 focus:ring-offset-0"
+            />
+            <span className="font-primary text-xs text-[#FAF8F5]/80 hover:text-[#FAF8F5] transition-colors">
+              Mejorar brillo, contraste y color con Inteligencia Artificial (Gemini)
+            </span>
+          </label>
+        </div>
 
         <SortableImageGallery 
           images={allImages}

@@ -9,12 +9,13 @@ interface RoomManagerProps {
   rooms: PropertyRoom[];
   onChange: (rooms: PropertyRoom[]) => void;
   propertyId?: string;
+  autoEnhance?: boolean;
 }
 
 const inputClass = "w-full h-10 bg-[#0A0A0A] border border-[#1F1F1F] px-3 font-primary text-[#FAF8F5] text-sm outline-none focus:border-[#C9A962] transition-colors placeholder:text-[#444444]";
 const labelClass = "font-primary text-[10px] text-[#666666] uppercase tracking-wider mb-1 font-bold";
 
-export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, propertyId }) => {
+export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, propertyId, autoEnhance = true }) => {
   const [uploading, setUploading] = useState<string | null>(null);
   const { contracts } = usePropertyContracts(propertyId);
   const today = new Date().toISOString().split('T')[0];
@@ -55,7 +56,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
 
       const urls: string[] = [];
       for (const f of files) {
-        const url = await uploadPropertyMedia(f, 'gallery', roomText);
+        const url = await uploadPropertyMedia(f, 'gallery', roomText, undefined, autoEnhance);
         urls.push(url);
       }
       const currentImages = room.images || [];
