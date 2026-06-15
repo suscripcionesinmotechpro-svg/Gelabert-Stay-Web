@@ -56,6 +56,13 @@ Extrae todos los datos que puedas identificar. Si no encuentras un valor, devué
 
 Es MUY importante que identifiques el nombre y apellidos del inquilino al que pertenecen. 
 
+En el campo "notes" de "extracted_data", debes proporcionar un resumen ejecutivo redactado de la solvencia del inquilino.
+Reglas estrictas para el resumen en "notes":
+1. Debe ser un texto fluido y redactado profesionalmente describiendo el perfil laboral y financiero del inquilino. Ejemplo correcto: "El inquilino Carlos Ramon Tapias Peña es empleado con contrato indefinido como Mozo Especialista en VILLALOBOS LOGISTICA S.L. Su antigüedad laboral es desde el 24 de junio de 2020. Sus ingresos netos mensuales, según las últimas nóminas, oscilan entre 1388.31€ y 1612.46€. Posee un permiso de residencia y trabajo válido."
+2. NO debe mencionar qué documentos se han presentado ni detallar el listado de archivos (EVITA frases como: "Se han proporcionado tres nóminas correspondientes a febrero, marzo y abril de 2026, con ingresos netos mensuales de 2136.34€...").
+3. Si el archivo contiene nóminas de múltiples meses (ej. marzo, abril, mayo), especifica detalladamente los ingresos netos de cada mes en el texto (ej. "habiendo percibido 2130€ en marzo, 2400€ en abril...").
+4. Céntrate en la información sustancial del perfil laboral, tipo de contrato, antigüedad laboral, e ingresos netos.
+
 Devuelve la respuesta en formato JSON que cumpla exactamente con este esquema:
 {
   "document_type": "dni" | "nomina" | "contrato_trabajo" | "declaracion_renta" | "modelo_autonomo" | "otro", (El tipo de documento principal o más relevante)
@@ -81,7 +88,7 @@ Devuelve la respuesta en formato JSON que cumpla exactamente con este esquema:
     "age": 32 (Edad del inquilino como número entero, o null. Dúcela a partir de su fecha de nacimiento en el DNI si está disponible),
     "nationality": "Nacionalidad o país de origen del inquilino (texto o null, ej. 'española', 'italiana', 'colombiana')",
     "document_date": "Fecha del documento en formato YYYY-MM-DD (texto o null)",
-    "notes": "Breve resumen de solvencia (texto o null)"
+    "notes": "Resumen ejecutivo de solvencia y perfil laboral siguiendo las reglas estrictas (texto o null)"
   }
 }`;
 
