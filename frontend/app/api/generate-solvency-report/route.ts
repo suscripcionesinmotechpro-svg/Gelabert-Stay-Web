@@ -149,37 +149,48 @@ export async function POST(req: Request) {
         currentY -= 15;
       }
 
-      const words = text.split(' ');
-      let line = '';
-      const lines: string[] = [];
-
-      for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
-        const testWidth = fontHelvetica.widthOfTextAtSize(testLine, 8.5);
-        if (testWidth > width - 100 && n > 0) {
-          lines.push(line.trim());
-          line = words[n] + ' ';
-        } else {
-          line = testLine;
+      // Separar el texto en párrafos por saltos de línea primero para evitar el error de WinAnsi con \n
+      const rawParagraphs = text.split(/\r?\n/);
+      
+      for (const paragraph of rawParagraphs) {
+        if (paragraph.trim() === '') {
+          currentY -= 8; // Salto de línea vacío
+          continue;
         }
-      }
-      lines.push(line.trim());
 
-      for (const lineStr of lines) {
-        if (currentY - 14 < 55) {
-          currentPage = createNewPage();
-          currentY = height - 80;
+        const words = paragraph.split(' ');
+        let line = '';
+        const lines: string[] = [];
+
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + words[n] + ' ';
+          const testWidth = fontHelvetica.widthOfTextAtSize(testLine, 8.5);
+          if (testWidth > width - 100 && n > 0) {
+            lines.push(line.trim());
+            line = words[n] + ' ';
+          } else {
+            line = testLine;
+          }
         }
-        currentPage.drawText(lineStr, {
-          x: 45,
-          y: currentY,
-          size: 8,
-          font: fontHelvetica,
-          color: colorGrey,
-        });
-        currentY -= 12;
+        lines.push(line.trim());
+
+        for (const lineStr of lines) {
+          if (currentY - 14 < 55) {
+            currentPage = createNewPage();
+            currentY = height - 80;
+          }
+          currentPage.drawText(lineStr, {
+            x: 45,
+            y: currentY,
+            size: 8,
+            font: fontHelvetica,
+            color: colorGrey,
+          });
+          currentY -= 12;
+        }
+        currentY -= 4; // Espacio pequeño entre párrafos del mismo bloque
       }
-      currentY -= 8; // Espacio entre párrafos
+      currentY -= 8; // Espacio final
     }
 
     // DIBUJAR CABECERA BRANDED (Primera página)
