@@ -562,11 +562,18 @@ export const FichaPropiedad = () => {
             >
             {generalImages.length > 0 ? (
               <>
+                {/* Blurred Background copy for vertical/mixed images */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center blur-xl scale-110 opacity-30 select-none pointer-events-none"
+                  style={{ backgroundImage: `url(${generalImages[activeImg]})` }}
+                />
+
                 <PremiumImage 
                   src={generalImages[activeImg]} 
                   alt={translatedTitle} 
                   className="transition-transform duration-500 group-hover:scale-105" 
-                  wrapperClassName="w-full h-full"
+                  wrapperClassName="w-full h-full z-10"
+                  objectFit="contain"
                 />
                 
                 {/* Watermark Overlay */}
