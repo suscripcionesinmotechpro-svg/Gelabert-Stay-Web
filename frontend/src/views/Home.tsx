@@ -278,8 +278,8 @@ export const Home = () => {
                 ref={(el) => { videoRefs.current[i] = el; }}
                 muted
                 playsInline
-                preload="auto"
-                poster="/images/hero-poster.png"
+                preload="none"
+                poster="/images/hero-poster.webp"
                 onEnded={handleVideoEnded}
                 // @ts-ignore
                 fetchPriority="low"
