@@ -854,28 +854,6 @@ export const AdminPropertyForm = () => {
         />
       )}
 
-      {uploadProgress && (
-        <div className="mb-6 p-4 border border-[#C9A962]/30 bg-[#C9A962]/5 rounded-sm flex flex-col gap-3">
-          <div className="flex justify-between items-center">
-            <span className="font-primary text-xs text-[#C9A962] font-bold uppercase tracking-wider">
-              Embelleciendo imágenes y aplicando marca de agua...
-            </span>
-            <span className="font-primary text-xs text-[#FAF8F5] font-semibold">
-              {uploadProgress.current} de {uploadProgress.total} ({Math.round((uploadProgress.current / uploadProgress.total) * 100)}%)
-            </span>
-          </div>
-          <div className="w-full bg-[#1A1A1A] h-2 rounded-full overflow-hidden border border-[#1F1F1F]">
-            <div 
-              className="bg-[#C9A962] h-full transition-all duration-300 rounded-full" 
-              style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
-            />
-          </div>
-          <span className="font-primary text-[11px] text-[#888888] italic truncate">
-            {uploadProgress.status}
-          </span>
-        </div>
-      )}
-
       {/* INFORMACIÓN PRINCIPAL */}
       <div className={sectionClass}>
         <h2 className={sectionHeaderClass}>Información Principal</h2>
@@ -1712,6 +1690,28 @@ export const AdminPropertyForm = () => {
             </span>
           </label>
         </div>
+
+        {uploadProgress && (
+          <div className="mb-4 p-4 border border-[#C9A962]/30 bg-[#C9A962]/5 rounded-sm flex flex-col gap-3">
+            <div className="flex justify-between items-center">
+              <span className="font-primary text-xs text-[#C9A962] font-bold uppercase tracking-wider">
+                Embelleciendo imágenes y aplicando marca de agua...
+              </span>
+              <span className="font-primary text-xs text-[#FAF8F5] font-semibold">
+                {uploadProgress.current} de {uploadProgress.total} ({Math.round((uploadProgress.current / uploadProgress.total) * 100)}%)
+              </span>
+            </div>
+            <div className="w-full bg-[#1A1A1A] h-2 rounded-full overflow-hidden border border-[#1F1F1F]">
+              <div 
+                className="bg-[#C9A962] h-full transition-all duration-300 rounded-full" 
+                style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
+              />
+            </div>
+            <span className="font-primary text-[11px] text-[#888888] italic truncate">
+              {uploadProgress.status}
+            </span>
+          </div>
+        )}
 
         <SortableImageGallery 
           images={allImages}
