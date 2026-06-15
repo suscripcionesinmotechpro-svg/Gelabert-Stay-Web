@@ -42,6 +42,7 @@ export interface PropertyRoom {
   private_bathroom?: boolean;
   private_terrace?: boolean;
   is_exterior?: boolean;
+  air_conditioning?: boolean;
   status?: 'disponible' | 'reservado' | 'alquilado';
   _calculated_status?: 'disponible' | 'reservada' | 'alquilada';
   availability?: string | null;
@@ -170,10 +171,12 @@ export interface Property {
   rooms: PropertyRoom[] | null;
   common_areas: PropertyCommonArea[] | null;
   services: PropertyServices | null;
+  community_features?: any | null;
   occupied_now: boolean;
   tenant_number: number | null;
   tenant_min_age: number | null;
   tenant_max_age: number | null;
+  tenant_profile?: string | null;
 
   // SEO
   slug: string | null;

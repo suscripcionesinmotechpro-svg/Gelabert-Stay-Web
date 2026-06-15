@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, X, Upload, Video, Trash2, ShowerHead, Trees, Compass } from 'lucide-react';
+import { Plus, X, Upload, Video, Trash2, ShowerHead, Trees, Compass, Wind } from 'lucide-react';
 import { uploadPropertyMedia } from '../../hooks/useProperties';
 import type { PropertyRoom } from '../../types/property';
 import { SortableImageGallery } from './SortableImageGallery';
@@ -158,6 +158,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
                         className={`${inputClass} !pl-8`}
                         value={room.price ?? ''}
                         onChange={(e) => updateRoom(idx, { price: e.target.value ? Number(e.target.value) : null })}
+                        onWheel={(e) => e.currentTarget.blur()}
                         placeholder="Precio mensual"
                       />
                     </div>
@@ -245,6 +246,20 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
                   <Compass className="w-3.5 h-3.5" />
                   {room.is_exterior === true ? 'Exterior' : 'Interior'}
                   <span className={`ml-1 w-1.5 h-1.5 rounded-full ${room.is_exterior === true ? 'bg-[#4ADE80]' : 'bg-[#333]'}`} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => updateRoom(idx, { air_conditioning: !room.air_conditioning })}
+                  className={`flex items-center gap-2 px-3 py-2 border rounded-sm transition-all text-xs font-bold uppercase tracking-tight ${
+                    room.air_conditioning
+                      ? 'bg-[#4ADE80]/10 border-[#4ADE80]/30 text-[#4ADE80]'
+                      : 'bg-[#0A0A0A] border-[#1F1F1F] text-[#555] hover:border-[#444] hover:text-[#888]'
+                  }`}
+                >
+                  <Wind className="w-3.5 h-3.5" />
+                  Aire acondicionado
+                  <span className={`ml-1 w-1.5 h-1.5 rounded-full ${room.air_conditioning ? 'bg-[#4ADE80]' : 'bg-[#333]'}`} />
                 </button>
               </div>
 

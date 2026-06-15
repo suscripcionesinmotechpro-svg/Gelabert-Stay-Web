@@ -6,7 +6,6 @@ import { useProperty, useProperties } from '../hooks/useProperties';
 import { useAutoTranslate, useAutoTranslateArray } from '../hooks/useAutoTranslate';
 import { PropertyCard } from '../components/PropertyCard';
 import { PremiumImage } from '../components/PremiumImage';
-import { getOptimizedImage } from '../utils/images';
 import { MapPin, Maximize, Bed, Bath, Layers, ArrowLeft, Phone, Mail, Check, Play, Map as MapIcon, Compass, Copy, CheckCheck, Send, AlertCircle, Camera, Video, ExternalLink, CalendarClock } from 'lucide-react';
 import { OPERATION_LABELS, PROPERTY_TYPE_LABELS, RENT_TYPE_LABELS, COMMERCIAL_STATUS_LABELS } from '../types/property';
 import type { PropertyVideo, PropertyRoom } from '../types/property';
@@ -26,6 +25,20 @@ import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import { cleanContent, formatPropertyPrice } from '../utils/textUtils';
+
+const communityLabels: Record<string, { es: string; en: string }> = {
+  pool: { es: 'Piscina comunitaria', en: 'Community swimming pool' },
+  garden: { es: 'Jardín comunitario', en: 'Community garden' },
+  gym: { es: 'Gimnasio', en: 'Gym / Fitness center' },
+  gastrobar: { es: 'Gastrobar', en: 'Gastrobar' },
+  paddle_court: { es: 'Pista de pádel', en: 'Paddle court' },
+  tennis_court: { es: 'Pista de tenis', en: 'Tennis court' },
+  concierge: { es: 'Conserje / Portero', en: 'Concierge / Porter' },
+  social_club: { es: 'Club social', en: 'Social club' },
+  playground: { es: 'Zona infantil', en: 'Playground' },
+  solarium: { es: 'Solárium', en: 'Solarium' },
+  coworking: { es: 'Coworking', en: 'Coworking space' }
+};
 
 const WhatsAppIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -166,10 +179,8 @@ export const FichaPropiedad = () => {
   const generalImages = useMemo(() => {
     const main = property?.main_image;
     const gallery = property?.gallery || [];
-    const rooms = property?.rooms || [];
     const commonAreas = property?.common_areas || [];
     const propertyType = property?.property_type;
-    const isRoomRental = property?.is_room_rental;
     
     // Normalización para comparar URLs sin parámetros de consulta
     const normalize = (u: string) => u.split('?')[0].split('#')[0].trim();
@@ -180,14 +191,7 @@ export const FichaPropiedad = () => {
       ...gallery.filter((img: string) => normalize(img) !== mainNorm)
     ];
 
-    // For room rental properties (is_room_rental: true)
-    if (isRoomRental && rooms.length > 0) {
-      rooms.forEach((room: any) => {
-        if (room.images && room.images.length > 0) {
-          combined.push(...room.images);
-        }
-      });
-    }
+
 
     // For individual room properties (property_type: 'habitacion')
     if (propertyType === 'habitacion' && commonAreas.length > 0) {
@@ -1209,6 +1213,12 @@ export const FichaPropiedad = () => {
                                 {room.is_exterior ? t('property.labels.features.is_exterior', 'Exterior') : t('property.labels.features.is_interior', 'Interior')}
                               </span>
                             )}
+                            {room.air_conditioning && (
+                              <span className="flex items-center gap-1.5 px-2.5 py-1 bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] font-primary text-xs font-bold uppercase tracking-tight rounded-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59-3.41A2 2 0 1 1 14 8h-2m-8.12 4A2 2 0 1 1 5 16H2m11.59-4A2 2 0 1 1 15 16h-3.59m-4.53 4A2 2 0 1 1 8 24H2"/></svg>
+                                {t('property.labels.features.air_conditioning', 'Aire acondicionado')}
+                              </span>
+                            )}
                           </div>
                         </div>
                         {room.price !== undefined && room.price !== null && (
@@ -1519,7 +1529,30 @@ export const FichaPropiedad = () => {
               ))}
 
             </div>
-            {(property.property_condition || property.conservation_state || property.availability) && (
+
+            {/* CARACTERÍSTICAS DE LA COMUNIDAD */}
+            {property.community_features && Object.keys(property.community_features).some(k => (property.community_features as any)[k]) && (
+              <div className="flex flex-col gap-4 mt-4 pt-6 border-t border-[#1F1F1F]/60">
+                <h3 className="font-secondary text-lg text-[#C9A962] uppercase tracking-wider">
+                  {isEn ? 'Community & Common Areas' : 'Comunidad y Zonas Comunes'}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Object.entries(property.community_features)
+                    .filter(([_, val]) => val === true)
+                    .map(([key]) => {
+                      const labelInfo = communityLabels[key] || { es: key, en: key };
+                      const labelText = isEn ? labelInfo.en : labelInfo.es;
+                      return (
+                        <div key={key} className="flex items-center gap-3 p-3.5 bg-[#0C0C0C] border border-[#1F1F1F] hover:border-[#C9A962]/30 transition-all duration-300 rounded-sm">
+                          <Check className="w-4 h-4 text-[#C9A962] filter drop-shadow-[0_0_4px_rgba(201,169,98,0.2)]" />
+                          <span className="font-primary text-sm text-[#FAF8F5]/90 font-medium">{labelText}</span>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+            {(property.property_condition || property.conservation_state || property.availability || property.tenant_profile) && (
               <div className="flex flex-col gap-2 p-4 bg-[#0A0A0A]/50 border-l-2 border-[#C9A962]">
                 {(property.conservation_state || property.property_condition) && (
                   <div className="flex justify-between items-center text-sm font-primary">
@@ -1556,6 +1589,16 @@ export const FichaPropiedad = () => {
                           ? autoAvailability
                           : d.toLocaleDateString(i18n.language.startsWith('en') ? 'en-GB' : 'es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
                       })()}
+                    </span>
+                  </div>
+                )}
+                {property.tenant_profile && (
+                  <div className="flex justify-between items-center text-sm font-primary">
+                    <span className="text-[#FAF8F5]/70 uppercase tracking-wider text-xs">
+                      {isEn ? 'Preferred Tenant' : 'Perfil buscado'}
+                    </span>
+                    <span className="text-[#FAF8F5] font-bold text-right">
+                      {property.tenant_profile}
                     </span>
                   </div>
                 )}
@@ -1624,7 +1667,7 @@ export const FichaPropiedad = () => {
             <p className="text-xs text-white/70 font-primary leading-relaxed text-center">
               <Trans 
                 i18nKey="property.labels.features.accept_privacy_short"
-                components={[<Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/privacidad`} className="text-[#C9A962] hover:underline" />]}
+                components={[<Link to={`${i18n.language.startsWith('en') ? '/en' : ''}/privacidad`} className="text-[#C9A962] hover:underline">{" "}</Link>]}
               />
             </p>
           </div>
@@ -1720,7 +1763,7 @@ export const FichaPropiedad = () => {
                             target="_blank" 
                             rel="noopener noreferrer" 
                             className="text-[#C9A962] hover:underline" 
-                          />
+                          >{" "}</Link>
                         ]}
                       />
                     </label>

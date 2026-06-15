@@ -120,11 +120,13 @@ const DEFAULT_FORM: Partial<PropertyInsert> = {
   is_room_rental: false,
   rooms: [],
   common_areas: [],
+  community_features: {},
   services: DEFAULT_SERVICES,
   occupied_now: false,
   tenant_number: undefined,
   tenant_min_age: undefined,
   tenant_max_age: undefined,
+  tenant_profile: '',
 };
 
 
@@ -201,6 +203,7 @@ export const AdminPropertyForm = () => {
         is_room_rental: property.is_room_rental ?? false,
         rooms: property.rooms ?? [],
         common_areas: property.common_areas ?? [],
+        community_features: property.community_features ?? {},
         videos_metadata: property.videos_metadata ?? [],
         services: {
           agua: { enabled: false, included: false, note: '', limit: null, limit_period: 'mensual', ...(property.services?.agua || {}) },
@@ -215,6 +218,7 @@ export const AdminPropertyForm = () => {
         tenant_number: property.tenant_number ?? undefined,
         tenant_min_age: property.tenant_min_age ?? undefined,
         tenant_max_age: property.tenant_max_age ?? undefined,
+        tenant_profile: property.tenant_profile ?? '',
       };
       setForm(newForm);
       setLatStr(property.latitude?.toString() || '');
@@ -301,6 +305,14 @@ export const AdminPropertyForm = () => {
 
   const set = (field: keyof PropertyInsert, value: unknown) =>
     setForm(prev => ({ ...prev, [field]: value }));
+
+  const toggleCommunityFeature = (key: string) => {
+    const current = (form.community_features as Record<string, boolean>) || {};
+    set('community_features', {
+      ...current,
+      [key]: !current[key]
+    });
+  };
 
   const updateService = (serviceKey: 'agua' | 'electricidad' | 'internet' | 'limpieza' | 'gas_calle' | 'gas_bombona', field: string, value: any) => {
     const currentServices = form.services || {};
@@ -674,7 +686,7 @@ export const AdminPropertyForm = () => {
       
       // 3. Limpiar strings vacíos para evitar conflictos en UNIQUE (reference, slug)
       // y para que se guarden como NULL en Postgres
-      const nullableFields = ['reference', 'slug', 'meta_title', 'meta_description', 'street_number', 'door_number', 'parking_price', 'short_description', 'description', 'video_url', 'floor_plan', 'virtual_tour_url', 'availability', 'property_condition', 'energy_rating', 'emissions_rating', 'conservation_state', 'block_staircase', 'urbanization'];
+      const nullableFields = ['reference', 'slug', 'meta_title', 'meta_description', 'street_number', 'door_number', 'parking_price', 'short_description', 'description', 'video_url', 'floor_plan', 'virtual_tour_url', 'availability', 'property_condition', 'energy_rating', 'emissions_rating', 'conservation_state', 'block_staircase', 'urbanization', 'tenant_profile'];
       
       nullableFields.forEach(field => {
         if (data[field] === undefined || (typeof data[field] === 'string' && data[field].trim() === '')) {
@@ -893,6 +905,17 @@ export const AdminPropertyForm = () => {
                   onChange={v => set('is_room_rental', v)} 
                 />
               </div>
+            </div>
+          )}
+          {form.operation === 'alquiler' && (
+            <div className="flex flex-col gap-2">
+              <label className={labelClass}>Perfil buscado (inquilino)</label>
+              <input 
+                className={inputClass} 
+                placeholder="Ej: Estudiantes, Funcionarios, Parejas" 
+                value={form.tenant_profile ?? ''} 
+                onChange={e => set('tenant_profile', e.target.value || null)} 
+              />
             </div>
           )}
           <div className="flex flex-col gap-2">
@@ -1362,6 +1385,24 @@ export const AdminPropertyForm = () => {
           <ToggleField label="Vistas al mar" checked={form.sea_views ?? false} onChange={v => set('sea_views', v)} />
           <ToggleField label="Armarios Empotrados" checked={form.has_wardrobes ?? false} onChange={v => set('has_wardrobes', v)} />
           <ToggleField label="Chimenea" checked={form.has_fireplace ?? false} onChange={v => set('has_fireplace', v)} />
+        </div>
+
+        {/* CARACTERÍSTICAS DE LA COMUNIDAD */}
+        <div className="border-t border-[#1F1F1F] mt-6 pt-6">
+          <h3 className="font-primary text-xs font-bold text-[#C9A962] uppercase tracking-wider mb-4">Comunidad / Zonas Comunes</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <ToggleField label="Piscina comunitaria" checked={form.community_features?.pool ?? false} onChange={() => toggleCommunityFeature('pool')} />
+            <ToggleField label="Jardín comunitario" checked={form.community_features?.garden ?? false} onChange={() => toggleCommunityFeature('garden')} />
+            <ToggleField label="Gimnasio" checked={form.community_features?.gym ?? false} onChange={() => toggleCommunityFeature('gym')} />
+            <ToggleField label="Gastrobar" checked={form.community_features?.gastrobar ?? false} onChange={() => toggleCommunityFeature('gastrobar')} />
+            <ToggleField label="Pista de pádel" checked={form.community_features?.paddle_court ?? false} onChange={() => toggleCommunityFeature('paddle_court')} />
+            <ToggleField label="Pista de tenis" checked={form.community_features?.tennis_court ?? false} onChange={() => toggleCommunityFeature('tennis_court')} />
+            <ToggleField label="Conserje / Portero" checked={form.community_features?.concierge ?? false} onChange={() => toggleCommunityFeature('concierge')} />
+            <ToggleField label="Club social" checked={form.community_features?.social_club ?? false} onChange={() => toggleCommunityFeature('social_club')} />
+            <ToggleField label="Zona infantil" checked={form.community_features?.playground ?? false} onChange={() => toggleCommunityFeature('playground')} />
+            <ToggleField label="Solárium" checked={form.community_features?.solarium ?? false} onChange={() => toggleCommunityFeature('solarium')} />
+            <ToggleField label="Coworking" checked={form.community_features?.coworking ?? false} onChange={() => toggleCommunityFeature('coworking')} />
+          </div>
         </div>
 
       </div>
