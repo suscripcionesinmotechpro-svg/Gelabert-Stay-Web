@@ -396,102 +396,23 @@ export async function POST(req: Request) {
 
     currentY -= 25;
 
+    const formatDate = (dateStr?: string | null) => {
+      if (!dateStr) return 'No especificada';
+      try {
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+          return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+        return dateStr;
+      } catch {
+        return dateStr;
+      }
+    };
+
     for (let i = 0; i < allTenants.length; i++) {
       const tenant = allTenants[i];
       const isPrimary = !tenant.parent_tenant_id;
       const roleLabel = tenant.tenant_type === 'avalista' ? 'Avalista' : 'Titular';
-
-      // Espacio para la tarjeta de perfil
-      if (currentY - 110 < 55) {
-        currentPage = createNewPage();
-        currentY = height - 80;
-      }
-
-      // Dibujar caja de perfil del inquilino
-      currentPage.drawRectangle({
-        x: 40,
-        y: currentY - 100,
-        width: width - 80,
-        height: 100,
-        color: rgb(1, 1, 1),
-        borderColor: colorLightGrey,
-        borderWidth: 1,
-      });
-
-      // Título del Inquilino
-      currentPage.drawText(`${tenant.first_name} ${tenant.last_name} (${roleLabel})`, {
-        x: 50,
-        y: currentY - 18,
-        size: 10,
-        font: fontHelveticaBold,
-        color: colorCharcoal,
-      });
-
-      // Datos personales
-      const personalDetails = [
-        tenant.dni ? `DNI/NIE: ${tenant.dni}` : 'DNI/NIE: No aportado',
-        tenant.age ? `Edad: ${tenant.age} años` : null,
-        tenant.nationality ? `Nac.: ${tenant.nationality}` : null
-      ].filter(Boolean).join('  |  ');
-
-      currentPage.drawText(personalDetails, {
-        x: 50,
-        y: currentY - 34,
-        size: 8.5,
-        font: fontHelvetica,
-        color: colorGrey,
-      });
-
-
-      const formatDate = (dateStr?: string | null) => {
-        if (!dateStr) return 'No especificada';
-        try {
-          const parts = dateStr.split('-');
-          if (parts.length === 3) {
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
-          }
-          return dateStr;
-        } catch {
-          return dateStr;
-        }
-      };
-
-      // Datos laborales/solvencia
-      currentPage.drawText(`Situación Laboral: ${tenant.employment_status || 'No especificada'}`, {
-        x: 280,
-        y: currentY - 30,
-        size: 8.5,
-        font: fontHelvetica,
-        color: colorCharcoal,
-      });
-      currentPage.drawText(`Empresa: ${tenant.company_name || 'No especificada'}`, {
-        x: 280,
-        y: currentY - 41,
-        size: 8.5,
-        font: fontHelvetica,
-        color: colorCharcoal,
-      });
-      currentPage.drawText(`Tipo de Contrato: ${tenant.contract_type || 'No especificado'}`, {
-        x: 280,
-        y: currentY - 52,
-        size: 8.5,
-        font: fontHelvetica,
-        color: colorCharcoal,
-      });
-      currentPage.drawText(`Antigüedad Laboral: ${formatDate(tenant.seniority_date)}`, {
-        x: 280,
-        y: currentY - 63,
-        size: 8.5,
-        font: fontHelvetica,
-        color: colorCharcoal,
-      });
-      currentPage.drawText(`Ingresos Declarados: ${formatTenantIncome(Number(tenant.monthly_income || 0), tenant.currency)} / mes`, {
-        x: 280,
-        y: currentY - 75,
-        size: 9,
-        font: fontHelveticaBold,
-        color: colorGold,
-      });
 
       // Checklist de documentos de este inquilino específico
       const myDocs = docs ? docs.filter(d => d.tenant_id === tenant.id) : [];
@@ -503,15 +424,115 @@ export async function POST(req: Request) {
         return d.file_name;
       });
 
-      currentPage.drawText(`Docs: ${docLabels.length > 0 ? docLabels.join(', ') : 'Ninguno aportado'}`, {
+      const docsPrefix = 'Docs: ';
+      const docsContent = docLabels.length > 0 ? docLabels.join(', ') : 'Ninguno aportado';
+      const fullDocsText = docsPrefix + docsContent;
+
+      // Wrap docs text to fit in the card (max width 465px)
+      const maxDocsWidth = 465;
+      const words = fullDocsText.split(' ');
+      let currentLine = '';
+      const docLines: string[] = [];
+
+      for (let n = 0; n < words.length; n++) {
+        const testLine = currentLine + words[n] + ' ';
+        const testWidth = fontHelvetica.widthOfTextAtSize(testLine, 7.5);
+        if (testWidth > maxDocsWidth && n > 0) {
+          docLines.push(currentLine.trim());
+          currentLine = words[n] + ' ';
+        } else {
+          currentLine = testLine;
+        }
+      }
+      docLines.push(currentLine.trim());
+
+      // Espacio para la tarjeta de perfil
+      const cardHeight = 100 + (docLines.length - 1) * 10;
+      if (currentY - cardHeight - 10 < 55) {
+        currentPage = createNewPage();
+        currentY = height - 80;
+      }
+
+      // Dibujar caja de perfil del inquilino
+      currentPage.drawRectangle({
+        x: 40,
+        y: currentY - cardHeight,
+        width: width - 80,
+        height: cardHeight,
+        color: rgb(1, 1, 1),
+        borderColor: colorLightGrey,
+        borderWidth: 1,
+      });
+
+      // Título del Inquilino (con tamaño de fuente dinámico)
+      const titleText = `${tenant.first_name} ${tenant.last_name} (${roleLabel})`;
+      let titleFontSize = 10;
+      while (titleFontSize > 7 && fontHelveticaBold.widthOfTextAtSize(titleText, titleFontSize) > 220) {
+        titleFontSize -= 0.5;
+      }
+      currentPage.drawText(titleText, {
         x: 50,
-        y: currentY - 88,
-        size: 7.5,
+        y: currentY - 18,
+        size: titleFontSize,
+        font: fontHelveticaBold,
+        color: colorCharcoal,
+      });
+
+      // Datos personales (con tamaño de fuente dinámico)
+      const personalDetails = [
+        tenant.dni ? `DNI/NIE: ${tenant.dni}` : 'DNI/NIE: No aportado',
+        tenant.age ? `Edad: ${tenant.age} años` : null,
+        tenant.nationality ? `Nac.: ${tenant.nationality}` : null
+      ].filter(Boolean).join('  |  ');
+
+      let personalFontSize = 8.5;
+      while (personalFontSize > 7 && fontHelvetica.widthOfTextAtSize(personalDetails, personalFontSize) > 220) {
+        personalFontSize -= 0.5;
+      }
+      currentPage.drawText(personalDetails, {
+        x: 50,
+        y: currentY - 34,
+        size: personalFontSize,
         font: fontHelvetica,
         color: colorGrey,
       });
 
-      currentY -= 115;
+      // Helper para evitar desbordes en el lado derecho de la tarjeta
+      const drawRightColumnText = (text: string, yPos: number, isBold: boolean = false) => {
+        const font = isBold ? fontHelveticaBold : fontHelvetica;
+        let fontSize = isBold ? 9 : 8.5;
+        const maxTextWidth = 230;
+        while (fontSize > 6.5 && font.widthOfTextAtSize(text, fontSize) > maxTextWidth) {
+          fontSize -= 0.5;
+        }
+        currentPage.drawText(text, {
+          x: 280,
+          y: yPos,
+          size: fontSize,
+          font: font,
+          color: isBold ? colorGold : colorCharcoal,
+        });
+      };
+
+      // Datos laborales/solvencia (lado derecho)
+      drawRightColumnText(`Situación Laboral: ${tenant.employment_status || 'No especificada'}`, currentY - 30);
+      drawRightColumnText(`Empresa: ${tenant.company_name || 'No especificada'}`, currentY - 41);
+      drawRightColumnText(`Tipo de Contrato: ${tenant.contract_type || 'No especificado'}`, currentY - 52);
+      drawRightColumnText(`Antigüedad Laboral: ${formatDate(tenant.seniority_date)}`, currentY - 63);
+      drawRightColumnText(`Ingresos Declarados: ${formatTenantIncome(Number(tenant.monthly_income || 0), tenant.currency)} / mes`, currentY - 75, true);
+
+      // Dibujar líneas de documentos
+      for (let idx = 0; idx < docLines.length; idx++) {
+        currentPage.drawText(docLines[idx], {
+          x: 50,
+          y: currentY - 88 - (idx * 10),
+          size: 7.5,
+          font: fontHelvetica,
+          color: colorGrey,
+        });
+      }
+
+      currentY -= (cardHeight + 15);
     }
 
     // ANÁLISIS DE LA IA / COMENTARIOS DE SOLVENCIA CONSOLIDADOS
