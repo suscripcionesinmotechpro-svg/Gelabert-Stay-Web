@@ -456,13 +456,24 @@ export const useAgentStats = (agentId?: string) => {
 // ============================================================
 // uploadPropertyMedia — Storage helper for images, videos, and PDFs
 // ============================================================
-export const uploadPropertyMedia = async (rawFile: File, folder = 'main', roomText?: string): Promise<string> => {
+export const uploadPropertyMedia = async (
+  rawFile: File, 
+  folder = 'main', 
+  roomText?: string,
+  onProgress?: (status: string) => void
+): Promise<string> => {
   // Apply lossless watermark automatically (only affects images, leaves PDFs/Videos intact)
-  const file = await applyWatermark(rawFile, roomText);
+  // Disable AI enhancement for floor plans (they should keep original contrast/colors)
+  const autoEnhance = folder !== 'floor-plans';
+  const file = await applyWatermark(rawFile, roomText, autoEnhance, onProgress);
   
   const ext = file.name.split('.').pop()?.toLowerCase();
   const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
   
+  if (onProgress && rawFile.type.startsWith('image/')) {
+    onProgress('Subiendo a la nube...');
+  }
+
   const { error } = await supabase.storage.from('property-images').upload(filename, file, {
     cacheControl: '31536000',
     upsert: false,
@@ -473,6 +484,10 @@ export const uploadPropertyMedia = async (rawFile: File, folder = 'main', roomTe
     throw error;
   }
   
+  if (onProgress && rawFile.type.startsWith('image/')) {
+    onProgress('Subida completada');
+  }
+
   const { data } = supabase.storage.from('property-images').getPublicUrl(filename);
   return data.publicUrl;
 };

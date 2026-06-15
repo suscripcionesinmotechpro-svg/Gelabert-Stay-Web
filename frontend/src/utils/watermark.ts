@@ -1,10 +1,94 @@
-export const applyWatermark = async (file: File, roomText?: string): Promise<File> => {
+// Helper to get enhancement parameters from Gemini
+const getEnhancementParameters = async (
+  file: File,
+  onProgress?: (status: string) => void
+): Promise<{ brightness: number; contrast: number; saturation: number }> => {
+  try {
+    onProgress?.('Analizando imagen con IA...');
+    // Create a tiny version of the image (e.g., max 400px width/height) to send to Gemini
+    const tempImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('Failed to load image for Gemini analysis'));
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get 2D context for temporary canvas');
+
+    const MAX_DIM = 400;
+    let { width, height } = tempImg;
+    if (width > MAX_DIM || height > MAX_DIM) {
+      const ratio = Math.min(MAX_DIM / width, MAX_DIM / height);
+      width = Math.round(width * ratio);
+      height = Math.round(height * ratio);
+    }
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(tempImg, 0, 0, width, height);
+
+    // Convert to base64 (without the prefix data:image/jpeg;base64,)
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+    const base64Data = dataUrl.split(',')[1];
+
+    // Call our NextJS api route
+    const response = await fetch('/api/enhance-image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        imageBase64: base64Data,
+        mimeType: 'image/jpeg',
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API response error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return {
+      brightness: data.brightness ?? 1.0,
+      contrast: data.contrast ?? 1.0,
+      saturation: data.saturation ?? 1.0,
+    };
+  } catch (err) {
+    console.warn('[Enhancement AI] Failed to get parameters from Gemini, using default fallback:', err);
+    // Safe subtle fallback enhancement
+    return {
+      brightness: 1.06,
+      contrast: 1.03,
+      saturation: 1.04,
+    };
+  }
+};
+
+export const applyWatermark = async (
+  file: File,
+  roomText?: string,
+  autoEnhance = true,
+  onProgress?: (status: string) => void
+): Promise<File> => {
   if (!file.type.startsWith('image/')) {
     // Return videos, pdfs directly
     return file;
   }
 
+  // 1. Get enhancement parameters from Gemini if autoEnhance is true
+  let filters = { brightness: 1.0, contrast: 1.0, saturation: 1.0 };
+  if (autoEnhance) {
+    filters = await getEnhancementParameters(file, onProgress);
+    console.log('[AI Enhancement Parameters Applied]:', filters);
+  }
+
   return new Promise((resolve, reject) => {
+    onProgress?.('Preparando imagen...');
     const reader = new FileReader();
 
     reader.onload = (e) => {
@@ -31,9 +115,18 @@ export const applyWatermark = async (file: File, roomText?: string): Promise<Fil
         canvas.width = width;
         canvas.height = height;
 
-        // Draw original image (potentially scaled down)
+        // Apply Gemini filters ONLY to the property image
+        ctx.save();
+        if (autoEnhance) {
+          ctx.filter = `brightness(${filters.brightness}) contrast(${filters.contrast}) saturate(${filters.saturation})`;
+        }
+
+        // Draw original image (potentially scaled down, with filters applied)
         ctx.globalAlpha = 1.0;
         ctx.drawImage(img, 0, 0, width, height);
+        ctx.restore(); // Reset filters so that watermark and text are not affected!
+
+        onProgress?.('Aplicando marca de agua...');
 
         // Load watermark
         const watermark = new Image();
@@ -112,6 +205,8 @@ export const applyWatermark = async (file: File, roomText?: string): Promise<Fil
           const outputQuality = 0.85;
           const outputName = file.name.replace(/\.[^.]+$/, '.jpg');
 
+          onProgress?.('Guardando cambios...');
+
           canvas.toBlob(
             (blob) => {
               if (blob) {
@@ -132,6 +227,7 @@ export const applyWatermark = async (file: File, roomText?: string): Promise<Fil
         watermark.onerror = () => {
           // No watermark available — still compress and resize
           const outputType = 'image/jpeg';
+          onProgress?.('Guardando cambios (sin logo)...');
           canvas.toBlob(
             (blob) => {
               if (blob) {

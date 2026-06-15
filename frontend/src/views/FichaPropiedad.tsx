@@ -1476,7 +1476,23 @@ export const FichaPropiedad = () => {
                 { label: t('property.labels.features.is_furnished'), value: property.is_furnished },
                 { label: t('property.labels.features.has_terrace'), value: property.has_terrace },
                 { label: t('property.labels.features.has_balcony'), value: property.has_balcony },
-                { label: t('property.labels.features.has_parking'), value: property.has_parking },
+                { 
+                  label: (() => {
+                    if (property.parking_included) {
+                      return isEn 
+                        ? 'Parking space (included in the price)' 
+                        : 'Plaza de parking (incluida en el precio)';
+                    } else if (property.parking_price) {
+                      const formattedPrice = `${property.parking_price} €${property.operation === 'alquiler' ? (isEn ? '/month' : '/mes') : ''}`;
+                      return isEn
+                        ? `Parking space (separate, ${formattedPrice})`
+                        : `Plaza de parking (aparte, ${formattedPrice})`;
+                    } else {
+                      return t('property.labels.features.has_parking');
+                    }
+                  })(), 
+                  value: property.has_parking 
+                },
                 { label: t('property.labels.features.has_storage'), value: property.has_storage },
                 { label: t('property.labels.features.has_pool'), value: property.has_pool },
                 { label: t('property.labels.features.heating'), value: property.heating },

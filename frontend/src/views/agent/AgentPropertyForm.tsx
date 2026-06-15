@@ -142,6 +142,7 @@ export const AgentPropertyForm = () => {
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadingFloorPlan, setUploadingFloorPlan] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number; status: string } | null>(null);
   const [newHighlight, setNewHighlight] = useState('');
   const [latStr, setLatStr] = useState('');
   const [lonStr, setLonStr] = useState('');
@@ -379,11 +380,22 @@ export const AgentPropertyForm = () => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
     setUploadingImages(true);
+    setUploadProgress({ current: 0, total: files.length, status: 'Iniciando procesamiento...' });
     setError(null);
     try {
       const urls: string[] = [];
+      let currentIdx = 0;
       for (const f of files) {
-        const processed = await uploadPropertyMedia(f, 'gallery');
+        currentIdx++;
+        setUploadProgress(prev => prev ? { ...prev, current: currentIdx, status: `Preparando ${f.name}...` } : null);
+        const processed = await uploadPropertyMedia(
+          f, 
+          'gallery', 
+          undefined,
+          (statusText) => {
+            setUploadProgress(prev => prev ? { ...prev, status: `${f.name}: ${statusText}` } : null);
+          }
+        );
         urls.push(processed);
       }
       handleImagesChange([...allImages, ...urls]);
@@ -391,6 +403,7 @@ export const AgentPropertyForm = () => {
       setError(err instanceof Error ? err.message : 'Error subiendo imágenes'); 
     } finally { 
       setUploadingImages(false); 
+      setUploadProgress(null);
     }
   };
 
@@ -832,6 +845,28 @@ export const AgentPropertyForm = () => {
       </div>
 
       {error && <div className="bg-red-500/10 border border-red-500/30 p-4"><p className="font-primary text-red-400 text-sm">{error}</p></div>}
+
+      {uploadProgress && (
+        <div className="mb-6 p-4 border border-[#C9A962]/30 bg-[#C9A962]/5 rounded-sm flex flex-col gap-3">
+          <div className="flex justify-between items-center">
+            <span className="font-primary text-xs text-[#C9A962] font-bold uppercase tracking-wider">
+              Embelleciendo imágenes y aplicando marca de agua...
+            </span>
+            <span className="font-primary text-xs text-[#FAF8F5] font-semibold">
+              {uploadProgress.current} de {uploadProgress.total} ({Math.round((uploadProgress.current / uploadProgress.total) * 100)}%)
+            </span>
+          </div>
+          <div className="w-full bg-[#1A1A1A] h-2 rounded-full overflow-hidden border border-[#1F1F1F]">
+            <div 
+              className="bg-[#C9A962] h-full transition-all duration-300 rounded-full" 
+              style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
+            />
+          </div>
+          <span className="font-primary text-[11px] text-[#888888] italic truncate">
+            {uploadProgress.status}
+          </span>
+        </div>
+      )}
 
       {/* INFORMACIÓN PRINCIPAL */}
       <div className={sectionClass}>
