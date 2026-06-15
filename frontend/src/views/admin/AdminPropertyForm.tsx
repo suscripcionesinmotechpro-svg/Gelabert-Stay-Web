@@ -1695,7 +1695,9 @@ export const AdminPropertyForm = () => {
           <div className="mb-4 p-4 border border-[#C9A962]/30 bg-[#C9A962]/5 rounded-sm flex flex-col gap-3">
             <div className="flex justify-between items-center">
               <span className="font-primary text-xs text-[#C9A962] font-bold uppercase tracking-wider">
-                Embelleciendo imágenes y aplicando marca de agua...
+                {enhanceImages 
+                  ? 'Embelleciendo imágenes y aplicando marca de agua...' 
+                  : 'Procesando imágenes y aplicando marca de agua...'}
               </span>
               <span className="font-primary text-xs text-[#FAF8F5] font-semibold">
                 {uploadProgress.current} de {uploadProgress.total} ({Math.round((uploadProgress.current / uploadProgress.total) * 100)}%)
