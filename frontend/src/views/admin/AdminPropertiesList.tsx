@@ -434,8 +434,7 @@ export const AdminPropertiesList = () => {
     setSocialSelectedImages(allImgs.slice(0, initialLimit));
 
     // Video settings
-    const hasVideo = !!p.video_url && p.video_url.trim().startsWith('http') && p.video_url.toLowerCase().includes('.mp4');
-    setSocialIncludeVideo(hasVideo);
+    setSocialIncludeVideo(false);
     setSocialVideoUrl(p.video_url || '');
 
     setSocialModalOpen(true);
@@ -1596,71 +1595,76 @@ export const AdminPropertiesList = () => {
               })()}
 
               {/* ── Video Section ── */}
-              <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-sm p-4 flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Video className="w-4 h-4 text-[#C9A962]" />
-                    <span className="font-primary text-xs font-bold text-[#FAF8F5] uppercase tracking-wider">Vídeo de la Publicación</span>
-                  </div>
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={socialIncludeVideo}
-                      onChange={(e) => setSocialIncludeVideo(e.target.checked)}
-                      disabled={socialPublishing}
-                      className="w-3.5 h-3.5 rounded-sm border-[#2A2A2A] bg-[#161616] accent-[#C9A962] cursor-pointer"
-                    />
-                    <span className="font-primary text-xs text-[#AAA] group-hover:text-[#FAF8F5] transition-colors font-bold">
-                      Incluir vídeo en el anuncio
-                    </span>
-                  </label>
-                </div>
-
-                {socialIncludeVideo && (
-                  <div className="grid grid-cols-1 md:grid-cols-[2fr_1.2fr] gap-4 items-start">
-                    <div className="flex flex-col gap-2">
-                      <label className="font-primary text-xs text-[#888] uppercase tracking-wider font-bold">
-                        Enlace directo del vídeo (.mp4)
+              {(() => {
+                const hasDbVideo = !!socialProperty?.video_url && socialProperty.video_url.trim().startsWith('http');
+                return (
+                  <div className="bg-[#0F0F0F] border border-[#1F1F1F] rounded-sm p-4 flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Video className="w-4 h-4 text-[#C9A962]" />
+                        <span className="font-primary text-xs font-bold text-[#FAF8F5] uppercase tracking-wider">Vídeo de la Publicación</span>
+                      </div>
+                      <label className={`flex items-center gap-2 ${!hasDbVideo ? 'cursor-not-allowed' : 'cursor-pointer'} group`}>
+                        <input
+                          type="checkbox"
+                          checked={socialIncludeVideo}
+                          onChange={(e) => setSocialIncludeVideo(e.target.checked)}
+                          disabled={socialPublishing || !hasDbVideo}
+                          className={`w-3.5 h-3.5 rounded-sm border-[#2A2A2A] bg-[#161616] accent-[#C9A962] ${!hasDbVideo ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                        />
+                        <span className={`font-primary text-xs text-[#AAA] transition-colors font-bold ${!hasDbVideo ? 'opacity-50 cursor-not-allowed' : 'group-hover:text-[#FAF8F5]'}`}>
+                          {hasDbVideo ? 'Incluir vídeo en el anuncio' : 'Sin vídeo disponible'}
+                        </span>
                       </label>
-                      <input
-                        type="text"
-                        value={socialVideoUrl}
-                        onChange={(e) => setSocialVideoUrl(e.target.value)}
-                        placeholder="https://ejemplo.com/video.mp4"
-                        disabled={socialPublishing}
-                        className="w-full bg-[#161616] border border-[#2A2A2A] p-2 text-xs font-primary text-[#FAF8F5] outline-none focus:border-[#C9A962] transition-colors rounded-sm placeholder:text-[#444]"
-                      />
-                      <p className="font-primary text-[11px] text-[#666] leading-normal">
-                        ☝️ Meta requiere un enlace público directo a un archivo de vídeo. Debe empezar con <code className="text-[#888]">http/https</code> y terminar en <code className="text-[#888]">.mp4</code>.
-                      </p>
-                      {socialVideoUrl && !socialVideoUrl.toLowerCase().includes('.mp4') && (
-                        <p className="text-[#C9A962] font-primary text-[11px] font-bold">
-                          ⚠️ La URL no parece terminar en .mp4. La publicación podría fallar en Facebook/Instagram.
-                        </p>
-                      )}
                     </div>
 
-                    <div className="bg-[#161616] border border-[#2A2A2A] rounded-sm p-2 flex flex-col gap-2 items-center justify-center min-h-[100px] w-full">
-                      {socialVideoUrl && socialVideoUrl.toLowerCase().includes('.mp4') ? (
-                        <div className="w-full aspect-video bg-black rounded-sm overflow-hidden flex items-center justify-center border border-[#1A1A1A]">
-                          <video
-                            src={socialVideoUrl}
-                            controls
-                            muted
-                            className="w-full h-full object-contain"
+                    {socialIncludeVideo && (
+                      <div className="grid grid-cols-1 md:grid-cols-[2fr_1.2fr] gap-4 items-start">
+                        <div className="flex flex-col gap-2">
+                          <label className="font-primary text-xs text-[#888] uppercase tracking-wider font-bold">
+                            Enlace directo del vídeo (.mp4)
+                          </label>
+                          <input
+                            type="text"
+                            value={socialVideoUrl}
+                            onChange={(e) => setSocialVideoUrl(e.target.value)}
+                            placeholder="https://ejemplo.com/video.mp4"
+                            disabled={socialPublishing}
+                            className="w-full bg-[#161616] border border-[#2A2A2A] p-2 text-xs font-primary text-[#FAF8F5] outline-none focus:border-[#C9A962] transition-colors rounded-sm placeholder:text-[#444]"
                           />
-                        </div>
-                      ) : (
-                        <div className="text-center py-4 px-2">
-                          <p className="font-primary text-[11px] text-[#555] italic">
-                            Introduce una URL de vídeo .mp4 válida para previsualizarlo aquí.
+                          <p className="font-primary text-[11px] text-[#666] leading-normal">
+                            ☝️ Meta requiere un enlace público directo a un archivo de vídeo. Debe empezar con <code className="text-[#888]">http/https</code> y terminar en <code className="text-[#888]">.mp4</code>.
                           </p>
+                          {socialVideoUrl && !socialVideoUrl.toLowerCase().includes('.mp4') && (
+                            <p className="text-[#C9A962] font-primary text-[11px] font-bold">
+                              ⚠️ La URL no parece terminar en .mp4. La publicación podría fallar en Facebook/Instagram.
+                            </p>
+                          )}
                         </div>
-                      )}
-                    </div>
+
+                        <div className="bg-[#161616] border border-[#2A2A2A] rounded-sm p-2 flex flex-col gap-2 items-center justify-center min-h-[100px] w-full">
+                          {socialVideoUrl && socialVideoUrl.toLowerCase().includes('.mp4') ? (
+                            <div className="w-full aspect-video bg-black rounded-sm overflow-hidden flex items-center justify-center border border-[#1A1A1A]">
+                              <video
+                                src={socialVideoUrl}
+                                controls
+                                muted
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          ) : (
+                            <div className="text-center py-4 px-2">
+                              <p className="font-primary text-[11px] text-[#555] italic">
+                                Introduce una URL de vídeo .mp4 válida para previsualizarlo aquí.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                );
+              })()}
 
               {/* ── Copy + Platforms row ── */}
               <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-6">
