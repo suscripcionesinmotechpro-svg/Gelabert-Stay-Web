@@ -706,11 +706,7 @@ serve(async (req) => {
       // Nota: Idealista exige que este campo sea obligatorio y tenga un valor mínimo de 2.
       mappedFeatures.tenantNumber = Math.max(2, property.tenant_number ?? 2);
 
-      // Edad de los inquilinos (obligatorio solo si occupiedNow es true)
-      if (isOccupied) {
-        mappedFeatures.tenantAgeMin = property.tenant_min_age ?? 18;
-        mappedFeatures.tenantAgeMax = property.tenant_max_age ?? 35;
-      }
+      // Edad de los inquilinos (no admitidos por el esquema de la API de Idealista para habitaciones)
       // minimalStay = estancia mínima en meses (mínimo 2 según esquema de Idealista)
       mappedFeatures.minimalStay = Math.max(2, (property as any).min_stay_months ?? 2);
       // petsAllowed = se permiten mascotas
