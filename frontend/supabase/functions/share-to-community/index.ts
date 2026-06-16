@@ -888,6 +888,7 @@ REGLAS DE FORMATO:
 - Utiliza emojis estratégicos para hacer la lectura fluida y visualmente atractiva (sin saturar).
 - Mantén toda la información verídica intacta (precio, características, ubicación).
 - Asegúrate de que el enlace final de la propiedad permanezca inalterado al final de la publicación.
+- ¡PROHIBIDO EL USO DE FORMATO MARKDOWN PARA LOS ENLACES! Los enlaces (URLs) deben mantenerse en su formato original de texto plano sin corchetes ni paréntesis (por ejemplo, escribe 'https://gelaberthomes.es/...' directamente y no '[nombre](https://...)').
 ${platform === 'instagram' ? '- Añade una indicación clara que invite a los usuarios a pinchar en el enlace de nuestra biografía de Instagram (@gelaberthomes) para ver todos los detalles.' : ''}
 - Añade hashtags elegantes e inmobiliarios al final del post.
 - Conserva el idioma español.
@@ -918,7 +919,10 @@ ${text}`
           status: 400
         })
       }
-      const enhancedText = aiData.choices?.[0]?.message?.content || text
+      let enhancedText = aiData.choices?.[0]?.message?.content || text
+      
+      // Clean up markdown links (e.g. [text](url) -> url) to prevent literal markdown on social media
+      enhancedText = enhancedText.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, "$2")
 
       return new Response(JSON.stringify({ success: true, enhancedText }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -1161,19 +1165,14 @@ ${text}`
           postCopy += `\n\n🎬 ¡Mira el vídeo aquí!: ${fbVideoItem.url}`
         }
 
+        // Clean up markdown links (e.g. [text](url) -> url) to prevent literal markdown on social media
+        postCopy = postCopy.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, "$2")
+
         // Step A: Publish photo post (images only in attached_media)
         fbResult = await publishToFacebook(FB_PAGE_ID, FB_PAGE_TOKEN, postCopy, finalFbMediaItems, prop.facebook_post_id || null)
 
-        // Step B: Also publish the video as a separate Facebook video post
-        if (fbVideoItem) {
-          console.log('[FB Video] Publishing video separately to Facebook...')
-          const videoResult = await publishVideoToFacebook(FB_PAGE_ID, FB_PAGE_TOKEN, postCopy, fbVideoItem.url)
-          if (videoResult.error) {
-            console.error('[FB Video] Video post failed:', videoResult.error)
-          } else {
-            console.log('[FB Video] Video published successfully. Post ID:', videoResult.postId)
-          }
-        }
+        // Step B: Deprecated - Video is no longer published as a separate Facebook post.
+        // We only publish the photos with the video URL in the text description.
 
         await supabase.from('properties').update({
           facebook_status: fbResult.postId ? 'published' : 'error',
@@ -1222,6 +1221,9 @@ ${text}`
           if (igVideo && shouldIncludeVideoInIgCaption) {
             igCopy += `\n\n🎬 ¡Mira el vídeo aquí!: ${igVideo.url}`
           }
+
+          // Clean up markdown links (e.g. [text](url) -> url) to prevent literal markdown on social media
+          igCopy = igCopy.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, "$2")
 
           igResult = await publishToInstagram(IG_ACCOUNT_ID, FB_PAGE_TOKEN, igCopy, finalIgMediaItems, prop.instagram_post_id || null)
 
