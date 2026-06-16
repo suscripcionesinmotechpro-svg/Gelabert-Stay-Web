@@ -63,15 +63,33 @@ function stripHtml(html: string): string {
     .trim();
 }
 
-function formatPrice(price: number | null, operation: string, isEn: boolean, currency?: string) {
+function formatPrice(
+  price: number | null,
+  operation: string,
+  isEn: boolean,
+  priceType?: 'exact' | 'from' | 'range' | null,
+  maxPrice?: number | null,
+  currency?: string
+) {
   if (!price) return null;
   const formatter = new Intl.NumberFormat(isEn ? "en-US" : "es-ES", {
     style: "currency",
     currency: currency || "EUR",
     maximumFractionDigits: 0,
   });
+  const formattedPrice = formatter.format(price);
   const feeLabel = operation === "alquiler" ? (isEn ? "/month" : "/mes") : "";
-  return `${formatter.format(price)}${feeLabel}`;
+
+  if (priceType === 'from') {
+    return isEn ? `From ${formattedPrice}${feeLabel}` : `Desde ${formattedPrice}${feeLabel}`;
+  }
+  
+  if (priceType === 'range' && maxPrice) {
+    const formattedMax = formatter.format(maxPrice);
+    return `${formattedPrice} - ${formattedMax}${feeLabel}`;
+  }
+
+  return `${formattedPrice}${feeLabel}`;
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
@@ -117,7 +135,14 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const cleanBaseTitle = (baseTitle || "").replace(/"/g, "&quot;").replace(/[\r\n]+/g, " ").trim();
 
   // Structured sharing title (e.g. "Alquiler Piso · Málaga · 800 €/mes · 40 m² · Baños 1 · Planta 5º")
-  const formattedPrice = formatPrice(property.price, property.operation, isEn, property.currency);
+  const formattedPrice = formatPrice(
+    property.price,
+    property.operation,
+    isEn,
+    property.price_type,
+    property.max_price,
+    property.currency
+  );
   const sharingTitleElements = [
     opLabel && typeLabel ? `${opLabel} ${typeLabel}` : null,
     property.city || null,
