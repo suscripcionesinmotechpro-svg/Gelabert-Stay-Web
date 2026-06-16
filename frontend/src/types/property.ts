@@ -37,6 +37,7 @@ export interface PropertyRoom {
   id: string;
   name: string;
   images: string[];
+  original_images?: string[] | null;
   video?: PropertyVideo | null;
   price?: number | null;
   private_bathroom?: boolean;

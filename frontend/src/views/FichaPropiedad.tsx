@@ -37,7 +37,8 @@ const communityLabels: Record<string, { es: string; en: string }> = {
   social_club: { es: 'Club social', en: 'Social club' },
   playground: { es: 'Zona infantil', en: 'Playground' },
   solarium: { es: 'Solárium', en: 'Solarium' },
-  coworking: { es: 'Coworking', en: 'Coworking space' }
+  coworking: { es: 'Coworking', en: 'Coworking space' },
+  video_intercom: { es: 'Videoportero', en: 'Video intercom' }
 };
 
 const WhatsAppIcon = () => (

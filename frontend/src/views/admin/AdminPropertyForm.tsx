@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { useProperty, usePropertyMutations, uploadPropertyMedia, deletePropertyMedia } from '../../hooks/useProperties';
+import { useProperty, usePropertyMutations, uploadPropertyMedia, deletePropertyMedia, processRoomWatermarks } from '../../hooks/useProperties';
 import { usePropertyContracts } from '../../hooks/useContracts';
 import { supabase } from '../../lib/supabase';
 import type { PropertyInsert, PropertyOperation, PropertyType, PropertyStatus, CommercialStatus } from '../../types/property';
@@ -234,7 +234,8 @@ export const AdminPropertyForm = () => {
         ...(property.floor_plan ? [property.floor_plan] : []),
         ...(property.floor_plans || []),
         ...(property.common_areas || []).flatMap((ca: any) => ca.images || []),
-        ...(property.rooms || []).flatMap((r: any) => r.images || [])
+        ...(property.rooms || []).flatMap((r: any) => r.images || []),
+        ...(property.rooms || []).flatMap((r: any) => r.original_images || [])
       ].filter(Boolean);
       setInitialMedia(new Set(allInit));
 
@@ -666,6 +667,14 @@ export const AdminPropertyForm = () => {
     try {
       // 1. Clonar el estado para limpieza
       const data: any = { ...form };
+
+      // Process room watermarks if name/price changed
+      const { updatedRooms } = await processRoomWatermarks(
+        data.rooms || [],
+        property?.rooms,
+        enhanceImages
+      );
+      data.rooms = updatedRooms;
       
       // Auto-generar SEO si faltan datos críticos
       if (!data.slug && data.title) {
@@ -758,7 +767,8 @@ export const AdminPropertyForm = () => {
           ...(data.floor_plans || []),
           ...(data.videos_metadata || []).map((v: any) => v.url),
           ...(data.common_areas || []).flatMap((ca: any) => ca.images || []),
-          ...(data.rooms || []).flatMap((r: any) => r.images || [])
+          ...(data.rooms || []).flatMap((r: any) => r.images || []),
+          ...(data.rooms || []).flatMap((r: any) => r.original_images || [])
         ].filter(Boolean));
 
         // Identify URLs that were present but are now gone
@@ -1406,6 +1416,7 @@ export const AdminPropertyForm = () => {
             <ToggleField label="Zona infantil" checked={form.community_features?.playground ?? false} onChange={() => toggleCommunityFeature('playground')} />
             <ToggleField label="Solárium" checked={form.community_features?.solarium ?? false} onChange={() => toggleCommunityFeature('solarium')} />
             <ToggleField label="Coworking" checked={form.community_features?.coworking ?? false} onChange={() => toggleCommunityFeature('coworking')} />
+            <ToggleField label="Videoportero" checked={form.community_features?.video_intercom ?? false} onChange={() => toggleCommunityFeature('video_intercom')} />
           </div>
         </div>
 

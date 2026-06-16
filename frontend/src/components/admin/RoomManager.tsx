@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, X, Upload, Video, Trash2, ShowerHead, Trees, Compass, Wind } from 'lucide-react';
 import { uploadPropertyMedia } from '../../hooks/useProperties';
+import { applyWatermark } from '../../utils/watermark';
 import type { PropertyRoom } from '../../types/property';
 import { SortableImageGallery } from './SortableImageGallery';
 import { usePropertyContracts } from '../../hooks/useContracts';
@@ -44,6 +45,19 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
     onChange(newRooms);
   };
 
+  const syncOriginalImages = (oldImages: string[], oldOriginals: string[], newImages: string[]) => {
+    const newOriginals: string[] = [];
+    newImages.forEach((url) => {
+      const idx = oldImages.indexOf(url);
+      if (idx !== -1 && oldOriginals && oldOriginals[idx]) {
+        newOriginals.push(oldOriginals[idx]);
+      } else {
+        newOriginals.push(url);
+      }
+    });
+    return newOriginals;
+  };
+
   const handleImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
@@ -54,13 +68,30 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
       const roomLabel = room.name || `Habitación ${index + 1}`;
       const roomText = room.price ? `${roomLabel} - ${room.price}€` : roomLabel;
 
-      const urls: string[] = [];
+      const watermarkedUrls: string[] = [];
+      const originalUrls: string[] = [];
+
       for (const f of files) {
-        const url = await uploadPropertyMedia(f, 'gallery', roomText, undefined, autoEnhance);
-        urls.push(url);
+        // 1. Upload original unwatermarked image
+        const originalUrl = await uploadPropertyMedia(f, 'originals', undefined, undefined, autoEnhance, true);
+        
+        // 2. Apply watermark locally
+        const watermarkedFile = await applyWatermark(f, roomText, autoEnhance);
+        
+        // 3. Upload watermarked image (skipping additional watermarking)
+        const watermarkedUrl = await uploadPropertyMedia(watermarkedFile, 'gallery', undefined, undefined, autoEnhance, true);
+        
+        watermarkedUrls.push(watermarkedUrl);
+        originalUrls.push(originalUrl);
       }
+
       const currentImages = room.images || [];
-      updateRoom(index, { images: [...currentImages, ...urls] });
+      const currentOriginals = room.original_images || [];
+
+      updateRoom(index, { 
+        images: [...currentImages, ...watermarkedUrls],
+        original_images: [...currentOriginals, ...originalUrls]
+      });
     } catch (err) {
       console.error('Error uploading room images:', err);
     } finally {
@@ -283,7 +314,10 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
 
                 <SortableImageGallery 
                   images={room.images} 
-                  onChange={(images) => updateRoom(idx, { images })} 
+                  onChange={(images) => {
+                    const syncedOriginals = syncOriginalImages(room.images, room.original_images || [], images);
+                    updateRoom(idx, { images, original_images: syncedOriginals });
+                  }} 
                 />
               </div>
 

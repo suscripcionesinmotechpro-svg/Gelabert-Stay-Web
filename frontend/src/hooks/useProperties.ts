@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import type { Property, PropertyFilters, PropertyInsert, PropertyUpdate, PropertyStatus, CommercialStatus } from '../types/property';
+import type { Property, PropertyFilters, PropertyInsert, PropertyUpdate, PropertyStatus, CommercialStatus, PropertyRoom } from '../types/property';
 import { applyWatermark } from '../utils/watermark';
 
 // Memory cache to avoid redundant fetches and flickering
@@ -461,12 +461,15 @@ export const uploadPropertyMedia = async (
   folder = 'main', 
   roomText?: string,
   onProgress?: (status: string) => void,
-  autoEnhance = true
+  autoEnhance = true,
+  skipWatermark = false
 ): Promise<string> => {
   // Apply lossless watermark automatically (only affects images, leaves PDFs/Videos intact)
   // Disable AI enhancement for floor plans (they should keep original contrast/colors)
   const shouldEnhance = folder !== 'floor-plans' && autoEnhance;
-  const file = await applyWatermark(rawFile, roomText, shouldEnhance, onProgress);
+  const file = skipWatermark 
+    ? rawFile 
+    : await applyWatermark(rawFile, roomText, shouldEnhance, onProgress);
   
   const ext = file.name.split('.').pop()?.toLowerCase();
   const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -491,6 +494,97 @@ export const uploadPropertyMedia = async (
 
   const { data } = supabase.storage.from('property-images').getPublicUrl(filename);
   return data.publicUrl;
+};
+
+/**
+ * Processes rooms before saving to database.
+ * If a room's price or name changed, it re-watermarks its images using the originals.
+ * Returns the updated rooms array and any old watermarked URLs that should be deleted.
+ */
+export const processRoomWatermarks = async (
+  currentRooms: PropertyRoom[],
+  oldRooms: PropertyRoom[] | null | undefined,
+  autoEnhance = true,
+  onProgress?: (status: string) => void
+): Promise<{ updatedRooms: PropertyRoom[]; toDeleteUrls: string[] }> => {
+  const updatedRooms = [...currentRooms];
+  const toDeleteUrls: string[] = [];
+
+  for (let i = 0; i < updatedRooms.length; i++) {
+    const currentRoom = updatedRooms[i];
+    
+    // Find matching old room by ID
+    const oldRoom = oldRooms?.find(r => r.id === currentRoom.id);
+    
+    const label = currentRoom.name || `Habitación ${i + 1}`;
+    const roomText = currentRoom.price ? `${label} - ${currentRoom.price}€` : label;
+    
+    // Check if name or price changed (or if it's a new room and has original_images)
+    const priceChanged = !oldRoom || oldRoom.price !== currentRoom.price;
+    const nameChanged = !oldRoom || oldRoom.name !== currentRoom.name;
+    
+    const needsReWatermark = (priceChanged || nameChanged) && currentRoom.original_images && currentRoom.original_images.length > 0;
+    
+    if (needsReWatermark) {
+      onProgress?.(`Actualizando marcas de agua de ${label}...`);
+      const newImages: string[] = [];
+      const oldWatermarkedUrls = currentRoom.images || [];
+      
+      for (let j = 0; j < currentRoom.original_images.length; j++) {
+        const originalUrl = currentRoom.original_images[j];
+        if (!originalUrl) continue;
+        
+        try {
+          // 1. Fetch original image
+          const response = await fetch(originalUrl);
+          if (!response.ok) throw new Error(`Failed to fetch original image at ${originalUrl}`);
+          const blob = await response.blob();
+          
+          // Get content-type and determine filename
+          const contentType = blob.type || 'image/jpeg';
+          const ext = originalUrl.split('.').pop()?.split('?')[0] || 'jpg';
+          const file = new File([blob], `original.${ext}`, { type: contentType });
+          
+          // 2. Apply the new watermark text
+          const watermarkedFile = await applyWatermark(file, roomText, autoEnhance, onProgress);
+          
+          // 3. Upload the new watermarked image
+          const newWatermarkedUrl = await uploadPropertyMedia(
+            watermarkedFile, 
+            'gallery', 
+            undefined, 
+            undefined, 
+            autoEnhance, 
+            true // skip watermark because we just applied it
+          );
+          
+          newImages.push(newWatermarkedUrl);
+        } catch (err) {
+          console.error(`[Re-Watermark Error] Failed to process image ${originalUrl}:`, err);
+          // Fallback to old watermarked image if re-watermarking failed
+          if (oldWatermarkedUrls[j]) {
+            newImages.push(oldWatermarkedUrls[j]);
+          }
+        }
+      }
+      
+      // Update room images
+      updatedRooms[i] = {
+        ...currentRoom,
+        images: newImages
+      };
+      
+      // Collect old watermarked images to delete from storage later
+      // But only delete those that are no longer in newImages
+      oldWatermarkedUrls.forEach(url => {
+        if (!newImages.includes(url)) {
+          toDeleteUrls.push(url);
+        }
+      });
+    }
+  }
+
+  return { updatedRooms, toDeleteUrls };
 };
 
 /**
