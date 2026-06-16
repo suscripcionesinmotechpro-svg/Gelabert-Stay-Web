@@ -1092,7 +1092,23 @@ ${text}`
     // DISCORD + TELEGRAM (existing functionality, preserved)
     // ──────────────────────────────────────────────────────────────────────────
     if (trigger === 'auto' || type === 'INSERT' || (type === 'UPDATE' && prop.commercial_status === 'disponible' && old_record?.commercial_status !== 'disponible')) {
-      const price = prop.price?.toLocaleString('es-ES') + '€' + (prop.operation === 'alquiler' ? '/mes' : '')
+      let price = '';
+      if (prop.price) {
+        const fmtVal = (val: number) => val.toLocaleString('es-ES') + '€';
+        const formattedPrice = fmtVal(prop.price);
+        if (prop.price_type === 'from') {
+          price = `Desde ${formattedPrice}`;
+        } else if (prop.price_type === 'range' && prop.max_price) {
+          price = `${formattedPrice} - ${fmtVal(prop.max_price)}`;
+        } else {
+          price = formattedPrice;
+        }
+        if (prop.operation === 'alquiler') {
+          price += '/mes';
+        }
+      } else {
+        price = 'Consultar';
+      }
       const mainImg = prop.main_image || 'https://gelaberthomes.es/sample_property.jpg'
 
       const DISCORD_URL = Deno.env.get('COMMUNITY_WEBHOOK_URL')

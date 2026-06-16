@@ -1,3 +1,5 @@
+import { formatPropertyPrice } from './textUtils';
+
 export type WhatsAppContext = 'property' | 'owner' | 'general' | 'contact' | 'services' | 'properties_list' | 'tenants';
 
 interface WhatsAppLinkProps {
@@ -57,6 +59,9 @@ export const getWhatsAppLink = ({
 export const getCommunityShareMessage = (property: { 
   title: string; 
   price?: number | null; 
+  price_type?: 'exact' | 'from' | 'range' | null;
+  max_price?: number | null;
+  currency?: string | null;
   slug?: string | null; 
   reference?: string | null; 
   operation: string;
@@ -64,8 +69,12 @@ export const getCommunityShareMessage = (property: {
   // Use the professional domain for sharing
   const propertyUrl = `https://gelaberthomes.es/propiedades/${property.reference || property.slug || ''}`;
   
-  const priceStr = property.price 
-    ? `${property.price.toLocaleString('es-ES')}€${property.operation === 'alquiler' ? '/mes' : ''}`
+  const formattedPrice = property.price !== undefined && property.price !== null
+    ? formatPropertyPrice(property.price, property.price_type, property.max_price, property.currency, 'es')
+    : 'Consultar';
+
+  const priceStr = formattedPrice !== 'Consultar' && formattedPrice !== '-'
+    ? `${formattedPrice}${property.operation === 'alquiler' ? '/mes' : ''}`
     : 'Consultar';
   
   return `🏠 *¡NUEVA PROPIEDAD DISPONIBLE!*\n\n*${property.title.toUpperCase()}*\n📌 *Ref:* ${property.reference || ''}\n💰 *Precio:* ${priceStr}\n\n📸 *Ver más detalles y fotos en la web:*\n${propertyUrl}`;
@@ -77,6 +86,9 @@ export const getCommunityShareMessage = (property: {
 export const getCommunityShareLink = (property: { 
   title: string; 
   price?: number | null; 
+  price_type?: 'exact' | 'from' | 'range' | null;
+  max_price?: number | null;
+  currency?: string | null;
   slug?: string | null; 
   reference?: string | null; 
   operation: string;
