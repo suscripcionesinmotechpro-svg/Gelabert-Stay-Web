@@ -350,11 +350,11 @@ export const SortableVideoGallery = ({ videos, onChange, onUpload, uploading }: 
         setProcessingStatus('Estabilizando y mejorando con IA...');
         let complete = false;
         let attempts = 0;
-        const maxAttempts = 60; // 5 mins max
+        const maxAttempts = 180; // 30 mins max (180 * 10s)
         
         while (!complete && attempts < maxAttempts) {
           attempts++;
-          await new Promise(r => setTimeout(r, 5000));
+          await new Promise(r => setTimeout(r, 10000));
           const checkRes = await fetch(`/api/enhance-video-premium?id=${data.id}&provider=${data.provider}&filename=${data.filename}`);
           if (!checkRes.ok) {
             throw new Error('Error al verificar estado de la optimización');
