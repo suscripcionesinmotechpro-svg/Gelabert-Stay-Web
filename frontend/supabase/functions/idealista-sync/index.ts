@@ -144,67 +144,77 @@ async function getIdealistaToken(clientId: string, clientSecret: string, baseUrl
 
 // ── FIND OR CREATE CONTACT ───────────────────────────────────────────────────
 async function getIdealistaContactId(accessToken: string, feedKey: string, baseUrl: string): Promise<number> {
-  const contactsUrl = `${baseUrl}/v1/contacts?page=1&size=100`;
-  console.log(`[Contact] Querying existing contacts from: ${contactsUrl}`);
-  
-  const headers: Record<string, string> = {
-    "feedKey": feedKey,
-    "Authorization": `Bearer ${accessToken}`,
-    "Content-Type": "application/json"
-  };
-
-  // Step 1: Try to find an existing contact (with body-level rate limit detection)
   try {
-    const { ok, body } = await idealistaFetch(contactsUrl, { headers });
-    if (ok && body) {
-      const existing = body.contacts?.find(
-        (c: any) => c.email && c.email.toLowerCase() === "info@gelaberthomes.es"
-      );
-      if (existing) {
-        console.log(`[Contact] Found existing contact ID: ${existing.contactId}`);
-        return Number(existing.contactId);
+    const contactsUrl = `${baseUrl}/v1/contacts?page=1&size=100`;
+    console.log(`[Contact] Querying existing contacts from: ${contactsUrl}`);
+    
+    const headers: Record<string, string> = {
+      "feedKey": feedKey,
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json"
+    };
+
+    // Step 1: Try to find an existing contact (with body-level rate limit detection)
+    try {
+      const { ok, body } = await idealistaFetch(contactsUrl, { headers });
+      if (ok && body) {
+        const existing = body.contacts?.find(
+          (c: any) => c.email && c.email.toLowerCase() === "info@gelaberthomes.es"
+        );
+        if (existing) {
+          console.log(`[Contact] Found existing contact ID: ${existing.contactId}`);
+          return Number(existing.contactId);
+        }
+        console.log(`[Contact] No existing contact found with info@gelaberthomes.es. Will create one.`);
+      } else {
+        console.warn(`[Contact] Could not fetch contact list (ok=${ok}), will attempt creation.`);
       }
-      console.log(`[Contact] No existing contact found with info@gelaberthomes.es. Will create one.`);
-    } else {
-      console.warn(`[Contact] Could not fetch contact list (ok=${ok}), will attempt creation.`);
+    } catch (err) {
+      console.warn("[Contact] Error fetching contacts list:", err);
     }
-  } catch (err) {
-    console.warn("[Contact] Error fetching contacts list:", err);
+
+    // Step 2: Create contact – add extra delay before creation to avoid rate limit
+    await delay(1500);
+    const createUrl = `${baseUrl}/v1/contacts`;
+    console.log(`[Contact] Creating new contact at: ${createUrl}`);
+    
+    const contactPayload = {
+      name: "José Carlos",
+      lastName: "Delgado",
+      email: "info@gelaberthomes.es",
+      primaryPhonePrefix: "34",
+      primaryPhoneNumber: "611898827"
+    };
+
+    const { ok, status, body, rawText } = await idealistaFetch(createUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(contactPayload)
+    });
+
+    if (!ok) {
+      console.error(`[Contact Error] Create failed (HTTP ${status}): ${rawText}`);
+      throw new Error(`Failed to create contact in Idealista: ${rawText}`);
+    }
+
+    // Sometimes the API returns {success:false} even on HTTP 200 after retries
+    if (body && body.success === false) {
+      console.error(`[Contact Error] API returned success:false: ${rawText}`);
+      throw new Error(`Failed to create contact in Idealista: ${rawText}`);
+    }
+
+    const contactId = body?.contactId ?? body?.id;
+    console.log(`[Contact] Contact created successfully. ID: ${contactId}`);
+    return Number(contactId);
+
+  } catch (err: any) {
+    console.error(`[Contact Error] getIdealistaContactId failed: ${err.message}`);
+    if (baseUrl.includes("sandbox")) {
+      console.warn(`[Contact Warning] Sandbox environment detected. Falling back to contact ID 4429.`);
+      return 4429;
+    }
+    throw err;
   }
-
-  // Step 2: Create contact – add extra delay before creation to avoid rate limit
-  await delay(1500);
-  const createUrl = `${baseUrl}/v1/contacts`;
-  console.log(`[Contact] Creating new contact at: ${createUrl}`);
-  
-  const contactPayload = {
-    name: "José Carlos",
-    lastName: "Delgado",
-    email: "info@gelaberthomes.es",
-    primaryPhonePrefix: "34",
-    primaryPhoneNumber: "611898827"
-  };
-
-  const { ok, status, body, rawText } = await idealistaFetch(createUrl, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(contactPayload)
-  });
-
-  if (!ok) {
-    console.error(`[Contact Error] Create failed (HTTP ${status}): ${rawText}`);
-    throw new Error(`Failed to create contact in Idealista: ${rawText}`);
-  }
-
-  // Sometimes the API returns {success:false} even on HTTP 200 after retries
-  if (body && body.success === false) {
-    console.error(`[Contact Error] API returned success:false: ${rawText}`);
-    throw new Error(`Failed to create contact in Idealista: ${rawText}`);
-  }
-
-  const contactId = body?.contactId ?? body?.id;
-  console.log(`[Contact] Contact created successfully. ID: ${contactId}`);
-  return Number(contactId);
 }
 
 // ── Watermark helper functions for Idealista ──
@@ -706,7 +716,21 @@ serve(async (req) => {
       // Nota: Idealista exige que este campo sea obligatorio y tenga un valor mínimo de 2.
       mappedFeatures.tenantNumber = Math.max(2, property.tenant_number ?? 2);
 
-      // Edad de los inquilinos (no admitidos por el esquema de la API de Idealista para habitaciones)
+      // Edad del inquilino actual (obligatorio solo si occupiedNow es true)
+      if (isOccupied) {
+        const minAgeVal = property.tenant_min_age ?? 18;
+        const maxAgeVal = property.tenant_max_age ?? 35;
+        mappedFeatures.tenantAge = Math.round((minAgeVal + maxAgeVal) / 2);
+      }
+
+      // Rangos de edad permitidos para solicitantes (opcional, mapeados si existen)
+      if (property.tenant_min_age !== undefined && property.tenant_min_age !== null) {
+        mappedFeatures.minAge = property.tenant_min_age;
+      }
+      if (property.tenant_max_age !== undefined && property.tenant_max_age !== null) {
+        mappedFeatures.maxAge = property.tenant_max_age;
+      }
+
       // minimalStay = estancia mínima en meses (mínimo 2 según esquema de Idealista)
       mappedFeatures.minimalStay = Math.max(2, (property as any).min_stay_months ?? 2);
       // petsAllowed = se permiten mascotas
