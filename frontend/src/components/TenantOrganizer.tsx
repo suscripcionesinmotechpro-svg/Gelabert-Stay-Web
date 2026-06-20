@@ -1050,10 +1050,10 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
           {/* UPLOAD ZONE */}
           <div 
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-[#1F1F1F] hover:border-[#C9A962]/50 bg-[#0A0A0A] p-10 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all group"
+            className="border-2 border-dashed border-[#1F1F1F] hover:border-[#C9A962] bg-[#0A0A0A] hover:bg-[#C9A962]/5 p-10 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all duration-300 group rounded-sm"
           >
             <Upload className="w-8 h-8 text-[#666] group-hover:text-[#C9A962] transition-colors" />
-            <p className="font-primary text-sm text-[#FAF8F5] font-semibold">
+            <p className="font-primary text-sm text-[#FAF8F5] group-hover:text-[#C9A962] font-semibold transition-colors duration-300">
               Arrastra tus archivos aquí o haz clic para buscarlos
             </p>
             <p className="font-primary text-xs text-[#555]">
@@ -1082,7 +1082,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
               placeholder="Ej. 900"
               value={monthlyRent}
               onChange={(e) => setMonthlyRent(e.target.value)}
-              className="bg-black border border-[#1F1F1F] text-[#FAF8F5] p-3 text-sm focus:outline-none focus:border-[#C9A962] placeholder-[#444] font-primary w-full"
+              className="bg-black border border-[#1F1F1F] hover:border-[#C9A962]/50 text-[#FAF8F5] p-3 text-sm focus:outline-none focus:border-[#C9A962] placeholder-[#444] font-primary w-full transition-all duration-300"
             />
           </div>
 
@@ -1102,7 +1102,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
 - Inquilino 1: Juan López, 35 años, nacionalidad española. Autónomo con ingresos de unos 3000€/mes.
 - Inquilino 2: María López (avalista), madre de Juan, pensionista con 1500€/mes de pensión.`}
               rows={4}
-              className="w-full bg-black border border-[#1F1F1F] text-[#FAF8F5] p-3 text-sm focus:outline-none focus:border-[#C9A962] transition-colors placeholder-[#444] font-primary resize-y"
+              className="w-full bg-black border border-[#1F1F1F] hover:border-[#C9A962]/50 text-[#FAF8F5] p-3 text-sm focus:outline-none focus:border-[#C9A962] transition-all duration-300 placeholder-[#444] font-primary resize-y"
             />
           </div>
 
@@ -1398,7 +1398,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                       ) : (
                         <div className="flex flex-col gap-2">
                           {tenant.documents.map((doc, docIdx) => (
-                            <div key={doc.queueItemId} className="flex flex-wrap items-center justify-between bg-black/60 border border-[#1A1A1A] px-4 py-2.5 rounded-sm">
+                            <div key={doc.queueItemId} className="flex flex-wrap items-center justify-between bg-black/60 border border-[#1A1A1A] hover:border-[#C9A962]/30 px-4 py-2.5 rounded-sm transition-all duration-300">
                               <div className="flex items-center gap-2.5 truncate mr-4">
                                 <File className="w-3.5 h-3.5 text-[#C9A962] flex-shrink-0" />
                                 <span className="font-primary text-xs text-[#FAF8F5] truncate">{doc.fileName}</span>
@@ -1462,7 +1462,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                   </h3>
                   <div className="flex flex-col gap-2">
                     {unassignedDocs.map((doc, docIdx) => (
-                      <div key={doc.queueItemId} className="flex items-center justify-between bg-black/40 border border-[#1A1A1A] px-4 py-3">
+                      <div key={doc.queueItemId} className="flex items-center justify-between bg-black/40 border border-[#1A1A1A] hover:border-red-500/30 px-4 py-3 transition-all duration-300">
                         <div className="flex items-center gap-2.5 truncate mr-4">
                           <File className="w-4 h-4 text-[#888]" />
                           <span className="font-primary text-xs text-[#FAF8F5] truncate">{doc.fileName}</span>

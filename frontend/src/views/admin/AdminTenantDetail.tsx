@@ -601,31 +601,46 @@ export const AdminTenantDetail = () => {
                             const existing = documents.filter(d => d.document_type === docType && (d.category === 'tenant' || !d.category));
                             const isUploading = uploadingType === docType && pendingDocType?.category === 'tenant';
                             return (
-                              <div key={docType} className="border border-[#1A1A1A] p-3 flex flex-col gap-2 bg-[#050505]">
-                                <p className="font-primary text-xs text-[#888] font-semibold">{DOCUMENT_TYPE_LABELS[docType]}</p>
+                              <div 
+                                key={docType} 
+                                onClick={() => triggerUpload(docType, 'tenant')}
+                                className="border border-[#1A1A1A] hover:border-[#C9A962] p-3 flex flex-col gap-2 bg-[#050505] hover:bg-[#C9A962]/5 transition-all duration-300 ease-in-out cursor-pointer group rounded-sm"
+                              >
+                                <p className="font-primary text-xs text-[#888] group-hover:text-[#FAF8F5] font-semibold transition-colors duration-300">{DOCUMENT_TYPE_LABELS[docType]}</p>
                                 {existing.map(doc => (
                                   <div key={doc.id} className="flex items-center gap-1.5">
                                     <FileText className="w-3 h-3 text-[#C9A962] flex-shrink-0" />
                                     <button
-                                      onClick={() => handleDownload(doc.id, doc.file_path, doc.file_url, doc.file_name)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDownload(doc.id, doc.file_path, doc.file_url, doc.file_name);
+                                      }}
                                       disabled={downloading === doc.id}
                                       className="font-primary text-[10px] text-[#666] hover:text-[#FAF8F5] truncate flex-1 text-left flex items-center gap-1 transition-colors"
                                     >
                                       {downloading === doc.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <ExternalLink className="w-2.5 h-2.5 flex-shrink-0" />}
                                       {doc.file_name}
                                     </button>
-                                    <button onClick={() => handleDeleteDoc(doc.id, doc.file_path)}
-                                      className="text-[#333] hover:text-red-400 transition-colors flex-shrink-0">
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteDoc(doc.id, doc.file_path);
+                                      }}
+                                      className="text-[#333] hover:text-red-400 transition-colors flex-shrink-0"
+                                    >
                                       <Trash2 className="w-3 h-3" />
                                     </button>
                                   </div>
                                 ))}
                                 <button
-                                  onClick={() => triggerUpload(docType, 'tenant')}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    triggerUpload(docType, 'tenant');
+                                  }}
                                   disabled={isUploading}
-                                  className="flex items-center gap-1 text-[#444] hover:text-[#C9A962] font-primary text-[10px] transition-colors disabled:opacity-50"
+                                  className="flex items-center gap-1 text-[#444] group-hover:text-[#C9A962] group-hover:underline font-primary text-[10px] transition-all duration-300 disabled:opacity-50"
                                 >
-                                  {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                                  {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3 text-[#444] group-hover:text-[#C9A962]" />}
                                   {existing.length > 0 ? 'Añadir otro' : 'Subir PDF'}
                                 </button>
                               </div>
@@ -648,31 +663,46 @@ export const AdminTenantDetail = () => {
                             const existing = documents.filter(d => d.document_type === docType && d.category === 'owner');
                             const isUploading = uploadingType === docType && pendingDocType?.category === 'owner';
                             return (
-                              <div key={docType} className="border border-[#1A1A1A] p-3 flex flex-col gap-2 bg-[#050505]">
-                                <p className="font-primary text-xs text-[#888] font-semibold">{DOCUMENT_TYPE_LABELS[docType]}</p>
+                              <div 
+                                key={docType} 
+                                onClick={() => triggerUpload(docType, 'owner')}
+                                className="border border-[#1A1A1A] hover:border-[#C9A962] p-3 flex flex-col gap-2 bg-[#050505] hover:bg-[#C9A962]/5 transition-all duration-300 ease-in-out cursor-pointer group rounded-sm"
+                              >
+                                <p className="font-primary text-xs text-[#888] group-hover:text-[#FAF8F5] font-semibold transition-colors duration-300">{DOCUMENT_TYPE_LABELS[docType]}</p>
                                 {existing.map(doc => (
                                   <div key={doc.id} className="flex items-center gap-1.5">
                                     <FileText className="w-3 h-3 text-[#C9A962] flex-shrink-0" />
                                     <button
-                                      onClick={() => handleDownload(doc.id, doc.file_path, doc.file_url, doc.file_name)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDownload(doc.id, doc.file_path, doc.file_url, doc.file_name);
+                                      }}
                                       disabled={downloading === doc.id}
                                       className="font-primary text-[10px] text-[#666] hover:text-[#FAF8F5] truncate flex-1 text-left flex items-center gap-1 transition-colors"
                                     >
                                       {downloading === doc.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <ExternalLink className="w-2.5 h-2.5 flex-shrink-0" />}
                                       {doc.file_name}
                                     </button>
-                                    <button onClick={() => handleDeleteDoc(doc.id, doc.file_path)}
-                                      className="text-[#333] hover:text-red-400 transition-colors flex-shrink-0">
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteDoc(doc.id, doc.file_path);
+                                      }}
+                                      className="text-[#333] hover:text-red-400 transition-colors flex-shrink-0"
+                                    >
                                       <Trash2 className="w-3 h-3" />
                                     </button>
                                   </div>
                                 ))}
                                 <button
-                                  onClick={() => triggerUpload(docType, 'owner')}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    triggerUpload(docType, 'owner');
+                                  }}
                                   disabled={isUploading}
-                                  className="flex items-center gap-1 text-[#444] hover:text-[#C9A962] font-primary text-[10px] transition-colors disabled:opacity-50"
+                                  className="flex items-center gap-1 text-[#444] group-hover:text-[#C9A962] group-hover:underline font-primary text-[10px] transition-all duration-300 disabled:opacity-50"
                                 >
-                                  {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                                  {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3 text-[#444] group-hover:text-[#C9A962]" />}
                                   {existing.length > 0 ? 'Añadir otro' : 'Subir PDF'}
                                 </button>
                               </div>
