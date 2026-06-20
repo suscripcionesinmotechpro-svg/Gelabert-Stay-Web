@@ -24,6 +24,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
   const [durations, setDurations] = useState<Record<string, number>>({});
   const [processingVideo, setProcessingVideo] = useState<string | null>(null);
   const [processingStatus, setProcessingStatus] = useState<string | null>(null);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const { contracts } = usePropertyContracts(propertyId);
   const today = new Date().toISOString().split('T')[0];
 
@@ -484,33 +485,39 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
                                   <Loader2 className="w-3 h-3 animate-spin" /> {processingStatus || 'Procesando...'}
                                 </div>
                               ) : (
-                                <div className="relative group">
+                                <div className="relative">
                                   <button
                                     type="button"
+                                    onClick={() => setActiveMenu(activeMenu === url ? null : url)}
                                     className="flex items-center gap-1 text-[10px] text-[#C9A962] hover:underline font-primary uppercase tracking-wider font-bold transition-all"
                                   >
                                     <Sparkles className="w-3 h-3" /> Optimizar con IA
                                   </button>
                                   
-                                  <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block hover:block bg-[#0A0A0A] border border-[#1F1F1F] p-2 flex flex-col gap-1 w-64 z-20 shadow-xl rounded-sm">
-                                    <p className="font-primary text-[9px] uppercase tracking-wider text-[#555] font-bold px-2 py-1 select-none">Seleccionar Tipo de Mejora</p>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleEnhance(idx, 'basic')}
-                                      className="w-full text-left px-2 py-1.5 hover:bg-[#1A1A1A] transition-colors flex flex-col rounded-sm"
-                                    >
-                                      <span className="font-primary text-[10px] text-[#FAF8F5] font-bold">A. Ajuste de Luz (Gemini)</span>
-                                      <span className="font-primary text-[9px] text-[#666]">Luz y contraste optimizados • Coste: {costs.basic}</span>
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleEnhance(idx, 'premium')}
-                                      className="w-full text-left px-2 py-1.5 hover:bg-[#1A1A1A] transition-colors flex flex-col rounded-sm"
-                                    >
-                                      <span className="font-primary text-[10px] text-[#C9A962] font-bold">B. Ajuste Ultra Premium (IA)</span>
-                                      <span className="font-primary text-[9px] text-[#666]">Estabilizado, nitidez y reducción de ruido • Coste: {costs.premium}</span>
-                                    </button>
-                                  </div>
+                                  {activeMenu === url && (
+                                    <>
+                                      <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)} />
+                                      <div className="absolute left-0 bottom-full mb-2 bg-[#0A0A0A] border border-[#1F1F1F] p-2 flex flex-col gap-1 w-64 z-20 shadow-xl rounded-sm">
+                                        <p className="font-primary text-[9px] uppercase tracking-wider text-[#555] font-bold px-2 py-1 select-none">Seleccionar Tipo de Mejora</p>
+                                        <button
+                                          type="button"
+                                          onClick={() => { setActiveMenu(null); handleEnhance(idx, 'basic'); }}
+                                          className="w-full text-left px-2 py-1.5 hover:bg-[#1A1A1A] transition-colors flex flex-col rounded-sm"
+                                        >
+                                          <span className="font-primary text-[10px] text-[#FAF8F5] font-bold">A. Ajuste de Luz (Gemini)</span>
+                                          <span className="font-primary text-[9px] text-[#666]">Luz y contraste optimizados • Coste: {costs.basic}</span>
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => { setActiveMenu(null); handleEnhance(idx, 'premium'); }}
+                                          className="w-full text-left px-2 py-1.5 hover:bg-[#1A1A1A] transition-colors flex flex-col rounded-sm"
+                                        >
+                                          <span className="font-primary text-[10px] text-[#C9A962] font-bold">B. Ajuste Ultra Premium (IA)</span>
+                                          <span className="font-primary text-[9px] text-[#666]">Estabilizado, nitidez y reducción de ruido • Coste: {costs.premium}</span>
+                                        </button>
+                                      </div>
+                                    </>
+                                  )}
                                 </div>
                               )}
                             </div>

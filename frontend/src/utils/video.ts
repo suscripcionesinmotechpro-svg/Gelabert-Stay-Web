@@ -8,10 +8,23 @@ export const getVideoDuration = (source: File | string): Promise<number> => {
     video.muted = true;
     video.playsInline = true;
 
+    if (typeof source === 'string') {
+      video.crossOrigin = 'anonymous';
+    }
+
     const url = typeof source === 'string' ? source : URL.createObjectURL(source);
+
+    const timeoutId = setTimeout(() => {
+      resolve(0);
+      if (typeof source !== 'string') {
+        URL.revokeObjectURL(url);
+      }
+    }, 8000);
+
     video.src = url;
 
     video.onloadedmetadata = () => {
+      clearTimeout(timeoutId);
       resolve(video.duration || 0);
       if (typeof source !== 'string') {
         URL.revokeObjectURL(url);
@@ -19,6 +32,7 @@ export const getVideoDuration = (source: File | string): Promise<number> => {
     };
 
     video.onerror = () => {
+      clearTimeout(timeoutId);
       resolve(0);
       if (typeof source !== 'string') {
         URL.revokeObjectURL(url);

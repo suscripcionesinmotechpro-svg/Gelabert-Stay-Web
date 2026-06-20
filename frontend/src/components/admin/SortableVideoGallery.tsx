@@ -42,6 +42,7 @@ const SortableVideoItem = ({
 }: SortableVideoItemProps) => {
   const { url, title } = video;
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: url });
+  const [showMenu, setShowMenu] = useState(false);
   
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -137,35 +138,41 @@ const SortableVideoItem = ({
                 <Loader2 className="w-3 h-3 animate-spin" /> {processingStatus || 'Procesando...'}
               </div>
             ) : (
-              <div className="relative group/enhance">
+              <div className="relative">
                 <button
                   type="button"
+                  onClick={() => setShowMenu(!showMenu)}
                   className="flex items-center gap-1 text-[10px] text-[#C9A962] hover:underline font-primary uppercase tracking-wider font-bold transition-all"
                 >
                   <Sparkles className="w-3 h-3" /> Optimizar con IA
                 </button>
                 
-                <div className="absolute left-0 bottom-full mb-2 hidden group-hover/enhance:block hover/enhance:block bg-[#0A0A0A] border border-[#1F1F1F] p-2 flex flex-col gap-1 w-64 z-20 shadow-xl rounded-sm">
-                  <p className="font-primary text-[9px] uppercase tracking-wider text-[#555] font-bold px-2 py-1 select-none">
-                    Seleccionar Tipo de Mejora
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => onEnhance('basic')}
-                    className="w-full text-left px-2 py-1.5 hover:bg-[#1A1A1A] transition-colors flex flex-col rounded-sm"
-                  >
-                    <span className="font-primary text-[10px] text-[#FAF8F5] font-bold">A. Ajuste de Luz (Gemini)</span>
-                    <span className="font-primary text-[9px] text-[#666]">Luz y contraste optimizados • Coste: {costs.basic}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onEnhance('premium')}
-                    className="w-full text-left px-2 py-1.5 hover:bg-[#1A1A1A] transition-colors flex flex-col rounded-sm"
-                  >
-                    <span className="font-primary text-[10px] text-[#C9A962] font-bold">B. Ajuste Ultra Premium (IA)</span>
-                    <span className="font-primary text-[9px] text-[#666]">Estabilizado, nitidez y reducción de ruido • Coste: {costs.premium}</span>
-                  </button>
-                </div>
+                {showMenu && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
+                    <div className="absolute left-0 bottom-full mb-2 bg-[#0A0A0A] border border-[#1F1F1F] p-2 flex flex-col gap-1 w-64 z-20 shadow-xl rounded-sm">
+                      <p className="font-primary text-[9px] uppercase tracking-wider text-[#555] font-bold px-2 py-1 select-none">
+                        Seleccionar Tipo de Mejora
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => { setShowMenu(false); onEnhance('basic'); }}
+                        className="w-full text-left px-2 py-1.5 hover:bg-[#1A1A1A] transition-colors flex flex-col rounded-sm"
+                      >
+                        <span className="font-primary text-[10px] text-[#FAF8F5] font-bold">A. Ajuste de Luz (Gemini)</span>
+                        <span className="font-primary text-[9px] text-[#666]">Luz y contraste optimizados • Coste: {costs.basic}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setShowMenu(false); onEnhance('premium'); }}
+                        className="w-full text-left px-2 py-1.5 hover:bg-[#1A1A1A] transition-colors flex flex-col rounded-sm"
+                      >
+                        <span className="font-primary text-[10px] text-[#C9A962] font-bold">B. Ajuste Ultra Premium (IA)</span>
+                        <span className="font-primary text-[9px] text-[#666]">Estabilizado, nitidez y reducción de ruido • Coste: {costs.premium}</span>
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
