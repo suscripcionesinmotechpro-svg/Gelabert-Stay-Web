@@ -21,9 +21,15 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.resolve.alias['react-helmet-async'] = path.resolve(__dirname, './src/components/HelmetShim.tsx');
     config.resolve.alias['react-router-dom$'] = path.resolve(__dirname, './src/components/ReactRouterDomShim.tsx');
+    
+    if (isServer) {
+      config.externals = config.externals || [];
+      config.externals.push('@ffprobe-installer/ffprobe', '@ffmpeg-installer/ffmpeg', 'fluent-ffmpeg');
+    }
+    
     return config;
   },
   async redirects() {
