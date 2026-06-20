@@ -40,3 +40,6 @@
   to = "/resenas"
   status = 301
   force = true
+
+[functions]
+  timeout = 26

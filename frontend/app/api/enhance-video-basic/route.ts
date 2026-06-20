@@ -10,6 +10,13 @@ import ffprobeInstaller from '@ffprobe-installer/ffprobe';
 import { supabase } from '../../../src/lib/supabase';
 
 // Configure Ffmpeg paths
+try {
+  fs.chmodSync(ffmpegInstaller.path, '755');
+  fs.chmodSync(ffprobeInstaller.path, '755');
+} catch (e) {
+  console.warn('Failed to chmod binaries:', e);
+}
+
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 ffmpeg.setFfprobePath(ffprobeInstaller.path);
 
@@ -166,7 +173,7 @@ Devuelve la respuesta estrictamente en formato JSON con la siguiente estructura:
         .outputOptions([
           '-pix_fmt yuv420p',
           '-c:a copy', // Copy audio directly to prevent lag and preserve high quality
-          '-preset medium',
+          '-preset ultrafast',
           '-crf 23'
         ])
         .output(tempOutputPath)

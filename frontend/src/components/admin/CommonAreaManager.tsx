@@ -34,6 +34,7 @@ export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({ areas, onC
   const [processingVideo, setProcessingVideo] = useState<string | null>(null);
   const [processingStatus, setProcessingStatus] = useState<string | null>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = useState<'basic' | 'premium' | null>(null);
 
   useEffect(() => {
     areas.forEach((area) => {
@@ -403,7 +404,7 @@ export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({ areas, onC
                                 <div className="relative">
                                   <button
                                     type="button"
-                                    onClick={() => setActiveMenu(activeMenu === url ? null : url)}
+                                    onClick={() => { setSelectedOption(null); setActiveMenu(activeMenu === url ? null : url); }}
                                     className="flex items-center gap-1 text-[10px] text-[#C9A962] hover:underline font-primary uppercase tracking-wider font-bold transition-all"
                                   >
                                     <Sparkles className="w-3 h-3" /> Optimizar con IA
@@ -412,23 +413,52 @@ export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({ areas, onC
                                   {activeMenu === url && (
                                     <>
                                       <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)} />
-                                      <div className="absolute left-0 bottom-full mb-2 bg-[#0A0A0A] border border-[#1F1F1F] p-2 flex flex-col gap-1 w-64 z-20 shadow-xl rounded-sm">
-                                        <p className="font-primary text-[9px] uppercase tracking-wider text-[#555] font-bold px-2 py-1 select-none">Seleccionar Tipo de Mejora</p>
+                                      <div className="absolute left-0 bottom-full mb-2 bg-[#0A0A0A] border border-[#1F1F1F] p-3 flex flex-col gap-2 w-64 z-20 shadow-xl rounded-sm">
+                                        <p className="font-primary text-[9px] uppercase tracking-wider text-[#555] font-bold px-1 select-none">Seleccionar Tipo de Mejora</p>
+                                        
                                         <button
                                           type="button"
-                                          onClick={() => { setActiveMenu(null); handleEnhance(idx, vIdx, 'basic'); }}
-                                          className="w-full text-left px-2 py-1.5 hover:bg-[#1A1A1A] transition-colors flex flex-col rounded-sm"
+                                          onClick={() => setSelectedOption('basic')}
+                                          className={`w-full text-left p-2 transition-all flex flex-col rounded-sm border ${
+                                            selectedOption === 'basic'
+                                              ? 'border-[#C9A962] bg-[#C9A962]/10'
+                                              : 'border-[#1F1F1F] hover:bg-[#1A1A1A] bg-transparent'
+                                          }`}
                                         >
                                           <span className="font-primary text-[10px] text-[#FAF8F5] font-bold">A. Ajuste de Luz (Gemini)</span>
                                           <span className="font-primary text-[9px] text-[#666]">Luz y contraste optimizados • Coste: {costs.basic}</span>
                                         </button>
+
                                         <button
                                           type="button"
-                                          onClick={() => { setActiveMenu(null); handleEnhance(idx, vIdx, 'premium'); }}
-                                          className="w-full text-left px-2 py-1.5 hover:bg-[#1A1A1A] transition-colors flex flex-col rounded-sm"
+                                          onClick={() => setSelectedOption('premium')}
+                                          className={`w-full text-left p-2 transition-all flex flex-col rounded-sm border ${
+                                            selectedOption === 'premium'
+                                              ? 'border-[#C9A962] bg-[#C9A962]/10'
+                                              : 'border-[#1F1F1F] hover:bg-[#1A1A1A] bg-transparent'
+                                          }`}
                                         >
                                           <span className="font-primary text-[10px] text-[#C9A962] font-bold">B. Ajuste Ultra Premium (IA)</span>
                                           <span className="font-primary text-[9px] text-[#666]">Estabilizado, nitidez y reducción de ruido • Coste: {costs.premium}</span>
+                                        </button>
+
+                                        <button
+                                          type="button"
+                                          disabled={!selectedOption}
+                                          onClick={() => {
+                                            if (selectedOption) {
+                                              setActiveMenu(null);
+                                              handleEnhance(idx, vIdx, selectedOption);
+                                              setSelectedOption(null);
+                                            }
+                                          }}
+                                          className={`w-full py-1.5 mt-1 text-center font-primary text-[10px] uppercase tracking-wider font-bold rounded-sm transition-all ${
+                                            selectedOption
+                                              ? 'bg-[#C9A962] text-black hover:bg-[#FAF8F5] cursor-pointer'
+                                              : 'bg-[#151515] text-[#444] cursor-not-allowed border border-[#1F1F1F]'
+                                          }`}
+                                        >
+                                          Comenzar Optimización
                                         </button>
                                       </div>
                                     </>
