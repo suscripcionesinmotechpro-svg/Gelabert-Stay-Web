@@ -32,11 +32,11 @@ export async function POST(req: Request) {
 
       // Create prediction using lucataco/real-esrgan-video or similar model
       const prediction = await replicate.predictions.create({
-        version: "8f03126f56fa8a7884a44b1c8502db30b691060938ff5d141e6a9ee8397a61d1", // Real-ESRGAN video model
+        version: "3e56ce4b57863bd03048b42bc09bdd4db20d427cca5fde9d8ae4dc60e1bb4775", // Real-ESRGAN video model
         input: {
-          video: videoUrl,
-          scale: 2,
-          face_enhance: true
+          video_path: videoUrl,
+          resolution: "FHD",
+          model: "RealESRGAN_x4plus"
         }
       });
 
