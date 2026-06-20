@@ -71,6 +71,7 @@ export interface Tenant {
   ai_analysis_notes?: string | null;
   age?: number | null;
   nationality?: string | null;
+  tenant_type?: string | null;
 }
 
 export type TenantInsert = Omit<Tenant, 'id' | 'created_at' | 'user_id'>;

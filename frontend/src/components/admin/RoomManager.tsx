@@ -18,6 +18,7 @@ const labelClass = "font-primary text-[10px] text-[#666666] uppercase tracking-w
 
 export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, propertyId, autoEnhance = true }) => {
   const [uploading, setUploading] = useState<string | null>(null);
+  const [roomEnhance, setRoomEnhance] = useState<Record<string, boolean>>({});
   const { contracts } = usePropertyContracts(propertyId);
   const today = new Date().toISOString().split('T')[0];
 
@@ -59,7 +60,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
   };
 
   const handleImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
+    const files = Array.from(e.target.files ?? []) as File[];
     if (!files.length) return;
 
     setUploading(`images-${index}`);
@@ -67,19 +68,20 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
       const room = rooms[index];
       const roomLabel = room.name || `Habitación ${index + 1}`;
       const roomText = room.price ? `${roomLabel} - ${room.price}€` : roomLabel;
+      const shouldEnhance = roomEnhance[room.id] ?? autoEnhance;
 
       const watermarkedUrls: string[] = [];
       const originalUrls: string[] = [];
 
       for (const f of files) {
         // 1. Upload original unwatermarked image
-        const originalUrl = await uploadPropertyMedia(f, 'originals', undefined, undefined, autoEnhance, true);
+        const originalUrl = await uploadPropertyMedia(f, 'originals', undefined, undefined, shouldEnhance, true);
         
         // 2. Apply watermark locally
-        const watermarkedFile = await applyWatermark(f, roomText, autoEnhance);
+        const watermarkedFile = await applyWatermark(f, roomText, shouldEnhance);
         
         // 3. Upload watermarked image (skipping additional watermarking)
-        const watermarkedUrl = await uploadPropertyMedia(watermarkedFile, 'gallery', undefined, undefined, autoEnhance, true);
+        const watermarkedUrl = await uploadPropertyMedia(watermarkedFile, 'gallery', undefined, undefined, shouldEnhance, true);
         
         watermarkedUrls.push(watermarkedUrl);
         originalUrls.push(originalUrl);
@@ -297,7 +299,20 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
               {/* Room Gallery */}
               <div className="space-y-4 mb-6">
                 <div className="flex items-center justify-between">
-                  <label className={labelClass}>Fotos de la Habitación</label>
+                  <div className="flex items-center gap-3">
+                    <label className={labelClass}>Fotos de la Habitación</label>
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={roomEnhance[room.id] ?? autoEnhance}
+                        onChange={(e) => setRoomEnhance(prev => ({ ...prev, [room.id]: e.target.checked }))}
+                        className="w-3.5 h-3.5 rounded border-[#1F1F1F] bg-[#0A0A0A] text-[#C9A962] accent-[#C9A962] focus:ring-0 focus:ring-offset-0"
+                      />
+                      <span className="font-primary text-[10px] text-[#FAF8F5]/60 hover:text-[#FAF8F5] transition-colors uppercase tracking-wider font-bold">
+                        Embellecer con IA
+                      </span>
+                    </label>
+                  </div>
                   <label className="flex items-center gap-2 px-3 py-1 border border-[#1F1F1F] text-[#888888] font-primary text-[10px] uppercase tracking-wider cursor-pointer hover:border-[#FAF8F5] hover:text-[#FAF8F5] transition-all">
                     <Upload className="w-3 h-3" />
                     Subir fotos

@@ -6,6 +6,7 @@ import {
   CheckCircle, Loader2, AlertCircle, RefreshCw, ChevronRight, File, Save
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTenants } from '../hooks/useTenants';
 
 interface UploadQueueItem {
   id: string;
@@ -175,6 +176,15 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
   const [generatingUnified, setGeneratingUnified] = useState(false);
   const [reportUrl, setReportUrl] = useState<string | null>(null);
   const [unifiedUrl, setUnifiedUrl] = useState<string | null>(null);
+  const [tempReportPath, setTempReportPath] = useState<string | null>(null);
+  const [tempUnifiedPath, setTempUnifiedPath] = useState<string | null>(null);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [selectedTenantId, setSelectedTenantId] = useState<string>('');
+  const [tenantSearchQuery, setTenantSearchQuery] = useState('');
+  const [updateEconomicInfo, setUpdateEconomicInfo] = useState(true);
+
+  // Fetch active tenants for linking
+  const { tenants: existingTenantsList } = useTenants();
 
   const basePath = isAdmin ? '/admin' : '/agente';
 
@@ -234,7 +244,8 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
             },
             body: JSON.stringify({ 
               filePaths: [tempPath],
-              additionalNotes: batchNotes
+              additionalNotes: batchNotes,
+              monthlyRent: monthlyRent ? Number(monthlyRent) : undefined
             })
           });
 
@@ -466,6 +477,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
       seniorityDate: '',
       contractType: 'indefinido',
       monthlyIncome: 0,
+      currency: 'EUR',
       notes: '',
       age: null,
       nationality: '',
@@ -537,14 +549,15 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
             employment_status: gt.employmentStatus,
             company_name: gt.companyName || null,
             job_title: gt.jobTitle || null,
-            seniority_date: gt.seniorityDate || null,
+            seniority_date: gt.seniorityDate && gt.seniorityDate.trim() !== '' ? gt.seniorityDate.trim() : null,
             contract_type: gt.contractType,
             monthly_income: gt.monthlyIncome || null,
             ai_analysis_notes: gt.notes || null,
             age: gt.age || null,
             nationality: gt.nationality || null,
             tenant_type: dbTenantType || 'titular',
-            currency: gt.currency || 'EUR'
+            currency: gt.currency || 'EUR',
+            proposed_rent: i === 0 && monthlyRent ? Number(monthlyRent) : null
           }])
           .select('id')
           .single();
@@ -567,7 +580,6 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
 
           if (moveErr) {
             console.error('Error moviendo archivo, probamos a copiar y borrar:', moveErr);
-            // Fallback: download and re-upload (if move fails)
             continue;
           }
 
@@ -611,6 +623,60 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
         }
       }
 
+      // Move temp solvency report if generated
+      if (tempReportPath) {
+        const finalReportPath = `${primaryTenantId}/estudio_solvencia_${primaryTenantId}.pdf`;
+        const { error: moveErr } = await supabase.storage
+          .from('tenant-docs')
+          .move(tempReportPath, finalReportPath);
+
+        if (!moveErr) {
+          const { data: urlData } = await supabase.storage
+            .from('tenant-docs')
+            .createSignedUrl(finalReportPath, 60 * 60 * 24 * 365);
+          
+          const fileUrl = urlData?.signedUrl ?? '';
+          setReportUrl(fileUrl);
+
+          await supabase.from('tenant_documents').insert([{
+            user_id: user.id,
+            tenant_id: primaryTenantId,
+            document_type: 'otro',
+            file_name: `estudio_solvencia_${primaryTenantId}.pdf`,
+            file_path: finalReportPath,
+            file_url: fileUrl,
+            category: 'tenant'
+          }]);
+        }
+      }
+
+      // Move temp compiled docs if generated
+      if (tempUnifiedPath) {
+        const finalUnifiedPath = `general_docs/expediente_consolidado_${primaryTenantId}.pdf`;
+        const { error: moveErr } = await supabase.storage
+          .from('tenant-docs')
+          .move(tempUnifiedPath, finalUnifiedPath);
+
+        if (!moveErr) {
+          const { data: urlData } = await supabase.storage
+            .from('tenant-docs')
+            .createSignedUrl(finalUnifiedPath, 60 * 60 * 24 * 365);
+          
+          const fileUrl = urlData?.signedUrl ?? '';
+          setUnifiedUrl(fileUrl);
+
+          await supabase.from('tenant_documents').insert([{
+            user_id: user.id,
+            tenant_id: primaryTenantId,
+            document_type: 'otro',
+            file_name: `expediente_consolidado_${primaryTenantId}.pdf`,
+            file_path: finalUnifiedPath,
+            file_url: fileUrl,
+            category: 'tenant'
+          }]);
+        }
+      }
+
       toast.success('Inquilinos y documentos guardados con éxito');
       setSavedGroupId(primaryTenantId);
 
@@ -619,6 +685,156 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
       toast.error(`Error guardando expediente: ${err.message}`);
     } finally {
       setSavingToDb(false);
+    }
+  };
+
+  // Link to Existing Tenant
+  const linkToExistingTenant = async (existingTenantId: string) => {
+    if (!existingTenantId) {
+      toast.error('Por favor, selecciona un inquilino.');
+      return;
+    }
+    setSavingToDb(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuario no autenticado.');
+
+      // 1. Opcionalmente actualizar la información del inquilino seleccionado
+      if (updateEconomicInfo && groupedTenants.length > 0) {
+        const primaryData = groupedTenants[0];
+        const { error: updateErr } = await supabase
+          .from('tenants')
+          .update({
+            employment_status: primaryData.employmentStatus || null,
+            company_name: primaryData.companyName || null,
+            job_title: primaryData.jobTitle || null,
+            seniority_date: primaryData.seniorityDate && primaryData.seniorityDate.trim() !== '' ? primaryData.seniorityDate.trim() : null,
+            contract_type: primaryData.contractType || null,
+            monthly_income: primaryData.monthlyIncome || null,
+            ai_analysis_notes: primaryData.notes || null,
+            age: primaryData.age || null,
+            nationality: primaryData.nationality || null,
+            proposed_rent: monthlyRent ? Number(monthlyRent) : null
+          })
+          .eq('id', existingTenantId);
+
+        if (updateErr) throw updateErr;
+      }
+
+      // 2. Mover archivos del storage temporal a la carpeta definitiva del inquilino seleccionado
+      for (const gt of groupedTenants) {
+        for (const doc of gt.documents) {
+          const finalPath = `${existingTenantId}/${Date.now()}_${doc.fileName.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+          
+          const { error: moveErr } = await supabase.storage
+            .from('tenant-docs')
+            .move(doc.tempPath, finalPath);
+
+          if (moveErr) {
+            console.error('Error moviendo archivo temp:', moveErr);
+            continue;
+          }
+
+          const { data: urlData } = await supabase.storage
+            .from('tenant-docs')
+            .createSignedUrl(finalPath, 60 * 60 * 24 * 365);
+
+          const fileUrl = urlData?.signedUrl ?? '';
+          const typesToSave = doc.documentTypes && doc.documentTypes.length > 0 ? doc.documentTypes : ['otro'];
+          const queueItem = queue.find(q => q.id === doc.queueItemId);
+
+          for (const type of typesToSave) {
+            let pageNumbers: number[] | null = null;
+            if (queueItem?.extractedData?.pages) {
+              const matchedPages = queueItem.extractedData.pages
+                .filter(p => p.document_types?.includes(type))
+                .map(p => p.page_number);
+              if (matchedPages.length > 0) {
+                pageNumbers = matchedPages;
+              }
+            }
+
+            const { error: docErr } = await supabase
+              .from('tenant_documents')
+              .insert([{
+                user_id: user.id,
+                tenant_id: existingTenantId,
+                document_type: type,
+                file_name: doc.fileName,
+                file_path: finalPath,
+                file_url: fileUrl,
+                category: 'tenant',
+                pages: pageNumbers
+              }]);
+
+            if (docErr) console.error('Error insertando registro de documento:', docErr);
+          }
+        }
+      }
+
+      // 3. Mover Ficha de Solvencia pre-generada si existe
+      if (tempReportPath) {
+        const finalReportPath = `${existingTenantId}/estudio_solvencia_${existingTenantId}.pdf`;
+        const { error: moveErr } = await supabase.storage
+          .from('tenant-docs')
+          .move(tempReportPath, finalReportPath);
+
+        if (!moveErr) {
+          const { data: urlData } = await supabase.storage
+            .from('tenant-docs')
+            .createSignedUrl(finalReportPath, 60 * 60 * 24 * 365);
+          
+          const fileUrl = urlData?.signedUrl ?? '';
+          setReportUrl(fileUrl);
+
+          await supabase.from('tenant_documents').insert([{
+            user_id: user.id,
+            tenant_id: existingTenantId,
+            document_type: 'otro',
+            file_name: `estudio_solvencia_${existingTenantId}.pdf`,
+            file_path: finalReportPath,
+            file_url: fileUrl,
+            category: 'tenant'
+          }]);
+        }
+      }
+
+      // 4. Mover Dossier unificado pre-generado si existe
+      if (tempUnifiedPath) {
+        const finalUnifiedPath = `general_docs/expediente_consolidado_${existingTenantId}.pdf`;
+        const { error: moveErr } = await supabase.storage
+          .from('tenant-docs')
+          .move(tempUnifiedPath, finalUnifiedPath);
+
+        if (!moveErr) {
+          const { data: urlData } = await supabase.storage
+            .from('tenant-docs')
+            .createSignedUrl(finalUnifiedPath, 60 * 60 * 24 * 365);
+          
+          const fileUrl = urlData?.signedUrl ?? '';
+          setUnifiedUrl(fileUrl);
+
+          await supabase.from('tenant_documents').insert([{
+            user_id: user.id,
+            tenant_id: existingTenantId,
+            document_type: 'otro',
+            file_name: `expediente_consolidado_${existingTenantId}.pdf`,
+            file_path: finalUnifiedPath,
+            file_url: fileUrl,
+            category: 'tenant'
+          }]);
+        }
+      }
+
+      toast.success('Documentación vinculada con éxito al inquilino existente');
+      setSavedGroupId(existingTenantId);
+
+    } catch (err: any) {
+      console.error(err);
+      toast.error(`Error vinculando expediente: ${err.message}`);
+    } finally {
+      setSavingToDb(false);
+      setShowLinkModal(false);
     }
   };
 
@@ -643,17 +859,39 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
 
   // Call API for Ficha de Solvencia PDF
   const generateSolvencyReport = async () => {
-    if (!savedGroupId) return;
     setGeneratingReport(true);
     try {
-      // Auto-save the rent to the database first
-      await supabase
-        .from('tenants')
-        .update({ proposed_rent: monthlyRent ? Number(monthlyRent) : null })
-        .eq('id', savedGroupId);
-
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token || '';
+
+      const isPreSave = !savedGroupId;
+
+      const bodyPayload = isPreSave ? {
+        tenantId: 'temp',
+        monthlyRent: monthlyRent ? Number(monthlyRent) : 0,
+        tenantsData: groupedTenants,
+        documentsList: groupedTenants.flatMap((gt, gIdx) => 
+          gt.documents.flatMap(doc => 
+            (doc.documentTypes || ['otro']).map(type => ({
+              document_type: type,
+              file_name: doc.fileName,
+              tenant_id: `temp-${gIdx}`,
+              file_path: doc.tempPath
+            }))
+          )
+        )
+      } : {
+        tenantId: savedGroupId,
+        monthlyRent: monthlyRent ? Number(monthlyRent) : 0
+      };
+
+      if (!isPreSave) {
+        // Auto-save the rent to the database first
+        await supabase
+          .from('tenants')
+          .update({ proposed_rent: monthlyRent ? Number(monthlyRent) : null })
+          .eq('id', savedGroupId);
+      }
 
       const response = await fetch('/api/generate-solvency-report', {
         method: 'POST',
@@ -661,10 +899,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
           'Content-Type': 'application/json',
           'Authorization': token ? `Bearer ${token}` : ''
         },
-        body: JSON.stringify({
-          tenantId: savedGroupId,
-          monthlyRent: monthlyRent ? Number(monthlyRent) : 0
-        })
+        body: JSON.stringify(bodyPayload)
       });
 
       if (!response.ok) {
@@ -676,16 +911,20 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
       setReportUrl(res.fileUrl);
       toast.success('Ficha de Solvencia generada');
 
-      // Save solvency report pdf in documents
-      await supabase.from('tenant_documents').insert([{
-        user_id: (await supabase.auth.getUser()).data.user?.id,
-        tenant_id: savedGroupId,
-        document_type: 'otro',
-        file_name: res.fileName,
-        file_path: res.filePath,
-        file_url: res.fileUrl,
-        category: 'tenant'
-      }]);
+      if (isPreSave) {
+        setTempReportPath(res.filePath);
+      } else {
+        // Save solvency report pdf in documents
+        await supabase.from('tenant_documents').insert([{
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          tenant_id: savedGroupId,
+          document_type: 'otro',
+          file_name: res.fileName,
+          file_path: res.filePath,
+          file_url: res.fileUrl,
+          category: 'tenant'
+        }]);
+      }
 
     } catch (e: any) {
       toast.error(`Error: ${e.message}`);
@@ -696,30 +935,57 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
 
   // Call API for Compiled Unified PDF
   const generateUnifiedPdf = async () => {
-    if (!savedGroupId) return;
     setGeneratingUnified(true);
     try {
-      // Fetch all documents for this tenant group using the parent_tenant_id linked records
-      const { data: linkedTenants } = await supabase
-        .from('tenants')
-        .select('id')
-        .or(`id.eq.${savedGroupId},parent_tenant_id.eq.${savedGroupId}`);
-
-      const savedIds = linkedTenants?.map(t => t.id) || [savedGroupId];
-
-      const { data: finalDocs } = await supabase
-        .from('tenant_documents')
-        .select('file_path')
-        .in('tenant_id', savedIds);
-
-      const paths = finalDocs?.map(d => d.file_path) || [];
-
-      if (paths.length === 0) {
-        throw new Error('No hay documentos para unificar');
-      }
-
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token || '';
+
+      const isPreSave = !savedGroupId;
+
+      let bodyPayload = {};
+
+      if (isPreSave) {
+        bodyPayload = {
+          contractId: 'general_docs',
+          tenantId: 'temp',
+          tenantsData: groupedTenants,
+          documentsList: groupedTenants.flatMap((gt, gIdx) => 
+            gt.documents.flatMap(doc => 
+              (doc.documentTypes || ['otro']).map(type => ({
+                document_type: type,
+                file_name: doc.fileName,
+                tenant_id: `temp-${gIdx}`,
+                file_path: doc.tempPath
+              }))
+            )
+          )
+        };
+      } else {
+        // Fetch all documents for this tenant group using the parent_tenant_id linked records
+        const { data: linkedTenants } = await supabase
+          .from('tenants')
+          .select('id')
+          .or(`id.eq.${savedGroupId},parent_tenant_id.eq.${savedGroupId}`);
+
+        const savedIds = linkedTenants?.map(t => t.id) || [savedGroupId];
+
+        const { data: finalDocs } = await supabase
+          .from('tenant_documents')
+          .select('file_path')
+          .in('tenant_id', savedIds);
+
+        const paths = finalDocs?.map(d => d.file_path) || [];
+
+        if (paths.length === 0) {
+          throw new Error('No hay documentos para unificar');
+        }
+
+        bodyPayload = {
+          contractId: 'general_docs',
+          tenantId: savedGroupId,
+          filePaths: paths
+        };
+      }
 
       const response = await fetch('/api/compile-tenant-docs', {
         method: 'POST',
@@ -727,11 +993,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
           'Content-Type': 'application/json',
           'Authorization': token ? `Bearer ${token}` : ''
         },
-        body: JSON.stringify({
-          contractId: 'general_docs', // fallback directory name
-          tenantId: savedGroupId,
-          filePaths: paths
-        })
+        body: JSON.stringify(bodyPayload)
       });
 
       if (!response.ok) {
@@ -743,16 +1005,20 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
       setUnifiedUrl(res.fileUrl);
       toast.success('Expediente unificado generado');
 
-      // Save compiled pdf in documents
-      await supabase.from('tenant_documents').insert([{
-        user_id: (await supabase.auth.getUser()).data.user?.id,
-        tenant_id: savedGroupId,
-        document_type: 'otro',
-        file_name: res.fileName,
-        file_path: res.filePath,
-        file_url: res.fileUrl,
-        category: 'tenant'
-      }]);
+      if (isPreSave) {
+        setTempUnifiedPath(res.filePath);
+      } else {
+        // Save compiled pdf in documents
+        await supabase.from('tenant_documents').insert([{
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          tenant_id: savedGroupId,
+          document_type: 'otro',
+          file_name: res.fileName,
+          file_path: res.filePath,
+          file_url: res.fileUrl,
+          category: 'tenant'
+        }]);
+      }
 
     } catch (e: any) {
       toast.error(`Error: ${e.message}`);
@@ -799,6 +1065,24 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
               multiple 
               className="hidden" 
               onChange={(e) => handleFilesAdded(e.target.files)} 
+            />
+          </div>
+
+          {/* PRECIO DEL ALQUILER (OPCIONAL) */}
+          <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-6 flex flex-col gap-3">
+            <label htmlFor="monthly-rent-upload" className="font-primary font-bold text-xs uppercase tracking-wider text-[#C9A962]">
+              Renta mensual del alquiler (€/mes) (opcional)
+            </label>
+            <p className="font-primary text-[#666] text-xs">
+              Especifica la renta propuesta para que la IA realice un cálculo automático de esfuerzo y análisis de riesgo laboral/solvencia.
+            </p>
+            <input 
+              id="monthly-rent-upload"
+              type="number" 
+              placeholder="Ej. 900"
+              value={monthlyRent}
+              onChange={(e) => setMonthlyRent(e.target.value)}
+              className="bg-black border border-[#1F1F1F] text-[#FAF8F5] p-3 text-sm focus:outline-none focus:border-[#C9A962] placeholder-[#444] font-primary w-full"
             />
           </div>
 
@@ -1200,23 +1484,177 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                 </div>
               )}
 
+              {/* Generación de informes pre-guardado */}
+              <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-6 flex flex-col gap-4 mt-6">
+                <div className="flex items-center gap-2 border-b border-[#1F1F1F] pb-3">
+                  <FileText className="w-4 h-4 text-[#C9A962]" />
+                  <h3 className="font-primary font-bold text-xs uppercase tracking-wider text-[#C9A962]">
+                    Generar Documentación para el Propietario (Pre-guardado)
+                  </h3>
+                </div>
+                <p className="font-primary text-[#666] text-xs">
+                  Puedes generar la Ficha de Solvencia y unificar los documentos antes de crear el inquilino definitivo o vincularlos a uno existente.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Ficha de Solvencia */}
+                  {reportUrl ? (
+                    <a 
+                      href={reportUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-primary font-bold uppercase tracking-wider hover:bg-green-500/20 transition-all rounded-sm"
+                    >
+                      <span className="flex items-center gap-2"><FileText className="w-4 h-4" /> Ficha de Solvencia (PDF)</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </a>
+                  ) : (
+                    <button 
+                      onClick={generateSolvencyReport}
+                      disabled={generatingReport}
+                      className="flex items-center justify-center gap-2 p-3 border border-[#C9A962]/40 text-[#C9A962] text-xs font-primary font-bold uppercase tracking-wider hover:bg-[#C9A962]/10 transition-all disabled:opacity-50 rounded-sm"
+                    >
+                      {generatingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                      Generar Ficha de Solvencia PDF
+                    </button>
+                  )}
+
+                  {/* Expediente Unificado */}
+                  {unifiedUrl ? (
+                    <a 
+                      href={unifiedUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-primary font-bold uppercase tracking-wider hover:bg-green-500/20 transition-all rounded-sm"
+                    >
+                      <span className="flex items-center gap-2"><FileText className="w-4 h-4" /> Documentos Consolidados (PDF)</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </a>
+                  ) : (
+                    <button 
+                      onClick={generateUnifiedPdf}
+                      disabled={generatingUnified}
+                      className="flex items-center justify-center gap-2 p-3 border border-[#1F1F1F] text-[#FAF8F5] text-xs font-primary font-bold uppercase tracking-wider hover:border-[#333] transition-all disabled:opacity-50 rounded-sm"
+                    >
+                      {generatingUnified ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                      Unificar toda la Documentación en un PDF
+                    </button>
+                  )}
+                </div>
+              </div>
+
               {/* Submit Buttons */}
-              <div className="flex gap-3 mt-4">
+              <div className="flex flex-wrap gap-3 mt-4">
                 <button
                   onClick={commitToDatabase}
                   disabled={savingToDb}
                   className="flex items-center gap-2 px-6 py-3.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#D4B673] transition-colors disabled:opacity-50"
                 >
-                  {savingToDb ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                  Guardar Expedientes en Base de Datos
+                  {savingToDb ? <Loader2 className="w-4 h-4 animate-spin" /> : <User className="w-4 h-4" />}
+                  Crear como Inquilino Nuevo
                 </button>
                 <button
-                  onClick={() => navigate(`${basePath}/inquilinos`)}
+                  onClick={() => setShowLinkModal(true)}
+                  disabled={savingToDb}
+                  className="flex items-center gap-2 px-6 py-3.5 border border-[#C9A962]/40 text-[#C9A962] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#C9A962]/10 transition-all disabled:opacity-50"
+                >
+                  {savingToDb ? <Loader2 className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4" />}
+                  Vincular a Inquilino Existente
+                </button>
+                <button
+                  onClick={() => {
+                    // Reset analysis state and go back to initial upload stage
+                    setSavedGroupId(null);
+                    setQueue([]);
+                    setGroupedTenants([]);
+                    setUnassignedDocs([]);
+                    setReportUrl(null);
+                    setUnifiedUrl(null);
+                    setBatchNotes('');
+                  }}
                   className="px-6 py-3.5 border border-[#1F1F1F] text-[#888] font-primary text-sm hover:text-[#FAF8F5] hover:border-[#333] transition-colors"
                 >
                   Cancelar
                 </button>
               </div>
+
+              {/* Linking Overlay Modal */}
+              {showLinkModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                  <div className="bg-[#0A0A0A] border border-[#1F1F1F] w-full max-w-lg p-6 flex flex-col gap-5 rounded-sm shadow-2xl">
+                    <div>
+                      <h3 className="font-secondary text-lg text-[#FAF8F5]">Vincular a Inquilino Existente</h3>
+                      <p className="font-primary text-[#666] text-xs mt-1">
+                        Busca y selecciona un inquilino de la base de datos para asignarle los documentos y análisis actuales.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-primary text-[10px] uppercase tracking-wider text-[#666] font-bold">Buscar Inquilino</label>
+                        <input
+                          type="text"
+                          placeholder="Nombre, apellido o DNI..."
+                          value={tenantSearchQuery}
+                          onChange={(e) => setTenantSearchQuery(e.target.value)}
+                          className="bg-black border border-[#1F1F1F] text-[#FAF8F5] p-2.5 text-sm focus:outline-none focus:border-[#C9A962] placeholder-[#444] font-primary w-full"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-primary text-[10px] uppercase tracking-wider text-[#666] font-bold">Seleccionar Inquilino (*)</label>
+                        <select
+                          value={selectedTenantId}
+                          onChange={(e) => setSelectedTenantId(e.target.value)}
+                          className="bg-black border border-[#1F1F1F] text-[#FAF8F5] p-2.5 text-sm focus:outline-none focus:border-[#C9A962] font-primary w-full"
+                        >
+                          <option value="">-- Selecciona un inquilino --</option>
+                          {(existingTenantsList || [])
+                            .filter(t => 
+                              `${t.first_name} ${t.last_name} ${t.dni || ''}`
+                                .toLowerCase()
+                                .includes(tenantSearchQuery.toLowerCase())
+                            )
+                            .map(t => (
+                              <option key={t.id} value={t.id}>
+                                {t.first_name} {t.last_name} {t.dni ? `(${t.dni})` : ''}
+                              </option>
+                            ))
+                          }
+                        </select>
+                      </div>
+
+                      <label className="flex items-center gap-2.5 cursor-pointer select-none mt-2">
+                        <input
+                          type="checkbox"
+                          checked={updateEconomicInfo}
+                          onChange={(e) => setUpdateEconomicInfo(e.target.checked)}
+                          className="w-4 h-4 rounded border-[#1F1F1F] bg-[#0A0A0A] text-[#C9A962] accent-[#C9A962] focus:ring-0"
+                        />
+                        <span className="font-primary text-xs text-[#FAF8F5]/80 hover:text-[#FAF8F5] transition-colors">
+                          Actualizar perfil (ingresos, situación laboral, etc.) con los datos extraídos por la IA
+                        </span>
+                      </label>
+                    </div>
+
+                    <div className="flex justify-end gap-3 border-t border-[#1F1F1F] pt-4 mt-2">
+                      <button
+                        onClick={() => setShowLinkModal(false)}
+                        className="px-4 py-2 border border-[#1F1F1F] text-[#888] font-primary text-xs uppercase tracking-wider hover:text-[#FAF8F5] hover:border-[#333] transition-colors rounded-sm"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={() => linkToExistingTenant(selectedTenantId)}
+                        disabled={!selectedTenantId || savingToDb}
+                        className="px-5 py-2 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-xs uppercase tracking-wider hover:bg-[#D4B673] transition-colors disabled:opacity-50 rounded-sm"
+                      >
+                        {savingToDb ? 'Vinculando...' : 'Confirmar Vinculación'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </>

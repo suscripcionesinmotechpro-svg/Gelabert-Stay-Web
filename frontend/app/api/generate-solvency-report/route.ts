@@ -22,61 +22,92 @@ function createServerSupabase(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const { tenantId, monthlyRent } = await req.json();
-
-    if (!tenantId) {
-      return NextResponse.json({ error: 'Falta el ID del inquilino (tenantId)' }, { status: 400 });
-    }
+    const { tenantId, monthlyRent, tenantsData, documentsList } = await req.json();
 
     let rentPrice = monthlyRent ? Number(monthlyRent) : 0;
     const supabase = createServerSupabase(req);
 
-    // 1. Obtener inquilino principal
-    // 1. Obtener inquilino inicial
-    const { data: initialTenant, error: primaryErr } = await supabase
-      .from('tenants')
-      .select('*')
-      .eq('id', tenantId)
-      .single();
+    let allTenants: any[] = [];
+    let docs: any[] = [];
 
-    if (primaryErr || !initialTenant) {
-      return NextResponse.json({ error: 'Inquilino no encontrado' }, { status: 404 });
-    }
+    if (tenantsData && Array.isArray(tenantsData)) {
+      allTenants = tenantsData.map((t, idx) => ({
+        id: t.id || `temp-${idx}`,
+        first_name: t.firstName,
+        last_name: t.lastName,
+        dni: t.dni,
+        email: t.email,
+        phone: t.phone,
+        employment_status: t.employmentStatus,
+        company_name: t.companyName,
+        job_title: t.jobTitle,
+        seniority_date: t.seniorityDate,
+        contract_type: t.contractType,
+        monthly_income: t.monthlyIncome,
+        ai_analysis_notes: t.notes,
+        age: t.age,
+        nationality: t.nationality,
+        tenant_type: t.tenantType === 'titular_principal' ? 'titular' : t.tenantType,
+      }));
+      docs = (documentsList || []).map((d: any) => ({
+        document_type: d.document_type || 'otro',
+        file_name: d.file_name || d.fileName || '',
+        tenant_id: d.tenant_id || `temp-0`
+      }));
+    } else {
+      if (!tenantId) {
+        return NextResponse.json({ error: 'Falta el ID del inquilino (tenantId)' }, { status: 400 });
+      }
 
-    // Si es un co-inquilino, buscar el inquilino principal real
-    let primaryTenant = initialTenant;
-    const parentId = initialTenant.parent_tenant_id;
-    if (parentId) {
-      const { data: parentTenant } = await supabase
+      // 1. Obtener inquilino principal
+      // 1. Obtener inquilino inicial
+      const { data: initialTenant, error: primaryErr } = await supabase
         .from('tenants')
         .select('*')
-        .eq('id', parentId)
+        .eq('id', tenantId)
         .single();
-      if (parentTenant) {
-        primaryTenant = parentTenant;
+
+      if (primaryErr || !initialTenant) {
+        return NextResponse.json({ error: 'Inquilino no encontrado' }, { status: 404 });
       }
+
+      // Si es un co-inquilino, buscar el inquilino principal real
+      let primaryTenant = initialTenant;
+      const parentId = initialTenant.parent_tenant_id;
+      if (parentId) {
+        const { data: parentTenant } = await supabase
+          .from('tenants')
+          .select('*')
+          .eq('id', parentId)
+          .single();
+        if (parentTenant) {
+          primaryTenant = parentTenant;
+        }
+      }
+
+      // Usar la renta propuesta como fallback si no hay renta mensual del contrato activa
+      if (!rentPrice && primaryTenant.proposed_rent) {
+        rentPrice = Number(primaryTenant.proposed_rent);
+      }
+
+      // 2. Obtener co-inquilinos asociados al inquilino principal
+      const { data: coTenants } = await supabase
+        .from('tenants')
+        .select('*')
+        .eq('parent_tenant_id', primaryTenant.id);
+
+      allTenants = [primaryTenant, ...(coTenants || [])];
+
+      // 3. Obtener los documentos subidos de este grupo para hacer un checklist
+      // Necesitamos buscar los documentos vinculados a estas personas
+      const tenantIds = allTenants.map(t => t.id);
+      const { data: dbDocs } = await supabase
+        .from('tenant_documents')
+        .select('document_type, file_name, tenant_id')
+        .in('tenant_id', tenantIds);
+      
+      docs = dbDocs || [];
     }
-
-    // Usar la renta propuesta como fallback si no hay renta mensual del contrato activa
-    if (!rentPrice && primaryTenant.proposed_rent) {
-      rentPrice = Number(primaryTenant.proposed_rent);
-    }
-
-    // 2. Obtener co-inquilinos asociados al inquilino principal
-    const { data: coTenants } = await supabase
-      .from('tenants')
-      .select('*')
-      .eq('parent_tenant_id', primaryTenant.id);
-
-    const allTenants = [primaryTenant, ...(coTenants || [])];
-
-    // 3. Obtener los documentos subidos de este grupo para hacer un checklist
-    // Necesitamos buscar los documentos vinculados a estas personas
-    const tenantIds = allTenants.map(t => t.id);
-    const { data: docs } = await supabase
-      .from('tenant_documents')
-      .select('document_type, file_name, tenant_id')
-      .in('tenant_id', tenantIds);
 
     // 4. Crear documento PDF
     const pdfDoc = await PDFDocument.create();
@@ -668,7 +699,9 @@ export async function POST(req: Request) {
     const pdfBytes = await pdfDoc.save();
     const pdfBuffer = Buffer.from(pdfBytes);
 
-    const reportPath = `${tenantId}/estudio_solvencia_${tenantId}.pdf`;
+    const reportPath = tenantId && tenantId !== 'temp'
+      ? `${tenantId}/estudio_solvencia_${tenantId}.pdf`
+      : `temp-analysis/estudio_solvencia_temp_${Date.now()}.pdf`;
 
     const { error: uploadErr } = await supabase.storage
       .from('tenant-docs')
@@ -687,12 +720,15 @@ export async function POST(req: Request) {
       .createSignedUrl(reportPath, 60 * 60 * 24 * 365);
 
     const fileUrl = urlData?.signedUrl ?? '';
+    const finalFileName = tenantId && tenantId !== 'temp'
+      ? `estudio_solvencia_${tenantId}.pdf`
+      : `estudio_solvencia_temp_${Date.now()}.pdf`;
 
     return NextResponse.json({
       success: true,
       filePath: reportPath,
       fileUrl,
-      fileName: `estudio_solvencia_${tenantId}.pdf`,
+      fileName: finalFileName,
     });
 
   } catch (err: any) {

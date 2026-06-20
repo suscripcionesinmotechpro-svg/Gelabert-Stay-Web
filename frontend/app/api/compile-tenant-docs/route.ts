@@ -255,42 +255,67 @@ function groupAndSortDocs(docs: { id: string; tenant_id: string; document_type: 
 
 export async function POST(req: Request) {
   try {
-    const { contractId, tenantId } = await req.json();
+    const { contractId, tenantId, tenantsData, documentsList } = await req.json();
 
-    if (!contractId || !tenantId) {
-      return NextResponse.json({ error: 'Faltan parámetros obligatorios (contractId, tenantId)' }, { status: 400 });
+    if (!contractId) {
+      return NextResponse.json({ error: 'Faltan parámetros obligatorios (contractId)' }, { status: 400 });
     }
 
     const supabase = createServerSupabase(req);
 
-    // 1. Obtener inquilino principal
-    const { data: primaryTenant } = await supabase
-      .from('tenants')
-      .select('id, first_name, last_name, tenant_type')
-      .eq('id', tenantId)
-      .single();
+    let allTenants: any[] = [];
+    let dbDocs: any[] = [];
 
-    if (!primaryTenant) {
-      return NextResponse.json({ error: 'Inquilino principal no encontrado' }, { status: 404 });
+    if (tenantsData && Array.isArray(tenantsData)) {
+      allTenants = tenantsData.map((t, idx) => ({
+        id: t.id || `temp-${idx}`,
+        first_name: t.firstName || '',
+        last_name: t.lastName || '',
+        tenant_type: t.tenantType === 'titular_principal' ? 'titular' : t.tenantType,
+      }));
+      dbDocs = (documentsList || []).map((d: any) => ({
+        id: d.id || Math.random().toString(),
+        tenant_id: d.tenant_id || `temp-0`,
+        document_type: d.document_type || 'otro',
+        file_name: d.file_name || d.fileName || '',
+        file_path: d.file_path || d.tempPath || ''
+      }));
+    } else {
+      if (!tenantId) {
+        return NextResponse.json({ error: 'Falta el ID del inquilino (tenantId)' }, { status: 400 });
+      }
+
+      // 1. Obtener inquilino principal
+      const { data: primaryTenant } = await supabase
+        .from('tenants')
+        .select('id, first_name, last_name, tenant_type')
+        .eq('id', tenantId)
+        .single();
+
+      if (!primaryTenant) {
+        return NextResponse.json({ error: 'Inquilino principal no encontrado' }, { status: 404 });
+      }
+
+      // 2. Obtener co-inquilinos
+      const { data: coTenants } = await supabase
+        .from('tenants')
+        .select('id, first_name, last_name, tenant_type')
+        .eq('parent_tenant_id', tenantId);
+
+      allTenants = [primaryTenant, ...(coTenants || [])];
+      const tenantIds = allTenants.map(t => t.id);
+
+      // 3. Obtener todos los documentos de la DB
+      const { data: fetchedDocs } = await supabase
+        .from('tenant_documents')
+        .select('id, tenant_id, document_type, file_name, file_path, pages')
+        .in('tenant_id', tenantIds);
+      
+      dbDocs = fetchedDocs || [];
     }
 
-    // 2. Obtener co-inquilinos
-    const { data: coTenants } = await supabase
-      .from('tenants')
-      .select('id, first_name, last_name, tenant_type')
-      .eq('parent_tenant_id', tenantId);
-
-    const allTenants = [primaryTenant, ...(coTenants || [])];
-    const tenantIds = allTenants.map(t => t.id);
-
-    // 3. Obtener todos los documentos de la DB
-    const { data: dbDocs } = await supabase
-      .from('tenant_documents')
-      .select('id, tenant_id, document_type, file_name, file_path, pages')
-      .in('tenant_id', tenantIds);
-
     if (!dbDocs || dbDocs.length === 0) {
-      return NextResponse.json({ error: 'No se encontraron documentos en la base de datos para este grupo de inquilinos' }, { status: 400 });
+      return NextResponse.json({ error: 'No se encontraron documentos para este grupo de inquilinos' }, { status: 400 });
     }
 
     // Filtrar reportes y expedientes ya unificados para evitar duplicaciones recursivas o mezclar la ficha de solvencia
@@ -408,7 +433,9 @@ export async function POST(req: Request) {
     const compiledBuffer = Buffer.from(mergedPdfBytes);
 
     // Subir el PDF resultante a Supabase Storage
-    const compiledPath = `${contractId}/expediente_consolidado_${tenantId}.pdf`;
+    const compiledPath = tenantId && tenantId !== 'temp'
+      ? `${contractId}/expediente_consolidado_${tenantId}.pdf`
+      : `temp-analysis/expediente_consolidado_temp_${Date.now()}.pdf`;
     
     const { error: uploadErr } = await supabase.storage
       .from('tenant-docs')
@@ -427,12 +454,15 @@ export async function POST(req: Request) {
       .createSignedUrl(compiledPath, 60 * 60 * 24 * 365);
 
     const fileUrl = urlData?.signedUrl ?? '';
+    const finalFileName = tenantId && tenantId !== 'temp'
+      ? `expediente_consolidado_${tenantId}.pdf`
+      : `expediente_consolidado_temp_${Date.now()}.pdf`;
 
     return NextResponse.json({
       success: true,
       filePath: compiledPath,
       fileUrl,
-      fileName: `expediente_consolidado_${tenantId}.pdf`,
+      fileName: finalFileName,
     });
 
   } catch (err: any) {

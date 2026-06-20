@@ -381,14 +381,28 @@ export const AdminTenantDetail = () => {
                         {co.tenant_type === 'avalista' ? 'Avalista' : 'Titular'}
                       </span>
                     </div>
-                    {co.dni && <p className="font-primary text-[10px] text-[#555]">DNI: {co.dni}</p>}
+                     {co.dni && <p className="font-primary text-[10px] text-[#555]">DNI: {co.dni}</p>}
                     {(co.age || co.nationality) && (
                       <p className="font-primary text-[10px] text-[#555]">
                         {[co.age ? `${co.age} años` : null, co.nationality].filter(Boolean).join(' • ')}
                       </p>
                     )}
+                    {(co.employment_status || co.company_name || co.job_title) && (
+                      <p className="font-primary text-[10px] text-[#888] mt-0.5">
+                        {[
+                          co.employment_status === 'empleado' ? 'Empleado (Cuenta Ajena)' :
+                          co.employment_status === 'autónomo' ? 'Autónomo (Cuenta Propia)' :
+                          co.employment_status === 'estudiante' ? 'Estudiante' :
+                          co.employment_status === 'pensionista' ? 'Pensionista' :
+                          co.employment_status === 'desempleado' ? 'Desempleado' :
+                          co.employment_status,
+                          co.job_title,
+                          co.company_name
+                        ].filter(Boolean).join(' • ')}
+                      </p>
+                    )}
                     {co.monthly_income && (
-                      <p className="font-primary text-xs text-[#C9A962]">
+                      <p className="font-primary text-xs text-[#C9A962] mt-0.5">
                         {(Number(co.monthly_income)).toLocaleString('es-ES')}{' '}
                         {co.currency === 'BRL' ? 'R$' : co.currency === 'USD' ? '$' : co.currency === 'GBP' ? '£' : '€'}{' '}
                         / mes

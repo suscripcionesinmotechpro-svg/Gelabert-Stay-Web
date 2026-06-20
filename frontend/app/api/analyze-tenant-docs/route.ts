@@ -22,7 +22,7 @@ function createServerSupabase(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const { filePaths, additionalNotes } = await req.json();
+    const { filePaths, additionalNotes, monthlyRent } = await req.json();
 
     if (!filePaths || !Array.isArray(filePaths) || filePaths.length === 0) {
       return NextResponse.json({ error: 'Faltan los archivos para analizar' }, { status: 400 });
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     const parts: any[] = [];
 
     // Prompt instructivo para el análisis de solvencia
-    const prompt = `Analiza las siguientes imágenes o páginas de documentos y extrae la información en un formato JSON estructurado. 
+    let prompt = `Analiza las siguientes imágenes o páginas de documentos y extrae la información en un formato JSON estructurado. 
 Estas páginas corresponden al mismo documento o al mismo grupo de documentos de alquiler. 
 Clasifica el documento identificando todos los tipos de documentos de la siguiente lista que estén presentes en el archivo (puesto que un mismo PDF puede contener varios de ellos, como el DNI, una nómina y el contrato a la vez):
 - 'dni' (DNI, NIE, Pasaporte)
@@ -95,6 +95,11 @@ Devuelve la respuesta en formato JSON que cumpla exactamente con este esquema:
     "notes": "Resumen ejecutivo de solvencia y perfil laboral siguiendo las reglas estrictas (texto o null)"
   }
 }`;
+
+    if (monthlyRent) {
+      prompt += `\n\nLA RENTA PROPUESTA PARA ESTE ALQUILER ES DE: ${monthlyRent}€ al mes.
+Por favor, calcula la tasa de esfuerzo (ratio de ingresos netos mensuales del inquilino vs esta renta de ${monthlyRent}€) para el inquilino. En el resumen de solvencia ("notes"), incluye este análisis de esfuerzo de forma fluida (ej. indicando qué porcentaje de sus ingresos netos representa la renta y si se considera un esfuerzo financiero de riesgo bajo, moderado o alto).`;
+    }
 
     parts.push({ text: prompt });
 

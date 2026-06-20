@@ -27,6 +27,7 @@ const COMMON_AREA_TYPES = [
 
 export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({ areas, onChange, autoEnhance = true }) => {
   const [uploading, setUploading] = useState<string | null>(null);
+  const [areaEnhance, setAreaEnhance] = useState<Record<string, boolean>>({});
 
   const addArea = () => {
     const newArea: PropertyCommonArea = {
@@ -52,14 +53,16 @@ export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({ areas, onC
   };
 
   const handleImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
+    const files = Array.from(e.target.files ?? []) as File[];
     if (!files.length) return;
 
     setUploading(`images-${index}`);
     try {
       const urls: string[] = [];
+      const area = areas[index];
+      const shouldEnhance = areaEnhance[area.id] ?? autoEnhance;
       for (const f of files) {
-        const url = await uploadPropertyMedia(f, 'gallery', undefined, undefined, autoEnhance);
+        const url = await uploadPropertyMedia(f, 'gallery', undefined, undefined, shouldEnhance);
         urls.push(url);
       }
       const currentImages = areas[index].images || [];
@@ -187,7 +190,20 @@ export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({ areas, onC
               {/* Gallery */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <label className={labelClass}>Fotos de la Zona</label>
+                  <div className="flex items-center gap-3">
+                    <label className={labelClass}>Fotos de la Zona</label>
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={areaEnhance[area.id] ?? autoEnhance}
+                        onChange={(e) => setAreaEnhance(prev => ({ ...prev, [area.id]: e.target.checked }))}
+                        className="w-3.5 h-3.5 rounded border-[#1F1F1F] bg-[#0A0A0A] text-[#C9A962] accent-[#C9A962] focus:ring-0 focus:ring-offset-0"
+                      />
+                      <span className="font-primary text-[10px] text-[#FAF8F5]/60 hover:text-[#FAF8F5] transition-colors uppercase tracking-wider font-bold">
+                        Embellecer con IA
+                      </span>
+                    </label>
+                  </div>
                   <label className="flex items-center gap-2 px-3 py-1 border border-[#1F1F1F] text-[#888888] font-primary text-[10px] uppercase tracking-wider cursor-pointer hover:border-[#FAF8F5] hover:text-[#FAF8F5] transition-all">
                     <Upload className="w-3 h-3" />
                     Subir fotos

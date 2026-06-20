@@ -36,7 +36,12 @@ interface CoTenantForm {
   monthly_income: number;
   age?: number | null;
   nationality?: string | null;
-  tenant_type?: 'titular' | 'avalista';
+  tenant_type?: 'titular' | 'avalista' | '';
+  employment_status?: string;
+  company_name?: string;
+  job_title?: string;
+  contract_type?: string;
+  seniority_date?: string;
 }
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -104,7 +109,12 @@ export const AgentTenantForm = () => {
               monthly_income: Number(c.monthly_income || 0),
               age: c.age || null,
               nationality: c.nationality || '',
-              tenant_type: c.tenant_type || ''
+              tenant_type: c.tenant_type || '',
+              employment_status: c.employment_status || 'empleado',
+              company_name: c.company_name || '',
+              job_title: c.job_title || '',
+              contract_type: c.contract_type || 'indefinido',
+              seniority_date: c.seniority_date || ''
             })));
           }
         });
@@ -137,7 +147,11 @@ export const AgentTenantForm = () => {
       let mainTenantId = id;
       const dbForm = {
         ...form,
-        tenant_type: form.tenant_type === 'titular_principal' ? 'titular' : form.tenant_type
+        tenant_type: form.tenant_type === 'titular_principal' ? 'titular' : form.tenant_type,
+        seniority_date: form.seniority_date && form.seniority_date.trim() !== '' ? form.seniority_date : null,
+        age: form.age !== '' && form.age !== null ? Number(form.age) : null,
+        monthly_income: form.monthly_income || null,
+        annual_income: form.annual_income || null
       };
       if (isEdit && id) {
         await updateTenant(id, dbForm);
@@ -147,38 +161,37 @@ export const AgentTenantForm = () => {
 
       // Save co-tenants
       for (const co of coTenants) {
+        const coPayload = {
+          first_name: co.first_name,
+          last_name: co.last_name,
+          dni: co.dni || null,
+          email: co.email || null,
+          phone: co.phone || null,
+          monthly_income: co.monthly_income || null,
+          age: co.age || null,
+          nationality: co.nationality || null,
+          tenant_type: co.tenant_type || 'titular',
+          employment_status: co.employment_status || null,
+          company_name: co.company_name || null,
+          job_title: co.job_title || null,
+          contract_type: co.contract_type || null,
+          seniority_date: co.seniority_date && co.seniority_date.trim() !== '' ? co.seniority_date : null
+        };
+
         if (co.id) {
           const { error: coErr } = await supabase
             .from('tenants')
-            .update({
-              first_name: co.first_name,
-              last_name: co.last_name,
-              dni: co.dni || null,
-              email: co.email || null,
-              phone: co.phone || null,
-              monthly_income: co.monthly_income || null,
-              age: co.age || null,
-              nationality: co.nationality || null,
-              tenant_type: co.tenant_type || 'titular'
-            })
+            .update(coPayload)
             .eq('id', co.id);
           if (coErr) throw coErr;
         } else {
           const { error: coErr } = await supabase
             .from('tenants')
             .insert([{
+              ...coPayload,
               user_id: user.id,
               agent_id: user.id,
-              parent_tenant_id: mainTenantId,
-              first_name: co.first_name,
-              last_name: co.last_name,
-              dni: co.dni || null,
-              email: co.email || null,
-              phone: co.phone || null,
-              monthly_income: co.monthly_income || null,
-              age: co.age || null,
-              nationality: co.nationality || null,
-              tenant_type: co.tenant_type || 'titular'
+              parent_tenant_id: mainTenantId
             }]);
           if (coErr) throw coErr;
         }
@@ -332,7 +345,22 @@ export const AgentTenantForm = () => {
           <h2 className="font-primary font-bold text-xs uppercase tracking-wider text-[#666]">Co-inquilinos / Personas Asociadas</h2>
           <button
             type="button"
-            onClick={() => setCoTenants(prev => [...prev, { first_name: '', last_name: '', dni: '', email: '', phone: '', monthly_income: 0, age: null, nationality: '', tenant_type: '' }])}
+            onClick={() => setCoTenants(prev => [...prev, { 
+              first_name: '', 
+              last_name: '', 
+              dni: '', 
+              email: '', 
+              phone: '', 
+              monthly_income: 0, 
+              age: null, 
+              nationality: '', 
+              tenant_type: '',
+              employment_status: 'empleado',
+              company_name: '',
+              job_title: '',
+              contract_type: 'indefinido',
+              seniority_date: ''
+            }])}
             className="flex items-center gap-1 text-[10px] text-[#C9A962] hover:underline font-primary uppercase tracking-wider font-bold"
           >
             <Plus className="w-3.5 h-3.5" /> Añadir Persona
@@ -344,129 +372,207 @@ export const AgentTenantForm = () => {
         ) : (
           <div className="flex flex-col gap-6">
             {coTenants.map((co, idx) => (
-              <div key={idx} className="border border-[#1A1A1A] p-4 flex flex-col gap-4 relative bg-black/20">
-                <div className="flex justify-between items-center border-b border-[#111] pb-1">
-                  <span className="font-primary text-[10px] text-[#C9A962] uppercase tracking-wider font-bold">Persona #{idx + 1}</span>
+              <div key={idx} className="border border-[#1F1F1F] p-5 flex flex-col gap-4 relative bg-[#0D0D0D] rounded-sm transition-all duration-300 hover:border-[#333]">
+                <div className="flex justify-between items-center border-b border-[#1A1A1A] pb-2">
+                  <span className="font-primary text-xs text-[#C9A962] uppercase tracking-wider font-bold">Persona #{idx + 1}</span>
                   <button
                     type="button"
                     onClick={() => {
                       if (co.id) setDeletedCoTenantIds(prev => [...prev, co.id!]);
                       setCoTenants(prev => prev.filter((_, i) => i !== idx));
                     }}
-                    className="text-[#666] hover:text-red-400 transition-colors flex items-center gap-1 font-primary text-[10px] uppercase tracking-wider"
+                    className="text-[#666] hover:text-red-400 transition-colors flex items-center gap-1 font-primary text-[10px] uppercase tracking-wider font-bold"
                   >
                     <Trash2 className="w-3.5 h-3.5" /> Eliminar
                   </button>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  <Field label="Nombre *">
-                    <input
-                      className={inputClass}
-                      value={co.first_name}
-                      required
-                      onChange={e => {
-                        const val = e.target.value;
-                        setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, first_name: val } : c));
-                      }}
-                      placeholder="Nombre"
-                    />
-                  </Field>
-                  <Field label="Apellido *">
-                    <input
-                      className={inputClass}
-                      value={co.last_name}
-                      required
-                      onChange={e => {
-                        const val = e.target.value;
-                        setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, last_name: val } : c));
-                      }}
-                      placeholder="Apellido"
-                    />
-                  </Field>
-                  <Field label="DNI / NIE">
-                    <input
-                      className={inputClass}
-                      value={co.dni}
-                      onChange={e => {
-                        const val = e.target.value;
-                        setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, dni: val } : c));
-                      }}
-                      placeholder="12345678A"
-                    />
-                  </Field>
-                  <Field label="Edad">
-                    <input
-                      type="number"
-                      className={inputClass}
-                      value={co.age ?? ''}
-                      onChange={e => {
-                        const val = e.target.value ? Number(e.target.value) : null;
-                        setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, age: val } : c));
-                      }}
-                      placeholder="30"
-                    />
-                  </Field>
-                  <Field label="Nacionalidad">
-                    <input
-                      className={inputClass}
-                      value={co.nationality || ''}
-                      onChange={e => {
-                        const val = e.target.value;
-                        setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, nationality: val } : c));
-                      }}
-                      placeholder="Española"
-                    />
-                  </Field>
-                  <Field label="Rol en Contrato *">
-                    <select
-                      className={inputClass}
-                      value={co.tenant_type || ''}
-                      onChange={e => {
-                        const val = e.target.value as 'titular' | 'avalista' | '';
-                        setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, tenant_type: val } : c));
-                      }}
-                    >
-                      <option value="">-- Seleccionar --</option>
-                      <option value="titular">Titular</option>
-                      <option value="avalista">Avalista</option>
-                    </select>
-                  </Field>
-                  <Field label="Teléfono">
-                    <input
-                      className={inputClass}
-                      value={co.phone}
-                      onChange={e => {
-                        const val = e.target.value;
-                        setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, phone: val } : c));
-                      }}
-                      placeholder="+34 600..."
-                    />
-                  </Field>
-                  <Field label="Email">
-                    <input
-                      type="email"
-                      className={inputClass}
-                      value={co.email}
-                      onChange={e => {
-                        const val = e.target.value;
-                        setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, email: val } : c));
-                      }}
-                      placeholder="ejemplo@email.com"
-                    />
-                  </Field>
-                  <Field label="Ingresos Netos (€/mes)">
-                    <input
-                      type="number"
-                      className={inputClass}
-                      value={co.monthly_income || ''}
-                      onChange={e => {
-                        const val = Number(e.target.value);
-                        setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, monthly_income: val } : c));
-                      }}
-                      placeholder="1500"
-                    />
-                  </Field>
+                {/* Datos Personales */}
+                <div>
+                  <h3 className="font-primary text-[10px] uppercase tracking-wider text-[#555] font-bold mb-3">Datos Personales</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    <Field label="Nombre *">
+                      <input
+                        className={inputClass}
+                        value={co.first_name}
+                        required
+                        onChange={e => {
+                          const val = e.target.value;
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, first_name: val } : c));
+                        }}
+                        placeholder="Nombre"
+                      />
+                    </Field>
+                    <Field label="Apellido *">
+                      <input
+                        className={inputClass}
+                        value={co.last_name}
+                        required
+                        onChange={e => {
+                          const val = e.target.value;
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, last_name: val } : c));
+                        }}
+                        placeholder="Apellido"
+                      />
+                    </Field>
+                    <Field label="DNI / NIE">
+                      <input
+                        className={inputClass}
+                        value={co.dni}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, dni: val } : c));
+                        }}
+                        placeholder="12345678A"
+                      />
+                    </Field>
+                    <Field label="Edad">
+                      <input
+                        type="number"
+                        className={inputClass}
+                        value={co.age ?? ''}
+                        onChange={e => {
+                          const val = e.target.value ? Number(e.target.value) : null;
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, age: val } : c));
+                        }}
+                        placeholder="30"
+                      />
+                    </Field>
+                    <Field label="Nacionalidad">
+                      <input
+                        className={inputClass}
+                        value={co.nationality || ''}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, nationality: val } : c));
+                        }}
+                        placeholder="Española"
+                      />
+                    </Field>
+                    <Field label="Rol en Contrato *">
+                      <select
+                        className={inputClass}
+                        value={co.tenant_type || ''}
+                        onChange={e => {
+                          const val = e.target.value as 'titular' | 'avalista' | '';
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, tenant_type: val } : c));
+                        }}
+                      >
+                        <option value="">-- Seleccionar --</option>
+                        <option value="titular">Titular</option>
+                        <option value="avalista">Avalista</option>
+                      </select>
+                    </Field>
+                    <Field label="Teléfono">
+                      <input
+                        className={inputClass}
+                        value={co.phone}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, phone: val } : c));
+                        }}
+                        placeholder="+34 600..."
+                      />
+                    </Field>
+                    <Field label="Email">
+                      <input
+                        type="email"
+                        className={inputClass}
+                        value={co.email}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, email: val } : c));
+                        }}
+                        placeholder="ejemplo@email.com"
+                      />
+                    </Field>
+                  </div>
+                </div>
+
+                {/* Separator */}
+                <div className="border-t border-[#1A1A1A] my-1" />
+
+                {/* Situación Laboral y Económica */}
+                <div>
+                  <h3 className="font-primary text-[10px] uppercase tracking-wider text-[#555] font-bold mb-3">Situación Laboral y Económica</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    <Field label="Situación Laboral">
+                      <select
+                        className={inputClass}
+                        value={co.employment_status || 'empleado'}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, employment_status: val } : c));
+                        }}
+                      >
+                        <option value="empleado">Cuenta Ajena (Empleado)</option>
+                        <option value="autónomo">Cuenta Propia (Autónomo)</option>
+                        <option value="estudiante">Estudiante</option>
+                        <option value="pensionista">Pensionista</option>
+                        <option value="desempleado">Desempleado</option>
+                      </select>
+                    </Field>
+                    <Field label="Empresa">
+                      <input
+                        className={inputClass}
+                        value={co.company_name || ''}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, company_name: val } : c));
+                        }}
+                        placeholder="Empresa S.A."
+                      />
+                    </Field>
+                    <Field label="Puesto / Cargo">
+                      <input
+                        className={inputClass}
+                        value={co.job_title || ''}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, job_title: val } : c));
+                        }}
+                        placeholder="Administrativo"
+                      />
+                    </Field>
+                    <Field label="Tipo de Contrato">
+                      <select
+                        className={inputClass}
+                        value={co.contract_type || 'indefinido'}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, contract_type: val } : c));
+                        }}
+                      >
+                        <option value="indefinido">Indefinido</option>
+                        <option value="temporal">Temporal</option>
+                        <option value="prácticas">Prácticas</option>
+                        <option value="otro">Otro</option>
+                      </select>
+                    </Field>
+                    <Field label="Antigüedad Laboral">
+                      <input
+                        type="date"
+                        className={inputClass}
+                        value={co.seniority_date || ''}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, seniority_date: val } : c));
+                        }}
+                      />
+                    </Field>
+                    <Field label="Ingresos Netos (€/mes)">
+                      <input
+                        type="number"
+                        className={inputClass}
+                        value={co.monthly_income || ''}
+                        onChange={e => {
+                          const val = e.target.value ? Number(e.target.value) : 0;
+                          setCoTenants(prev => prev.map((c, i) => i === idx ? { ...c, monthly_income: val } : c));
+                        }}
+                        placeholder="1500"
+                      />
+                    </Field>
+                  </div>
                 </div>
               </div>
             ))}
