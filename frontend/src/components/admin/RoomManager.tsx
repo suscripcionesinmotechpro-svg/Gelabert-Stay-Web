@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { Plus, X, Upload, Video, Trash2, ShowerHead, Trees, Compass, Wind } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, X, Upload, Video, Trash2, ShowerHead, Trees, Compass, Wind, Download, Sparkles, Loader2 } from 'lucide-react';
 import { uploadPropertyMedia } from '../../hooks/useProperties';
 import { applyWatermark } from '../../utils/watermark';
 import type { PropertyRoom } from '../../types/property';
 import { SortableImageGallery } from './SortableImageGallery';
 import { usePropertyContracts } from '../../hooks/useContracts';
+import { toast } from 'react-hot-toast';
+import { getVideoDuration, estimateVideoCost } from '../../utils/video';
 
 interface RoomManagerProps {
   rooms: PropertyRoom[];
@@ -19,8 +21,23 @@ const labelClass = "font-primary text-[10px] text-[#666666] uppercase tracking-w
 export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, propertyId, autoEnhance = true }) => {
   const [uploading, setUploading] = useState<string | null>(null);
   const [roomEnhance, setRoomEnhance] = useState<Record<string, boolean>>({});
+  const [durations, setDurations] = useState<Record<string, number>>({});
+  const [processingVideo, setProcessingVideo] = useState<string | null>(null);
+  const [processingStatus, setProcessingStatus] = useState<string | null>(null);
   const { contracts } = usePropertyContracts(propertyId);
   const today = new Date().toISOString().split('T')[0];
+
+  useEffect(() => {
+    rooms.forEach((room) => {
+      if (room.video?.url && !durations[room.video.url]) {
+        getVideoDuration(room.video.url).then((d) => {
+          if (d > 0) {
+            setDurations((prev) => ({ ...prev, [room.video!.url]: d }));
+          }
+        });
+      }
+    });
+  }, [rooms]);
 
   const addRoom = () => {
     const newRoom: PropertyRoom = {
@@ -115,6 +132,75 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
       console.error('Error uploading room video:', err);
     } finally {
       setUploading(null);
+    }
+  };
+
+  const handleEnhance = async (roomIdx: number, type: 'basic' | 'premium') => {
+    const room = rooms[roomIdx];
+    if (!room.video?.url) return;
+    const url = room.video.url;
+    const title = room.video.title || 'Tour Habitación';
+
+    setProcessingVideo(url);
+    setProcessingStatus(type === 'basic' ? 'Analizando con Gemini...' : 'Enviando a servidor premium...');
+
+    try {
+      if (type === 'basic') {
+        const response = await fetch('/api/enhance-video-basic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ videoUrl: url, filename: url.split('/property-images/')[1] })
+        });
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.error || 'Failed to enhance video basic');
+        }
+        const data = await response.json();
+        updateRoom(roomIdx, { video: { url: data.enhancedUrl, title } });
+        toast.success('Vídeo optimizado con éxito');
+      } else {
+        const response = await fetch('/api/enhance-video-premium', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ videoUrl: url, filename: url.split('/property-images/')[1] })
+        });
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.error || 'Failed to start premium enhance');
+        }
+        const data = await response.json();
+        
+        setProcessingStatus('Estabilizando y mejorando con IA...');
+        let complete = false;
+        let attempts = 0;
+        const maxAttempts = 60; // 5 mins max
+        
+        while (!complete && attempts < maxAttempts) {
+          attempts++;
+          await new Promise(r => setTimeout(r, 5000));
+          const checkRes = await fetch(`/api/enhance-video-premium?id=${data.id}&provider=${data.provider}&filename=${data.filename}`);
+          if (!checkRes.ok) {
+            throw new Error('Error al verificar estado de la optimización');
+          }
+          const checkData = await checkRes.json();
+          if (checkData.status === 'succeeded') {
+            updateRoom(roomIdx, { video: { url: checkData.enhancedUrl, title } });
+            complete = true;
+            toast.success('Vídeo de habitación estabilizado y mejorado con éxito');
+          } else if (checkData.status === 'failed') {
+            throw new Error(checkData.error || 'Fallo en el procesamiento premium');
+          }
+        }
+        if (!complete) {
+          throw new Error('El procesamiento tardó demasiado tiempo, inténtalo de nuevo.');
+        }
+      }
+    } catch (e: any) {
+      toast.error(`Error de optimización: ${e.message}`);
+      console.error(e);
+    } finally {
+      setProcessingVideo(null);
+      setProcessingStatus(null);
     }
   };
 
@@ -368,6 +454,68 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ rooms, onChange, prope
                           placeholder="Ej: Tour de la habitación"
                         />
                         <p className="text-[10px] text-[#444444] italic">Este título se mostrará en el reproductor de vídeo.</p>
+
+                        {/* IA & Download actions */}
+                        {(() => {
+                          const url = room.video.url;
+                          const duration = durations[url] || 0;
+                          const costs = estimateVideoCost(duration);
+
+                          return (
+                            <div className="flex flex-wrap items-center gap-3 mt-2.5 border-t border-[#111] pt-2">
+                              {duration > 0 && (
+                                <span className="font-primary text-[10px] text-[#666] select-none">
+                                  Duración: {Math.floor(duration / 60)}m {Math.round(duration % 60)}s
+                                </span>
+                              )}
+
+                              <a
+                                href={url}
+                                download={`video_room_${idx + 1}.mp4`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-[10px] text-[#FAF8F5] hover:text-[#C9A962] font-primary uppercase tracking-wider font-bold transition-colors select-none"
+                              >
+                                <Download className="w-3 h-3" /> Descargar (Máx. Calidad)
+                              </a>
+
+                              {processingVideo === url ? (
+                                <div className="flex items-center gap-1.5 text-[10px] text-[#C9A962] font-primary uppercase tracking-wider font-bold animate-pulse select-none">
+                                  <Loader2 className="w-3 h-3 animate-spin" /> {processingStatus || 'Procesando...'}
+                                </div>
+                              ) : (
+                                <div className="relative group">
+                                  <button
+                                    type="button"
+                                    className="flex items-center gap-1 text-[10px] text-[#C9A962] hover:underline font-primary uppercase tracking-wider font-bold transition-all"
+                                  >
+                                    <Sparkles className="w-3 h-3" /> Optimizar con IA
+                                  </button>
+                                  
+                                  <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block hover:block bg-[#0A0A0A] border border-[#1F1F1F] p-2 flex flex-col gap-1 w-64 z-20 shadow-xl rounded-sm">
+                                    <p className="font-primary text-[9px] uppercase tracking-wider text-[#555] font-bold px-2 py-1 select-none">Seleccionar Tipo de Mejora</p>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleEnhance(idx, 'basic')}
+                                      className="w-full text-left px-2 py-1.5 hover:bg-[#1A1A1A] transition-colors flex flex-col rounded-sm"
+                                    >
+                                      <span className="font-primary text-[10px] text-[#FAF8F5] font-bold">A. Ajuste de Luz (Gemini)</span>
+                                      <span className="font-primary text-[9px] text-[#666]">Luz y contraste optimizados • Coste: {costs.basic}</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleEnhance(idx, 'premium')}
+                                      className="w-full text-left px-2 py-1.5 hover:bg-[#1A1A1A] transition-colors flex flex-col rounded-sm"
+                                    >
+                                      <span className="font-primary text-[10px] text-[#C9A962] font-bold">B. Ajuste Ultra Premium (IA)</span>
+                                      <span className="font-primary text-[9px] text-[#666]">Estabilizado, nitidez y reducción de ruido • Coste: {costs.premium}</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
