@@ -15,7 +15,7 @@ import {
   useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Play, Upload, X, Plus, Download, Sparkles, Loader2, GripVertical } from 'lucide-react';
+import { Play, Upload, X, Plus, Download, Sparkles, Loader2, GripVertical, CheckCircle2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { PropertyVideo } from '../../types/property';
 import { getVideoDuration, estimateVideoCost } from '../../utils/video';
@@ -124,91 +124,119 @@ const SortableVideoItem = ({
 
         {/* Actions for Direct Videos */}
         {isDirectVideo && (
-          <div className="flex flex-wrap items-center gap-3 mt-1.5 border-t border-[#111] pt-1.5">
-            {duration > 0 && (
-              <span className="font-primary text-[10px] text-[#666] select-none">
-                Duración: {Math.floor(duration / 60)}m {Math.round(duration % 60)}s
-              </span>
-            )}
+          <div className="flex flex-col gap-2 mt-1.5 border-t border-[#111] pt-1.5">
+            <div className="flex flex-wrap items-center gap-3">
+              {(duration > 0 || video.duration > 0) && (
+                <span className="font-primary text-[10px] text-[#666] select-none">
+                  Duración: {Math.floor((duration || video.duration || 0) / 60)}m {Math.round((duration || video.duration || 0) % 60)}s
+                </span>
+              )}
 
-            <a
-              href={url}
-              download={title ? `${title.replace(/\s+/g, '_')}.mp4` : 'video.mp4'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[10px] text-[#FAF8F5] hover:text-[#C9A962] font-primary uppercase tracking-wider font-bold transition-colors select-none"
-            >
-              <Download className="w-3 h-3" /> Descargar (Máx. Calidad)
-            </a>
+              <a
+                href={url}
+                download={title ? `${title.replace(/\s+/g, '_')}.mp4` : 'video.mp4'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-[10px] text-[#FAF8F5] hover:text-[#C9A962] font-primary uppercase tracking-wider font-bold transition-colors select-none"
+              >
+                <Download className="w-3 h-3" /> Descargar (Máx. Calidad)
+              </a>
 
-            {processingVideo === url ? (
-              <div className="flex items-center gap-1.5 text-[10px] text-[#C9A962] font-primary uppercase tracking-wider font-bold animate-pulse select-none">
-                <Loader2 className="w-3 h-3 animate-spin" /> {processingStatus || 'Procesando...'}
-              </div>
-            ) : (
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={toggleMenu}
-                  className="flex items-center gap-1 text-[10px] text-[#C9A962] hover:underline font-primary uppercase tracking-wider font-bold transition-all"
-                >
-                  <Sparkles className="w-3 h-3" /> Optimizar con IA
-                </button>
-                
-                {showMenu && (
-                  <>
-                    <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-                    <div className="absolute left-0 bottom-full mb-2 bg-[#0A0A0A] border border-[#1F1F1F] p-3 flex flex-col gap-2 w-64 z-20 shadow-xl rounded-sm">
-                      <p className="font-primary text-[9px] uppercase tracking-wider text-[#555] font-bold px-1 select-none">
-                        Seleccionar Tipo de Mejora
-                      </p>
-                      
-                      <button
-                        type="button"
-                        onClick={() => setSelectedOption('basic')}
-                        className={`w-full text-left p-2 transition-all flex flex-col rounded-sm border ${
-                          selectedOption === 'basic'
-                            ? 'border-[#C9A962] bg-[#C9A962]/10'
-                            : 'border-[#1F1F1F] hover:bg-[#1A1A1A] bg-transparent'
-                        }`}
-                      >
-                        <span className="font-primary text-[10px] text-[#FAF8F5] font-bold">A. Ajuste de Luz (Gemini)</span>
-                        <span className="font-primary text-[9px] text-[#666]">Luz y contraste optimizados • Coste: {costs.basic}</span>
-                      </button>
+              {processingVideo === url ? (
+                <div className="flex items-center gap-1.5 text-[10px] text-[#C9A962] font-primary uppercase tracking-wider font-bold animate-pulse select-none">
+                  <Loader2 className="w-3 h-3 animate-spin" /> {processingStatus || 'Procesando...'}
+                </div>
+              ) : (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={toggleMenu}
+                    className="flex items-center gap-1 text-[10px] text-[#C9A962] hover:underline font-primary uppercase tracking-wider font-bold transition-all"
+                  >
+                    <Sparkles className="w-3 h-3" /> Optimizar con IA
+                  </button>
+                  
+                  {showMenu && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
+                      <div className="absolute left-0 bottom-full mb-2 bg-[#0A0A0A] border border-[#1F1F1F] p-3 flex flex-col gap-2 w-64 z-20 shadow-xl rounded-sm">
+                        <p className="font-primary text-[9px] uppercase tracking-wider text-[#555] font-bold px-1 select-none">
+                          Seleccionar Tipo de Mejora
+                        </p>
+                        
+                        <button
+                          type="button"
+                          onClick={() => setSelectedOption('basic')}
+                          className={`w-full text-left p-2 transition-all flex flex-col rounded-sm border ${
+                            selectedOption === 'basic'
+                              ? 'border-[#C9A962] bg-[#C9A962]/10'
+                              : 'border-[#1F1F1F] hover:bg-[#1A1A1A] bg-transparent'
+                          }`}
+                        >
+                          <span className="font-primary text-[10px] text-[#FAF8F5] font-bold">A. Ajuste de Luz (Gemini)</span>
+                          <span className="font-primary text-[9px] text-[#666]">Luz y contraste optimizados • Coste: {costs.basic}</span>
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={() => setSelectedOption('premium')}
-                        className={`w-full text-left p-2 transition-all flex flex-col rounded-sm border ${
-                          selectedOption === 'premium'
-                            ? 'border-[#C9A962] bg-[#C9A962]/10'
-                            : 'border-[#1F1F1F] hover:bg-[#1A1A1A] bg-transparent'
-                        }`}
-                      >
-                        <span className="font-primary text-[10px] text-[#C9A962] font-bold">B. Ajuste Ultra Premium (IA)</span>
-                        <span className="font-primary text-[9px] text-[#666]">Estabilizado, nitidez y reducción de ruido • Coste: {costs.premium}</span>
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedOption('premium')}
+                          className={`w-full text-left p-2 transition-all flex flex-col rounded-sm border ${
+                            selectedOption === 'premium'
+                              ? 'border-[#C9A962] bg-[#C9A962]/10'
+                              : 'border-[#1F1F1F] hover:bg-[#1A1A1A] bg-transparent'
+                          }`}
+                        >
+                          <span className="font-primary text-[10px] text-[#C9A962] font-bold">B. Ajuste Ultra Premium (IA)</span>
+                          <span className="font-primary text-[9px] text-[#666]">Estabilizado, nitidez y reducción de ruido • Coste: {costs.premium}</span>
+                        </button>
 
-                      <button
-                        type="button"
-                        disabled={!selectedOption}
-                        onClick={() => {
-                          if (selectedOption) {
-                            setShowMenu(false);
-                            onEnhance(selectedOption);
-                            setSelectedOption(null);
-                          }
-                        }}
-                        className={`w-full py-1.5 mt-1 text-center font-primary text-[10px] uppercase tracking-wider font-bold rounded-sm transition-all ${
-                          selectedOption
-                            ? 'bg-[#C9A962] text-black hover:bg-[#FAF8F5] cursor-pointer'
-                            : 'bg-[#151515] text-[#444] cursor-not-allowed border border-[#1F1F1F]'
-                        }`}
-                      >
-                        Comenzar Optimización
-                      </button>
-                    </div>
-                  </>
+                        <button
+                          type="button"
+                          disabled={!selectedOption}
+                          onClick={() => {
+                            if (selectedOption) {
+                              setShowMenu(false);
+                              onEnhance(selectedOption);
+                              setSelectedOption(null);
+                            }
+                          }}
+                          className={`w-full py-1.5 mt-1 text-center font-primary text-[10px] uppercase tracking-wider font-bold rounded-sm transition-all ${
+                            selectedOption
+                              ? 'bg-[#C9A962] text-black hover:bg-[#FAF8F5] cursor-pointer'
+                              : 'bg-[#151515] text-[#444] cursor-not-allowed border border-[#1F1F1F]'
+                          }`}
+                        >
+                          Comenzar Optimización
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Check de Optimización y Detalles */}
+            {video.optimized && (
+              <div className="mt-1 p-2.5 bg-green-950/20 border border-green-500/30 rounded-sm flex flex-col gap-1.5 select-none">
+                <div className="flex items-center gap-1.5 text-[10px] text-green-400 font-bold uppercase tracking-wider">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
+                  Vídeo Optimizado con IA
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-[9px] font-primary text-[#888]">
+                  <div>
+                    <span className="text-[#555] font-bold uppercase tracking-tight">Método:</span>{' '}
+                    <span className="text-[#FAF8F5]">{video.method}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#555] font-bold uppercase tracking-tight">Coste cobrado:</span>{' '}
+                    <span className="text-[#FAF8F5]">{video.cost}</span>
+                  </div>
+                </div>
+                {video.log && (
+                  <div className="text-[9px] font-primary text-[#777] leading-relaxed border-t border-[#1F1F1F] pt-1.5">
+                    <span className="text-[#555] font-bold uppercase tracking-tight block mb-0.5">Proceso de optimización:</span>
+                    {video.log}
+                  </div>
                 )}
               </div>
             )}
@@ -278,6 +306,13 @@ export const SortableVideoGallery = ({ videos, onChange, onUpload, uploading }: 
     setProcessingStatus(type === 'basic' ? 'Analizando con Gemini...' : 'Enviando a servidor premium...');
 
     try {
+      const itemDuration = durations[url] || video.duration || 0;
+      const costs = estimateVideoCost(itemDuration);
+      const finalCost = type === 'basic' ? costs.basic : costs.premium;
+      const log = type === 'basic'
+        ? 'El vídeo original se descargó localmente en el servidor y fue analizado fotograma por fotograma con Gemini para evaluar iluminación, exposición y balance de blancos. Se aplicó una curva de compensación tonal localmente mediante filtros de color de FFmpeg. El archivo de vídeo original fue reemplazado por la versión optimizada.'
+        : 'El vídeo original se envió al servicio de procesamiento en la nube con redes neuronales convolucionales. Se aplicó un proceso de estabilización digital de movimiento de cámara, reducción de ruido temporal e interpolación espacial para aumentar nitidez de bordes. El archivo original fue reemplazado por la versión premium.';
+
       if (type === 'basic') {
         const response = await fetch('/api/enhance-video-basic', {
           method: 'POST',
@@ -290,7 +325,15 @@ export const SortableVideoGallery = ({ videos, onChange, onUpload, uploading }: 
         }
         const data = await response.json();
         
-        onChange(videos.map(v => v.url === url ? { url: data.enhancedUrl, title } : v));
+        onChange(videos.map(v => v.url === url ? { 
+          url: data.enhancedUrl, 
+          title,
+          optimized: true,
+          cost: finalCost,
+          method: 'Ajuste de Luz (Gemini)',
+          log,
+          duration: itemDuration
+        } : v));
         toast.success('Vídeo optimizado con éxito');
       } else {
         const response = await fetch('/api/enhance-video-premium', {
@@ -318,7 +361,15 @@ export const SortableVideoGallery = ({ videos, onChange, onUpload, uploading }: 
           }
           const checkData = await checkRes.json();
           if (checkData.status === 'succeeded') {
-            onChange(videos.map(v => v.url === url ? { url: checkData.enhancedUrl, title } : v));
+            onChange(videos.map(v => v.url === url ? { 
+              url: checkData.enhancedUrl, 
+              title,
+              optimized: true,
+              cost: finalCost,
+              method: 'Ajuste Ultra Premium (IA)',
+              log,
+              duration: itemDuration
+            } : v));
             complete = true;
             toast.success('Vídeo estabilizado y mejorado con éxito');
           } else if (checkData.status === 'failed') {

@@ -31,6 +31,11 @@ export type CommercialStatus =
 export interface PropertyVideo {
   url: string;
   title: string;
+  optimized?: boolean;
+  cost?: string;
+  method?: string;
+  duration?: number;
+  log?: string;
 }
 
 export interface PropertyRoom {
