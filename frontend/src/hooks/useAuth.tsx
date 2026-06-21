@@ -17,12 +17,25 @@ const SUPABASE_CONFIGURED =
   !SUPABASE_URL.includes('your-project') && 
   !SUPABASE_URL.includes('YOUR_SUPABASE');
 
+export interface UserProfile {
+  id: string;
+  role: string;
+  agent_name: string;
+  last_name?: string | null;
+  office?: string | null;
+  birthday?: string | null;
+  avatar_url?: string | null;
+  phone?: string | null;
+  created_at?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
-  userProfile: { role: string; agent_name: string } | null;
+  userProfile: UserProfile | null;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -30,15 +43,21 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<{ role: string; agent_name: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
       .from('user_profiles')
-      .select('role, agent_name')
+      .select('*')
       .eq('id', userId)
       .maybeSingle();
-    if (data) setUserProfile(data);
+    if (data) setUserProfile(data as UserProfile);
+  };
+
+  const refreshProfile = async () => {
+    if (user) {
+      await fetchProfile(user.id);
+    }
   };
 
   useEffect(() => {
@@ -82,7 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const value: AuthContextType = { user, loading, signIn, signOut, userProfile };
+  const value: AuthContextType = { user, loading, signIn, signOut, userProfile, refreshProfile };
 
   return (
     <AuthContext.Provider value={value}>

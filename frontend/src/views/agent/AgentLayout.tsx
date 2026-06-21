@@ -9,6 +9,8 @@ import {
 import { SystemNotifications } from '../../components/admin/SystemNotifications';
 import { useGlobalVideoPolling } from '../../hooks/useGlobalVideoPolling';
 import { VideoProcessingWidget } from '../../components/admin/VideoProcessingWidget';
+import { UserProfileModal } from '../../components/admin/UserProfileModal';
+
 
 
 export const AgentLayout = () => {
@@ -17,6 +19,11 @@ export const AgentLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newLeadsCount, setNewLeadsCount] = useState(0);
   const { processingVideos } = useGlobalVideoPolling();
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const initials = userProfile?.agent_name
+    ? userProfile.agent_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+    : 'U';
+
 
 
   useEffect(() => {
@@ -134,8 +141,24 @@ export const AgentLayout = () => {
           <LogOut className="w-4 h-4" />
           Cerrar Sesión
         </button>
-        <div className="px-3 pt-4 border-t border-[#1F1F1F] mt-1 overflow-hidden">
-          <p className="font-primary text-[10px] text-zinc-400 truncate">{user.email}</p>
+        <div className="px-3 pt-4 border-t border-[#1F1F1F] mt-1 flex items-center gap-3 overflow-hidden cursor-pointer group select-none" onClick={() => setProfileModalOpen(true)}>
+          <div className="relative w-8 h-8 rounded-full overflow-hidden border border-[#C9A962]/30 group-hover:border-[#C9A962] transition-colors shrink-0 bg-[#0F0F0F] flex items-center justify-center">
+            {userProfile?.avatar_url ? (
+              <img src={userProfile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              <div className="text-[10px] font-bold text-[#C9A962]">
+                {initials}
+              </div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-primary text-[10px] text-[#FAF8F5] font-bold truncate group-hover:text-[#C9A962] transition-colors">
+              {userProfile?.agent_name || 'Agente'}
+            </p>
+            <p className="font-primary text-[9px] text-zinc-500 truncate mt-0.5">
+              {userProfile?.office ? `${userProfile.office}` : user.email}
+            </p>
+          </div>
         </div>
       </div>
     </>
@@ -163,17 +186,53 @@ export const AgentLayout = () => {
         {/* Mobile topbar */}
         <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[#0A0A0A] border-b border-[#1F1F1F]">
           <h1 className="font-secondary text-lg text-[#C9A962]">Gelabert Homes</h1>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 bg-transparent">
             <SystemNotifications />
+            
+            {/* Profile Avatar Button */}
+            <button 
+              onClick={() => setProfileModalOpen(true)}
+              className="relative w-7 h-7 rounded-full overflow-hidden border border-[#C9A962]/30 hover:border-[#C9A962] transition-colors shrink-0 bg-[#0F0F0F] flex items-center justify-center"
+              title="Mi Perfil"
+            >
+              {userProfile?.avatar_url ? (
+                <img src={userProfile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <div className="text-[9px] font-bold text-[#C9A962]">
+                  {initials}
+                </div>
+              )}
+            </button>
+
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[#888888] hover:text-[#FAF8F5]">
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
         {/* Desktop topbar notifications */}
-        <div className="hidden md:flex items-center justify-end px-6 py-2 bg-[#0A0A0A] border-b border-[#1F1F1F] gap-3">
-          <span className="text-[10px] font-primary text-zinc-400 truncate">{user.email}</span>
+        <div className="hidden md:flex items-center justify-end px-6 py-2 bg-[#0A0A0A] border-b border-[#1F1F1F] gap-3 select-none">
+          <span className="text-[10px] font-primary text-zinc-400 truncate">{userProfile?.agent_name || user.email}</span>
+          {userProfile?.office && (
+            <span className="text-[9px] font-primary bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] px-1.5 py-0.5 rounded-sm font-bold uppercase tracking-wider">
+              {userProfile.office}
+            </span>
+          )}
           <SystemNotifications />
+          
+          {/* Profile Avatar Button */}
+          <button 
+            onClick={() => setProfileModalOpen(true)}
+            className="relative w-7 h-7 rounded-full overflow-hidden border border-[#C9A962]/30 hover:border-[#C9A962] transition-colors shrink-0 bg-[#0F0F0F] flex items-center justify-center cursor-pointer"
+            title="Mi Perfil"
+          >
+            {userProfile?.avatar_url ? (
+              <img src={userProfile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              <div className="text-[9px] font-bold text-[#C9A962]">
+                {initials}
+              </div>
+            )}
+          </button>
         </div>
 
         <main className="flex-1 p-6 md:p-8 overflow-auto">
@@ -181,6 +240,7 @@ export const AgentLayout = () => {
         </main>
       </div>
       <VideoProcessingWidget processingVideos={processingVideos} />
+      <UserProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
     </div>
   );
 };
