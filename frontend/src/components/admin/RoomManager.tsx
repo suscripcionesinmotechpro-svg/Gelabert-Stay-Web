@@ -221,10 +221,22 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
       const itemDuration = durations[url] || room.video.duration || 0;
       const apiPath = type === 'basic' ? '/api/enhance-video-basic' : '/api/enhance-video-premium';
 
+      // Get user session token for backend authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      const userToken = session?.access_token;
+
       const response = await fetch(apiPath, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoUrl: url, filename: url.split('/property-images/')[1] })
+        body: JSON.stringify({
+          videoUrl: url,
+          filename: url.split('/property-images/')[1],
+          propertyId,
+          videoType: 'room',
+          roomIdx,
+          userToken,
+          userId: user?.id
+        })
       });
 
       if (!response.ok) {

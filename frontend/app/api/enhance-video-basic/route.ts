@@ -1,77 +1,344 @@
 import { NextResponse } from 'next/server';
-import Replicate from 'replicate';
-import { supabase } from '../../../src/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+import ffmpeg from 'fluent-ffmpeg';
+import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
+import ffprobeInstaller from '@ffprobe-installer/ffprobe';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import { Readable } from 'stream';
+import { finished } from 'stream/promises';
 
-// Helper to download external URL to buffer
-async function downloadToBuffer(url: string): Promise<Buffer> {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to download: ${res.statusText}`);
-  const arrayBuffer = await res.arrayBuffer();
-  return Buffer.from(arrayBuffer);
-}
+// Configure FFmpeg paths
+ffmpeg.setFfmpegPath(ffmpegInstaller.path);
+ffmpeg.setFfprobePath(ffprobeInstaller.path);
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://aumqjpqngmhpbwytpets.supabase.co';
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '';
 
 export async function POST(req: Request) {
   try {
-    const { videoUrl, filename } = await req.json();
+    const body = await req.json();
+    const {
+      videoUrl,
+      filename,
+      propertyId,
+      videoType,
+      videoIdx,
+      areaIdx,
+      roomIdx,
+      userToken,
+      userId
+    } = body;
 
     if (!videoUrl) {
       return NextResponse.json({ error: 'Falta la URL del vídeo' }, { status: 400 });
     }
 
-    const replicateToken = (process.env.REPLICATE_API_TOKEN || '').trim();
-    const tensorpixKey = (process.env.TENSORPIX_API_KEY || '').trim();
+    const isNetlify = process.env.NETLIFY === 'true' || process.env.NODE_ENV === 'production';
 
-    if (tensorpixKey && tensorpixKey !== 'undefined' && tensorpixKey !== 'null') {
-      // ─── TENSORPIX PROVIDER (Option A: Basic Color Restoration) ──────────────────
-      const response = await fetch('https://tensorpix.ai/api/jobs/from-url/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${tensorpixKey}`
-        },
-        body: JSON.stringify({
-          video_url: videoUrl,
-          ml_models: ['color_restoration'] // Fast color enhancement filter
-        })
-      });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`TensorPix API error: ${errText}`);
+    if (isNetlify) {
+      // ─── PRODUCTION: Netlify Background Function ──────────────────────
+      const origin = req.headers.get('origin') || req.headers.get('host') || '';
+      const protocol = origin.includes('localhost') || origin.includes('127.0.0.1') ? 'http' : 'https';
+      
+      let siteUrl = `${protocol}://${origin}`;
+      if (!origin) {
+        siteUrl = 'https://gelaberthomes.es';
       }
 
-      const jobData = await response.json();
-      return NextResponse.json({
-        success: true,
-        provider: 'tensorpix',
-        id: jobData.id,
-        filename
+      const bgFunctionUrl = `${siteUrl}/.netlify/functions/enhance-video-basic-background`;
+      
+      console.log(`[Basic Enhance Route] Triggering Netlify Background Function: ${bgFunctionUrl}`);
+      
+      // Fire-and-forget background function invocation
+      fetch(bgFunctionUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          videoUrl,
+          filename,
+          propertyId,
+          videoType,
+          videoIdx,
+          areaIdx,
+          roomIdx,
+          userToken,
+          userId
+        })
+      }).catch(err => {
+        console.error('[Basic Enhance Route] Background trigger failed:', err);
       });
 
-    } else if (replicateToken && replicateToken !== 'undefined' && replicateToken !== 'null') {
-      // ─── REPLICATE PROVIDER (Option A: Basic color/restoration) ─────────────────
-      const replicate = new Replicate({ auth: replicateToken });
-
-      const prediction = await replicate.predictions.create({
-        version: "3e56ce4b57863bd03048b42bc09bdd4db20d427cca5fde9d8ae4dc60e1bb4775", // Real-ESRGAN video model
-        input: {
-          video_path: videoUrl,
-          resolution: "FHD", // Use FHD as required by the Replicate model (must be FHD, 2k, or 4k)
-          model: "RealESRGAN_x4plus"
-        }
-      });
-
       return NextResponse.json({
         success: true,
-        provider: 'replicate',
-        id: prediction.id,
+        provider: 'local',
+        id: 'local-job',
         filename
       });
 
     } else {
-      return NextResponse.json({
-        error: 'No se ha configurado ninguna API Key para la mejora (REPLICATE_API_TOKEN o TENSORPIX_API_KEY).'
-      }, { status: 500 });
+      // ─── LOCAL DEVELOPMENT: Synchronous FFmpeg ─────────────────────────
+      console.log('[Basic Enhance Route] Running synchronous FFmpeg enhancement locally...');
+
+      const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: {
+          headers: {
+            Authorization: `Bearer ${userToken}`
+          }
+        }
+      });
+
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'enhance-video-local-'));
+      const tempInputPath = path.join(tempDir, 'input.mp4');
+      const tempOutputPath = path.join(tempDir, 'output.mp4');
+
+      try {
+        // Download video
+        const res = await fetch(videoUrl);
+        if (!res.ok) throw new Error(`Failed to download video: ${res.statusText}`);
+        const fileStream = fs.createWriteStream(tempInputPath);
+        await finished(Readable.fromWeb(res.body as any).pipe(fileStream));
+
+        // Duration
+        const duration: number = await new Promise((resolve, reject) => {
+          ffmpeg.ffprobe(tempInputPath, (err, metadata) => {
+            if (err) reject(err);
+            else resolve(metadata.format.duration || 0);
+          });
+        });
+
+        if (duration <= 0) throw new Error('Could not determine video duration');
+
+        // Extract 3 screenshots
+        const timestamps = [
+          (duration * 0.25).toFixed(2),
+          (duration * 0.50).toFixed(2),
+          (duration * 0.75).toFixed(2),
+        ];
+
+        const extractedFrames: string[] = await new Promise((resolve, reject) => {
+          const frames: string[] = [];
+          ffmpeg(tempInputPath)
+            .on('filenames', (filenames) => {
+              filenames.forEach(f => frames.push(path.join(tempDir, f)));
+            })
+            .on('end', () => resolve(frames))
+            .on('error', (err) => reject(err))
+            .screenshots({
+              count: 3,
+              timestamps,
+              folder: tempDir,
+              filename: 'frame-%i.png',
+              size: '640x?'
+            });
+        });
+
+        const base64Images = extractedFrames.map(framePath => {
+          return fs.readFileSync(framePath).toString('base64');
+        });
+
+        // Gemini Analysis
+        const geminiKey = (process.env.GEMINI_API_KEY || '').trim();
+        let filters = { brightness: 1.08, contrast: 1.04, saturation: 1.05 };
+
+        if (geminiKey) {
+          try {
+            const prompt = `Analiza estos 3 fotogramas clave de un vídeo de una propiedad inmobiliaria.
+Determina los ajustes promedio de brillo (brightness), contraste (contrast) y saturación (saturation) idóneos para embellecer el vídeo en su totalidad, hacerlo más luminoso, vivo y profesional.
+
+Rango de valores permitidos (donde 1.0 representa el valor original sin cambios):
+- brightness: de 0.95 a 1.25 (valores superiores a 1.0 aumentan la luz, valores inferiores la reducen si es demasiado brillante)
+- contrast: de 0.95 a 1.15 (valores superiores a 1.0 aumentan la diferencia entre sombras y luces)
+- saturation: de 0.95 a 1.15 (valores superiores a 1.0 avivan los colores de maderas, paredes, plantas, etc.)
+
+Devuelve la respuesta estrictamente en formato JSON con la siguiente estructura:
+{
+  "brightness": 1.10,
+  "contrast": 1.05,
+  "saturation": 1.05
+}`;
+
+            const parts: any[] = [
+              { text: prompt },
+              ...base64Images.map(b64 => ({
+                inlineData: {
+                  mimeType: 'image/png',
+                  data: b64,
+                },
+              })),
+            ];
+
+            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`;
+            const geminiRes = await fetch(geminiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts }],
+                generationConfig: { responseMimeType: 'application/json' },
+              }),
+            });
+
+            if (geminiRes.ok) {
+              const resJson = await geminiRes.json();
+              const textResult = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (textResult) {
+                filters = JSON.parse(textResult.trim());
+              }
+            }
+          } catch (e) {
+            console.error('Local Gemini analysis error:', e);
+          }
+        }
+
+        // Apply filters in FFmpeg
+        const eqBrightness = filters.brightness - 1.0;
+        const eqContrast = filters.contrast;
+        const eqSaturation = filters.saturation;
+
+        await new Promise<void>((resolve, reject) => {
+          ffmpeg(tempInputPath)
+            .videoFilter(`eq=brightness=${eqBrightness.toFixed(2)}:contrast=${eqContrast.toFixed(2)}:saturation=${eqSaturation.toFixed(2)}`)
+            .videoCodec('libx264')
+            .outputOptions([
+              '-pix_fmt yuv420p',
+              '-c:a copy',
+              '-preset ultrafast',
+              '-crf 23'
+            ])
+            .output(tempOutputPath)
+            .on('end', () => resolve())
+            .on('error', (err) => reject(err))
+            .run();
+        });
+
+        // Upload back to Supabase Storage
+        const outputBuffer = fs.readFileSync(tempOutputPath);
+        const pathParts = filename.split('/');
+        const folderName = pathParts[0];
+        const fileBase = pathParts[1].split('.')[0];
+        const targetFilename = `${folderName}/${fileBase}_enhanced_basic.mp4`;
+
+        const { error: uploadErr } = await supabaseClient.storage
+          .from('property-images')
+          .upload(targetFilename, outputBuffer, {
+            contentType: 'video/mp4',
+            cacheControl: '31536000',
+            upsert: true,
+          });
+
+        if (uploadErr) throw uploadErr;
+
+        const { data } = supabaseClient.storage.from('property-images').getPublicUrl(targetFilename);
+        const publicUrl = data.publicUrl;
+
+        // Update database directly
+        const { data: prop } = await supabaseClient
+          .from('properties')
+          .select('*')
+          .eq('id', propertyId)
+          .single();
+
+        if (prop) {
+          let updatePayload: any = {};
+          const method = 'Ajuste de Luz (Local FFmpeg)';
+          const cost = '0.05';
+          const logText = `El vídeo se procesó localmente de forma síncrona. Se aplicaron ajustes automáticos de luz y color recomendados por IA (brillo: ${filters.brightness.toFixed(2)}x, contraste: ${filters.contrast.toFixed(2)}x, saturación: ${filters.saturation.toFixed(2)}x). preset=ultrafast.`;
+
+          let videoTitle = 'Vídeo de Propiedad';
+
+          if (videoType === 'gallery' && videoIdx !== undefined) {
+            const vids = [...(prop.videos_metadata || [])];
+            const videoItem = vids[videoIdx];
+            videoTitle = videoItem?.title || videoTitle;
+            vids[videoIdx] = {
+              ...videoItem,
+              url: publicUrl,
+              optimized: true,
+              processing: false,
+              jobId: undefined,
+              provider: undefined,
+              enhanceType: undefined,
+              cost,
+              method,
+              log: logText
+            };
+            updatePayload = { videos_metadata: vids };
+          } else if (videoType === 'common_area' && areaIdx !== undefined && videoIdx !== undefined) {
+            const areas = [...(prop.common_areas || [])];
+            const area = areas[areaIdx];
+            const vids = [...(area.videos || [])];
+            const videoItem = vids[videoIdx];
+            videoTitle = videoItem?.title || `Vídeo en ${area.name || area.type}`;
+            vids[videoIdx] = {
+              ...videoItem,
+              url: publicUrl,
+              optimized: true,
+              processing: false,
+              jobId: undefined,
+              provider: undefined,
+              enhanceType: undefined,
+              cost,
+              method,
+              log: logText
+            };
+            areas[areaIdx] = { ...area, videos: vids };
+            updatePayload = { common_areas: areas };
+          } else if (videoType === 'room' && roomIdx !== undefined) {
+            const rooms = [...(prop.rooms || [])];
+            const room = rooms[roomIdx];
+            const videoItem = room.video;
+            videoTitle = videoItem?.title || `Vídeo en Habitación ${room.name || roomIdx + 1}`;
+            rooms[roomIdx] = {
+              ...room,
+              video: {
+                ...videoItem,
+                url: publicUrl,
+                optimized: true,
+                processing: false,
+                jobId: undefined,
+                provider: undefined,
+                enhanceType: undefined,
+                cost,
+                method,
+                log: logText
+              }
+            };
+            updatePayload = { rooms };
+          }
+
+          await supabaseClient.from('properties').update(updatePayload).eq('id', propertyId);
+
+          if (userId) {
+            await supabaseClient.from('notifications').insert({
+              user_id: userId,
+              title: '✅ Ajuste de luz completado',
+              message: `El ajuste de luz rápido para "${videoTitle}" de la propiedad "${prop.title || 'Propiedad'}" se ha completado correctamente en 30 segundos.`,
+              type: 'video_enhance_success',
+              is_read: false,
+              action_url: `/admin/propiedades/${propertyId}`,
+              related_id: propertyId,
+              related_type: 'property'
+            });
+          }
+        }
+
+        return NextResponse.json({
+          success: true,
+          enhancedUrl: publicUrl,
+          filename: targetFilename
+        });
+
+      } catch (err: any) {
+        console.error('[Local Basic Enhance Error]:', err);
+        return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
+      } finally {
+        try {
+          if (fs.existsSync(tempDir)) {
+            fs.rmSync(tempDir, { recursive: true, force: true });
+          }
+        } catch (e) {}
+      }
     }
 
   } catch (err: any) {
@@ -91,109 +358,70 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Faltan parámetros de consulta (id, provider, filename)' }, { status: 400 });
     }
 
-    if (provider === 'replicate') {
-      const replicateToken = (process.env.REPLICATE_API_TOKEN || '').trim();
-      const replicate = new Replicate({ auth: replicateToken });
-      
-      const prediction = await replicate.predictions.get(id);
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
-      if (prediction.status === 'succeeded') {
-        const outputUrl = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
-        if (!outputUrl) {
-          throw new Error('No output URL returned from Replicate');
+    if (provider === 'local') {
+      // Find if any property has a video with this jobId and is still marked as processing
+      const { data: properties } = await supabaseClient
+        .from('properties')
+        .select('id, videos_metadata, common_areas, rooms');
+
+      let stillProcessing = false;
+      let enhancedUrl = '';
+
+      if (properties) {
+        for (const prop of properties) {
+          const vids = prop.videos_metadata || [];
+          const foundVid = vids.find((v: any) => v.jobId === id);
+          if (foundVid) {
+            stillProcessing = foundVid.processing;
+            enhancedUrl = foundVid.url;
+            break;
+          }
+
+          const areas = prop.common_areas || [];
+          for (const area of areas) {
+            const areaVids = area.videos || [];
+            const foundAreaVid = areaVids.find((v: any) => typeof v === 'object' && v !== null && v.jobId === id);
+            if (foundAreaVid) {
+              stillProcessing = foundAreaVid.processing;
+              enhancedUrl = foundAreaVid.url;
+              break;
+            }
+          }
+
+          const rooms = prop.rooms || [];
+          const foundRoom = rooms.find((r: any) => r.video && typeof r.video === 'object' && r.video.jobId === id);
+          if (foundRoom) {
+            stillProcessing = foundRoom.video.processing;
+            enhancedUrl = foundRoom.video.url;
+            break;
+          }
         }
+      }
 
-        // Download result and upload to Supabase Storage as basic enhanced
-        const buffer = await downloadToBuffer(outputUrl);
-        const pathParts = filename.split('/');
-        const folderName = pathParts[0];
-        const fileBase = pathParts[1].split('.')[0];
-        const targetFilename = `${folderName}/${fileBase}_enhanced_basic.mp4`;
-
-        const { error: uploadErr } = await supabase.storage
-          .from('property-images')
-          .upload(targetFilename, buffer, {
-            contentType: 'video/mp4',
-            cacheControl: '31536000',
-            upsert: true,
-          });
-
-        if (uploadErr) throw uploadErr;
-
-        const { data } = supabase.storage.from('property-images').getPublicUrl(targetFilename);
-
-        return NextResponse.json({
-          status: 'succeeded',
-          enhancedUrl: data.publicUrl,
-          filename: targetFilename
-        });
-      } else if (prediction.status === 'failed' || prediction.status === 'canceled') {
-        return NextResponse.json({
-          status: 'failed',
-          error: prediction.error || 'Prediction failed or was canceled'
-        });
-      } else {
+      // If we found a video matching the jobId that is still processing, return processing state
+      if (stillProcessing) {
         return NextResponse.json({
           status: 'processing',
-          progress: prediction.status
+          progress: 'Mejorando exposición y luz...'
         });
       }
 
-    } else if (provider === 'tensorpix') {
-      const tensorpixKey = (process.env.TENSORPIX_API_KEY || '').trim();
+      // Otherwise, the job has finished (or was removed). Return success with the target URL
+      const pathParts = filename.split('/');
+      const folderName = pathParts[0];
+      const fileBase = pathParts[1].split('.')[0];
+      const targetFilename = `${folderName}/${fileBase}_enhanced_basic.mp4`;
 
-      const response = await fetch(`https://tensorpix.ai/api/jobs/${id}/`, {
-        headers: {
-          'Authorization': `Token ${tensorpixKey}`
-        }
+      const { data } = supabaseClient.storage.from('property-images').getPublicUrl(targetFilename);
+
+      return NextResponse.json({
+        status: 'succeeded',
+        enhancedUrl: data.publicUrl,
+        filename: targetFilename
       });
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch TensorPix job details: ${response.statusText}`);
-      }
-
-      const jobData = await response.json();
-
-      // In TensorPix, status 2 typically represents "succeeded"
-      if (jobData.status === 2) {
-        const outputUrl = jobData.output_video_url;
-        if (!outputUrl) throw new Error('No output URL returned from TensorPix');
-
-        // Download result and upload to Supabase Storage as basic enhanced
-        const buffer = await downloadToBuffer(outputUrl);
-        const pathParts = filename.split('/');
-        const folderName = pathParts[0];
-        const fileBase = pathParts[1].split('.')[0];
-        const targetFilename = `${folderName}/${fileBase}_enhanced_basic.mp4`;
-
-        const { error: uploadErr } = await supabase.storage
-          .from('property-images')
-          .upload(targetFilename, buffer, {
-            contentType: 'video/mp4',
-            cacheControl: '31536000',
-            upsert: true,
-          });
-
-        if (uploadErr) throw uploadErr;
-
-        const { data } = supabase.storage.from('property-images').getPublicUrl(targetFilename);
-
-        return NextResponse.json({
-          status: 'succeeded',
-          enhancedUrl: data.publicUrl,
-          filename: targetFilename
-        });
-      } else if (jobData.status === 3 || jobData.status === 4) { // failed / canceled
-        return NextResponse.json({
-          status: 'failed',
-          error: 'TensorPix job failed or was canceled'
-        });
-      } else {
-        return NextResponse.json({
-          status: 'processing',
-          progress: jobData.progress !== undefined ? `${jobData.progress}%` : 'enhancing'
-        });
-      }
     } else {
       return NextResponse.json({ error: 'Proveedor de API no soportado' }, { status: 400 });
     }
