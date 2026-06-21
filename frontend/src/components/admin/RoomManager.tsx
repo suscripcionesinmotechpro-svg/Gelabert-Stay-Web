@@ -535,23 +535,15 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
 
                                             <button
                                               type="button"
-                                              disabled={duration > 60}
                                               onClick={() => setSelectedOption('premium')}
                                               className={`w-full text-left p-2 transition-all flex flex-col rounded-sm border ${
-                                                duration > 60
-                                                  ? 'border-[#1F1F1F] opacity-40 cursor-not-allowed bg-transparent'
-                                                  : selectedOption === 'premium'
-                                                    ? 'border-[#C9A962] bg-[#C9A962]/10'
-                                                    : 'border-[#1F1F1F] hover:bg-[#1A1A1A] bg-transparent'
+                                                selectedOption === 'premium'
+                                                  ? 'border-[#C9A962] bg-[#C9A962]/10'
+                                                  : 'border-[#1F1F1F] hover:bg-[#1A1A1A] bg-transparent'
                                               }`}
                                             >
                                               <span className="font-primary text-[10px] text-[#C9A962] font-bold">B. Ajuste Ultra Premium (IA)</span>
                                               <span className="font-primary text-[9px] text-[#666]">Estabilizado, nitidez y reducción de ruido • Coste: {costs.premium}</span>
-                                              {duration > 60 && (
-                                                <span className="font-primary text-[8px] text-red-500 font-bold mt-1 leading-tight block">
-                                                  * No disponible para vídeos de más de 60s (duración actual: {Math.round(duration)}s)
-                                                </span>
-                                              )}
                                             </button>
 
                                             <button
