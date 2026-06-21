@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { Loader2, Sparkles, Film, Download, CheckCircle2, RotateCw, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, Sparkles, Film, Download, CheckCircle2, RotateCw, XCircle, ChevronDown, ChevronUp, Copy, Check, AlertCircle } from 'lucide-react';
 import { ProcessingVideo } from '../../hooks/useGlobalVideoPolling';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'react-hot-toast';
@@ -12,9 +12,30 @@ interface VideoProcessingWidgetProps {
 
 export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidgetProps) => {
   const [minimized, setMinimized] = useState(false);
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const { user } = useAuth();
 
   if (processingVideos.length === 0) return null;
+
+  const hasError = processingVideos.some(v => v.errorMessage || v.progress === 'error' || v.progress === 'error de conexión');
+
+  const handleCopyError = async (error: string, idx: number) => {
+    try {
+      await navigator.clipboard.writeText(error);
+      setCopiedIdx(idx);
+      setTimeout(() => setCopiedIdx(null), 2000);
+    } catch {
+      // fallback
+      const el = document.createElement('textarea');
+      el.value = error;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      setCopiedIdx(idx);
+      setTimeout(() => setCopiedIdx(null), 2000);
+    }
+  };
 
   const handleCancel = async (video: ProcessingVideo) => {
     if (!window.confirm('¿Estás seguro de que quieres cancelar y reiniciar el estado de esta optimización de vídeo?')) {
@@ -217,9 +238,12 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
         className="flex items-center justify-between px-4 py-3 bg-[#0F0F0F] border-b border-[#1F1F1F] cursor-pointer hover:bg-[#151515] transition-colors"
       >
         <div className="flex items-center gap-2">
-          <Loader2 className="w-4 h-4 text-[#C9A962] animate-spin" />
+          {hasError
+            ? <AlertCircle className="w-4 h-4 text-red-400 animate-pulse" />
+            : <Loader2 className="w-4 h-4 text-[#C9A962] animate-spin" />
+          }
           <span className="font-primary text-xs font-bold uppercase tracking-widest text-[#FAF8F5]">
-            Optimizando Vídeo ({processingVideos.length})
+            {hasError ? `Error en Vídeo (${processingVideos.length})` : `Optimizando Vídeo (${processingVideos.length})`}
           </span>
         </div>
         <button className="text-zinc-500 hover:text-[#C9A962] transition-colors">
@@ -232,14 +256,22 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
         <div className="max-h-60 overflow-y-auto p-4 flex flex-col gap-3.5 bg-[#070707] divide-y divide-[#111111]">
           {processingVideos.map((video, idx) => {
             const progressVal = video.progress || '';
+            const isError = !!video.errorMessage || progressVal === 'error' || progressVal === 'error de conexión';
             const percentMatch = progressVal.match(/(\d+)%/);
             const percentage = percentMatch ? parseInt(percentMatch[1], 10) : null;
 
             return (
               <div key={video.videoUrl + idx} className={`flex flex-col gap-2.5 ${idx > 0 ? 'pt-3.5' : ''}`}>
                 <div className="flex items-start gap-2.5">
-                  <div className="mt-0.5 p-1 bg-[#C9A962]/5 border border-[#C9A962]/10 rounded-sm shrink-0">
-                    <Film className="w-3.5 h-3.5 text-[#C9A962]" />
+                  <div className={`mt-0.5 p-1 border rounded-sm shrink-0 ${
+                    isError
+                      ? 'bg-red-500/5 border-red-500/20'
+                      : 'bg-[#C9A962]/5 border-[#C9A962]/10'
+                  }`}>
+                    {isError
+                      ? <AlertCircle className="w-3.5 h-3.5 text-red-400" />
+                      : <Film className="w-3.5 h-3.5 text-[#C9A962]" />
+                    }
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-primary text-xs font-bold text-[#FAF8F5] truncate">
@@ -251,7 +283,32 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
                   </div>
                 </div>
 
+                {/* Error panel */}
+                {isError && video.errorMessage && (
+                  <div className="bg-red-950/30 border border-red-500/20 rounded-sm p-2 flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-red-400">Error exacto</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyError(video.errorMessage!, idx)}
+                        className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[8px] font-bold uppercase tracking-wider border transition-all
+                          border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white hover:border-transparent cursor-pointer"
+                        title="Copiar error"
+                      >
+                        {copiedIdx === idx
+                          ? <><Check className="w-2.5 h-2.5" /> Copiado</>  
+                          : <><Copy className="w-2.5 h-2.5" /> Copiar</>
+                        }
+                      </button>
+                    </div>
+                    <p className="font-mono text-[9px] text-red-300 break-all leading-relaxed select-text">
+                      {video.errorMessage}
+                    </p>
+                  </div>
+                )}
+
                 {/* Progress bar / Indicator */}
+                {!isError && (
                 <div className="flex flex-col gap-1.5 mt-0.5">
                   <div className="flex items-center justify-between text-[9px] font-primary select-none">
                     <span className="text-zinc-400 uppercase tracking-wider font-bold">
@@ -264,17 +321,30 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
 
                   {/* Visual Progress Bar */}
                   <div className="w-full h-1.5 bg-[#1F1F1F] rounded-full overflow-hidden relative">
-                    <div 
-                      className="h-full bg-[#C9A962] rounded-full transition-all duration-500 ease-out"
-                      style={{ 
-                        width: percentage !== null ? `${percentage}%` : '40%' 
-                      }}
-                    />
-                    {percentage === null && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#C9A962]/20 to-transparent w-1/2 h-full animate-shimmer" style={{ animationDuration: '1.5s' }} />
+                    {percentage !== null ? (
+                      <div 
+                        className="h-full bg-[#C9A962] rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    ) : (
+                      // Indeterminate animation — sliding bar, not stuck at 40%
+                      <div
+                        className="absolute top-0 left-0 h-full w-2/5 bg-gradient-to-r from-transparent via-[#C9A962] to-transparent rounded-full"
+                        style={{
+                          animation: 'slideProgress 1.8s ease-in-out infinite'
+                        }}
+                      />
                     )}
                   </div>
                 </div>
+                )}
+
+                {/* Status text when error but no detail */}
+                {isError && !video.errorMessage && (
+                  <p className="text-[10px] text-red-400 font-primary">
+                    {progressVal} — usa Reintentar o Cancelar para recuperarte.
+                  </p>
+                )}
 
                 {/* Quick actions for retry & cancel */}
                 <div className="flex gap-2 justify-end mt-0.5">

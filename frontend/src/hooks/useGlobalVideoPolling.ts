@@ -15,6 +15,7 @@ export interface ProcessingVideo {
   roomIdx?: number;
   videoIdx?: number;
   progress?: string;
+  errorMessage?: string;
 }
 
 export const useGlobalVideoPolling = () => {
@@ -107,14 +108,32 @@ export const useGlobalVideoPolling = () => {
         try {
           const endpoint = pv.enhanceType === 'basic' ? '/api/enhance-video-basic' : '/api/enhance-video-premium';
           const filename = pv.videoUrl.split('/property-images/')[1];
-          const checkRes = await fetch(`${endpoint}?id=${pv.jobId}&provider=${pv.provider}&filename=${filename}`);
+          let checkData: any;
 
-          if (!checkRes.ok) {
-            updatedFound.push({ ...pv, progress: 'error de conexión' });
+          try {
+            const checkRes = await fetch(`${endpoint}?id=${pv.jobId}&provider=${pv.provider}&filename=${encodeURIComponent(filename)}`);
+            const rawText = await checkRes.text();
+
+            try {
+              checkData = JSON.parse(rawText);
+            } catch {
+              // Server returned HTML/non-JSON — capture exact error text
+              const errMsg = `Error de servidor (${checkRes.status}): La respuesta no es JSON válido. Respuesta: ${rawText.slice(0, 300)}`;
+              console.error('[Poll] Non-JSON response:', rawText.slice(0, 500));
+              updatedFound.push({ ...pv, progress: 'error', errorMessage: errMsg });
+              continue;
+            }
+
+            if (!checkRes.ok) {
+              const errMsg = checkData?.error || `Error HTTP ${checkRes.status}`;
+              updatedFound.push({ ...pv, progress: 'error', errorMessage: errMsg });
+              continue;
+            }
+          } catch (fetchErr: any) {
+            const errMsg = `Error de conexión: ${fetchErr?.message || String(fetchErr)}`;
+            updatedFound.push({ ...pv, progress: 'error de conexión', errorMessage: errMsg });
             continue;
           }
-
-          const checkData = await checkRes.json();
 
           if (checkData.status === 'succeeded') {
             // Update in DB immediately!
@@ -228,7 +247,9 @@ export const useGlobalVideoPolling = () => {
               });
             }
           } else if (checkData.status === 'failed') {
-            // Update in DB to set processing: false
+            const failedErrorMsg = checkData.error || checkData.errorMessage || 'Error desconocido durante la optimización';
+
+            // Update in DB to set processing: false and store the error message
             const { data: currentProp } = await supabase
               .from('properties')
               .select('videos_metadata, common_areas, rooms')
@@ -238,7 +259,7 @@ export const useGlobalVideoPolling = () => {
             if (currentProp) {
               if (pv.videoType === 'gallery' && pv.videoIdx !== undefined) {
                 const vids = [...(currentProp.videos_metadata || [])];
-                vids[pv.videoIdx] = { ...vids[pv.videoIdx], processing: false, jobId: undefined, provider: undefined, enhanceType: undefined };
+                vids[pv.videoIdx] = { ...vids[pv.videoIdx], processing: false, jobId: undefined, provider: undefined, enhanceType: undefined, lastError: failedErrorMsg };
                 await supabase.from('properties').update({ videos_metadata: vids }).eq('id', pv.propertyId);
               } 
               
@@ -246,7 +267,7 @@ export const useGlobalVideoPolling = () => {
                 const areas = [...(currentProp.common_areas || [])];
                 const area = areas[pv.areaIdx];
                 const vids = [...(area.videos || [])];
-                vids[pv.videoIdx] = { ...vids[pv.videoIdx], processing: false, jobId: undefined, provider: undefined, enhanceType: undefined };
+                vids[pv.videoIdx] = { ...vids[pv.videoIdx], processing: false, jobId: undefined, provider: undefined, enhanceType: undefined, lastError: failedErrorMsg };
                 areas[pv.areaIdx] = { ...area, videos: vids };
                 await supabase.from('properties').update({ common_areas: areas }).eq('id', pv.propertyId);
               } 
@@ -256,7 +277,7 @@ export const useGlobalVideoPolling = () => {
                 const room = rooms[pv.roomIdx];
                 rooms[pv.roomIdx] = {
                   ...room,
-                  video: { ...room.video, processing: false, jobId: undefined, provider: undefined, enhanceType: undefined }
+                  video: { ...room.video, processing: false, jobId: undefined, provider: undefined, enhanceType: undefined, lastError: failedErrorMsg }
                 };
                 await supabase.from('properties').update({ rooms }).eq('id', pv.propertyId);
               }
@@ -265,7 +286,7 @@ export const useGlobalVideoPolling = () => {
               await supabase.from('notifications').insert({
                 user_id: user.id,
                 title: '❌ Error de optimización',
-                message: `La optimización del vídeo "${pv.title}" de la propiedad "${pv.propertyName}" ha fallado.`,
+                message: `La optimización del vídeo "${pv.title}" de la propiedad "${pv.propertyName}" ha fallado. Error: ${failedErrorMsg.slice(0, 200)}`,
                 type: 'video_enhance_failed',
                 is_read: false,
                 action_url: `/admin/propiedades/${pv.propertyId}`,
@@ -277,12 +298,14 @@ export const useGlobalVideoPolling = () => {
             // Still processing: update progress status
             updatedFound.push({
               ...pv,
-              progress: checkData.progress || 'optimizando...'
+              progress: checkData.progress || 'optimizando...',
+              errorMessage: undefined
             });
           }
-        } catch (e) {
-          console.error('[Global Video Poll Single Error]:', e);
-          updatedFound.push({ ...pv, progress: 'error' });
+        } catch (e: any) {
+          const errMsg = e?.message || String(e);
+          console.error('[Global Video Poll Single Error]:', errMsg);
+          updatedFound.push({ ...pv, progress: 'error', errorMessage: errMsg });
         }
       }
 
