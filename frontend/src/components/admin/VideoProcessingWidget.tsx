@@ -65,7 +65,12 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
             processing: false,
             jobId: undefined,
             provider: undefined,
-            enhanceType: undefined
+            enhanceType: undefined,
+            optimized: false,
+            cost: undefined,
+            method: undefined,
+            log: undefined,
+            shotstackFilter: undefined
           };
           updatePayload = { videos_metadata: vids };
         }
@@ -81,7 +86,12 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
               processing: false,
               jobId: undefined,
               provider: undefined,
-              enhanceType: undefined
+              enhanceType: undefined,
+              optimized: false,
+              cost: undefined,
+              method: undefined,
+              log: undefined,
+              shotstackFilter: undefined
             } : v;
             areas[video.areaIdx] = { ...area, videos: vids };
             updatePayload = { common_areas: areas };
@@ -98,7 +108,12 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
               processing: false,
               jobId: undefined,
               provider: undefined,
-              enhanceType: undefined
+              enhanceType: undefined,
+              optimized: false,
+              cost: undefined,
+              method: undefined,
+              log: undefined,
+              shotstackFilter: undefined
             }
           };
           updatePayload = { rooms };

@@ -111,13 +111,27 @@ export const useGlobalVideoPolling = () => {
           let checkData: any;
 
           try {
-            const checkRes = await fetch(`${endpoint}?id=${pv.jobId}&provider=${pv.provider}&filename=${encodeURIComponent(filename)}`);
+            // Build query params — basic enhance needs context to update DB on completion
+            const params = new URLSearchParams({
+              id: pv.jobId,
+              provider: pv.provider,
+              filename: encodeURIComponent(filename),
+              ...(pv.enhanceType === 'basic' && {
+                propertyId: pv.propertyId,
+                videoType: pv.videoType,
+                ...(pv.videoIdx !== undefined && { videoIdx: String(pv.videoIdx) }),
+                ...(pv.areaIdx !== undefined && { areaIdx: String(pv.areaIdx) }),
+                ...(pv.roomIdx !== undefined && { roomIdx: String(pv.roomIdx) }),
+                ...(user?.id && { userId: user.id })
+              })
+            });
+
+            const checkRes = await fetch(`${endpoint}?${params.toString()}`);
             const rawText = await checkRes.text();
 
             try {
               checkData = JSON.parse(rawText);
             } catch {
-              // Server returned HTML/non-JSON — capture exact error text
               const errMsg = `Error de servidor (${checkRes.status}): La respuesta no es JSON válido. Respuesta: ${rawText.slice(0, 300)}`;
               console.error('[Poll] Non-JSON response:', rawText.slice(0, 500));
               updatedFound.push({ ...pv, progress: 'error', errorMessage: errMsg });
@@ -134,6 +148,7 @@ export const useGlobalVideoPolling = () => {
             updatedFound.push({ ...pv, progress: 'error de conexión', errorMessage: errMsg });
             continue;
           }
+
 
           if (checkData.status === 'succeeded') {
             // Update in DB immediately!
