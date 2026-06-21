@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         version: "3e56ce4b57863bd03048b42bc09bdd4db20d427cca5fde9d8ae4dc60e1bb4775", // Real-ESRGAN video model
         input: {
           video_path: videoUrl,
-          resolution: "HD", // Lower resolution (HD instead of FHD) for faster processing
+          resolution: "FHD", // Use FHD as required by the Replicate model (must be FHD, 2k, or 4k)
           model: "RealESRGAN_x4plus"
         }
       });
