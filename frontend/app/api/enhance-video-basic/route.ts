@@ -1,17 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import ffmpeg from 'fluent-ffmpeg';
-import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
-import ffprobeInstaller from '@ffprobe-installer/ffprobe';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { Readable } from 'stream';
 import { finished } from 'stream/promises';
-
-// Configure FFmpeg paths
-ffmpeg.setFfmpegPath(ffmpegInstaller.path);
-ffmpeg.setFfprobePath(ffprobeInstaller.path);
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://aumqjpqngmhpbwytpets.supabase.co';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '';
@@ -80,6 +73,15 @@ export async function POST(req: Request) {
     } else {
       // ─── LOCAL DEVELOPMENT: Synchronous FFmpeg ─────────────────────────
       console.log('[Basic Enhance Route] Running synchronous FFmpeg enhancement locally...');
+
+      // Dynamic import FFmpeg modules to prevent serverless import crashes in production
+      const ffmpeg = (await import('fluent-ffmpeg')).default;
+      const ffmpegInstaller = (await import('@ffmpeg-installer/ffmpeg')).default;
+      const ffprobeInstaller = (await import('@ffprobe-installer/ffprobe')).default;
+
+      // Configure FFmpeg paths
+      ffmpeg.setFfmpegPath(ffmpegInstaller.path);
+      ffmpeg.setFfprobePath(ffprobeInstaller.path);
 
       const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
         global: {
