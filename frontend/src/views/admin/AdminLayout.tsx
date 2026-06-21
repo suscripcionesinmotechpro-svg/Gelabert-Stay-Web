@@ -196,13 +196,13 @@ export const AdminLayout = () => {
             {/* Profile Avatar Button */}
             <button 
               onClick={() => setProfileModalOpen(true)}
-              className="relative w-7 h-7 rounded-full overflow-hidden border border-[#C9A962]/30 hover:border-[#C9A962] transition-colors shrink-0 bg-[#0F0F0F] flex items-center justify-center"
+              className="relative w-11 h-11 rounded-full overflow-hidden border border-[#C9A962]/30 hover:border-[#C9A962] transition-colors shrink-0 bg-[#0F0F0F] flex items-center justify-center"
               title="Mi Perfil"
             >
               {userProfile?.avatar_url ? (
                 <img src={userProfile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                <div className="text-[9px] font-bold text-[#C9A962]">
+                <div className="text-xs font-bold text-[#C9A962]">
                   {initials}
                 </div>
               )}
@@ -227,13 +227,13 @@ export const AdminLayout = () => {
           {/* Profile Avatar Button */}
           <button 
             onClick={() => setProfileModalOpen(true)}
-            className="relative w-7 h-7 rounded-full overflow-hidden border border-[#C9A962]/30 hover:border-[#C9A962] transition-colors shrink-0 bg-[#0F0F0F] flex items-center justify-center cursor-pointer"
+            className="relative w-11 h-11 rounded-full overflow-hidden border border-[#C9A962]/30 hover:border-[#C9A962] transition-colors shrink-0 bg-[#0F0F0F] flex items-center justify-center cursor-pointer"
             title="Mi Perfil"
           >
             {userProfile?.avatar_url ? (
               <img src={userProfile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
-              <div className="text-[9px] font-bold text-[#C9A962]">
+              <div className="text-xs font-bold text-[#C9A962]">
                 {initials}
               </div>
             )}

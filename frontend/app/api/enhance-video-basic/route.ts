@@ -21,27 +21,7 @@ export async function POST(req: Request) {
     const replicateToken = (process.env.REPLICATE_API_TOKEN || '').trim();
     const tensorpixKey = (process.env.TENSORPIX_API_KEY || '').trim();
 
-    if (replicateToken && replicateToken !== 'undefined' && replicateToken !== 'null') {
-      // ─── REPLICATE PROVIDER (Option A: Basic color/restoration) ─────────────────
-      const replicate = new Replicate({ auth: replicateToken });
-
-      const prediction = await replicate.predictions.create({
-        version: "3e56ce4b57863bd03048b42bc09bdd4db20d427cca5fde9d8ae4dc60e1bb4775", // Real-ESRGAN video model
-        input: {
-          video_path: videoUrl,
-          resolution: "FHD", // Use FHD as required by the Replicate model (must be FHD, 2k, or 4k)
-          model: "RealESRGAN_x4plus"
-        }
-      });
-
-      return NextResponse.json({
-        success: true,
-        provider: 'replicate',
-        id: prediction.id,
-        filename
-      });
-
-    } else if (tensorpixKey && tensorpixKey !== 'undefined' && tensorpixKey !== 'null') {
+    if (tensorpixKey && tensorpixKey !== 'undefined' && tensorpixKey !== 'null') {
       // ─── TENSORPIX PROVIDER (Option A: Basic Color Restoration) ──────────────────
       const response = await fetch('https://tensorpix.ai/api/jobs/from-url/', {
         method: 'POST',
@@ -65,6 +45,26 @@ export async function POST(req: Request) {
         success: true,
         provider: 'tensorpix',
         id: jobData.id,
+        filename
+      });
+
+    } else if (replicateToken && replicateToken !== 'undefined' && replicateToken !== 'null') {
+      // ─── REPLICATE PROVIDER (Option A: Basic color/restoration) ─────────────────
+      const replicate = new Replicate({ auth: replicateToken });
+
+      const prediction = await replicate.predictions.create({
+        version: "3e56ce4b57863bd03048b42bc09bdd4db20d427cca5fde9d8ae4dc60e1bb4775", // Real-ESRGAN video model
+        input: {
+          video_path: videoUrl,
+          resolution: "FHD", // Use FHD as required by the Replicate model (must be FHD, 2k, or 4k)
+          model: "RealESRGAN_x4plus"
+        }
+      });
+
+      return NextResponse.json({
+        success: true,
+        provider: 'replicate',
+        id: prediction.id,
         filename
       });
 
