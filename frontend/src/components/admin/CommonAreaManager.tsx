@@ -287,7 +287,14 @@ export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({
         duration: itemDuration
       };
 
+      const updatedAreas = areas.map((area, i) => i === areaIdx ? { ...area, videos: currentVideos } : area);
       updateArea(areaIdx, { videos: currentVideos });
+      if (propertyId) {
+        await supabase
+          .from('properties')
+          .update({ common_areas: updatedAreas })
+          .eq('id', propertyId);
+      }
       toast.success('Vídeo enviado a optimizar. Se procesará en segundo plano.');
 
       // Insert system notification about started process

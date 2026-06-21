@@ -191,7 +191,7 @@ export async function GET(req: Request) {
       } else {
         return NextResponse.json({
           status: 'processing',
-          progress: 'enhancing'
+          progress: jobData.progress !== undefined ? `${jobData.progress}%` : 'enhancing'
         });
       }
     } else {

@@ -249,6 +249,12 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
       };
 
       onChange(updated);
+      if (propertyId) {
+        await supabase
+          .from('properties')
+          .update({ rooms: updated })
+          .eq('id', propertyId);
+      }
       toast.success('Vídeo enviado a optimizar. Se procesará en segundo plano.');
 
       // Insert system notification about started process

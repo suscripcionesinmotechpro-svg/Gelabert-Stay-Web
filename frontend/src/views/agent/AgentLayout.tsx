@@ -7,12 +7,17 @@ import {
   Receipt, Users, FileText, Bot, CalendarDays, Briefcase, Sparkles
 } from 'lucide-react';
 import { SystemNotifications } from '../../components/admin/SystemNotifications';
+import { useGlobalVideoPolling } from '../../hooks/useGlobalVideoPolling';
+import { VideoProcessingWidget } from '../../components/admin/VideoProcessingWidget';
+
 
 export const AgentLayout = () => {
   const { user, loading, signOut, userProfile } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newLeadsCount, setNewLeadsCount] = useState(0);
+  const { processingVideos } = useGlobalVideoPolling();
+
 
   useEffect(() => {
     const fetchNewLeads = async () => {
@@ -175,6 +180,7 @@ export const AgentLayout = () => {
           <Outlet />
         </main>
       </div>
+      <VideoProcessingWidget processingVideos={processingVideos} />
     </div>
   );
 };

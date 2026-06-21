@@ -442,6 +442,12 @@ export const SortableVideoGallery = ({
       } : v);
       
       onChange(updatedVideos);
+      if (propertyId) {
+        await supabase
+          .from('properties')
+          .update({ videos_metadata: updatedVideos })
+          .eq('id', propertyId);
+      }
       toast.success('Vídeo enviado a optimizar. Se procesará en segundo plano.');
 
       // Insert system notification about started process
