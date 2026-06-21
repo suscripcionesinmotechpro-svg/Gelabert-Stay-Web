@@ -150,8 +150,39 @@ const SortableVideoItem = ({
               </a>
 
               {isCurrentlyProcessing ? (
-                <div className="flex items-center gap-1.5 text-[10px] text-[#C9A962] font-primary uppercase tracking-wider font-bold animate-pulse select-none">
-                  <Loader2 className="w-3 h-3 animate-spin" /> {currentStatusText}
+                <div className="flex items-center gap-3 select-none">
+                  <div className="flex items-center gap-1.5 text-[10px] text-[#C9A962] font-primary uppercase tracking-wider font-bold animate-pulse">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> {currentStatusText}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (window.confirm('¿Estás seguro de que quieres cancelar y reiniciar el estado de esta optimización?')) {
+                        try {
+                          const updatedVideos = videos.map(v => v.url === url ? {
+                            ...v,
+                            processing: false,
+                            jobId: undefined,
+                            provider: undefined,
+                            enhanceType: undefined
+                          } : v);
+                          onChange(updatedVideos);
+                          if (propertyId) {
+                            await supabase
+                              .from('properties')
+                              .update({ videos_metadata: updatedVideos })
+                              .eq('id', propertyId);
+                          }
+                          toast.success('Optimización cancelada.');
+                        } catch (err: any) {
+                          toast.error(`Error al cancelar: ${err.message}`);
+                        }
+                      }
+                    }}
+                    className="text-[9px] font-bold uppercase tracking-wider text-red-400 hover:text-red-500 transition-colors border border-red-500/20 hover:border-red-500/50 px-1.5 py-0.5 rounded-sm cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
                 </div>
               ) : (
                 <div className="relative">
