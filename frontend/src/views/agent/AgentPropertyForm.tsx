@@ -1185,6 +1185,7 @@ export const AgentPropertyForm = () => {
             onChange={(rooms: any[]) => set('rooms', rooms)}
             propertyId={isEditing ? id : undefined}
             autoEnhance={enhanceImages}
+            propertyName={form.title || 'Propiedad'}
           />
         </div>
       )}
@@ -1196,6 +1197,8 @@ export const AgentPropertyForm = () => {
             areas={form.common_areas || []} 
             onChange={(areas: any[]) => set('common_areas', areas)}
             autoEnhance={enhanceImages}
+            propertyId={isEditing ? id : undefined}
+            propertyName={form.title || 'Propiedad'}
           />
         </div>
       )}
@@ -1802,6 +1805,8 @@ export const AgentPropertyForm = () => {
             onChange={handleVideosChange}
             onUpload={handleVideoUpload}
             uploading={uploadingVideo}
+            propertyId={isEditing ? id : undefined}
+            propertyName={form.title || 'Propiedad'}
           />
         </div>
 

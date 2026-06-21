@@ -7,6 +7,7 @@ import {
   Receipt, Users, CalendarDays, Bot, FileText, LayoutGrid, BarChart3, Briefcase, Sparkles
 } from 'lucide-react';
 import { CaptacionesNotifications } from '../../components/captaciones/CaptacionesNotifications';
+import { SystemNotifications } from '../../components/admin/SystemNotifications';
 
 export const AdminLayout = () => {
   const { user, loading, signOut, userProfile } = useAuth();
@@ -162,6 +163,7 @@ export const AdminLayout = () => {
         <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[#0A0A0A] border-b border-[#1F1F1F]">
           <h1 className="font-secondary text-lg text-[#C9A962]">Gelabert Homes</h1>
           <div className="flex items-center gap-3">
+            <SystemNotifications />
             <CaptacionesNotifications />
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[#888888] hover:text-[#FAF8F5]">
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -171,6 +173,7 @@ export const AdminLayout = () => {
         {/* Desktop topbar notifications */}
         <div className="hidden md:flex items-center justify-end px-6 py-2 bg-[#0A0A0A] border-b border-[#1F1F1F] gap-3">
           <span className="text-[10px] font-primary text-zinc-600 truncate">{user.email}</span>
+          <SystemNotifications />
           <CaptacionesNotifications />
         </div>
 

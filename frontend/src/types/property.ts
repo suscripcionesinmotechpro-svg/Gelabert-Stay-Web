@@ -36,6 +36,10 @@ export interface PropertyVideo {
   method?: string;
   duration?: number;
   log?: string;
+  processing?: boolean;
+  jobId?: string;
+  provider?: 'tensorpix' | 'replicate';
+  enhanceType?: 'basic' | 'premium';
 }
 
 export interface PropertyRoom {

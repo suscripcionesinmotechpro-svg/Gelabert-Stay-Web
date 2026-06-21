@@ -6,6 +6,7 @@ import {
   LayoutDashboard, Building2, PlusCircle, LogOut, Home, Menu, X,
   Receipt, Users, FileText, Bot, CalendarDays, Briefcase, Sparkles
 } from 'lucide-react';
+import { SystemNotifications } from '../../components/admin/SystemNotifications';
 
 export const AgentLayout = () => {
   const { user, loading, signOut, userProfile } = useAuth();
@@ -157,9 +158,17 @@ export const AgentLayout = () => {
         {/* Mobile topbar */}
         <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[#0A0A0A] border-b border-[#1F1F1F]">
           <h1 className="font-secondary text-lg text-[#C9A962]">Gelabert Homes</h1>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[#888888] hover:text-[#FAF8F5]">
-            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          <div className="flex items-center gap-3">
+            <SystemNotifications />
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[#888888] hover:text-[#FAF8F5]">
+              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
+        {/* Desktop topbar notifications */}
+        <div className="hidden md:flex items-center justify-end px-6 py-2 bg-[#0A0A0A] border-b border-[#1F1F1F] gap-3">
+          <span className="text-[10px] font-primary text-zinc-600 truncate">{user.email}</span>
+          <SystemNotifications />
         </div>
 
         <main className="flex-1 p-6 md:p-8 overflow-auto">

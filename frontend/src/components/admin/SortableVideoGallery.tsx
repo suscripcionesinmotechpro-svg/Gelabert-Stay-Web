@@ -20,6 +20,8 @@ import { useState, useEffect } from 'react';
 import type { PropertyVideo } from '../../types/property';
 import { getVideoDuration, estimateVideoCost } from '../../utils/video';
 import { toast } from 'react-hot-toast';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../hooks/useAuth.tsx';
 
 interface SortableVideoItemProps {
   video: PropertyVideo;
@@ -72,11 +74,16 @@ const SortableVideoItem = ({
     setShowMenu(!showMenu);
   };
 
+  const isCurrentlyProcessing = processingVideo === url || video.processing;
+  const currentStatusText = processingVideo === url && processingStatus 
+    ? processingStatus 
+    : 'Optimizando en la nube (segundo plano)...';
+
   return (
     <div 
       ref={setNodeRef} 
       style={style} 
-      className="flex gap-4 p-4 bg-[#070707] border border-[#1F1F1F] rounded-sm group relative"
+      className="flex gap-4 p-4 bg-[#070707] border border-[#1F1F1F] rounded-sm group relative animate-fadeIn"
     >
       {/* Grip Handle for DND */}
       <div 
@@ -142,9 +149,9 @@ const SortableVideoItem = ({
                 <Download className="w-3 h-3" /> Descargar (Máx. Calidad)
               </a>
 
-              {processingVideo === url ? (
+              {isCurrentlyProcessing ? (
                 <div className="flex items-center gap-1.5 text-[10px] text-[#C9A962] font-primary uppercase tracking-wider font-bold animate-pulse select-none">
-                  <Loader2 className="w-3 h-3 animate-spin" /> {processingStatus || 'Procesando...'}
+                  <Loader2 className="w-3 h-3 animate-spin" /> {currentStatusText}
                 </div>
               ) : (
                 <div className="relative">
@@ -159,7 +166,7 @@ const SortableVideoItem = ({
                   {showMenu && (
                     <>
                       <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-                      <div className="absolute left-0 bottom-full mb-2 bg-[#0A0A0A] border border-[#1F1F1F] p-3 flex flex-col gap-2 w-64 z-20 shadow-xl rounded-sm">
+                      <div className="absolute left-0 bottom-full mb-2 bg-[#0A0A0A] border border-[#1F1F1F] p-3 flex flex-col gap-2 w-66 z-20 shadow-xl rounded-sm">
                         <p className="font-primary text-[9px] uppercase tracking-wider text-[#555] font-bold px-1 select-none">
                           Seleccionar Tipo de Mejora
                         </p>
@@ -173,21 +180,29 @@ const SortableVideoItem = ({
                               : 'border-[#1F1F1F] hover:bg-[#1A1A1A] bg-transparent'
                           }`}
                         >
-                          <span className="font-primary text-[10px] text-[#FAF8F5] font-bold">A. Ajuste de Luz (Gemini)</span>
-                          <span className="font-primary text-[9px] text-[#666]">Luz y contraste optimizados • Coste: {costs.basic}</span>
+                          <span className="font-primary text-[10px] text-[#FAF8F5] font-bold">A. Ajuste de Luz (Nube)</span>
+                          <span className="font-primary text-[9px] text-[#666]">Iluminación, color y exposición • Coste: {costs.basic}</span>
                         </button>
 
                         <button
                           type="button"
+                          disabled={duration > 60}
                           onClick={() => setSelectedOption('premium')}
                           className={`w-full text-left p-2 transition-all flex flex-col rounded-sm border ${
-                            selectedOption === 'premium'
-                              ? 'border-[#C9A962] bg-[#C9A962]/10'
-                              : 'border-[#1F1F1F] hover:bg-[#1A1A1A] bg-transparent'
+                            duration > 60
+                              ? 'border-[#1F1F1F] opacity-40 cursor-not-allowed bg-transparent'
+                              : selectedOption === 'premium'
+                                ? 'border-[#C9A962] bg-[#C9A962]/10'
+                                : 'border-[#1F1F1F] hover:bg-[#1A1A1A] bg-transparent'
                           }`}
                         >
                           <span className="font-primary text-[10px] text-[#C9A962] font-bold">B. Ajuste Ultra Premium (IA)</span>
                           <span className="font-primary text-[9px] text-[#666]">Estabilizado, nitidez y reducción de ruido • Coste: {costs.premium}</span>
+                          {duration > 60 && (
+                            <span className="font-primary text-[8px] text-red-500 font-bold mt-1 leading-tight block">
+                              * No disponible para vídeos de más de 60s (duración actual: {Math.round(duration)}s)
+                            </span>
+                          )}
                         </button>
 
                         <button
@@ -216,8 +231,8 @@ const SortableVideoItem = ({
             </div>
 
             {/* Check de Optimización y Detalles */}
-            {video.optimized && (
-              <div className="mt-1 p-2.5 bg-green-950/20 border border-green-500/30 rounded-sm flex flex-col gap-1.5 select-none">
+            {video.optimized && !video.processing && (
+              <div className="mt-1 p-2.5 bg-green-950/20 border border-green-500/30 rounded-sm flex flex-col gap-1.5 select-none animate-fadeIn">
                 <div className="flex items-center gap-1.5 text-[10px] text-green-400 font-bold uppercase tracking-wider">
                   <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   Vídeo Optimizado con IA
@@ -252,9 +267,19 @@ interface SortableVideoGalleryProps {
   onChange: (videos: PropertyVideo[]) => void;
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   uploading: boolean;
+  propertyId?: string;
+  propertyName?: string;
 }
 
-export const SortableVideoGallery = ({ videos, onChange, onUpload, uploading }: SortableVideoGalleryProps) => {
+export const SortableVideoGallery = ({ 
+  videos, 
+  onChange, 
+  onUpload, 
+  uploading,
+  propertyId,
+  propertyName
+}: SortableVideoGalleryProps) => {
+  const { user } = useAuth();
   const [videoUrl, setVideoUrl] = useState('');
   const [durations, setDurations] = useState<Record<string, number>>({});
   const [processingVideo, setProcessingVideo] = useState<string | null>(null);
@@ -277,6 +302,98 @@ export const SortableVideoGallery = ({ videos, onChange, onUpload, uploading }: 
       }
     });
   }, [videos]);
+
+  // Background Polling Effect to check state of asynchronous video optimizations
+  useEffect(() => {
+    const processingList = videos.filter(v => v.processing && v.jobId);
+    if (processingList.length === 0) return;
+
+    let active = true;
+    const interval = setInterval(async () => {
+      if (!active) return;
+
+      for (const video of processingList) {
+        try {
+          const endpoint = video.enhanceType === 'basic' ? '/api/enhance-video-basic' : '/api/enhance-video-premium';
+          const checkRes = await fetch(`${endpoint}?id=${video.jobId}&provider=${video.provider}&filename=${video.url.split('/property-images/')[1]}`);
+          if (!checkRes.ok) continue;
+
+          const checkData = await checkRes.json();
+          if (checkData.status === 'succeeded') {
+            const itemDuration = durations[video.url] || video.duration || 0;
+            const costs = estimateVideoCost(itemDuration);
+            const finalCost = video.enhanceType === 'basic' ? costs.basic : costs.premium;
+            const method = video.enhanceType === 'basic' ? 'Ajuste de Luz (Gemini)' : 'Ajuste Ultra Premium (IA)';
+            const log = video.enhanceType === 'basic'
+              ? 'El vídeo original se procesó en la nube con TensorPix para aplicar correcciones rápidas de luz y balance de blancos. El archivo de vídeo original fue reemplazado por la versión corregida.'
+              : 'El vídeo original se envió al servicio de procesamiento en la nube con redes neuronales convolucionales. Se aplicó un proceso de estabilización digital de movimiento de cámara, reducción de ruido temporal e interpolación espacial para aumentar nitidez de bordes. El archivo original fue reemplazado por la versión premium.';
+
+            const updatedVideos = videos.map(v => v.url === video.url ? {
+              ...v,
+              url: checkData.enhancedUrl,
+              optimized: true,
+              processing: false,
+              jobId: undefined,
+              provider: undefined,
+              enhanceType: undefined,
+              cost: finalCost,
+              method,
+              log,
+              duration: itemDuration
+            } : v);
+
+            onChange(updatedVideos);
+            toast.success(`Vídeo "${video.title}" optimizado con éxito`);
+
+            // Insert system success notification
+            if (user) {
+              await supabase.from('notifications').insert({
+                user_id: user.id,
+                title: '✅ Vídeo optimizado con éxito',
+                message: `El vídeo "${video.title}" de la propiedad "${propertyName || 'Propiedad'}" ha terminado de optimizarse.`,
+                type: 'video_enhance_success',
+                is_read: false,
+                action_url: propertyId ? `/admin/propiedades/${propertyId}` : undefined,
+                related_id: propertyId,
+                related_type: 'property'
+              });
+            }
+          } else if (checkData.status === 'failed') {
+            const updatedVideos = videos.map(v => v.url === video.url ? {
+              ...v,
+              processing: false,
+              jobId: undefined,
+              provider: undefined,
+              enhanceType: undefined
+            } : v);
+            onChange(updatedVideos);
+            toast.error(`La optimización del vídeo "${video.title}" ha fallado`);
+
+            // Insert system failure notification
+            if (user) {
+              await supabase.from('notifications').insert({
+                user_id: user.id,
+                title: '❌ Error de optimización',
+                message: `La optimización del vídeo "${video.title}" de la propiedad "${propertyName || 'Propiedad'}" ha fallado.`,
+                type: 'video_enhance_failed',
+                is_read: false,
+                action_url: propertyId ? `/admin/propiedades/${propertyId}` : undefined,
+                related_id: propertyId,
+                related_type: 'property'
+              });
+            }
+          }
+        } catch (err) {
+          console.error('[Background Poll Error]:', err);
+        }
+      }
+    }, 10000); // Check every 10 seconds
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, [videos, durations, user, propertyId, propertyName]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -303,83 +420,51 @@ export const SortableVideoGallery = ({ videos, onChange, onUpload, uploading }: 
     const title = video.title;
 
     setProcessingVideo(url);
-    setProcessingStatus(type === 'basic' ? 'Analizando con Gemini...' : 'Enviando a servidor premium...');
+    setProcessingStatus(type === 'basic' ? 'Iniciando Ajuste de Luz...' : 'Enviando a servidor premium...');
 
     try {
       const itemDuration = durations[url] || video.duration || 0;
-      const costs = estimateVideoCost(itemDuration);
-      const finalCost = type === 'basic' ? costs.basic : costs.premium;
-      const log = type === 'basic'
-        ? 'El vídeo original se descargó localmente en el servidor y fue analizado fotograma por fotograma con Gemini para evaluar iluminación, exposición y balance de blancos. Se aplicó una curva de compensación tonal localmente mediante filtros de color de FFmpeg. El archivo de vídeo original fue reemplazado por la versión optimizada.'
-        : 'El vídeo original se envió al servicio de procesamiento en la nube con redes neuronales convolucionales. Se aplicó un proceso de estabilización digital de movimiento de cámara, reducción de ruido temporal e interpolación espacial para aumentar nitidez de bordes. El archivo original fue reemplazado por la versión premium.';
+      const apiPath = type === 'basic' ? '/api/enhance-video-basic' : '/api/enhance-video-premium';
 
-      if (type === 'basic') {
-        const response = await fetch('/api/enhance-video-basic', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ videoUrl: url, filename: url.split('/property-images/')[1] })
-        });
-        if (!response.ok) {
-          const err = await response.json();
-          throw new Error(err.error || 'Failed to enhance video basic');
-        }
-        const data = await response.json();
-        
-        onChange(videos.map(v => v.url === url ? { 
-          url: data.enhancedUrl, 
-          title,
-          optimized: true,
-          cost: finalCost,
-          method: 'Ajuste de Luz (Gemini)',
-          log,
-          duration: itemDuration
-        } : v));
-        toast.success('Vídeo optimizado con éxito');
-      } else {
-        const response = await fetch('/api/enhance-video-premium', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ videoUrl: url, filename: url.split('/property-images/')[1] })
-        });
-        if (!response.ok) {
-          const err = await response.json();
-          throw new Error(err.error || 'Failed to start premium enhance');
-        }
-        const data = await response.json();
-        
-        setProcessingStatus('Estabilizando y mejorando con IA...');
-        let complete = false;
-        let attempts = 0;
-        const maxAttempts = 180; // 30 mins max (180 * 10s)
-        
-        while (!complete && attempts < maxAttempts) {
-          attempts++;
-          await new Promise(r => setTimeout(r, 10000));
-          const checkRes = await fetch(`/api/enhance-video-premium?id=${data.id}&provider=${data.provider}&filename=${data.filename}`);
-          if (!checkRes.ok) {
-            throw new Error('Error al verificar estado de la optimización');
-          }
-          const checkData = await checkRes.json();
-          if (checkData.status === 'succeeded') {
-            onChange(videos.map(v => v.url === url ? { 
-              url: checkData.enhancedUrl, 
-              title,
-              optimized: true,
-              cost: finalCost,
-              method: 'Ajuste Ultra Premium (IA)',
-              log,
-              duration: itemDuration
-            } : v));
-            complete = true;
-            toast.success('Vídeo estabilizado y mejorado con éxito');
-          } else if (checkData.status === 'failed') {
-            throw new Error(checkData.error || 'Fallo en el procesamiento premium');
-          }
-        }
-        if (!complete) {
-          throw new Error('El procesamiento tardó demasiado tiempo, inténtalo de nuevo.');
-        }
+      const response = await fetch(apiPath, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ videoUrl: url, filename: url.split('/property-images/')[1] })
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || `Failed to start ${type} enhance`);
       }
+
+      const data = await response.json();
+      
+      // Update metadata with processing details and save to database immediately
+      const updatedVideos = videos.map(v => v.url === url ? {
+        ...v,
+        processing: true,
+        jobId: data.id,
+        provider: data.provider,
+        enhanceType: type
+      } : v);
+      
+      onChange(updatedVideos);
+      toast.success('Vídeo enviado a optimizar. Se procesará en segundo plano.');
+
+      // Insert system notification about started process
+      if (user) {
+        await supabase.from('notifications').insert({
+          user_id: user.id,
+          title: `🎥 Optimizando vídeo (Opción ${type === 'basic' ? 'A' : 'B'})`,
+          message: `La optimización para el vídeo "${title}" de la propiedad "${propertyName || 'Propiedad'}" ha comenzado en la nube.`,
+          type: 'video_enhance',
+          is_read: false,
+          action_url: propertyId ? `/admin/propiedades/${propertyId}` : undefined,
+          related_id: propertyId,
+          related_type: 'property'
+        });
+      }
+
     } catch (e: any) {
       toast.error(`Error de optimización: ${e.message}`);
       console.error(e);
@@ -390,7 +475,7 @@ export const SortableVideoGallery = ({ videos, onChange, onUpload, uploading }: 
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 animate-fadeIn">
       <div className="flex flex-col gap-2">
         <label className="font-primary text-xs text-[#666666] uppercase tracking-wider">
           Vídeos (YouTube/Vimeo o archivos)
