@@ -49,8 +49,8 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
                     <p className="font-primary text-xs font-bold text-[#FAF8F5] truncate">
                       {video.title}
                     </p>
-                    <p className="font-primary text-[10px] text-zinc-500 truncate mt-0.5">
-                      Propiedad: <span className="text-zinc-400 font-bold">{video.propertyName}</span>
+                    <p className="font-primary text-[10px] text-zinc-400 truncate mt-0.5">
+                      Propiedad: <span className="text-zinc-300 font-bold">{video.propertyName}</span>
                     </p>
                   </div>
                 </div>
@@ -58,7 +58,7 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
                 {/* Progress bar / Indicator */}
                 <div className="flex flex-col gap-1.5 mt-0.5">
                   <div className="flex items-center justify-between text-[9px] font-primary select-none">
-                    <span className="text-zinc-500 uppercase tracking-wider font-bold">
+                    <span className="text-zinc-400 uppercase tracking-wider font-bold">
                       {video.enhanceType === 'basic' ? 'Ajuste de Luz (Opción A)' : 'Ajuste Ultra Premium (Opción B)'}
                     </span>
                     <span className="text-[#C9A962] font-bold uppercase tracking-wider">
@@ -87,7 +87,7 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
 
       {/* Mini notification helper */}
       {!minimized && (
-        <div className="px-4 py-2 border-t border-[#1F1F1F] bg-[#0A0A0A] flex items-center justify-between text-[9px] font-primary text-zinc-600 select-none">
+        <div className="px-4 py-2 border-t border-[#1F1F1F] bg-[#0A0A0A] flex items-center justify-between text-[9px] font-primary text-zinc-400 select-none">
           <span>Segundo plano activo</span>
           <span>Puedes salir de esta página</span>
         </div>

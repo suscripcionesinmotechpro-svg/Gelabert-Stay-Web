@@ -161,7 +161,7 @@ export const SystemNotifications = () => {
             {notifications.length === 0 ? (
               <div className="p-8 text-center select-none">
                 <Bell className="w-8 h-8 text-zinc-800 mx-auto mb-2" />
-                <p className="text-xs font-primary text-zinc-600">Sin notificaciones de sistema</p>
+                <p className="text-xs font-primary text-zinc-400">Sin notificaciones de sistema</p>
               </div>
             ) : (
               notifications.map(notif => {
@@ -194,7 +194,7 @@ export const SystemNotifications = () => {
                       <p className="text-[10px] font-primary text-zinc-400 mt-0.5 leading-normal">
                         {notif.message}
                       </p>
-                      <span className="text-[8px] font-primary text-zinc-600 mt-1 block select-none">
+                      <span className="text-[8px] font-primary text-zinc-400 mt-1 block select-none">
                         {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true, locale: es })}
                       </span>
                     </div>

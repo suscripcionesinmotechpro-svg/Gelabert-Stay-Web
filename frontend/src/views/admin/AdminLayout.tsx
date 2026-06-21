@@ -139,7 +139,7 @@ export const AdminLayout = () => {
           Cerrar Sesión
         </button>
         <div className="px-3 pt-4 border-t border-[#1F1F1F] mt-1 flex items-center justify-between gap-2 overflow-hidden">
-          <p className="font-primary text-[10px] text-[#444444] truncate flex-1">{user.email}</p>
+          <p className="font-primary text-[10px] text-zinc-400 truncate flex-1">{user.email}</p>
         </div>
       </div>
     </>
@@ -177,7 +177,7 @@ export const AdminLayout = () => {
         </div>
         {/* Desktop topbar notifications */}
         <div className="hidden md:flex items-center justify-end px-6 py-2 bg-[#0A0A0A] border-b border-[#1F1F1F] gap-3">
-          <span className="text-[10px] font-primary text-zinc-600 truncate">{user.email}</span>
+          <span className="text-[10px] font-primary text-zinc-400 truncate">{user.email}</span>
           <SystemNotifications />
           <CaptacionesNotifications />
         </div>
