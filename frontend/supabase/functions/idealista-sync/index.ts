@@ -708,17 +708,26 @@ serve(async (req) => {
       // rooms = total de habitaciones del piso (no de la habitación individual)
       // Nota: Idealista exige un mínimo de 2 habitaciones para inmuebles de tipo "room" (piso compartido).
       mappedFeatures.rooms = Math.max(2, property.bedrooms || 3);
-      // occupiedNow = si hay inquilinos actualmente (según BD)
+      // ── occupiedNow ──────────────────────────────────────────────────────────
+      // Cuando occupiedNow = true, Idealista exige un campo de "edad del inquilino"
+      // cuyo nombre correcto en su API aún no está documentado con certeza.
+      // El campo "tenantAge" fue rechazado por su esquema (error de validación).
+      // SOLUCIÓN TEMPORAL (Opción C): forzamos occupiedNow = false para que el
+      // anuncio suba correctamente. En cuanto Idealista confirme el nombre exacto
+      // del campo, se restaurará la lógica original.
       const isOccupied = property.occupied_now ?? false;
-      mappedFeatures.occupiedNow = isOccupied;
+      if (isOccupied) {
+        console.warn(
+          `[Room] Property ${propertyId} está marcada como ocupada pero se fuerza` +
+          ` occupiedNow=false porque el campo de edad del inquilino requerido por` +
+          ` Idealista tiene nombre desconocido. Pendiente de confirmar con API docs.`
+        );
+      }
+      mappedFeatures.occupiedNow = false; // forzado hasta confirmar campo de edad
 
       // tenantNumber = número de inquilinos en el piso.
       // Nota: Idealista exige que este campo sea obligatorio y tenga un valor mínimo de 2.
       mappedFeatures.tenantNumber = Math.max(2, property.tenant_number ?? 2);
-
-      // NOTA: "tenantAge" NO es un campo válido en el esquema de Idealista.
-      // La API rechaza el payload con error de validación si se incluye ese campo.
-      // Los rangos de edad se mapean con minAge / maxAge (campos sí aceptados).
 
       // Rangos de edad permitidos para solicitantes (opcional, mapeados si existen)
       if (property.tenant_min_age !== undefined && property.tenant_min_age !== null) {
@@ -740,9 +749,8 @@ serve(async (req) => {
       // ── CAMPOS OPCIONALES ────────────────────────────────────────────────────
       mappedFeatures.internetAvailable = property.has_wifi ?? true;
       mappedFeatures.bedType = "double"; // single, double, no_bed
-      if (mappedFeatures.occupiedNow) {
-        mappedFeatures.tenantGender = "both"; // male, female, both
-      }
+      // tenantGender solo se envía si occupiedNow es true (ahora forzado a false)
+      // mappedFeatures.tenantGender = "both"; // pendiente junto a campo de edad
       mappedFeatures.windowView = property.is_exterior ? "street_view" : "courtyard_view";
       mappedFeatures.smokingAllowed = property.smoking_allowed ?? false;
       mappedFeatures.couplesAllowed = property.couples_allowed ?? false;
