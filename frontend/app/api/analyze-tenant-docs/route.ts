@@ -43,13 +43,24 @@ export async function POST(req: Request) {
     const parts: any[] = [];
 
     // Prompt instructivo para el análisis de solvencia
+    // Prompt instructivo para el análisis de solvencia con soporte multilingüe explícito
     let prompt = `Analiza las siguientes imágenes o páginas de documentos y extrae la información en un formato JSON estructurado. 
 Estas páginas corresponden al mismo documento o al mismo grupo de documentos de alquiler. 
+
+SOPORTE MULTILINGÜE CRÍTICO:
+El documento puede estar en cualquier idioma (especialmente ESPAÑOL, INGLÉS, ITALIANO, FRANCÉS o ALEMÁN). 
+Debes comprender el significado de los términos en el idioma original y mapearlos correctamente a los valores específicos requeridos en este esquema JSON en español.
+Por ejemplo:
+- Si el documento es un "payslip", "pay stub", "busta paga", "fiche de paie", "gehaltsabrechnung", clasifícalo como "nomina".
+- Si es un "employment contract", "work contract", "contratto di lavoro", "contrat de travail", "arbeitsvertrag", clasifícalo como "contrato_trabajo".
+- Si es un "passport", "ID card", "identity card", "carta d'identità", "carte d'identité", "ID-Karte", clasifícalo como "dni".
+- Si es un documento de impuestos como "tax return", "tax statement", "tax declaration", "P60", "W-2", "dichiarazione dei redditi", clasifícalo como "declaracion_renta".
+
 Clasifica el documento identificando todos los tipos de documentos de la siguiente lista que estén presentes en el archivo (puesto que un mismo PDF puede contener varios de ellos, como el DNI, una nómina y el contrato a la vez):
-- 'dni' (DNI, NIE, Pasaporte)
-- 'nomina' (Nómina de salario)
-- 'contrato_trabajo' (Contrato laboral)
-- 'declaracion_renta' (Impuestos, Declaración de la renta o modelos trimestrales 100/130/303)
+- 'dni' (DNI, NIE, Pasaporte, ID Card)
+- 'nomina' (Nómina de salario, Payslip, Busta Paga, etc.)
+- 'contrato_trabajo' (Contrato laboral, Employment Contract)
+- 'declaracion_renta' (Impuestos, Declaración de la renta, modelos trimestrales, Tax Returns)
 - 'modelo_autonomo' (Modelos fiscales de autónomos, IVA/IRPF)
 - 'otro' (Cualquier otro documento)
 
@@ -61,7 +72,7 @@ Es MUY importante que identifiques el nombre y apellidos del inquilino al que pe
 
 En el campo "notes" de "extracted_data", debes proporcionar un resumen ejecutivo redactado de la solvencia del inquilino.
 Reglas estrictas para el resumen en "notes":
-1. Debe ser un texto fluido y redactado profesionalmente describiendo el perfil laboral y financiero del inquilino. Ejemplo correcto: "El inquilino Carlos Ramon Tapias Peña es empleado con contrato indefinido como Mozo Especialista en VILLALOBOS LOGISTICA S.L. Su antigüedad laboral es desde el 24 de junio de 2020. Sus ingresos netos mensuales, según las últimas nóminas, oscilan entre 1388.31€ y 1612.46€. Posee un permiso de residencia y trabajo válido."
+1. Debe redactarse SIEMPRE EN ESPAÑOL, con un texto fluido y profesional, describiendo el perfil laboral y financiero del inquilino (incluso si el documento original está en inglés, italiano u otro idioma). Traduce de manera natural los cargos y términos al español. Ejemplo correcto: "El inquilino Carlos Ramon Tapias Peña es empleado con contrato indefinido como Mozo Especialista en VILLALOBOS LOGISTICA S.L. Su antigüedad laboral es desde el 24 de junio de 2020. Sus ingresos netos mensuales, según las últimas nóminas, oscilan entre 1388.31€ y 1612.46€. Posee un permiso de residencia y trabajo válido."
 2. NO debe mencionar qué documentos se han presentado ni detallar el listado de archivos (EVITA frases como: "Se han proporcionado tres nóminas correspondientes a febrero, marzo y abril de 2026, con ingresos netos mensuales de 2136.34€...").
 3. Si el archivo contiene nóminas de múltiples meses (ej. marzo, abril, mayo), especifica detalladamente los ingresos netos de cada mes en el texto (ej. "habiendo percibido 2130€ en marzo, 2400€ en abril...").
 4. Céntrate en la información sustancial del perfil laboral, tipo de contrato, antigüedad laboral, e ingresos netos.
@@ -73,26 +84,26 @@ Devuelve la respuesta en formato JSON que cumpla exactamente con este esquema:
   "pages": [
     {
       "page_number": 1,
-      "document_types": ["dni"] (Lista de tipos de documentos presentes en esta página concreta. Si una página contiene a la vez un DNI y una nómina, ponlos ambos: ["dni", "nomina"])
+      "document_types": ["dni"] (Lista de tipos de documentos presentes en esta página concreta)
     }
   ],
   "confidence": 0.0 a 1.0,
   "extracted_data": {
     "first_name": "Nombre de pila del inquilino (texto o null)",
     "last_name": "Apellidos del inquilino (texto o null)",
-    "dni": "Número de DNI/NIE/Pasaporte limpio (texto o null)",
-    "employment_status": "empleado" | "autónomo" | "desempleado" | "pensionista" | "estudiante" | null,
+    "dni": "Número de DNI/NIE/Pasaporte/ID limpio (texto o null)",
+    "employment_status": "empleado" | "autónomo" | "desempleado" | "pensionista" | "estudiante" | null, (Mapea conceptos en otros idiomas: 'employed'/'employee'/'dipendente' -> 'empleado'; 'self-employed'/'freelancer'/'lavoratore autonomo' -> 'autónomo'; 'unemployed'/'disoccupato' -> 'desempleado'; 'retired'/'pensionato' -> 'pensionista'; 'student' -> 'estudiante')
     "company_name": "Nombre de la empresa empleadora (texto o null)",
-    "job_title": "Puesto o cargo laboral (texto o null)",
+    "job_title": "Puesto o cargo laboral (texto o null, traducido al español o en su forma original si es un cargo común)",
     "seniority_date": "Fecha de inicio de antigüedad laboral en formato YYYY-MM-DD (texto o null)",
-    "contract_type": "indefinido" | "temporal" | "otro" | null,
-    "monthly_income": 1250.50 (Salario neto mensual extraído de nómina como número, o null),
+    "contract_type": "indefinido" | "temporal" | "otro" | null, (Mapea conceptos en otros idiomas: 'permanent'/'indefinite'/'open-ended'/'a tempo indeterminato'/'CDI' -> 'indefinido'; 'temporary'/'fixed-term'/'a tempo determinado'/'CDD' -> 'temporal')
+    "monthly_income": 1250.50 (Salario neto mensual extraído de nómina como número, o null. Utiliza el salario en la moneda del documento),
     "annual_income": 18500.00 (Ingresos netos anuales extraídos de declaración de la renta como número, o null),
-    "currency": "EUR" | "BRL" | "USD" | "GBP" | null, (Código de la moneda de los ingresos o extractos, ej. 'EUR' para euros €, 'BRL' para reales brasileños R$, 'USD' para dólares $, etc. Default a 'EUR' si son documentos españoles),
-    "age": 32 (Edad del inquilino como número entero, o null. Dúcela a partir de su fecha de nacimiento en el DNI si está disponible),
-    "nationality": "Nacionalidad o país de origen del inquilino (texto o null, ej. 'española', 'italiana', 'colombiana')",
+    "currency": "EUR" | "BRL" | "USD" | "GBP" | null, (Código de la moneda de los ingresos o extractos, ej. 'EUR' para euros €, 'BRL' para reales brasileños R$, 'USD' para dólares $, 'GBP' para libras £, etc.),
+    "age": 32 (Edad del inquilino como número entero, o null. Dúcela a partir de su fecha de nacimiento en el DNI/ID si está disponible),
+    "nationality": "Nacionalidad o país de origen del inquilino (texto o null, ej. 'española', 'italiana', 'colombiana', 'británica', 'alemana')",
     "document_date": "Fecha del documento en formato YYYY-MM-DD (texto o null)",
-    "notes": "Resumen ejecutivo de solvencia y perfil laboral siguiendo las reglas estrictas (texto o null)"
+    "notes": "Resumen ejecutivo de solvencia y perfil laboral en ESPAÑOL, siguiendo las reglas estrictas (texto o null)"
   }
 }`;
 
@@ -119,7 +130,24 @@ Por favor, calcula la tasa de esfuerzo (ratio de ingresos netos mensuales del in
       }
 
       const buffer = Buffer.from(await data.arrayBuffer());
-      const mimeType = data.type || 'image/jpeg';
+      
+      // Intentar deducir el tipo MIME real a partir del archivo o de su extensión
+      let mimeType = data.type;
+      if (!mimeType || mimeType === 'application/octet-stream') {
+        const ext = filePath.split('.').pop()?.toLowerCase();
+        if (ext === 'pdf') {
+          mimeType = 'application/pdf';
+        } else if (ext === 'png') {
+          mimeType = 'image/png';
+        } else if (ext === 'jpg' || ext === 'jpeg') {
+          mimeType = 'image/jpeg';
+        } else if (ext === 'webp') {
+          mimeType = 'image/webp';
+        } else {
+          mimeType = 'image/jpeg'; // fallback por defecto
+        }
+      }
+
       const base64Data = buffer.toString('base64');
 
       parts.push({
