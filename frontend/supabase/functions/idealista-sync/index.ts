@@ -716,12 +716,9 @@ serve(async (req) => {
       // Nota: Idealista exige que este campo sea obligatorio y tenga un valor mínimo de 2.
       mappedFeatures.tenantNumber = Math.max(2, property.tenant_number ?? 2);
 
-      // Edad del inquilino actual (obligatorio solo si occupiedNow es true)
-      if (isOccupied) {
-        const minAgeVal = property.tenant_min_age ?? 18;
-        const maxAgeVal = property.tenant_max_age ?? 35;
-        mappedFeatures.tenantAge = Math.round((minAgeVal + maxAgeVal) / 2);
-      }
+      // NOTA: "tenantAge" NO es un campo válido en el esquema de Idealista.
+      // La API rechaza el payload con error de validación si se incluye ese campo.
+      // Los rangos de edad se mapean con minAge / maxAge (campos sí aceptados).
 
       // Rangos de edad permitidos para solicitantes (opcional, mapeados si existen)
       if (property.tenant_min_age !== undefined && property.tenant_min_age !== null) {
