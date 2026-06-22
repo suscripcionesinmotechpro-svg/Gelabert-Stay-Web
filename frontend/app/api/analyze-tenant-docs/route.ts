@@ -76,6 +76,7 @@ Reglas estrictas para el resumen en "notes":
 2. NO debe mencionar qué documentos se han presentado ni detallar el listado de archivos (EVITA frases como: "Se han proporcionado tres nóminas correspondientes a febrero, marzo y abril de 2026, con ingresos netos mensuales de 2136.34€...").
 3. Si el archivo contiene nóminas de múltiples meses (ej. marzo, abril, mayo), especifica detalladamente los ingresos netos de cada mes en el texto (ej. "habiendo percibido 2130€ en marzo, 2400€ en abril...").
 4. Céntrate en la información sustancial del perfil laboral, tipo de contrato, antigüedad laboral, e ingresos netos.
+5. Ingresos Extranjeros: Si los ingresos provienen del extranjero o están en otra moneda (ej. USD, GBP, BRL), no los consideres en absoluto como de riesgo o como 'no verificables en España'. Extrae la cantidad exacta e indica la moneda correspondiente de forma neutral. En el texto de las notas, descríbelos como ingresos demostrados válidos en el extranjero, realizando una conversión aproximada a euros (EUR).
 
 Devuelve la respuesta en formato JSON que cumpla exactamente con este esquema:
 {
