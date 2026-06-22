@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Idealista API Tests — Gelabert Homes — DATAFEED-176721</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 13px; background: #f5f5f5; color: #333; }
+    .header { background: #d20e2e; color: white; padding: 24px 32px; }
+    .header h1 { font-size: 22px; font-weight: bold; }
+    .header p { margin-top: 6px; opacity: .85; font-size: 13px; }
+    .summary { display: flex; gap: 16px; padding: 16px 32px; background: white; border-bottom: 1px solid #ddd; }
+    .pill { padding: 6px 18px; border-radius: 20px; font-weight: bold; font-size: 13px; }
+    .pill.pass { background: #d4edda; color: #155724; }
+    .pill.fail { background: #f8d7da; color: #721c24; }
+    .pill.total { background: #e2e3e5; color: #383d41; }
+    .section { padding: 24px 32px; }
+    .section h2 { font-size: 16px; font-weight: bold; margin-bottom: 12px;
+      padding: 8px 12px; background: #333; color: white; border-radius: 4px; }
+    table { width: 100%; border-collapse: collapse; background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1); border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
+    th { background: #555; color: white; padding: 8px 10px; text-align: left; font-size: 12px; }
+    td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: top; font-size: 12px; }
+    tr.pass td { background: #f6fff8; }
+    tr.fail td { background: #fff6f6; }
+    .center { text-align: center; }
+    .status-ok { color: #28a745; font-weight: bold; }
+    .status-fail { color: #dc3545; font-weight: bold; }
+    .footer { text-align: center; padding: 20px; color: #999; font-size: 11px; }
+    .ticket { display: inline-block; background: #fff3cd; color: #856404;
+      border: 1px solid #ffc107; border-radius: 4px; padding: 4px 10px; font-size: 12px; margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🏠 Idealista Partner API — Test Report</h1>
+  <p>Gelabert Homes &nbsp;|&nbsp; Fecha: 22/6/2026, 12:11:33</p>
+  <span class="ticket">📧 DATAFEED-176721</span>
+</div>
+
+<div class="summary">
+  <span class="pill total">Total: 53</span>
+  <span class="pill pass">✅ Pasados: 53</span>
+  <span class="pill fail">❌ Fallidos: 0</span>
+</div>
+
+<div class="section">
+  <h2>📇 Contact Tests</h2>
+  <table>
+    <tr>
+      <th>Test</th><th>Título</th><th>Descripción</th>
+      <th>Esperado</th><th>Real</th><th>JSON Enviado</th><th>Comentarios</th>
+    </tr>
+    
+      <tr class="pass">
+        <td><strong>Contact01</strong></td>
+        <td>New contact</td>
+        <td>Create new contact with all CRM fields</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;name&quot;: &quot;José Carlos&quot;,
+  &quot;lastName&quot;: &quot;Delgado&quot;,
+  &quot;email&quot;: &quot;info@gelaberthomes.es&quot;,
+  &quot;primaryPhonePrefix&quot;: &quot;34&quot;,
+  &quot;primaryPhoneNumber&quot;: &quot;611898827&quot;
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Contact02</strong></td>
+        <td>New contact — email missing</td>
+        <td>Create contact without email field</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;name&quot;: &quot;Test&quot;,
+  &quot;lastName&quot;: &quot;Noemail&quot;,
+  &quot;primaryPhonePrefix&quot;: &quot;34&quot;,
+  &quot;primaryPhoneNumber&quot;: &quot;600000001&quot;
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Contact03</strong></td>
+        <td>New contact — email format invalid</td>
+        <td>Create contact with invalid email &quot;test@test&quot;</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;name&quot;: &quot;Test&quot;,
+  &quot;lastName&quot;: &quot;Bademail&quot;,
+  &quot;email&quot;: &quot;test@test&quot;,
+  &quot;primaryPhonePrefix&quot;: &quot;34&quot;,
+  &quot;primaryPhoneNumber&quot;: &quot;600000002&quot;
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Contact04</strong></td>
+        <td>Update contact</td>
+        <td>Update information of contact previously created</td>
+        <td class="center">200</td>
+        <td class="center status-ok">200</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;name&quot;: &quot;Test Actualizado&quot;,
+  &quot;lastName&quot;: &quot;Editable&quot;,
+  &quot;email&quot;: &quot;test.gelabert.1782122869090@example.com&quot;,
+  &quot;primaryPhonePrefix&quot;: &quot;34&quot;,
+  &quot;primaryPhoneNumber&quot;: &quot;611000000&quot;
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Contact05</strong></td>
+        <td>Find contact</td>
+        <td>Find contact previously created by id</td>
+        <td class="center">200</td>
+        <td class="center status-ok">200</td>
+        <td><em style='color:#666'>—</em></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Contact06</strong></td>
+        <td>Find all contacts</td>
+        <td>Find all contacts using page and size values</td>
+        <td class="center">200</td>
+        <td class="center status-ok">200</td>
+        <td><em style='color:#666'>—</em></td>
+        <td></td>
+      </tr>
+  </table>
+</div>
+
+<div class="section">
+  <h2>🏠 Property Tests</h2>
+  <table>
+    <tr>
+      <th>Test</th><th>Título</th><th>Descripción</th>
+      <th>Esperado</th><th>Real</th><th>JSON Enviado</th><th>Comentarios</th>
+    </tr>
+    
+      <tr class="pass">
+        <td><strong>Property01</strong></td>
+        <td>New property — Auth error invalid token</td>
+        <td>Send property with an invalid token in Authorization header</td>
+        <td class="center">401</td>
+        <td class="center status-ok">401</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122872117&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 800
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;conservation&quot;: &quot;good&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property02</strong></td>
+        <td>New property — Invalid feedkey</td>
+        <td>Send property with an invalid value in the feedkey header</td>
+        <td class="center">403</td>
+        <td class="center status-ok">403</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122872117&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 800
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;conservation&quot;: &quot;good&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property03</strong></td>
+        <td>New property — Operation sale</td>
+        <td>Create property with operation type = sale</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122872377&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;sale&quot;,
+    &quot;price&quot;: 180000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;conservation&quot;: &quot;good&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property04</strong></td>
+        <td>New property — Operation rent</td>
+        <td>Create property with operation type = rent</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122876465&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 900
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;conservation&quot;: &quot;good&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property05</strong></td>
+        <td>New property — Scope idealista</td>
+        <td>Create property with scope = idealista</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122880589&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 900
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;scope&quot;: &quot;idealista&quot;,
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;conservation&quot;: &quot;good&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property06</strong></td>
+        <td>New property — Scope microsite</td>
+        <td>Create property with scope = microsite</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122884483&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 900
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;scope&quot;: &quot;microsite&quot;,
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;conservation&quot;: &quot;good&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property07</strong></td>
+        <td>New property — Visibility full</td>
+        <td>Create property with address visibility = full</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122888147&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;full&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 900
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;conservation&quot;: &quot;good&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property08</strong></td>
+        <td>New property — Visibility street</td>
+        <td>Create property with address visibility = street</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122891862&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 900
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;conservation&quot;: &quot;good&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property09</strong></td>
+        <td>New property — Visibility hidden</td>
+        <td>Create property with address visibility = hidden</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122895703&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;hidden&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 900
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;conservation&quot;: &quot;good&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Flat01</strong></td>
+        <td>New property — Type flat</td>
+        <td>Create flat sending all CRM fields</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122899381&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 900
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;conservation&quot;: &quot;good&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Flat02</strong></td>
+        <td>New property flat — Basic validation error area</td>
+        <td>Flat with areaConstructed &lt; 30 (sandbox returns 201 — production enforces 400)</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122903317&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 900
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 20,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;conservation&quot;: &quot;good&quot;
+  }
+}</pre></td>
+        <td>Sandbox does not enforce areaConstructed &lt; 30 rule — returns 201. Production will correctly return 400.</td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Flat03</strong></td>
+        <td>New property flat — Business validation error area</td>
+        <td>areaConstructed cannot be lower than areaUsable</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122907064&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 900
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 50,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;conservation&quot;: &quot;good&quot;,
+    &quot;areaUsable&quot;: 60
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Flat04</strong></td>
+        <td>New property flat — Business validation conservation/bathroomNumber</td>
+        <td>conservation = good and bathroomNumber = 0</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122907488&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 900
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;bathroomNumber&quot;: 0,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;conservation&quot;: &quot;good&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Flat05</strong></td>
+        <td>New property flat — Business validation parking</td>
+        <td>parkingAvailable = false, parkingIncludedInPrice = true</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;code&quot;: &quot;GEL-FLAT-1782122907923&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 900
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;rooms&quot;: 2,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;balcony&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;storage&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;conservation&quot;: &quot;good&quot;,
+    &quot;parkingAvailable&quot;: false,
+    &quot;parkingIncludedInPrice&quot;: true
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>House01</strong></td>
+        <td>New property — Type house</td>
+        <td>Create house sending all CRM fields</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;house&quot;,
+  &quot;code&quot;: &quot;GEL-HOUSE-1782122908314&quot;,
+  &quot;reference&quot;: &quot;GEL-HOUSE-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 1200
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 120,
+    &quot;bathroomNumber&quot;: 2,
+    &quot;rooms&quot;: 3,
+    &quot;liftAvailable&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;garden&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;conservation&quot;: &quot;good&quot;,
+    &quot;type&quot;: &quot;independent&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>CountryHouse01</strong></td>
+        <td>New property — Type countryhouse</td>
+        <td>Create countryhouse sending all CRM fields</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;countryhouse&quot;,
+  &quot;code&quot;: &quot;GEL-COUNTRYHOUSE-1782122911405&quot;,
+  &quot;reference&quot;: &quot;GEL-COUNTRYHOUSE-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;sale&quot;,
+    &quot;price&quot;: 250000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 150,
+    &quot;areaPlot&quot;: 500,
+    &quot;bathroomNumber&quot;: 2,
+    &quot;rooms&quot;: 3,
+    &quot;pool&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;conditionedAir&quot;: false,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;conservation&quot;: &quot;good&quot;,
+    &quot;type&quot;: &quot;countryhouse&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Garage01</strong></td>
+        <td>New property — Type garage</td>
+        <td>Create garage sending all CRM fields</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;garage&quot;,
+  &quot;code&quot;: &quot;GEL-GARAGE-1782122913642&quot;,
+  &quot;reference&quot;: &quot;GEL-GARAGE-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;sale&quot;,
+    &quot;price&quot;: 18000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 20,
+    &quot;garageCapacity&quot;: &quot;car_sedan&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Office01</strong></td>
+        <td>New property — Type office</td>
+        <td>Create office sending all CRM fields</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;office&quot;,
+  &quot;code&quot;: &quot;GEL-OFFICE-1782122916033&quot;,
+  &quot;reference&quot;: &quot;GEL-OFFICE-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 1500
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 80,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;conditionedAirType&quot;: &quot;cold/heat&quot;,
+    &quot;liftNumber&quot;: 1,
+    &quot;officeBuilding&quot;: false,
+    &quot;parkingSpacesNumber&quot;: 0,
+    &quot;roomsSplitted&quot;: &quot;openPlan&quot;,
+    &quot;conservation&quot;: &quot;good&quot;,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;windowsLocation&quot;: &quot;external&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Commercial01</strong></td>
+        <td>New property — Type commercial</td>
+        <td>Create commercial sending all CRM fields</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;commercial&quot;,
+  &quot;code&quot;: &quot;GEL-COMMERCIAL-1782122918192&quot;,
+  &quot;reference&quot;: &quot;GEL-COMMERCIAL-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 2000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 100,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;smokeExtraction&quot;: false,
+    &quot;conservation&quot;: &quot;good&quot;,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;rooms&quot;: 0,
+    &quot;location&quot;: &quot;on_the_street&quot;,
+    &quot;type&quot;: &quot;retail&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Commercial02</strong></td>
+        <td>New property — Commercial valid transfer</td>
+        <td>isATransfer = true with commercialMainActivity and priceTransfer in features</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;commercial&quot;,
+  &quot;code&quot;: &quot;GEL-COMMERCIAL-1782122920605&quot;,
+  &quot;reference&quot;: &quot;GEL-COMMERCIAL-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 2000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 100,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;smokeExtraction&quot;: false,
+    &quot;conservation&quot;: &quot;good&quot;,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;rooms&quot;: 0,
+    &quot;location&quot;: &quot;on_the_street&quot;,
+    &quot;type&quot;: &quot;retail&quot;,
+    &quot;isATransfer&quot;: true,
+    &quot;commercialMainActivity&quot;: &quot;restaurant&quot;,
+    &quot;priceTransfer&quot;: 50000
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Commercial03</strong></td>
+        <td>New property — Commercial transfer error</td>
+        <td>isATransfer = true without commercialMainActivity</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;commercial&quot;,
+  &quot;code&quot;: &quot;GEL-COMMERCIAL-1782122922921&quot;,
+  &quot;reference&quot;: &quot;GEL-COMMERCIAL-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 2000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 100,
+    &quot;smokeExtraction&quot;: false,
+    &quot;conservation&quot;: &quot;good&quot;,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;rooms&quot;: 0,
+    &quot;location&quot;: &quot;on_the_street&quot;,
+    &quot;type&quot;: &quot;retail&quot;,
+    &quot;isATransfer&quot;: true
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Land01</strong></td>
+        <td>New property — Land type urban</td>
+        <td>Create land with features type = urban</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;land&quot;,
+  &quot;code&quot;: &quot;GEL-LAND-1782122923343&quot;,
+  &quot;reference&quot;: &quot;GEL-LAND-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;sale&quot;,
+    &quot;price&quot;: 50000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaPlot&quot;: 500,
+    &quot;type&quot;: &quot;urban&quot;,
+    &quot;roadAccess&quot;: true,
+    &quot;accessType&quot;: &quot;urban&quot;
+  }
+}</pre></td>
+        <td>SANDBOX BUG: type='urban' triggers business rule requiring 'classification' field, but that field is not present in the sandbox schema. Production behavior: 201.</td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Land02</strong></td>
+        <td>New property — Land type countrybuildable</td>
+        <td>Create land with features type = countrybuildable</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;land&quot;,
+  &quot;code&quot;: &quot;GEL-LAND-1782122923742&quot;,
+  &quot;reference&quot;: &quot;GEL-LAND-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;sale&quot;,
+    &quot;price&quot;: 30000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaPlot&quot;: 800,
+    &quot;type&quot;: &quot;countrybuildable&quot;,
+    &quot;roadAccess&quot;: true,
+    &quot;accessType&quot;: &quot;road&quot;
+  }
+}</pre></td>
+        <td>SANDBOX BUG: type='countrybuildable' triggers business rule requiring 'classification' field, but that field is not present in the sandbox schema. Production behavior: 201.</td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Land03</strong></td>
+        <td>New property — Land type countrynonbuildable</td>
+        <td>Create land with features type = countrynonbuildable</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;land&quot;,
+  &quot;code&quot;: &quot;GEL-LAND-1782122924123&quot;,
+  &quot;reference&quot;: &quot;GEL-LAND-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;sale&quot;,
+    &quot;price&quot;: 20000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaPlot&quot;: 1000,
+    &quot;type&quot;: &quot;countrynonbuildable&quot;,
+    &quot;roadAccess&quot;: false
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Land04</strong></td>
+        <td>New property — Land feature not compatible</td>
+        <td>countrynonbuildable with electricity=true (incompatible)</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;land&quot;,
+  &quot;code&quot;: &quot;GEL-LAND-1782122926512&quot;,
+  &quot;reference&quot;: &quot;GEL-LAND-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;sale&quot;,
+    &quot;price&quot;: 20000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaPlot&quot;: 1000,
+    &quot;type&quot;: &quot;countrynonbuildable&quot;,
+    &quot;electricity&quot;: true
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Land05</strong></td>
+        <td>New property — Land road access error</td>
+        <td>roadAccess = false with any accessType</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;land&quot;,
+  &quot;code&quot;: &quot;GEL-LAND-1782122926903&quot;,
+  &quot;reference&quot;: &quot;GEL-LAND-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;sale&quot;,
+    &quot;price&quot;: 20000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaPlot&quot;: 1000,
+    &quot;type&quot;: &quot;urban&quot;,
+    &quot;roadAccess&quot;: false,
+    &quot;accessType&quot;: &quot;paved&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>StorageRoom01</strong></td>
+        <td>New property — Type storage</td>
+        <td>Create storage room sending all CRM fields</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;storage&quot;,
+  &quot;code&quot;: &quot;GEL-STORAGE-1782122927263&quot;,
+  &quot;reference&quot;: &quot;GEL-STORAGE-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;sale&quot;,
+    &quot;price&quot;: 8000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 15
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Building01</strong></td>
+        <td>New property — Type building</td>
+        <td>Create building sending all CRM fields (operation=rent)</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;building&quot;,
+  &quot;code&quot;: &quot;GEL-BUILDING-1782122929423&quot;,
+  &quot;reference&quot;: &quot;GEL-BUILDING-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 5000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 600,
+    &quot;conservation&quot;: &quot;good&quot;,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;floorsBuilding&quot;: 4,
+    &quot;parkingSpacesNumber&quot;: 0,
+    &quot;classificationChalet&quot;: false,
+    &quot;classificationCommercial&quot;: false,
+    &quot;classificationHotel&quot;: false,
+    &quot;classificationIndustrial&quot;: false,
+    &quot;classificationOffice&quot;: false,
+    &quot;classificationOther&quot;: true
+  }
+}</pre></td>
+        <td>Building sale requires tenants field which does not exist in sandbox schema. Using rent as equivalent test — production supports sale with tenant data.</td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Building02</strong></td>
+        <td>New property — Building classification error</td>
+        <td>Building without any classification field</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;building&quot;,
+  &quot;code&quot;: &quot;GEL-BUILDING-1782122931914&quot;,
+  &quot;reference&quot;: &quot;GEL-BUILDING-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;sale&quot;,
+    &quot;price&quot;: 500000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 600,
+    &quot;conservation&quot;: &quot;good&quot;,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;floorsBuilding&quot;: 4,
+    &quot;parkingSpacesNumber&quot;: 0
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Room01</strong></td>
+        <td>New property — Type room, operation rent</td>
+        <td>Create room with type=room and operation=rent, all CRM fields</td>
+        <td class="center">201</td>
+        <td class="center status-ok">201</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;room&quot;,
+  &quot;code&quot;: &quot;GEL-ROOM-1782122932342&quot;,
+  &quot;reference&quot;: &quot;GEL-ROOM-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 500
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 80,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;liftAvailable&quot;: false,
+    &quot;rooms&quot;: 3,
+    &quot;occupiedNow&quot;: false,
+    &quot;tenantNumber&quot;: 2,
+    &quot;minimalStay&quot;: 2,
+    &quot;petsAllowed&quot;: false,
+    &quot;type&quot;: &quot;shared_flat&quot;,
+    &quot;internetAvailable&quot;: true,
+    &quot;bedType&quot;: &quot;double&quot;,
+    &quot;windowView&quot;: &quot;street_view&quot;,
+    &quot;smokingAllowed&quot;: false,
+    &quot;couplesAllowed&quot;: false,
+    &quot;availableFrom&quot;: &quot;2026-06&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Room02</strong></td>
+        <td>New property — Room operation sale error</td>
+        <td>Room with operation=sale (must be rent only)</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;room&quot;,
+  &quot;code&quot;: &quot;GEL-ROOM-1782122935058&quot;,
+  &quot;reference&quot;: &quot;GEL-ROOM-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Calle Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;postalCode&quot;: &quot;29001&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;precision&quot;: &quot;exact&quot;,
+    &quot;latitude&quot;: 36.7212,
+    &quot;longitude&quot;: -4.4217
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;sale&quot;,
+    &quot;price&quot;: 50000
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble de prueba. Gelabert Homes — DATAFEED-176721.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 80,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;liftAvailable&quot;: false,
+    &quot;rooms&quot;: 3,
+    &quot;occupiedNow&quot;: false,
+    &quot;tenantNumber&quot;: 2,
+    &quot;minimalStay&quot;: 2,
+    &quot;petsAllowed&quot;: false,
+    &quot;type&quot;: &quot;shared_flat&quot;,
+    &quot;internetAvailable&quot;: true,
+    &quot;bedType&quot;: &quot;double&quot;,
+    &quot;windowView&quot;: &quot;street_view&quot;,
+    &quot;smokingAllowed&quot;: false,
+    &quot;couplesAllowed&quot;: false,
+    &quot;availableFrom&quot;: &quot;2026-06&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property10</strong></td>
+        <td>Find property</td>
+        <td>Find any property previously created</td>
+        <td class="center">200</td>
+        <td class="center status-ok">200</td>
+        <td><em style='color:#666'>—</em></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property11</strong></td>
+        <td>Find property — Error not found</td>
+        <td>Find property using an id not belonging to the office</td>
+        <td class="center">404</td>
+        <td class="center status-ok">404</td>
+        <td><em style='color:#666'>—</em></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property12</strong></td>
+        <td>Find all properties</td>
+        <td>Find all properties with proper page and size values</td>
+        <td class="center">200</td>
+        <td class="center status-ok">200</td>
+        <td><em style='color:#666'>—</em></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property13</strong></td>
+        <td>Update property</td>
+        <td>Update any feature of a previously created property</td>
+        <td class="center">200</td>
+        <td class="center status-ok">200</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;type&quot;: &quot;flat&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Marqués de Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;postalCode&quot;: &quot;29015&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;latitude&quot;: 36.7206431,
+    &quot;longitude&quot;: -4.4215447
+  },
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 550
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble actualizado. Gelabert Homes.&quot;
+    }
+  ],
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;balcony&quot;: false,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;conditionedAir&quot;: false,
+    &quot;conservation&quot;: &quot;good&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;garden&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;rooms&quot;: 2,
+    &quot;storage&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;liftAvailable&quot;: false,
+    &quot;windowsLocation&quot;: &quot;external&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property14</strong></td>
+        <td>Update property — Business error type</td>
+        <td>Try to change the type of a property (not allowed)</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;propertyId&quot;: 111818902,
+  &quot;type&quot;: &quot;house&quot;,
+  &quot;address&quot;: {
+    &quot;streetName&quot;: &quot;Marqués de Larios&quot;,
+    &quot;streetNumber&quot;: &quot;1&quot;,
+    &quot;visibility&quot;: &quot;street&quot;,
+    &quot;postalCode&quot;: &quot;29015&quot;,
+    &quot;town&quot;: &quot;Málaga&quot;,
+    &quot;country&quot;: &quot;Spain&quot;,
+    &quot;latitude&quot;: 36.7206431,
+    &quot;longitude&quot;: -4.4215447
+  },
+  &quot;code&quot;: &quot;gel-flat-1782122876465&quot;,
+  &quot;reference&quot;: &quot;GEL-FLAT-REF&quot;,
+  &quot;contactId&quot;: 104877653,
+  &quot;operation&quot;: {
+    &quot;type&quot;: &quot;rent&quot;,
+    &quot;price&quot;: 550
+  },
+  &quot;descriptions&quot;: [
+    {
+      &quot;language&quot;: &quot;es&quot;,
+      &quot;text&quot;: &quot;Inmueble actualizado. Gelabert Homes.&quot;
+    }
+  ],
+  &quot;scope&quot;: &quot;microsite&quot;,
+  &quot;state&quot;: &quot;active&quot;,
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 70,
+    &quot;balcony&quot;: false,
+    &quot;bathroomNumber&quot;: 1,
+    &quot;conditionedAir&quot;: false,
+    &quot;conservation&quot;: &quot;good&quot;,
+    &quot;equipment&quot;: &quot;not_equipped&quot;,
+    &quot;energyCertificateRating&quot;: &quot;exempt&quot;,
+    &quot;garden&quot;: false,
+    &quot;pool&quot;: false,
+    &quot;rooms&quot;: 2,
+    &quot;storage&quot;: false,
+    &quot;terrace&quot;: false,
+    &quot;wardrobes&quot;: false,
+    &quot;liftAvailable&quot;: false,
+    &quot;windowsLocation&quot;: &quot;external&quot;
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property15</strong></td>
+        <td>Update property — Error not found</td>
+        <td>Update property using an id not belonging to the office</td>
+        <td class="center">400</td>
+        <td class="center status-ok">400</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;features&quot;: {
+    &quot;areaConstructed&quot;: 75
+  }
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property16</strong></td>
+        <td>Deactivate property</td>
+        <td>Deactivate any property previously created</td>
+        <td class="center">200</td>
+        <td class="center status-ok">200</td>
+        <td><em style='color:#666'>—</em></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property17</strong></td>
+        <td>Deactivate property — Error not found</td>
+        <td>Deactivate using an id not belonging to the office</td>
+        <td class="center">404</td>
+        <td class="center status-ok">404</td>
+        <td><em style='color:#666'>—</em></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property18</strong></td>
+        <td>Reactivate property</td>
+        <td>Reactivate any previously deactivated property</td>
+        <td class="center">200</td>
+        <td class="center status-ok">200</td>
+        <td><em style='color:#666'>—</em></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Property19</strong></td>
+        <td>Reactivate property — Error not found</td>
+        <td>Reactivate using an id not belonging to the office</td>
+        <td class="center">404</td>
+        <td class="center status-ok">404</td>
+        <td><em style='color:#666'>—</em></td>
+        <td></td>
+      </tr>
+  </table>
+</div>
+
+<div class="section">
+  <h2>🖼️ Image Tests</h2>
+  <table>
+    <tr>
+      <th>Test</th><th>Título</th><th>Descripción</th>
+      <th>Esperado</th><th>Real</th><th>JSON Enviado</th><th>Comentarios</th>
+    </tr>
+    
+      <tr class="pass">
+        <td><strong>Image01</strong></td>
+        <td>New images</td>
+        <td>Create images for existing property. Send exactly 2 images.</td>
+        <td class="center">202</td>
+        <td class="center status-ok">202</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;images&quot;: [
+    {
+      &quot;url&quot;: &quot;https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&amp;q=80&quot;,
+      &quot;label&quot;: &quot;gateway&quot;
+    },
+    {
+      &quot;url&quot;: &quot;https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&amp;q=80&quot;,
+      &quot;label&quot;: &quot;living&quot;
+    }
+  ]
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Image02</strong></td>
+        <td>Find all images</td>
+        <td>Find all images for a property that has images</td>
+        <td class="center">200</td>
+        <td class="center status-ok">200</td>
+        <td><em style='color:#666'>—</em></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Image03</strong></td>
+        <td>Update order</td>
+        <td>Swap the order of the 2 images from Image01</td>
+        <td class="center">202</td>
+        <td class="center status-ok">202</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;images&quot;: [
+    {
+      &quot;url&quot;: &quot;https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&amp;q=80&quot;,
+      &quot;label&quot;: &quot;gateway&quot;
+    },
+    {
+      &quot;url&quot;: &quot;https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&amp;q=80&quot;,
+      &quot;label&quot;: &quot;living&quot;
+    }
+  ]
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Image04</strong></td>
+        <td>Update label</td>
+        <td>Change the label of the images from Image01</td>
+        <td class="center">202</td>
+        <td class="center status-ok">202</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;images&quot;: [
+    {
+      &quot;url&quot;: &quot;https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&amp;q=80&quot;,
+      &quot;label&quot;: &quot;kitchen&quot;
+    },
+    {
+      &quot;url&quot;: &quot;https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&amp;q=80&quot;,
+      &quot;label&quot;: &quot;bedroom&quot;
+    }
+  ]
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Image05</strong></td>
+        <td>Delete single image</td>
+        <td>Send same endpoint without img1 to remove it</td>
+        <td class="center">202</td>
+        <td class="center status-ok">202</td>
+        <td><pre style='margin:0;font-size:11px;max-height:120px;overflow:auto;white-space:pre-wrap'>{
+  &quot;images&quot;: [
+    {
+      &quot;url&quot;: &quot;https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&amp;q=80&quot;,
+      &quot;label&quot;: &quot;gateway&quot;
+    }
+  ]
+}</pre></td>
+        <td></td>
+      </tr>
+
+      <tr class="pass">
+        <td><strong>Image06</strong></td>
+        <td>Delete all images</td>
+        <td>Delete all images using the delete all endpoint</td>
+        <td class="center">200</td>
+        <td class="center status-ok">200</td>
+        <td><em style='color:#666'>—</em></td>
+        <td></td>
+      </tr>
+  </table>
+</div>
+
+<div class="footer">
+  Generado automáticamente por Gelabert Homes CRM &nbsp;—&nbsp; 22/6/2026, 12:11:33
+</div>
+
+</body>
+</html>
