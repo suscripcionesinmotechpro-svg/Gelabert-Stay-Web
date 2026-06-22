@@ -159,6 +159,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
   
   const [queue, setQueue] = useState<UploadQueueItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [groupedTenants, setGroupedTenants] = useState<GroupedTenant[]>([]);
   const [unassignedDocs, setUnassignedDocs] = useState<{
     queueItemId: string;
@@ -210,13 +211,19 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
     setIsProcessing(true);
 
     const pendingItems = queue.filter(x => x.status === 'pending' || x.status === 'error');
+    let currentQueueState = [...queue];
     
     // Batch processing helper
     const processBatch = async (items: UploadQueueItem[]) => {
       await Promise.all(items.map(async (item) => {
+        const setItemState = (status: UploadQueueItem['status'], progress: number, extra?: Partial<UploadQueueItem>) => {
+          currentQueueState = currentQueueState.map(x => x.id === item.id ? { ...x, status, progress, ...extra } : x);
+          updateQueueItem(item.id, { status, progress, ...extra });
+        };
+
         try {
           // 1. Update status to uploading
-          updateQueueItem(item.id, { status: 'uploading', progress: 20 });
+          setItemState('uploading', 20);
           
           const timestamp = Date.now();
           const safeName = item.file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -229,7 +236,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
 
           if (uploadErr) throw uploadErr;
 
-          updateQueueItem(item.id, { status: 'analyzing', progress: 60, tempPath });
+          setItemState('analyzing', 60, { tempPath });
 
           // Get Session token for RLS propagation
           const { data: { session } } = await supabase.auth.getSession();
@@ -275,19 +282,11 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
             throw new Error('Error al decodificar la respuesta JSON del servidor.');
           }
 
-          updateQueueItem(item.id, { 
-            status: 'completed', 
-            progress: 100, 
-            extractedData: analysisResult 
-          });
+          setItemState('completed', 100, { extractedData: analysisResult });
 
         } catch (err: any) {
           console.error(err);
-          updateQueueItem(item.id, { 
-            status: 'error', 
-            progress: 0, 
-            errorMsg: err.message || 'Error desconocido' 
-          });
+          setItemState('error', 0, { errorMsg: err.message || 'Error desconocido' });
         }
       }));
     };
@@ -300,7 +299,12 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
     }
 
     setIsProcessing(false);
-    organizeDocuments();
+    const finalTenants = organizeDocuments(currentQueueState);
+
+    // Call synthesis endpoint if we have grouped tenants
+    if (finalTenants && finalTenants.length > 0) {
+      await synthesizeAllTenantsNotes(finalTenants, currentQueueState);
+    }
   };
 
   const updateQueueItem = (id: string, updates: Partial<UploadQueueItem>) => {
@@ -308,107 +312,215 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
   };
 
   // Group analyzed documents by detected person name
-  const organizeDocuments = () => {
+  const organizeDocuments = (currentQueue?: UploadQueueItem[]): GroupedTenant[] => {
     const unassigned: typeof unassignedDocs = [];
+    const targetQueue = currentQueue || queue;
+    const tempTenantsList: GroupedTenant[] = [];
 
-    // Fetch the updated queue items
-    setQueue(prevQueue => {
-      const tempTenantsList: GroupedTenant[] = [];
-
-      prevQueue.forEach(item => {
-        if (item.status !== 'completed' || !item.extractedData) {
-          if (item.tempPath) {
-            unassigned.push({
-              queueItemId: item.id,
-              fileName: item.file.name,
-              tempPath: item.tempPath
-            });
-          }
-          return;
-        }
-
-        const data = item.extractedData.extracted_data;
-        const firstName = (data.first_name || '').trim();
-        const lastName = (data.last_name || '').trim();
-        
-        // If we can't extract a name, keep it unassigned
-        if (!firstName && !lastName) {
-          if (item.tempPath) {
-            unassigned.push({
-              queueItemId: item.id,
-              fileName: item.file.name,
-              tempPath: item.tempPath
-            });
-          }
-          return;
-        }
-
-        const detectedTypes = item.extractedData?.document_types || 
-                             (item.extractedData?.document_type ? [item.extractedData.document_type] : ['otro']);
-
-        // Build a temporary GroupedTenant object for this file
-        const newTenant: GroupedTenant = {
-          tempId: Math.random().toString(36).substring(7),
-          firstName: firstName || 'Inquilino',
-          lastName: lastName || 'Nuevo',
-          dni: data.dni || '',
-          email: '',
-          phone: '',
-          employmentStatus: data.employment_status || 'empleado',
-          companyName: data.company_name || '',
-          jobTitle: data.job_title || '',
-          seniorityDate: data.seniority_date || '',
-          contractType: data.contract_type || 'indefinido',
-          monthlyIncome: data.monthly_income || 0,
-          currency: (data as any).currency || 'EUR',
-          notes: data.notes || '',
-          age: data.age || null,
-          nationality: data.nationality || '',
-          tenantType: '',
-          documents: item.tempPath ? [{
+    targetQueue.forEach(item => {
+      if (item.status !== 'completed' || !item.extractedData) {
+        if (item.tempPath) {
+          unassigned.push({
             queueItemId: item.id,
             fileName: item.file.name,
-            documentTypes: detectedTypes,
             tempPath: item.tempPath
-          }] : []
-        };
+          });
+        }
+        return;
+      }
 
-        // Try to find an existing tenant in tempTenantsList that is similar to newTenant
-        const cleanNameA = cleanNameForMatching(`${newTenant.firstName} ${newTenant.lastName}`);
-        const cleanDniA = newTenant.dni ? cleanDni(newTenant.dni) : '';
+      const data = item.extractedData.extracted_data;
+      const firstName = (data.first_name || '').trim();
+      const lastName = (data.last_name || '').trim();
+      
+      // If we can't extract a name, keep it unassigned
+      if (!firstName && !lastName) {
+        if (item.tempPath) {
+          unassigned.push({
+            queueItemId: item.id,
+            fileName: item.file.name,
+            tempPath: item.tempPath
+          });
+        }
+        return;
+      }
 
-        let matchedIdx = -1;
-        for (let idx = 0; idx < tempTenantsList.length; idx++) {
-          const t = tempTenantsList[idx];
-          const cleanNameB = cleanNameForMatching(`${t.firstName} ${t.lastName}`);
-          const cleanDniB = t.dni ? cleanDni(t.dni) : '';
+      const detectedTypes = item.extractedData?.document_types || 
+                           (item.extractedData?.document_type ? [item.extractedData.document_type] : ['otro']);
 
-          // 1. Match by non-empty DNI/CPF
-          if (cleanDniA && cleanDniB && cleanDniA === cleanDniB) {
-            matchedIdx = idx;
-            break;
-          }
+      // Build a temporary GroupedTenant object for this file
+      const newTenant: GroupedTenant = {
+        tempId: Math.random().toString(36).substring(7),
+        firstName: firstName || 'Inquilino',
+        lastName: lastName || 'Nuevo',
+        dni: data.dni || '',
+        email: '',
+        phone: '',
+        employmentStatus: data.employment_status || 'empleado',
+        companyName: data.company_name || '',
+        jobTitle: data.job_title || '',
+        seniorityDate: data.seniority_date || '',
+        contractType: data.contract_type || 'indefinido',
+        monthlyIncome: data.monthly_income || 0,
+        currency: (data as any).currency || 'EUR',
+        notes: data.notes || '',
+        age: data.age || null,
+        nationality: data.nationality || '',
+        tenantType: '',
+        documents: item.tempPath ? [{
+          queueItemId: item.id,
+          fileName: item.file.name,
+          documentTypes: detectedTypes,
+          tempPath: item.tempPath
+        }] : []
+      };
 
-          // 2. Match by Name Similarity
-          if (areNamesSimilar(cleanNameA, cleanNameB)) {
-            matchedIdx = idx;
-            break;
-          }
+      // Try to find an existing tenant in tempTenantsList that is similar to newTenant
+      const cleanNameA = cleanNameForMatching(`${newTenant.firstName} ${newTenant.lastName}`);
+      const cleanDniA = newTenant.dni ? cleanDni(newTenant.dni) : '';
+
+      let matchedIdx = -1;
+      for (let idx = 0; idx < tempTenantsList.length; idx++) {
+        const t = tempTenantsList[idx];
+        const cleanNameB = cleanNameForMatching(`${t.firstName} ${t.lastName}`);
+        const cleanDniB = t.dni ? cleanDni(t.dni) : '';
+
+        // 1. Match by non-empty DNI/CPF
+        if (cleanDniA && cleanDniB && cleanDniA === cleanDniB) {
+          matchedIdx = idx;
+          break;
         }
 
-        if (matchedIdx !== -1) {
-          // Merge newTenant into existing tenant
-          tempTenantsList[matchedIdx] = mergeTenants(tempTenantsList[matchedIdx], newTenant);
-        } else {
-          // Add as a new tenant profile
-          tempTenantsList.push(newTenant);
+        // 2. Match by Name Similarity
+        if (areNamesSimilar(cleanNameA, cleanNameB)) {
+          matchedIdx = idx;
+          break;
         }
+      }
+
+      if (matchedIdx !== -1) {
+        // Merge newTenant into existing tenant
+        tempTenantsList[matchedIdx] = mergeTenants(tempTenantsList[matchedIdx], newTenant);
+      } else {
+        // Add as a new tenant profile
+        tempTenantsList.push(newTenant);
+      }
+    });
+
+    setGroupedTenants(tempTenantsList);
+    setUnassignedDocs(unassigned);
+    return tempTenantsList;
+  };
+
+  const synthesizeAllTenantsNotes = async (tenants: GroupedTenant[], currentQueue: UploadQueueItem[]) => {
+    setIsSynthesizing(true);
+    const toastId = toast.loading('Sintetizando el análisis de solvencia de los inquilinos...');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || '';
+
+      const promises = tenants.map(async (tenant) => {
+        if (tenant.documents.length === 0) return tenant;
+
+        const tenantDocs = tenant.documents.map(doc => {
+          const qItem = currentQueue.find(q => q.id === doc.queueItemId);
+          return {
+            document_type: doc.documentTypes[0] || 'otro',
+            extracted_data: qItem?.extractedData?.extracted_data
+          };
+        }).filter(d => d.extracted_data);
+
+        if (tenantDocs.length === 0) return tenant;
+
+        try {
+          const response = await fetch('/api/synthesize-tenant-notes', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': token ? `Bearer ${token}` : ''
+            },
+            body: JSON.stringify({
+              tenantDocuments: tenantDocs,
+              monthlyRent: monthlyRent ? Number(monthlyRent) : undefined,
+              additionalNotes: batchNotes
+            })
+          });
+
+          if (!response.ok) throw new Error('Error al sintetizar notas');
+          const result = await response.json();
+          if (result.notes) {
+            return { ...tenant, notes: result.notes };
+          }
+        } catch (e) {
+          console.error(`Error sintetizando para ${tenant.firstName}:`, e);
+        }
+        return tenant;
       });
 
-      setGroupedTenants(tempTenantsList);
-      setUnassignedDocs(unassigned);
-      return prevQueue;
-    });
+      const updatedTenants = await Promise.all(promises);
+      setGroupedTenants(updatedTenants);
+      toast.success('Análisis de solvencia unificados y sintetizados.', { id: toastId });
+    } catch (err) {
+      console.error(err);
+      toast.error('Ocurrió un error al unificar el análisis de solvencia.', { id: toastId });
+    } finally {
+      setIsSynthesizing(false);
+    }
+  };
+
+  const synthesizeSingleTenantNotes = async (tenantIdx: number) => {
+    const tenant = groupedTenants[tenantIdx];
+    if (!tenant || tenant.documents.length === 0) return;
+
+    setIsSynthesizing(true);
+    const toastId = toast.loading(`Sintetizando análisis de solvencia para ${tenant.firstName} ${tenant.lastName}...`);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || '';
+
+      const tenantDocs = tenant.documents.map(doc => {
+        const qItem = queue.find(q => q.id === doc.queueItemId);
+        return {
+          document_type: doc.documentTypes[0] || 'otro',
+          extracted_data: qItem?.extractedData?.extracted_data
+        };
+      }).filter(d => d.extracted_data);
+
+      if (tenantDocs.length === 0) {
+        toast.error('No hay datos extraídos para este inquilino.', { id: toastId });
+        return;
+      }
+
+      const response = await fetch('/api/synthesize-tenant-notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        body: JSON.stringify({
+          tenantDocuments: tenantDocs,
+          monthlyRent: monthlyRent ? Number(monthlyRent) : undefined,
+          additionalNotes: batchNotes
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al sintetizar las notas de la IA');
+      }
+
+      const result = await response.json();
+      if (result.notes) {
+        handleTenantFieldChange(tenantIdx, 'notes', result.notes);
+        toast.success('Notas de solvencia sintetizadas correctamente.', { id: toastId });
+      } else {
+        throw new Error('No se recibió la síntesis de la IA');
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(`Error: ${err.message || 'No se pudo sintetizar las notas.'}`, { id: toastId });
+    } finally {
+      setIsSynthesizing(false);
+    }
   };
 
   // Manual edits
@@ -1116,15 +1228,21 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                 <div className="flex gap-2">
                   <button 
                     onClick={startProcessing}
-                    disabled={isProcessing}
+                    disabled={isProcessing || isSynthesizing}
                     className="flex items-center gap-1.5 px-4 py-2 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-xs uppercase tracking-wider hover:bg-[#D4B673] transition-colors disabled:opacity-50"
                   >
-                    {isProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-                    {isProcessing ? 'Analizando...' : 'Iniciar Análisis'}
+                    {isProcessing ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : isSynthesizing ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-3.5 h-3.5" />
+                    )}
+                    {isProcessing ? 'Analizando...' : isSynthesizing ? 'Sintetizando...' : 'Iniciar Análisis'}
                   </button>
                   <button 
                     onClick={() => setQueue([])}
-                    disabled={isProcessing}
+                    disabled={isProcessing || isSynthesizing}
                     className="px-4 py-2 border border-[#1F1F1F] text-[#888] font-primary font-bold text-xs uppercase tracking-wider hover:text-red-400 hover:border-red-400/20 transition-all disabled:opacity-50"
                   >
                     Limpiar Cola
@@ -1191,7 +1309,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
 
                       <button 
                         onClick={() => removeQueueItem(item.id)}
-                        disabled={isProcessing}
+                        disabled={isProcessing || isSynthesizing}
                         className="text-[#444] hover:text-red-400 transition-colors disabled:opacity-30"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -1378,12 +1496,25 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
 
                     {/* Extracted internal summary */}
                     <div className="flex flex-col gap-1.5">
-                      <label className="font-primary text-[10px] uppercase tracking-wider text-[#555]">Notas de Análisis (IA)</label>
+                      <div className="flex justify-between items-center">
+                        <label className="font-primary text-[10px] uppercase tracking-wider text-[#555]">Notas de Análisis (IA)</label>
+                        {tenant.documents.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => synthesizeSingleTenantNotes(tenantIdx)}
+                            disabled={isProcessing || isSynthesizing}
+                            className="font-primary text-[10px] uppercase tracking-wider text-[#C9A962] hover:text-[#FAF8F5] transition-colors flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none"
+                          >
+                            <RefreshCw className="w-2.5 h-2.5" />
+                            Sintetizar notas
+                          </button>
+                        )}
+                      </div>
                       <textarea 
                         value={tenant.notes}
-                        rows={2}
+                        rows={4}
                         onChange={(e) => handleTenantFieldChange(tenantIdx, 'notes', e.target.value)}
-                        className="bg-black border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] transition-colors resize-none"
+                        className="bg-black border border-[#1F1F1F] text-[#FAF8F5] px-3 py-2 text-sm focus:outline-none focus:border-[#C9A962] transition-colors resize-y min-h-[80px]"
                       />
                     </div>
 
@@ -1547,7 +1678,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
               <div className="flex flex-wrap gap-3 mt-4">
                 <button
                   onClick={commitToDatabase}
-                  disabled={savingToDb}
+                  disabled={savingToDb || isSynthesizing}
                   className="flex items-center gap-2 px-6 py-3.5 bg-[#C9A962] text-[#0A0A0A] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#D4B673] transition-colors disabled:opacity-50"
                 >
                   {savingToDb ? <Loader2 className="w-4 h-4 animate-spin" /> : <User className="w-4 h-4" />}
@@ -1555,7 +1686,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
                 </button>
                 <button
                   onClick={() => setShowLinkModal(true)}
-                  disabled={savingToDb}
+                  disabled={savingToDb || isSynthesizing}
                   className="flex items-center gap-2 px-6 py-3.5 border border-[#C9A962]/40 text-[#C9A962] font-primary font-bold text-sm uppercase tracking-wider hover:bg-[#C9A962]/10 transition-all disabled:opacity-50"
                 >
                   {savingToDb ? <Loader2 className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4" />}
