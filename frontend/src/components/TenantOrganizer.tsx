@@ -449,7 +449,22 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
           if (!response.ok) throw new Error('Error al sintetizar notas');
           const result = await response.json();
           if (result.notes) {
-            return { ...tenant, notes: result.notes };
+            return {
+              ...tenant,
+              firstName: result.first_name || tenant.firstName,
+              lastName: result.last_name || tenant.lastName,
+              dni: result.dni || tenant.dni,
+              employmentStatus: result.employment_status || tenant.employmentStatus,
+              companyName: result.company_name || tenant.companyName,
+              jobTitle: result.job_title || tenant.jobTitle,
+              seniorityDate: result.seniority_date || tenant.seniorityDate,
+              contractType: result.contract_type || tenant.contractType,
+              monthlyIncome: result.monthly_income !== undefined && result.monthly_income !== null ? Number(result.monthly_income) : tenant.monthlyIncome,
+              currency: result.currency || tenant.currency,
+              notes: result.notes || tenant.notes,
+              age: result.age !== undefined && result.age !== null ? Number(result.age) : tenant.age,
+              nationality: result.nationality || tenant.nationality
+            };
           }
         } catch (e) {
           console.error(`Error sintetizando para ${tenant.firstName}:`, e);
@@ -510,7 +525,22 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
 
       const result = await response.json();
       if (result.notes) {
-        handleTenantFieldChange(tenantIdx, 'notes', result.notes);
+        setGroupedTenants(prev => prev.map((t, idx) => idx === tenantIdx ? {
+          ...t,
+          firstName: result.first_name || t.firstName,
+          lastName: result.last_name || t.lastName,
+          dni: result.dni || t.dni,
+          employmentStatus: result.employment_status || t.employmentStatus,
+          companyName: result.company_name || t.companyName,
+          jobTitle: result.job_title || t.jobTitle,
+          seniorityDate: result.seniority_date || t.seniorityDate,
+          contractType: result.contract_type || t.contractType,
+          monthlyIncome: result.monthly_income !== undefined && result.monthly_income !== null ? Number(result.monthly_income) : t.monthlyIncome,
+          currency: result.currency || t.currency,
+          notes: result.notes || t.notes,
+          age: result.age !== undefined && result.age !== null ? Number(result.age) : t.age,
+          nationality: result.nationality || t.nationality
+        } : t));
         toast.success('Notas de solvencia sintetizadas correctamente.', { id: toastId });
       } else {
         throw new Error('No se recibió la síntesis de la IA');
