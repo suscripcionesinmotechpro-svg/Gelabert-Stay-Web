@@ -853,6 +853,7 @@ export const TenantOrganizer = ({ isAdmin }: { isAdmin: boolean }) => {
             seniority_date: primaryData.seniorityDate && primaryData.seniorityDate.trim() !== '' ? primaryData.seniorityDate.trim() : null,
             contract_type: primaryData.contractType || null,
             monthly_income: primaryData.monthlyIncome || null,
+            currency: primaryData.currency || 'EUR',
             ai_analysis_notes: primaryData.notes || null,
             age: primaryData.age || null,
             nationality: primaryData.nationality || null,

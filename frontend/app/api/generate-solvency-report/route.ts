@@ -44,6 +44,7 @@ export async function POST(req: Request) {
         seniority_date: t.seniorityDate,
         contract_type: t.contractType,
         monthly_income: t.monthlyIncome,
+        currency: t.currency || 'EUR',
         ai_analysis_notes: t.notes,
         age: t.age,
         nationality: t.nationality,
