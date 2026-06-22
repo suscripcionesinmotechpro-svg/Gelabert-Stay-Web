@@ -29,3 +29,9 @@ next-env.d.ts
 
 # Local Netlify folder
 .netlify
+
+# Test diagnostics and local Excel results
+diag_*.mjs
+*.xlsx
+*.tsbuildinfo
+
