@@ -92,11 +92,13 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     const provider = searchParams.get('provider');
-    const filename = searchParams.get('filename');
+    const rawFilename = searchParams.get('filename');
 
-    if (!id || !provider || !filename) {
+    if (!id || !provider || !rawFilename) {
       return NextResponse.json({ error: 'Faltan parámetros de consulta (id, provider, filename)' }, { status: 400 });
     }
+
+    const filename = decodeURIComponent(rawFilename);
 
     if (provider === 'replicate') {
       const replicateToken = (process.env.REPLICATE_API_TOKEN || '').trim();

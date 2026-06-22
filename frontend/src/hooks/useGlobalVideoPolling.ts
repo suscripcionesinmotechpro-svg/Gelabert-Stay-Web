@@ -115,7 +115,7 @@ export const useGlobalVideoPolling = () => {
             const params = new URLSearchParams({
               id: pv.jobId,
               provider: pv.provider,
-              filename: encodeURIComponent(filename),
+              filename: filename,
               ...(pv.enhanceType === 'basic' && {
                 propertyId: pv.propertyId,
                 videoType: pv.videoType,
