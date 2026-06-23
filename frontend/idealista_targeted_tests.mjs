@@ -37,18 +37,28 @@ async function apiCall(url, method = "GET", body = null, overrideHeaders = null)
   const res = await fetch(url, opts);
   let jsonReceived = null;
   try { jsonReceived = await res.json(); } catch {}
-  return { status: res.status, jsonReceived, comments: "" };
+  return { status: res.status, jsonSent: body, jsonReceived, comments: "" };
 }
 
 // ─── RUN TEST ────────────────────────────────────────────────────────────────
 async function runTest(id, name, description, expectedStatus, fn) {
   process.stdout.write(`\n▶ [${id}] ${name}\n`);
   let r;
-  try { r = await fn(); } catch (e) { r = { status: 0, jsonReceived: null, comments: `ERROR: ${e.message}` }; }
+  try { r = await fn(); } catch (e) { r = { status: 0, jsonSent: null, jsonReceived: null, comments: `ERROR: ${e.message}` }; }
   const pass = r.status === expectedStatus;
   const icon = pass ? "✅" : "❌";
   console.log(`  ${icon} Expected ${expectedStatus} → Got ${r.status}  ${r.comments || ""}`);
-  results.push({ id, name, description, expectedStatus, actualStatus: r.status, pass, comments: r.comments || "", jsonReceived: r.jsonReceived });
+  results.push({
+    id,
+    title: name,
+    description,
+    expectedStatus,
+    actualStatus: r.status,
+    pass,
+    comments: r.comments || "",
+    jsonSent: r.jsonSent,
+    jsonReceived: r.jsonReceived
+  });
   return r;
 }
 
@@ -63,8 +73,21 @@ function addr() {
 
 function flatFeatures(overrides = {}) {
   return {
-    areaConstructed: 80, bathroomNumber: 1, rooms: 2,
-    energyCertificateRating: "exempt", conservation: "good", liftAvailable: true,
+    areaConstructed:       70,
+    bathroomNumber:         1,
+    rooms:                  2,
+    liftAvailable:      false,
+    pool:               false,
+    terrace:            false,
+    balcony:            false,
+    garden:             false,
+    storage:            false,
+    wardrobes:          false,
+    conditionedAir:     false,
+    energyCertificateRating: "exempt",
+    windowsLocation:    "external",
+    equipment:          "not_equipped",
+    conservation:       "good",
     ...overrides,
   };
 }
