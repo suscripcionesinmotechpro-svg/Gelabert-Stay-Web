@@ -218,7 +218,8 @@ export const useGlobalVideoPolling = () => {
                   enhanceType: undefined,
                   cost,
                   method,
-                  log
+                  log,
+                  lastError: undefined
                 };
                 await supabase.from('properties').update({ videos_metadata: vids }).eq('id', pv.propertyId);
 
@@ -237,7 +238,8 @@ export const useGlobalVideoPolling = () => {
                   enhanceType: undefined,
                   cost,
                   method,
-                  log
+                  log,
+                  lastError: undefined
                 };
                 areas[pv.areaIdx] = { ...area, videos: vids };
                 await supabase.from('properties').update({ common_areas: areas }).eq('id', pv.propertyId);
@@ -258,7 +260,8 @@ export const useGlobalVideoPolling = () => {
                     enhanceType: undefined,
                     cost,
                     method,
-                    log
+                    log,
+                    lastError: undefined
                   }
                 };
                 await supabase.from('properties').update({ rooms }).eq('id', pv.propertyId);

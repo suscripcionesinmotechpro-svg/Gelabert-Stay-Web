@@ -1,4 +1,4 @@
-﻿import type { Handler, HandlerEvent } from '@netlify/functions';
+import type { Handler, HandlerEvent } from '@netlify/functions';
 import { createClient } from '@supabase/supabase-js';
 import { createHmac } from 'crypto';
 
@@ -124,7 +124,8 @@ const handler: Handler = async (event: HandlerEvent) => {
         enhanceType: undefined,
         cost: '0.30€',
         method: 'Ajuste Ultra Premium (IA)',
-        log: 'El video original se proceso con redes neuronales convolucionales. Se aplico estabilizacion digital, reduccion de ruido temporal e interpolacion espacial para aumentar la nitidez. El archivo fue reemplazado por la version premium.'
+        log: 'El video original se proceso con redes neuronales convolucionales. Se aplico estabilizacion digital, reduccion de ruido temporal e interpolacion espacial para aumentar la nitidez. El archivo fue reemplazado por la version premium.',
+        lastError: null
       };
 
       let updatePayload: any = {};
