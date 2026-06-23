@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, Upload, Video, Trash2, ShowerHead, Trees, Compass, Wind, Download, Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
+import { Plus, X, Upload, Video, Trash2, ShowerHead, Trees, Compass, Wind, Download } from 'lucide-react';
 import { uploadPropertyMedia } from '../../hooks/useProperties';
 import { applyWatermark } from '../../utils/watermark';
 import type { PropertyRoom } from '../../types/property';
 import { SortableImageGallery } from './SortableImageGallery';
 import { usePropertyContracts } from '../../hooks/useContracts';
 import { toast } from 'react-hot-toast';
-import { getVideoDuration, estimateVideoCost } from '../../utils/video';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../hooks/useAuth.tsx';
+import { getVideoDuration } from '../../utils/video';
 
 interface RoomManagerProps {
   rooms: PropertyRoom[];
@@ -28,14 +26,10 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
   autoEnhance = true,
   propertyName
 }) => {
-  const { user } = useAuth();
   const [uploading, setUploading] = useState<string | null>(null);
   const [roomEnhance, setRoomEnhance] = useState<Record<string, boolean>>({});
   const [durations, setDurations] = useState<Record<string, number>>({});
-  const [processingVideo, setProcessingVideo] = useState<string | null>(null);
-  const [processingStatus, setProcessingStatus] = useState<string | null>(null);
-  const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [selectedOption, setSelectedOption] = useState<'basic' | 'premium' | null>(null);
+
   const { contracts } = usePropertyContracts(propertyId);
   const today = new Date().toISOString().split('T')[0];
 
@@ -102,82 +96,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
     }
   };
 
-  const handleEnhance = async (roomIdx: number) => {
-    const room = rooms[roomIdx];
-    if (!room.video?.url) return;
-    const url = room.video.url;
-    const title = room.video.title || 'Tour Habitación';
 
-    setProcessingVideo(url);
-    setProcessingStatus('Enviando a la nube para mejora Premium...');
-
-    try {
-      const itemDuration = durations[url] || room.video.duration || 0;
-
-      const response = await fetch('/api/enhance-video-premium', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          videoUrl: url,
-          filename: url.split('/property-images/')[1],
-          propertyId,
-          videoType: 'room',
-          roomIdx,
-          userId: user?.id
-        })
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || 'Error al iniciar la mejora premium');
-      }
-
-      const data = await response.json();
-
-      const updated = [...rooms];
-      updated[roomIdx] = {
-        ...room,
-        video: {
-          url,
-          title,
-          processing: true,
-          jobId: data.id,
-          provider: data.provider,
-          enhanceType: 'premium',
-          duration: itemDuration
-        }
-      };
-
-      onChange(updated);
-      if (propertyId) {
-        await supabase
-          .from('properties')
-          .update({ rooms: updated })
-          .eq('id', propertyId);
-      }
-      toast.success('Vídeo enviado a optimizar con IA Premium. Se procesará en segundo plano.');
-
-      if (user) {
-        await supabase.from('notifications').insert({
-          user_id: user.id,
-          title: '🎥 Optimizando vídeo con IA Premium',
-          message: `La optimización para el vídeo "${title}" de la habitación "${room.name || `Habitación ${roomIdx + 1}`}" ha comenzado en la nube.`,
-          type: 'video_enhance',
-          is_read: false,
-          action_url: propertyId ? `/admin/propiedades/${propertyId}` : undefined,
-          related_id: propertyId,
-          related_type: 'property'
-        });
-      }
-
-    } catch (e: any) {
-      toast.error(`Error de optimización: ${e.message}`);
-      console.error(e);
-    } finally {
-      setProcessingVideo(null);
-      setProcessingStatus(null);
-    }
-  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -378,13 +297,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
                           {/* IA & Download actions */}
                           {(() => {
                             const url = room.video.url;
-                            const isProcessing = room.video.processing;
                             const duration = durations[url] || room.video.duration || 0;
-                            const costs = estimateVideoCost(duration);
-
-                            const statusText = processingVideo === url && processingStatus 
-                              ? processingStatus 
-                              : 'Optimizando en la nube (segundo plano)...';
 
                             return (
                               <div className="flex flex-col gap-2 mt-2.5 border-t border-[#111] pt-2">
@@ -404,92 +317,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
                                   >
                                     <Download className="w-3 h-3" /> Descargar (Máx. Calidad)
                                   </a>
-
-                                  {isProcessing || processingVideo === url ? (
-                                    <div className="flex items-center gap-3 select-none">
-                                      <div className="flex items-center gap-1.5 text-[10px] text-[#C9A962] font-primary uppercase tracking-wider font-bold animate-pulse">
-                                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> {statusText}
-                                      </div>
-                                      <button
-                                        type="button"
-                                        onClick={async () => {
-                                          if (window.confirm('¿Estás seguro de que quieres cancelar y reiniciar el estado de esta optimización?')) {
-                                            try {
-                                              const updatedRooms = rooms.map((r, ridx) => {
-                                                if (ridx === idx) {
-                                                  return {
-                                                    ...r,
-                                                    video: {
-                                                      ...r.video,
-                                                      processing: false,
-                                                      jobId: undefined,
-                                                      provider: undefined,
-                                                      enhanceType: undefined
-                                                    }
-                                                  } as PropertyRoom;
-                                                }
-                                                return r;
-                                              });
-                                              onChange(updatedRooms);
-                                              if (propertyId) {
-                                                await supabase
-                                                  .from('properties')
-                                                  .update({ rooms: updatedRooms })
-                                                  .eq('id', propertyId);
-                                              }
-                                              toast.success('Optimización cancelada.');
-                                            } catch (err: any) {
-                                              toast.error(`Error al cancelar: ${err.message}`);
-                                            }
-                                          }
-                                        }}
-                                        className="text-[9px] font-bold uppercase tracking-wider text-red-400 hover:text-red-500 transition-colors border border-red-500/20 hover:border-red-500/50 px-1.5 py-0.5 rounded-sm cursor-pointer"
-                                      >
-                                        Cancelar
-                                      </button>
-                                    </div>
-                                  ) : (
-                                    <div className="relative">
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          if (window.confirm('¿Optimizar este vídeo con IA Premium? El proceso puede tardar entre 10 y 30 minutos. Continuará en segundo plano.')) {
-                                            handleEnhance(idx);
-                                          }
-                                        }}
-                                        className="flex items-center gap-1 text-[10px] text-[#C9A962] hover:underline font-primary uppercase tracking-wider font-bold transition-all"
-                                      >
-                                        <Sparkles className="w-3 h-3" /> Optimizar con IA Premium
-                                      </button>
-                                    </div>
-                                  )}
                                 </div>
-
-                                {/* Check de Optimización y Detalles */}
-                                {room.video.optimized && !room.video.processing && (
-                                  <div className="mt-1 p-2.5 bg-green-950/20 border border-green-500/30 rounded-sm flex flex-col gap-1.5 select-none text-left">
-                                    <div className="flex items-center gap-1.5 text-[10px] text-green-400 font-bold uppercase tracking-wider">
-                                      <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
-                                      Vídeo Optimizado con IA
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-2 text-[9px] font-primary text-[#888]">
-                                      <div>
-                                        <span className="text-[#555] font-bold uppercase tracking-tight">Método:</span>{' '}
-                                        <span className="text-[#FAF8F5]">{room.video.method}</span>
-                                      </div>
-                                      <div>
-                                        <span className="text-[#555] font-bold uppercase tracking-tight">Coste cobrado:</span>{' '}
-                                        <span className="text-[#FAF8F5]">{room.video.cost}</span>
-                                      </div>
-                                    </div>
-                                    {room.video.log && (
-                                      <div className="text-[9px] font-primary text-[#777] leading-relaxed border-t border-[#1F1F1F] pt-1.5">
-                                        <span className="text-[#555] font-bold uppercase tracking-tight block mb-0.5">Proceso de optimización:</span>
-                                        {room.video.log}
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
                               </div>
                             );
                           })()}

@@ -7,8 +7,6 @@ import {
   Receipt, Users, FileText, Bot, CalendarDays, Briefcase, Sparkles
 } from 'lucide-react';
 import { SystemNotifications } from '../../components/admin/SystemNotifications';
-import { useGlobalVideoPolling } from '../../hooks/useGlobalVideoPolling';
-import { VideoProcessingWidget } from '../../components/admin/VideoProcessingWidget';
 import { UserProfileModal } from '../../components/admin/UserProfileModal';
 
 
@@ -18,7 +16,6 @@ export const AgentLayout = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newLeadsCount, setNewLeadsCount] = useState(0);
-  const { processingVideos } = useGlobalVideoPolling();
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const initials = userProfile?.agent_name
     ? userProfile.agent_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
@@ -239,7 +236,6 @@ export const AgentLayout = () => {
           <Outlet />
         </main>
       </div>
-      <VideoProcessingWidget processingVideos={processingVideos} />
       <UserProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
     </div>
   );
