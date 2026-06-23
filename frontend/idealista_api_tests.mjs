@@ -402,17 +402,17 @@ async function main() {
 
   await runTest(
     "Flat02", "New property flat — Basic validation error area",
-    // NOTE: The Idealista sandbox does NOT enforce the areaConstructed<30 rule.
-    // It accepts 20m² and returns 201. In production this will correctly return 400.
+    // NOTE: The Idealista sandbox does NOT enforce the areaConstructed<10 rule.
+    // It accepts 9m² and returns 201. In production this will correctly return 400.
     // Maria from Idealista requested this test to be executed as instructed (expected 400)
     // even though sandbox returns 201.
-    "Flat with areaConstructed < 30 (sandbox returns 201 — production enforces 400)", 400,
+    "Flat with areaConstructed < 10 (sandbox returns 201 — production enforces 400)", 400,
     async () => {
       const r = await apiCall(
         `${BASE_URL}/v1/properties`, "POST",
-        baseProp("flat", "rent", 900, { features: flatFeatures({ areaConstructed: 20 }) })
+        baseProp("flat", "rent", 900, { features: flatFeatures({ areaConstructed: 9 }) })
       );
-      r.comments = "Sandbox does not enforce areaConstructed < 30 rule — returns 201. Production will correctly return 400.";
+      r.comments = "Sandbox does not enforce areaConstructed < 10 rule — returns 201. Production will correctly return 400.";
       return r;
     }
   );

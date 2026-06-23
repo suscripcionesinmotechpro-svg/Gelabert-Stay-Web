@@ -107,11 +107,11 @@ console.log(`\n🔐 Token OK: ${accessToken.substring(0, 20)}...`);
 
 // ── Flat02 ────────────────────────────────────────────────────────────────────
 // Instrucción: ejecutar la prueba aunque el resultado esperado sea 400
-// Un piso con areaConstructed < 30 debería ser rechazado (400)
+// Un piso con areaConstructed < 10 debería ser rechazado (400)
 // El sandbox no aplica esta regla y devuelve 201, pero la llamada se realiza correctamente
 await runTest(
   "Flat02", "New property flat — Basic validation error area",
-  "POST flat with areaConstructed=20 (< 30m²) — must return 400 per API rules", 400,
+  "POST flat with areaConstructed=9 (< 10m²) — must return 400 per API rules", 400,
   async () => {
     const r = await apiCall(`${BASE_URL}/v1/properties`, "POST", {
       type: "flat",
@@ -119,11 +119,11 @@ await runTest(
       reference: "GEL-FLAT02-TEST",
       address: addr(),
       operation: { type: "rent", price: 600 },
-      descriptions: [{ language: "es", text: "Test Flat02 DATAFEED-176721: área < 30m²" }],
-      features: flatFeatures({ areaConstructed: 20 }),
+      descriptions: [{ language: "es", text: "Test Flat02 DATAFEED-176721: área < 10m²" }],
+      features: flatFeatures({ areaConstructed: 9 }),
     });
     if (r.status === 201) {
-      r.comments = "SANDBOX LIMITATION: Sandbox does not enforce areaConstructed < 30 rule and returns 201. " +
+      r.comments = "SANDBOX LIMITATION: Sandbox does not enforce areaConstructed < 10 rule and returns 201. " +
         "Production will correctly return 400. Test was executed exactly as instructed.";
     }
     return r;
