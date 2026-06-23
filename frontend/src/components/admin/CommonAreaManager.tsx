@@ -142,7 +142,12 @@ export const CommonAreaManager: React.FC<CommonAreaManagerProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           videoUrl: url,
-          filename: url.split('/property-images/')[1]
+          filename: url.split('/property-images/')[1],
+          propertyId,
+          videoType: 'common_area',
+          videoIdx,
+          areaIdx,
+          userId: user?.id
         })
       });
 

@@ -119,7 +119,11 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           videoUrl: url,
-          filename: url.split('/property-images/')[1]
+          filename: url.split('/property-images/')[1],
+          propertyId,
+          videoType: 'room',
+          roomIdx,
+          userId: user?.id
         })
       });
 

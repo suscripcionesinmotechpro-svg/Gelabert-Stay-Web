@@ -311,7 +311,11 @@ export const SortableVideoGallery = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           videoUrl: url,
-          filename: url.split('/property-images/')[1]
+          filename: url.split('/property-images/')[1],
+          propertyId,
+          videoType: 'gallery',
+          videoIdx: videoIdx >= 0 ? videoIdx : undefined,
+          userId: user?.id
         })
       });
 

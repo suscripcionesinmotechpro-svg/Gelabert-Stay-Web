@@ -6,7 +6,16 @@ import Replicate from 'replicate';
 // ─────────────────────────────────────────────────────────────────────────────
 export async function POST(req: Request) {
   try {
-    const { videoUrl, filename } = await req.json();
+    const {
+      videoUrl,
+      filename,
+      propertyId,
+      videoType,
+      videoIdx,
+      areaIdx,
+      roomIdx,
+      userId
+    } = await req.json();
 
     if (!videoUrl) {
       return NextResponse.json({ error: 'Falta la URL del vídeo' }, { status: 400 });
@@ -19,13 +28,38 @@ export async function POST(req: Request) {
       // ─── REPLICATE PROVIDER ──────────────────────────────
       const replicate = new Replicate({ auth: replicateToken });
 
+      // Construir URL del webhook con contexto de la propiedad
+      const siteUrl = (process.env.URL || process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/$/, '');
+      let webhookUrl: string | undefined;
+
+      if (siteUrl) {
+        const webhookParams = new URLSearchParams({
+          ...(propertyId && { propertyId }),
+          ...(videoType && { videoType }),
+          ...(videoIdx !== undefined && { videoIdx: String(videoIdx) }),
+          ...(areaIdx !== undefined && { areaIdx: String(areaIdx) }),
+          ...(roomIdx !== undefined && { roomIdx: String(roomIdx) }),
+          ...(userId && { userId }),
+          ...(filename && { filename: filename.split('/').slice(-2).join('/') })
+        });
+        webhookUrl = `${siteUrl}/.netlify/functions/replicate-webhook-background?${webhookParams.toString()}`;
+        console.log('[Enhance Premium] Webhook URL:', webhookUrl);
+      } else {
+        console.warn('[Enhance Premium] No SITE_URL — sin webhook. El polling del cliente actuará de fallback.');
+      }
+
       const prediction = await replicate.predictions.create({
         version: "3e56ce4b57863bd03048b42bc09bdd4db20d427cca5fde9d8ae4dc60e1bb4775",
         input: {
           video_path: videoUrl,
           resolution: "FHD",
           model: "RealESRGAN_x4plus"
-        }
+        },
+        ...(webhookUrl && {
+          webhook: webhookUrl,
+          // Solo recibimos eventos de finalización para no saturar el servidor
+          webhook_events_filter: ["completed"]
+        })
       });
 
       return NextResponse.json({
@@ -37,6 +71,7 @@ export async function POST(req: Request) {
 
     } else if (tensorpixKey && tensorpixKey !== 'undefined' && tensorpixKey !== 'null') {
       // ─── TENSORPIX PROVIDER ──────────────────────────────
+      // TensorPix no soporta webhooks — el polling del cliente actúa de fallback
       const response = await fetch('https://tensorpix.ai/api/jobs/from-url/', {
         method: 'POST',
         headers: {
@@ -73,6 +108,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
   }
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GET — Consulta el estado del trabajo de mejora.
