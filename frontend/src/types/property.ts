@@ -39,7 +39,8 @@ export interface PropertyVideo {
   processing?: boolean;
   jobId?: string;
   provider?: 'tensorpix' | 'replicate';
-  enhanceType?: 'basic' | 'premium';
+  enhanceType?: 'premium';
+  lastError?: string;
 }
 
 export interface PropertyRoom {

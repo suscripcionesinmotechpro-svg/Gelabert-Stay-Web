@@ -137,29 +137,13 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
   const handleRetry = async (video: ProcessingVideo) => {
     const toastId = toast.loading('Reintentando optimización...');
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const userToken = session?.access_token;
-
-      if (!userToken) {
-        throw new Error('Sesión no encontrada o expirada. Por favor, inicia sesión.');
-      }
-
-      const apiPath = video.enhanceType === 'basic' ? '/api/enhance-video-basic' : '/api/enhance-video-premium';
-
-      // Start the enhancement prediction
-      const response = await fetch(apiPath, {
+      // Start a new premium enhancement prediction
+      const response = await fetch('/api/enhance-video-premium', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           videoUrl: video.videoUrl,
-          filename: video.videoUrl.split('/property-images/')[1],
-          propertyId: video.propertyId,
-          videoType: video.videoType,
-          videoIdx: video.videoIdx,
-          areaIdx: video.areaIdx,
-          roomIdx: video.roomIdx,
-          userToken,
-          userId: user?.id
+          filename: video.videoUrl.split('/property-images/')[1]
         })
       });
 
@@ -191,7 +175,7 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
             processing: true,
             jobId: data.id,
             provider: data.provider,
-            enhanceType: video.enhanceType
+            enhanceType: 'premium'
           };
           updatePayload = { videos_metadata: vids };
         }
@@ -207,7 +191,7 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
               processing: true,
               jobId: data.id,
               provider: data.provider,
-              enhanceType: video.enhanceType
+              enhanceType: 'premium'
             } : v;
             areas[video.areaIdx] = { ...area, videos: vids };
             updatePayload = { common_areas: areas };
@@ -224,7 +208,7 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
               processing: true,
               jobId: data.id,
               provider: data.provider,
-              enhanceType: video.enhanceType
+              enhanceType: 'premium'
             }
           };
           updatePayload = { rooms };
@@ -327,7 +311,7 @@ export const VideoProcessingWidget = ({ processingVideos }: VideoProcessingWidge
                 <div className="flex flex-col gap-1.5 mt-0.5">
                   <div className="flex items-center justify-between text-[9px] font-primary select-none">
                     <span className="text-zinc-400 uppercase tracking-wider font-bold">
-                      {video.enhanceType === 'basic' ? 'Ajuste de Luz (Opción A)' : 'Ajuste Ultra Premium (Opción B)'}
+                      Ajuste Ultra Premium (IA)
                     </span>
                     <span className="text-[#C9A962] font-bold uppercase tracking-wider">
                       {progressVal}

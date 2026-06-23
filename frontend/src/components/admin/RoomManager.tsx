@@ -52,114 +52,8 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
   }, [rooms]);
 
   // Background Polling Effect to check state of asynchronous room video optimizations
-  useEffect(() => {
-    const processingRooms = rooms.filter(r => r.video && r.video.processing && r.video.jobId);
-    if (processingRooms.length === 0) return;
-
-    let active = true;
-    const interval = setInterval(async () => {
-      if (!active) return;
-
-      let changed = false;
-      const updatedRooms = [...rooms];
-
-      for (let rIdx = 0; rIdx < updatedRooms.length; rIdx++) {
-        const room = updatedRooms[rIdx];
-        if (!room.video || !room.video.processing || !room.video.jobId) continue;
-
-        const video = room.video;
-        try {
-          const endpoint = video.enhanceType === 'basic' ? '/api/enhance-video-basic' : '/api/enhance-video-premium';
-          const checkRes = await fetch(`${endpoint}?id=${video.jobId}&provider=${video.provider}&filename=${video.url.split('/property-images/')[1]}`);
-          if (!checkRes.ok) continue;
-
-          const checkData = await checkRes.json();
-          if (checkData.status === 'succeeded') {
-            const itemDuration = durations[video.url] || video.duration || 0;
-            const costs = estimateVideoCost(itemDuration);
-            const finalCost = video.enhanceType === 'basic' ? costs.basic : costs.premium;
-            const method = video.enhanceType === 'basic' ? 'Ajuste de Luz (Gemini)' : 'Ajuste Ultra Premium (IA)';
-            const log = video.enhanceType === 'basic'
-              ? 'El vídeo de la habitación se procesó en la nube con TensorPix para aplicar correcciones rápidas de luz y balance de blancos. El archivo de vídeo original fue reemplazado por la versión corregida.'
-              : 'El vídeo original se envió al servicio de procesamiento en la nube con redes neuronales convolucionales. Se aplicó un proceso de estabilización digital de movimiento de cámara, reducción de ruido temporal e interpolación espacial para aumentar nitidez de bordes. El archivo original fue reemplazado por la versión premium.';
-
-            updatedRooms[rIdx] = {
-              ...room,
-              video: {
-                ...video,
-                url: checkData.enhancedUrl,
-                optimized: true,
-                processing: false,
-                jobId: undefined,
-                provider: undefined,
-                enhanceType: undefined,
-                cost: finalCost,
-                method,
-                log,
-                duration: itemDuration
-              }
-            };
-            changed = true;
-
-            toast.success(`Vídeo de habitación "${room.name || `Habitación ${rIdx + 1}`}" optimizado con éxito`);
-
-            // Insert system success notification
-            if (user) {
-              await supabase.from('notifications').insert({
-                user_id: user.id,
-                title: '✅ Vídeo de habitación optimizado',
-                message: `El vídeo de la habitación "${room.name || `Habitación ${rIdx + 1}`}" de la propiedad "${propertyName || 'Propiedad'}" se ha optimizado.`,
-                type: 'video_enhance_success',
-                is_read: false,
-                action_url: propertyId ? `/admin/propiedades/${propertyId}` : undefined,
-                related_id: propertyId,
-                related_type: 'property'
-              });
-            }
-          } else if (checkData.status === 'failed') {
-            updatedRooms[rIdx] = {
-              ...room,
-              video: {
-                ...video,
-                processing: false,
-                jobId: undefined,
-                provider: undefined,
-                enhanceType: undefined
-              }
-            };
-            changed = true;
-
-            toast.error(`La optimización del vídeo de "${room.name || `Habitación ${rIdx + 1}`}" ha fallado`);
-
-            // Insert system failure notification
-            if (user) {
-              await supabase.from('notifications').insert({
-                user_id: user.id,
-                title: '❌ Error en vídeo de habitación',
-                message: `La optimización del vídeo de la habitación "${room.name || `Habitación ${rIdx + 1}`}" de la propiedad "${propertyName || 'Propiedad'}" ha fallado.`,
-                type: 'video_enhance_failed',
-                is_read: false,
-                action_url: propertyId ? `/admin/propiedades/${propertyId}` : undefined,
-                related_id: propertyId,
-                related_type: 'property'
-              });
-            }
-          }
-        } catch (err) {
-          console.error('[Background Poll Room Error]:', err);
-        }
-      }
-
-      if (changed) {
-        onChange(updatedRooms);
-      }
-    }, 10000); // Check every 10 seconds
-
-    return () => {
-      active = false;
-      clearInterval(interval);
-    };
-  }, [rooms, durations, user, propertyId, propertyName]);
+  // NOTE: Polling is handled globally by useGlobalVideoPolling hook (in AdminLayout / AgentLayout).
+  // No local polling here to avoid race conditions.
 
   const addRoom = () => {
     const newRoom: PropertyRoom = {
@@ -208,40 +102,30 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
     }
   };
 
-  const handleEnhance = async (roomIdx: number, type: 'basic' | 'premium') => {
+  const handleEnhance = async (roomIdx: number) => {
     const room = rooms[roomIdx];
     if (!room.video?.url) return;
     const url = room.video.url;
     const title = room.video.title || 'Tour Habitación';
 
     setProcessingVideo(url);
-    setProcessingStatus(type === 'basic' ? 'Iniciando Ajuste de Luz...' : 'Enviando a la nube...');
+    setProcessingStatus('Enviando a la nube para mejora Premium...');
 
     try {
       const itemDuration = durations[url] || room.video.duration || 0;
-      const apiPath = type === 'basic' ? '/api/enhance-video-basic' : '/api/enhance-video-premium';
 
-      // Get user session token for backend authentication
-      const { data: { session } } = await supabase.auth.getSession();
-      const userToken = session?.access_token;
-
-      const response = await fetch(apiPath, {
+      const response = await fetch('/api/enhance-video-premium', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           videoUrl: url,
-          filename: url.split('/property-images/')[1],
-          propertyId,
-          videoType: 'room',
-          roomIdx,
-          userToken,
-          userId: user?.id
+          filename: url.split('/property-images/')[1]
         })
       });
 
       if (!response.ok) {
         const err = await response.json();
-        throw new Error(err.error || `Failed to start ${type} enhance`);
+        throw new Error(err.error || 'Error al iniciar la mejora premium');
       }
 
       const data = await response.json();
@@ -255,7 +139,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
           processing: true,
           jobId: data.id,
           provider: data.provider,
-          enhanceType: type,
+          enhanceType: 'premium',
           duration: itemDuration
         }
       };
@@ -267,13 +151,12 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
           .update({ rooms: updated })
           .eq('id', propertyId);
       }
-      toast.success('Vídeo enviado a optimizar. Se procesará en segundo plano.');
+      toast.success('Vídeo enviado a optimizar con IA Premium. Se procesará en segundo plano.');
 
-      // Insert system notification about started process
       if (user) {
         await supabase.from('notifications').insert({
           user_id: user.id,
-          title: `🎥 Optimizando vídeo (Opción ${type === 'basic' ? 'A' : 'B'})`,
+          title: '🎥 Optimizando vídeo con IA Premium',
           message: `La optimización para el vídeo "${title}" de la habitación "${room.name || `Habitación ${roomIdx + 1}`}" ha comenzado en la nube.`,
           type: 'video_enhance',
           is_read: false,
@@ -565,65 +448,15 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
                                     <div className="relative">
                                       <button
                                         type="button"
-                                        onClick={() => { setSelectedOption(null); setActiveMenu(activeMenu === url ? null : url); }}
+                                        onClick={() => {
+                                          if (window.confirm('¿Optimizar este vídeo con IA Premium? El proceso puede tardar entre 10 y 30 minutos. Continuará en segundo plano.')) {
+                                            handleEnhance(idx);
+                                          }
+                                        }}
                                         className="flex items-center gap-1 text-[10px] text-[#C9A962] hover:underline font-primary uppercase tracking-wider font-bold transition-all"
                                       >
-                                        <Sparkles className="w-3 h-3" /> Optimizar con IA
+                                        <Sparkles className="w-3 h-3" /> Optimizar con IA Premium
                                       </button>
-                                      
-                                      {activeMenu === url && (
-                                        <>
-                                          <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)} />
-                                          <div className="absolute left-0 bottom-full mb-2 bg-[#0A0A0A] border border-[#1F1F1F] p-3 flex flex-col gap-2 w-64 z-20 shadow-xl rounded-sm">
-                                            <p className="font-primary text-[9px] uppercase tracking-wider text-[#555] font-bold px-1 select-none">Seleccionar Tipo de Mejora</p>
-                                            
-                                            <button
-                                              type="button"
-                                              onClick={() => setSelectedOption('basic')}
-                                              className={`w-full text-left p-2 transition-all flex flex-col rounded-sm border ${
-                                                selectedOption === 'basic'
-                                                  ? 'border-[#C9A962] bg-[#C9A962]/10'
-                                                  : 'border-[#1F1F1F] hover:bg-[#1A1A1A] bg-transparent'
-                                              }`}
-                                            >
-                                              <span className="font-primary text-[10px] text-[#FAF8F5] font-bold">A. Ajuste de Luz (Nube)</span>
-                                              <span className="font-primary text-[9px] text-[#666]">Iluminación, color y exposición • Coste: {costs.basic}</span>
-                                            </button>
-
-                                            <button
-                                              type="button"
-                                              onClick={() => setSelectedOption('premium')}
-                                              className={`w-full text-left p-2 transition-all flex flex-col rounded-sm border ${
-                                                selectedOption === 'premium'
-                                                  ? 'border-[#C9A962] bg-[#C9A962]/10'
-                                                  : 'border-[#1F1F1F] hover:bg-[#1A1A1A] bg-transparent'
-                                              }`}
-                                            >
-                                              <span className="font-primary text-[10px] text-[#C9A962] font-bold">B. Ajuste Ultra Premium (IA)</span>
-                                              <span className="font-primary text-[9px] text-[#666]">Estabilizado, nitidez y reducción de ruido • Coste: {costs.premium}</span>
-                                            </button>
-
-                                            <button
-                                              type="button"
-                                              disabled={!selectedOption}
-                                              onClick={() => {
-                                                if (selectedOption) {
-                                                  setActiveMenu(null);
-                                                  handleEnhance(idx, selectedOption);
-                                                  setSelectedOption(null);
-                                                }
-                                              }}
-                                              className={`w-full py-1.5 mt-1 text-center font-primary text-[10px] uppercase tracking-wider font-bold rounded-sm transition-all ${
-                                                selectedOption
-                                                  ? 'bg-[#C9A962] text-black hover:bg-[#FAF8F5] cursor-pointer'
-                                                  : 'bg-[#151515] text-[#444] cursor-not-allowed border border-[#1F1F1F]'
-                                              }`}
-                                            >
-                                              Comenzar Optimización
-                                            </button>
-                                          </div>
-                                        </>
-                                      )}
                                     </div>
                                   )}
                                 </div>

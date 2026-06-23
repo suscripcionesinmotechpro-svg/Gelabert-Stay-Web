@@ -1,20 +1,9 @@
 import { NextResponse } from 'next/server';
 import Replicate from 'replicate';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import { Readable } from 'stream';
-import { finished } from 'stream/promises';
-import { supabase } from '../../../src/lib/supabase';
 
-// Helper to download external URL to buffer
-async function downloadToBuffer(url: string): Promise<Buffer> {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to download: ${res.statusText}`);
-  const arrayBuffer = await res.arrayBuffer();
-  return Buffer.from(arrayBuffer);
-}
-
+// ─────────────────────────────────────────────────────────────────────────────
+// POST — Inicia el trabajo de mejora premium en Replicate o TensorPix
+// ─────────────────────────────────────────────────────────────────────────────
 export async function POST(req: Request) {
   try {
     const { videoUrl, filename } = await req.json();
@@ -30,9 +19,8 @@ export async function POST(req: Request) {
       // ─── REPLICATE PROVIDER ──────────────────────────────
       const replicate = new Replicate({ auth: replicateToken });
 
-      // Create prediction using lucataco/real-esrgan-video or similar model
       const prediction = await replicate.predictions.create({
-        version: "3e56ce4b57863bd03048b42bc09bdd4db20d427cca5fde9d8ae4dc60e1bb4775", // Real-ESRGAN video model
+        version: "3e56ce4b57863bd03048b42bc09bdd4db20d427cca5fde9d8ae4dc60e1bb4775",
         input: {
           video_path: videoUrl,
           resolution: "FHD",
@@ -49,7 +37,6 @@ export async function POST(req: Request) {
 
     } else if (tensorpixKey && tensorpixKey !== 'undefined' && tensorpixKey !== 'null') {
       // ─── TENSORPIX PROVIDER ──────────────────────────────
-      // Start a TensorPix job from URL
       const response = await fetch('https://tensorpix.ai/api/jobs/from-url/', {
         method: 'POST',
         headers: {
@@ -58,7 +45,7 @@ export async function POST(req: Request) {
         },
         body: JSON.stringify({
           video_url: videoUrl,
-          ml_models: ['stabilization', 'denoise'] // Stabilize + Denoise
+          ml_models: ['stabilization', 'denoise']
         })
       });
 
@@ -82,28 +69,33 @@ export async function POST(req: Request) {
     }
 
   } catch (err: any) {
-    console.error('[Enhance Video Premium Start Error]:', err);
+    console.error('[Enhance Video Premium POST Error]:', err);
     return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// GET — Consulta el estado del trabajo de mejora.
+//
+// DISEÑO CLAVE: Este endpoint NO descarga ni sube el vídeo. Solo verifica
+// el estado en Replicate/TensorPix y devuelve la URL de salida cuando termina.
+// La descarga y la subida a Supabase las hace el CLIENTE (navegador), donde
+// no existe el límite de timeout de 10s de las funciones serverless de Netlify.
+// ─────────────────────────────────────────────────────────────────────────────
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     const provider = searchParams.get('provider');
-    const rawFilename = searchParams.get('filename');
 
-    if (!id || !provider || !rawFilename) {
-      return NextResponse.json({ error: 'Faltan parámetros de consulta (id, provider, filename)' }, { status: 400 });
+    if (!id || !provider) {
+      return NextResponse.json({ error: 'Faltan parámetros de consulta (id, provider)' }, { status: 400 });
     }
-
-    const filename = decodeURIComponent(rawFilename);
 
     if (provider === 'replicate') {
       const replicateToken = (process.env.REPLICATE_API_TOKEN || '').trim();
       const replicate = new Replicate({ auth: replicateToken });
-      
+
       const prediction = await replicate.predictions.get(id);
 
       if (prediction.status === 'succeeded') {
@@ -111,37 +103,20 @@ export async function GET(req: Request) {
         if (!outputUrl) {
           throw new Error('No output URL returned from Replicate');
         }
-
-        // Download result and upload to Supabase Storage
-        const buffer = await downloadToBuffer(outputUrl);
-        const pathParts = filename.split('/');
-        const folderName = pathParts[0];
-        const fileBase = pathParts[1].split('.')[0];
-        const targetFilename = `${folderName}/${fileBase}_enhanced_premium.mp4`;
-
-        const { error: uploadErr } = await supabase.storage
-          .from('property-images')
-          .upload(targetFilename, buffer, {
-            contentType: 'video/mp4',
-            cacheControl: '31536000',
-            upsert: true,
-          });
-
-        if (uploadErr) throw uploadErr;
-
-        const { data } = supabase.storage.from('property-images').getPublicUrl(targetFilename);
-
+        // Devolvemos la URL de salida — el CLIENTE hará la descarga y subida
         return NextResponse.json({
           status: 'succeeded',
-          enhancedUrl: data.publicUrl,
-          filename: targetFilename
+          outputUrl
         });
+
       } else if (prediction.status === 'failed' || prediction.status === 'canceled') {
         return NextResponse.json({
           status: 'failed',
           error: prediction.error || 'Prediction failed or was canceled'
         });
+
       } else {
+        // still starting | processing | queued etc.
         return NextResponse.json({
           status: 'processing',
           progress: prediction.status
@@ -163,52 +138,34 @@ export async function GET(req: Request) {
 
       const jobData = await response.json();
 
-      // In TensorPix, status 2 typically represents "succeeded"
       if (jobData.status === 2) {
         const outputUrl = jobData.output_video_url;
         if (!outputUrl) throw new Error('No output URL returned from TensorPix');
-
-        // Download result and upload to Supabase Storage
-        const buffer = await downloadToBuffer(outputUrl);
-        const pathParts = filename.split('/');
-        const folderName = pathParts[0];
-        const fileBase = pathParts[1].split('.')[0];
-        const targetFilename = `${folderName}/${fileBase}_enhanced_premium.mp4`;
-
-        const { error: uploadErr } = await supabase.storage
-          .from('property-images')
-          .upload(targetFilename, buffer, {
-            contentType: 'video/mp4',
-            cacheControl: '31536000',
-            upsert: true,
-          });
-
-        if (uploadErr) throw uploadErr;
-
-        const { data } = supabase.storage.from('property-images').getPublicUrl(targetFilename);
-
+        // Devolvemos la URL de salida — el CLIENTE hará la descarga y subida
         return NextResponse.json({
           status: 'succeeded',
-          enhancedUrl: data.publicUrl,
-          filename: targetFilename
+          outputUrl
         });
-      } else if (jobData.status === 3 || jobData.status === 4) { // failed / canceled
+
+      } else if (jobData.status === 3 || jobData.status === 4) {
         return NextResponse.json({
           status: 'failed',
           error: 'TensorPix job failed or was canceled'
         });
+
       } else {
         return NextResponse.json({
           status: 'processing',
           progress: jobData.progress !== undefined ? `${jobData.progress}%` : 'enhancing'
         });
       }
+
     } else {
       return NextResponse.json({ error: 'Proveedor de API no soportado' }, { status: 400 });
     }
 
   } catch (err: any) {
-    console.error('[Enhance Video Premium Get Error]:', err);
+    console.error('[Enhance Video Premium GET Error]:', err);
     return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
   }
 }

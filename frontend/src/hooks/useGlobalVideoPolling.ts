@@ -7,7 +7,6 @@ export interface ProcessingVideo {
   propertyName: string;
   videoUrl: string;
   title: string;
-  enhanceType: 'basic' | 'premium';
   jobId: string;
   provider: string;
   videoType: 'gallery' | 'common_area' | 'room';
@@ -26,7 +25,7 @@ export const useGlobalVideoPolling = () => {
     if (!user) return;
 
     try {
-      // 1. Fetch properties that might have processing videos
+      // 1. Fetch all properties that might have videos in progress
       const { data: properties, error } = await supabase
         .from('properties')
         .select('id, title, videos_metadata, common_areas, rooms');
@@ -46,9 +45,8 @@ export const useGlobalVideoPolling = () => {
               propertyName: prop.title || 'Propiedad sin título',
               videoUrl: v.url,
               title: v.title || 'Vídeo de galería',
-              enhanceType: v.enhanceType || 'basic',
               jobId: v.jobId,
-              provider: v.provider || 'tensorpix',
+              provider: v.provider || 'replicate',
               videoType: 'gallery',
               videoIdx: vIdx,
               progress: 'esperando...'
@@ -68,9 +66,8 @@ export const useGlobalVideoPolling = () => {
                 propertyName: prop.title || 'Propiedad sin título',
                 videoUrl: v.url,
                 title: v.title || `Vídeo en ${area.name || area.type}`,
-                enhanceType: v.enhanceType || 'basic',
                 jobId: v.jobId,
-                provider: v.provider || 'tensorpix',
+                provider: v.provider || 'replicate',
                 videoType: 'common_area',
                 areaIdx,
                 videoIdx: vIdx,
@@ -90,9 +87,8 @@ export const useGlobalVideoPolling = () => {
               propertyName: prop.title || 'Propiedad sin título',
               videoUrl: v.url,
               title: v.title || `Vídeo en ${room.name || `Habitación ${roomIdx + 1}`}`,
-              enhanceType: v.enhanceType || 'basic',
               jobId: v.jobId,
-              provider: v.provider || 'tensorpix',
+              provider: v.provider || 'replicate',
               videoType: 'room',
               roomIdx,
               progress: 'esperando...'
@@ -101,32 +97,19 @@ export const useGlobalVideoPolling = () => {
         });
       });
 
-      // 2. For each found video, poll the API to get current status/progress
+      // 2. Poll the API for each found video
       const updatedFound: ProcessingVideo[] = [];
 
       for (const pv of found) {
         try {
-          const endpoint = pv.enhanceType === 'basic' ? '/api/enhance-video-basic' : '/api/enhance-video-premium';
-          const filename = pv.videoUrl.split('/property-images/')[1];
+          const params = new URLSearchParams({
+            id: pv.jobId,
+            provider: pv.provider
+          });
+
           let checkData: any;
-
           try {
-            // Build query params — basic enhance needs context to update DB on completion
-            const params = new URLSearchParams({
-              id: pv.jobId,
-              provider: pv.provider,
-              filename: filename,
-              ...(pv.enhanceType === 'basic' && {
-                propertyId: pv.propertyId,
-                videoType: pv.videoType,
-                ...(pv.videoIdx !== undefined && { videoIdx: String(pv.videoIdx) }),
-                ...(pv.areaIdx !== undefined && { areaIdx: String(pv.areaIdx) }),
-                ...(pv.roomIdx !== undefined && { roomIdx: String(pv.roomIdx) }),
-                ...(user?.id && { userId: user.id })
-              })
-            });
-
-            const checkRes = await fetch(`${endpoint}?${params.toString()}`);
+            const checkRes = await fetch(`/api/enhance-video-premium?${params.toString()}`);
             const rawText = await checkRes.text();
 
             try {
@@ -149,39 +132,85 @@ export const useGlobalVideoPolling = () => {
             continue;
           }
 
-
           if (checkData.status === 'succeeded') {
-            // Update in DB immediately!
-            // Let's get fresh property record first to avoid overwriting other modifications
+            // ─────────────────────────────────────────────────────────────────
+            // El servidor nos da la URL de salida de Replicate/TensorPix.
+            // Ahora el CLIENTE (navegador) hace la descarga y la subida a
+            // Supabase Storage — sin límites de timeout de funciones serverless.
+            // ─────────────────────────────────────────────────────────────────
+            const outputUrl: string = checkData.outputUrl;
+
+            let enhancedPublicUrl: string | null = null;
+
+            try {
+              // Update progress state before starting the upload so the widget shows it
+              setProcessingVideos(prev =>
+                prev.map(p => p.jobId === pv.jobId
+                  ? { ...p, progress: 'Descargando desde la nube...' }
+                  : p
+                )
+              );
+
+              // Download the video in the browser
+              const downloadRes = await fetch(outputUrl);
+              if (!downloadRes.ok) throw new Error(`No se pudo descargar el vídeo mejorado: ${downloadRes.statusText}`);
+              const videoBlob = await downloadRes.blob();
+
+              // Build target path in Supabase Storage
+              const originalPath = pv.videoUrl.split('/property-images/')[1];
+              const pathParts = originalPath ? originalPath.split('/') : [];
+              const folderName = pathParts[0] || pv.propertyId;
+              const rawFileName = (pathParts[1] || 'video').split('.')[0];
+              const targetFilename = `${folderName}/${rawFileName}_enhanced_premium.mp4`;
+
+              setProcessingVideos(prev =>
+                prev.map(p => p.jobId === pv.jobId
+                  ? { ...p, progress: 'Subiendo a Supabase...' }
+                  : p
+                )
+              );
+
+              // Upload to Supabase Storage
+              const { error: uploadErr } = await supabase.storage
+                .from('property-images')
+                .upload(targetFilename, videoBlob, {
+                  contentType: 'video/mp4',
+                  cacheControl: '31536000',
+                  upsert: true
+                });
+
+              if (uploadErr) throw uploadErr;
+
+              const { data: pubData } = supabase.storage
+                .from('property-images')
+                .getPublicUrl(targetFilename);
+
+              enhancedPublicUrl = pubData.publicUrl;
+            } catch (uploadError: any) {
+              const errMsg = `Error al subir el vídeo: ${uploadError?.message || String(uploadError)}`;
+              console.error('[Poll] Upload error:', errMsg);
+              updatedFound.push({ ...pv, progress: 'error', errorMessage: errMsg });
+              continue;
+            }
+
+            // Update DB with the new URL
             const { data: currentProp } = await supabase
               .from('properties')
               .select('videos_metadata, common_areas, rooms')
               .eq('id', pv.propertyId)
               .single();
 
-            if (currentProp) {
-              const estimateVideoCost = (dur: number) => {
-                const durMin = Math.max(1, Math.ceil(dur / 60));
-                return {
-                  basic: '0.05',
-                  premium: (durMin * 0.30).toFixed(2)
-                };
-              };
-              
-              const method = pv.enhanceType === 'basic' ? 'Ajuste de Luz (Gemini)' : 'Ajuste Ultra Premium (IA)';
-              
+            if (currentProp && enhancedPublicUrl) {
+              const log = 'El vídeo original se envió al servicio de procesamiento en la nube con redes neuronales convolucionales. Se aplicó un proceso de estabilización digital de movimiento de cámara, reducción de ruido temporal e interpolación espacial para aumentar nitidez de bordes. El archivo original fue reemplazado por la versión premium.';
+              const method = 'Ajuste Ultra Premium (IA)';
+              const cost = '0.30';
+
               if (pv.videoType === 'gallery' && pv.videoIdx !== undefined) {
                 const vids = [...(currentProp.videos_metadata || [])];
                 const videoItem = vids[pv.videoIdx];
-                const duration = videoItem.duration || 0;
-                const cost = pv.enhanceType === 'basic' ? estimateVideoCost(duration).basic : estimateVideoCost(duration).premium;
-                const log = pv.enhanceType === 'basic'
-                  ? 'El vídeo original se procesó en la nube con TensorPix para aplicar correcciones rápidas de luz y balance de blancos. El archivo de vídeo original fue reemplazado por la versión corregida.'
-                  : 'El vídeo original se envió al servicio de procesamiento en la nube con redes neuronales convolucionales. Se aplicó un proceso de estabilización digital de movimiento de cámara, reducción de ruido temporal e interpolación espacial para aumentar nitidez de bordes. El archivo original fue reemplazado por la versión premium.';
-
                 vids[pv.videoIdx] = {
                   ...videoItem,
-                  url: checkData.enhancedUrl,
+                  url: enhancedPublicUrl,
                   optimized: true,
                   processing: false,
                   jobId: undefined,
@@ -192,22 +221,15 @@ export const useGlobalVideoPolling = () => {
                   log
                 };
                 await supabase.from('properties').update({ videos_metadata: vids }).eq('id', pv.propertyId);
-              } 
-              
-              else if (pv.videoType === 'common_area' && pv.areaIdx !== undefined && pv.videoIdx !== undefined) {
+
+              } else if (pv.videoType === 'common_area' && pv.areaIdx !== undefined && pv.videoIdx !== undefined) {
                 const areas = [...(currentProp.common_areas || [])];
                 const area = areas[pv.areaIdx];
                 const vids = [...(area.videos || [])];
                 const videoItem = vids[pv.videoIdx];
-                const duration = videoItem.duration || 0;
-                const cost = pv.enhanceType === 'basic' ? estimateVideoCost(duration).basic : estimateVideoCost(duration).premium;
-                const log = pv.enhanceType === 'basic'
-                  ? 'El vídeo de la zona común se procesó en la nube con TensorPix para aplicar correcciones rápidas de luz y balance de blancos. El archivo de vídeo original fue reemplazado por la versión corregida.'
-                  : 'El vídeo original se envió al servicio de procesamiento en la nube con redes neuronales convolucionales. Se aplicó un proceso de estabilización digital de movimiento de cámara, reducción de ruido temporal e interpolación espacial para aumentar nitidez de bordes. El archivo original fue reemplazado por la versión premium.';
-
                 vids[pv.videoIdx] = {
                   ...videoItem,
-                  url: checkData.enhancedUrl,
+                  url: enhancedPublicUrl,
                   optimized: true,
                   processing: false,
                   jobId: undefined,
@@ -219,23 +241,16 @@ export const useGlobalVideoPolling = () => {
                 };
                 areas[pv.areaIdx] = { ...area, videos: vids };
                 await supabase.from('properties').update({ common_areas: areas }).eq('id', pv.propertyId);
-              } 
-              
-              else if (pv.videoType === 'room' && pv.roomIdx !== undefined) {
+
+              } else if (pv.videoType === 'room' && pv.roomIdx !== undefined) {
                 const rooms = [...(currentProp.rooms || [])];
                 const room = rooms[pv.roomIdx];
                 const videoItem = room.video;
-                const duration = videoItem.duration || 0;
-                const cost = pv.enhanceType === 'basic' ? estimateVideoCost(duration).basic : estimateVideoCost(duration).premium;
-                const log = pv.enhanceType === 'basic'
-                  ? 'El vídeo de la habitación se procesó en la nube con TensorPix para aplicar correcciones rápidas de luz y balance de blancos. El archivo de vídeo original fue reemplazado por la versión corregida.'
-                  : 'El vídeo original se envió al servicio de procesamiento en la nube con redes neuronales convolucionales. Se aplicó un proceso de estabilización digital de movimiento de cámara, reducción de ruido temporal e interpolación espacial para aumentar nitidez de bordes. El archivo original fue reemplazado por la versión premium.';
-
                 rooms[pv.roomIdx] = {
                   ...room,
                   video: {
                     ...videoItem,
-                    url: checkData.enhancedUrl,
+                    url: enhancedPublicUrl,
                     optimized: true,
                     processing: false,
                     jobId: undefined,
@@ -249,11 +264,11 @@ export const useGlobalVideoPolling = () => {
                 await supabase.from('properties').update({ rooms }).eq('id', pv.propertyId);
               }
 
-              // Create notification
+              // Success notification
               await supabase.from('notifications').insert({
                 user_id: user.id,
                 title: '✅ Vídeo optimizado con éxito',
-                message: `El vídeo "${pv.title}" de la propiedad "${pv.propertyName}" ha terminado de optimizarse.`,
+                message: `El vídeo "${pv.title}" de la propiedad "${pv.propertyName}" ha terminado de optimizarse con IA Premium.`,
                 type: 'video_enhance_success',
                 is_read: false,
                 action_url: `/admin/propiedades/${pv.propertyId}`,
@@ -261,10 +276,12 @@ export const useGlobalVideoPolling = () => {
                 related_type: 'property'
               });
             }
+            // Video succeeded — do NOT add to updatedFound (remove from widget)
+
           } else if (checkData.status === 'failed') {
             const failedErrorMsg = checkData.error || checkData.errorMessage || 'Error desconocido durante la optimización';
 
-            // Update in DB to set processing: false and store the error message
+            // Clean up DB state
             const { data: currentProp } = await supabase
               .from('properties')
               .select('videos_metadata, common_areas, rooms')
@@ -276,18 +293,16 @@ export const useGlobalVideoPolling = () => {
                 const vids = [...(currentProp.videos_metadata || [])];
                 vids[pv.videoIdx] = { ...vids[pv.videoIdx], processing: false, jobId: undefined, provider: undefined, enhanceType: undefined, lastError: failedErrorMsg };
                 await supabase.from('properties').update({ videos_metadata: vids }).eq('id', pv.propertyId);
-              } 
-              
-              else if (pv.videoType === 'common_area' && pv.areaIdx !== undefined && pv.videoIdx !== undefined) {
+
+              } else if (pv.videoType === 'common_area' && pv.areaIdx !== undefined && pv.videoIdx !== undefined) {
                 const areas = [...(currentProp.common_areas || [])];
                 const area = areas[pv.areaIdx];
                 const vids = [...(area.videos || [])];
                 vids[pv.videoIdx] = { ...vids[pv.videoIdx], processing: false, jobId: undefined, provider: undefined, enhanceType: undefined, lastError: failedErrorMsg };
                 areas[pv.areaIdx] = { ...area, videos: vids };
                 await supabase.from('properties').update({ common_areas: areas }).eq('id', pv.propertyId);
-              } 
-              
-              else if (pv.videoType === 'room' && pv.roomIdx !== undefined) {
+
+              } else if (pv.videoType === 'room' && pv.roomIdx !== undefined) {
                 const rooms = [...(currentProp.rooms || [])];
                 const room = rooms[pv.roomIdx];
                 rooms[pv.roomIdx] = {
@@ -297,7 +312,7 @@ export const useGlobalVideoPolling = () => {
                 await supabase.from('properties').update({ rooms }).eq('id', pv.propertyId);
               }
 
-              // Create notification
+              // Failure notification
               await supabase.from('notifications').insert({
                 user_id: user.id,
                 title: '❌ Error de optimización',
@@ -309,8 +324,10 @@ export const useGlobalVideoPolling = () => {
                 related_type: 'property'
               });
             }
+            // Failed — also do NOT keep in updatedFound (remove from widget)
+
           } else {
-            // Still processing: update progress status
+            // Still processing — keep in list with updated progress
             updatedFound.push({
               ...pv,
               progress: checkData.progress || 'optimizando...',
@@ -332,12 +349,12 @@ export const useGlobalVideoPolling = () => {
 
   useEffect(() => {
     if (!user) return;
-    
+
     // Run immediately on mount
     pollVideos();
 
-    // Run every 15 seconds
-    const interval = setInterval(pollVideos, 15000);
+    // Run every 20 seconds
+    const interval = setInterval(pollVideos, 20000);
     return () => clearInterval(interval);
   }, [user]);
 
