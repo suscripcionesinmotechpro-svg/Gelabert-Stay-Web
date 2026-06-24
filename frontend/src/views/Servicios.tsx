@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { useServiceCart, type CartService } from '../hooks/useServiceCart';
 import { ServiceCartDrawer } from '../components/ServiceCartDrawer';
-import { InvestorServices } from '../components/InvestorServices';
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -100,14 +99,14 @@ const ServiceCard = ({
             {title}
           </h3>
 
-          <p className="font-primary text-white/60 text-sm leading-relaxed mb-4 max-w-lg">
+          <p className="font-primary text-white/80 text-sm md:text-[15px] leading-relaxed mb-4 max-w-lg">
             {desc}
           </p>
 
           <ul className="flex flex-col gap-2 mb-6">
             {bullets.slice(0, 4).map((b, i) => (
-              <li key={i} className="flex items-start gap-2 font-primary text-[11px] text-white/55">
-                <CheckCircle className="w-3 h-3 text-[#C9A962] shrink-0 mt-0.5" />
+              <li key={i} className="flex items-start gap-2.5 font-primary text-[13px] md:text-sm text-white/85 leading-normal">
+                <CheckCircle className="w-4 h-4 text-[#C9A962] shrink-0 mt-0.5" />
                 <span>{b}</span>
               </li>
             ))}
@@ -334,7 +333,7 @@ export const Servicios = () => {
           className="max-w-4xl mx-auto mb-8 md:mb-14 px-5 py-3.5 bg-white/[0.02] border border-[#C9A962]/15 backdrop-blur-xl rounded-sm flex items-center gap-4 relative overflow-hidden"
         >
           <ShoppingBag className="w-4 h-4 text-[#C9A962] shrink-0" />
-          <p className="font-primary text-[#FAF8F5]/50 text-sm leading-relaxed">
+          <p className="font-primary text-[#FAF8F5]/80 text-sm leading-relaxed">
             {t('services.cart.note')}
           </p>
         </motion.div>
@@ -363,10 +362,6 @@ export const Servicios = () => {
         </div>
       </section>
 
-      {/* Investor Solutions Section - Integrated here */}
-      <div id="investors" className="scroll-mt-24">
-        <InvestorServices />
-      </div>
 
       {/* Tenant Service Card */}
       <section className="w-full px-6 py-20 max-w-7xl mx-auto">
@@ -416,13 +411,13 @@ export const Servicios = () => {
               <h3 className="font-secondary text-3xl md:text-5xl text-white mb-4 group-hover:text-[#C9A962] transition-colors duration-500">
                 {t('services.tenant_search.title')}
               </h3>
-              <p className="font-primary text-white/60 text-base leading-relaxed mb-6 max-w-lg">
+              <p className="font-primary text-white/80 text-base leading-relaxed mb-6 max-w-lg">
                 {t('services.tenants.description')}
               </p>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
                 {(t('services.tenant_search.bullets', { returnObjects: true }) as string[]).map((bullet, idx) => (
-                  <li key={idx} className="flex items-start gap-2 font-primary text-[12px] text-white/55">
-                    <CheckCircle className="w-3 h-3 text-[#C9A962] shrink-0 mt-0.5" />
+                  <li key={idx} className="flex items-start gap-2.5 font-primary text-[13px] md:text-sm text-white/85 leading-normal">
+                    <CheckCircle className="w-4 h-4 text-[#C9A962] shrink-0 mt-0.5" />
                     <span>{bullet}</span>
                   </li>
                 ))}
@@ -482,7 +477,7 @@ export const Servicios = () => {
                 <h3 className="font-primary text-white font-bold text-sm uppercase tracking-wide group-hover:text-[#C9A962] transition-colors">
                   {item.label}
                 </h3>
-                <p className="font-primary text-white/60 text-sm leading-relaxed">
+                <p className="font-primary text-white/80 text-sm leading-relaxed">
                   {item.desc}
                 </p>
               </div>
