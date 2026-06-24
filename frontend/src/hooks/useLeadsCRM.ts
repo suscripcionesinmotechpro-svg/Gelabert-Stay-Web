@@ -61,6 +61,19 @@ export interface LeadCRM {
   property_ad_url?: string;
   property_features?: string;
   rental_price?: string;
+  // Omnicanal Columns
+  source?: string;
+  target_property_id?: string;
+  target_property_ref?: string;
+  target_property?: {
+    main_image?: string;
+    reference: string;
+    price: number;
+    zone: string;
+    property_type: string;
+    slug: string;
+    is_room_rental?: boolean;
+  };
   // Joined
   search_profile?: LeadSearchProfile;
 }
@@ -143,12 +156,259 @@ export const saveLeadFromBot = async (
   }
 };
 
+// ─── CREATE LEAD WITH PROPERTY CLONE ────────────────────────────────────────
+export const createLeadWithPropertyClone = async (
+  leadData: Partial<LeadInsert> & { intent: 'alquilar' | 'comprar'; name: string; phone: string },
+  propertyRef?: string,
+  searchProfileFields?: Partial<LeadSearchProfile>
+): Promise<{ id: string } | null> => {
+  try {
+    const leadId = crypto.randomUUID();
+    let targetPropertyId: string | null = null;
+    let targetPropertyRefVal: string | null = propertyRef || null;
+    let clonedProfile: Partial<LeadSearchProfile> = { ...searchProfileFields };
+
+    if (propertyRef) {
+      const { data: property, error: pError } = await supabase
+        .from('properties')
+        .select('id, reference, price, zone, bedrooms, has_pool, has_parking, has_terrace, has_elevator, is_furnished, air_conditioning, pets_allowed, garden, property_type')
+        .eq('reference', propertyRef)
+        .maybeSingle();
+
+      if (pError) console.error('Error fetching property by ref:', pError);
+
+      if (property) {
+        targetPropertyId = property.id;
+        targetPropertyRefVal = property.reference;
+
+        const margin = 0.10;
+        const maxPrice = property.price ? Math.round(property.price * (1 + margin)) : undefined;
+
+        clonedProfile = {
+          ...clonedProfile,
+          preferred_zones: property.zone ? [property.zone] : clonedProfile.preferred_zones || [],
+          min_bedrooms: property.bedrooms || clonedProfile.min_bedrooms || undefined,
+          max_price: maxPrice || clonedProfile.max_price || undefined,
+          wants_pool: property.has_pool || clonedProfile.wants_pool || undefined,
+          wants_parking: property.has_parking || clonedProfile.wants_parking || undefined,
+          wants_terrace: property.has_terrace || clonedProfile.wants_terrace || undefined,
+          wants_elevator: property.has_elevator || clonedProfile.wants_elevator || undefined,
+          wants_furnished: property.is_furnished || clonedProfile.wants_furnished || undefined,
+          wants_air_conditioning: property.air_conditioning || clonedProfile.wants_air_conditioning || undefined,
+          pets_needed: property.pets_allowed || clonedProfile.pets_needed || undefined,
+          wants_garden: property.garden || clonedProfile.wants_garden || undefined,
+          property_types: property.property_type ? [property.property_type] : clonedProfile.property_types || [],
+          is_active: true
+        };
+
+        if (leadData.intent === 'alquilar') {
+          leadData.max_rent = maxPrice;
+        } else if (leadData.intent === 'comprar') {
+          leadData.max_buy_price = maxPrice;
+        }
+      }
+    }
+
+    const { error: insertError } = await supabase
+      .from('leads_crm')
+      .insert([{
+        ...leadData,
+        id: leadId,
+        status: 'nuevo',
+        source: leadData.source || 'manual',
+        target_property_id: targetPropertyId,
+        target_property_ref: targetPropertyRefVal
+      }]);
+
+    if (insertError) throw insertError;
+
+    const { error: profileError } = await supabase
+      .from('leads_search_profiles')
+      .insert([{
+        ...clonedProfile,
+        lead_id: leadId,
+        intent: leadData.intent
+      }]);
+
+    if (profileError) {
+      console.error('Error creating search profile:', profileError);
+    }
+
+    return { id: leadId };
+  } catch (err) {
+    console.error('Error creating lead with property clone:', err);
+    return null;
+  }
+};
+
+// ─── SAVE OR UPDATE LEAD FROM FORM (DUPLICATES CHECK) ────────────────────────
+export const saveOrUpdateLeadFromForm = async (
+  leadData: { name: string; email: string; phone?: string; intent: string; source: string; privacy_accepted: boolean; privacy_accepted_at: string },
+  propertyInfo?: { id: string; reference: string; price?: number; zone?: string; bedrooms?: number; has_pool?: boolean; has_parking?: boolean; has_terrace?: boolean; has_elevator?: boolean; is_furnished?: boolean; air_conditioning?: boolean; pets_allowed?: boolean; garden?: boolean; property_type?: string }
+): Promise<{ id: string } | null> => {
+  try {
+    let existingLead: LeadCRM | null = null;
+
+    if (leadData.email || leadData.phone) {
+      let query = supabase.from('leads_crm').select('*, search_profile:leads_search_profiles(*)');
+      
+      if (leadData.email && leadData.phone) {
+        query = query.or(`email.eq.${leadData.email},phone.eq.${leadData.phone}`);
+      } else if (leadData.email) {
+        query = query.eq('email', leadData.email);
+      } else if (leadData.phone) {
+        query = query.eq('phone', leadData.phone);
+      }
+
+      const { data } = await query.limit(1).maybeSingle();
+      if (data) {
+        existingLead = {
+          ...data,
+          search_profile: Array.isArray(data.search_profile) ? data.search_profile[0] : data.search_profile
+        } as LeadCRM;
+      }
+    }
+
+    let leadId = existingLead?.id;
+    let clonedProfile: Partial<LeadSearchProfile> = {};
+    let targetPropertyId: string | null = propertyInfo?.id || null;
+    let targetPropertyRefVal: string | null = propertyInfo?.reference || null;
+
+    if (propertyInfo) {
+      const margin = 0.10;
+      const maxPrice = propertyInfo.price ? Math.round(propertyInfo.price * (1 + margin)) : undefined;
+
+      clonedProfile = {
+        preferred_zones: propertyInfo.zone ? [propertyInfo.zone] : [],
+        min_bedrooms: propertyInfo.bedrooms || undefined,
+        max_price: maxPrice,
+        wants_pool: propertyInfo.has_pool || undefined,
+        wants_parking: propertyInfo.has_parking || undefined,
+        wants_terrace: propertyInfo.has_terrace || undefined,
+        wants_elevator: propertyInfo.has_elevator || undefined,
+        wants_furnished: propertyInfo.is_furnished || undefined,
+        wants_air_conditioning: propertyInfo.air_conditioning || undefined,
+        pets_needed: propertyInfo.pets_allowed || undefined,
+        wants_garden: propertyInfo.garden || undefined,
+        property_types: propertyInfo.property_type ? [propertyInfo.property_type] : [],
+        is_active: true
+      };
+    }
+
+    if (existingLead && leadId) {
+      const updateData: any = {
+        status: 'nuevo',
+        updated_at: new Date().toISOString()
+      };
+      if (targetPropertyId) updateData.target_property_id = targetPropertyId;
+      if (targetPropertyRefVal) updateData.target_property_ref = targetPropertyRefVal;
+
+      if (propertyInfo?.price) {
+        const margin = 0.10;
+        const maxPrice = Math.round(propertyInfo.price * (1 + margin));
+        if (existingLead.intent === 'alquilar') {
+          updateData.max_rent = maxPrice;
+        } else if (existingLead.intent === 'comprar') {
+          updateData.max_buy_price = maxPrice;
+        }
+      }
+
+      await supabase
+        .from('leads_crm')
+        .update(updateData)
+        .eq('id', leadId);
+
+      if (existingLead.search_profile) {
+        const profileId = existingLead.search_profile.id;
+        
+        const mergedZones = [...(existingLead.search_profile.preferred_zones || [])];
+        if (propertyInfo?.zone && !mergedZones.includes(propertyInfo.zone)) {
+          mergedZones.push(propertyInfo.zone);
+        }
+
+        const mergedTypes = [...(existingLead.search_profile.property_types || [])];
+        if (propertyInfo?.property_type && !mergedTypes.includes(propertyInfo.property_type)) {
+          mergedTypes.push(propertyInfo.property_type);
+        }
+
+        const currentMaxPrice = existingLead.search_profile.max_price || 0;
+        const newMaxPrice = clonedProfile.max_price || 0;
+        const mergedMaxPrice = Math.max(currentMaxPrice, newMaxPrice) || undefined;
+
+        const updatedProfile = {
+          ...clonedProfile,
+          preferred_zones: mergedZones.length > 0 ? mergedZones : clonedProfile.preferred_zones,
+          property_types: mergedTypes.length > 0 ? mergedTypes : clonedProfile.property_types,
+          max_price: mergedMaxPrice
+        };
+
+        await supabase
+          .from('leads_search_profiles')
+          .update(updatedProfile)
+          .eq('id', profileId);
+      } else {
+        await supabase
+          .from('leads_search_profiles')
+          .insert([{
+            ...clonedProfile,
+            lead_id: leadId,
+            intent: existingLead.intent
+          }]);
+      }
+    } else {
+      leadId = crypto.randomUUID();
+      const newLeadData: any = {
+        ...leadData,
+        id: leadId,
+        status: 'nuevo',
+        target_property_id: targetPropertyId,
+        target_property_ref: targetPropertyRefVal
+      };
+
+      if (propertyInfo?.price) {
+        const margin = 0.10;
+        const maxPrice = Math.round(propertyInfo.price * (1 + margin));
+        if (leadData.intent === 'alquilar') {
+          newLeadData.max_rent = maxPrice;
+        } else if (leadData.intent === 'comprar') {
+          newLeadData.max_buy_price = maxPrice;
+        }
+      }
+
+      const { error } = await supabase
+        .from('leads_crm')
+        .insert([newLeadData]);
+
+      if (error) throw error;
+
+      await supabase
+        .from('leads_search_profiles')
+        .insert([{
+          ...clonedProfile,
+          lead_id: leadId,
+          intent: leadData.intent
+        }]);
+    }
+
+    return { id: leadId };
+  } catch (err) {
+    console.error('Error saving or updating lead from form:', err);
+    return null;
+  }
+};
+
+
+
+
 // ─── LIST LEADS (ADMIN) ─────────────────────────────────────────────────────
 export interface LeadFilters {
   intent?: string;
   status?: string;
   search?: string;
   agentId?: string;
+  year?: string | number;
+  month?: string | number;
+  propertyRef?: string;
 }
 
 export const useLeadsCRM = (filters?: LeadFilters) => {
@@ -164,7 +424,8 @@ export const useLeadsCRM = (filters?: LeadFilters) => {
         .from('leads_crm')
         .select(`
           *,
-          search_profile:leads_search_profiles(*)
+          search_profile:leads_search_profiles(*),
+          target_property:properties(main_image, reference, price, zone, property_type, slug, is_room_rental)
         `)
         .order('created_at', { ascending: false });
 
@@ -180,14 +441,31 @@ export const useLeadsCRM = (filters?: LeadFilters) => {
       if (filters?.agentId) {
         query = query.eq('agent_id', filters.agentId);
       }
+      if (filters?.propertyRef) {
+        query = query.ilike('target_property_ref', `%${filters.propertyRef}%`);
+      }
+      if (filters?.year && filters.year !== 'todos') {
+        const yearVal = parseInt(filters.year.toString(), 10);
+        if (filters?.month && filters.month !== 'todos') {
+          const monthVal = parseInt(filters.month.toString(), 10);
+          const startDate = new Date(yearVal, monthVal - 1, 1).toISOString();
+          const endDate = new Date(yearVal, monthVal, 1).toISOString();
+          query = query.gte('created_at', startDate).lt('created_at', endDate);
+        } else {
+          const startDate = new Date(yearVal, 0, 1).toISOString();
+          const endDate = new Date(yearVal + 1, 0, 1).toISOString();
+          query = query.gte('created_at', startDate).lt('created_at', endDate);
+        }
+      }
 
       const { data, error: err } = await query;
       if (err) throw err;
 
-      // search_profile comes as array (one-to-many join), pick first
+      // search_profile and target_property safety check
       const processed = (data || []).map((l: any) => ({
         ...l,
         search_profile: Array.isArray(l.search_profile) ? l.search_profile[0] : l.search_profile,
+        target_property: Array.isArray(l.target_property) ? l.target_property[0] : l.target_property,
       }));
 
       setLeads(processed as LeadCRM[]);
@@ -196,7 +474,15 @@ export const useLeadsCRM = (filters?: LeadFilters) => {
     } finally {
       setLoading(false);
     }
-  }, [filters?.intent, filters?.status, filters?.search, filters?.agentId]);
+  }, [
+    filters?.intent,
+    filters?.status,
+    filters?.search,
+    filters?.agentId,
+    filters?.year,
+    filters?.month,
+    filters?.propertyRef
+  ]);
 
   useEffect(() => { 
     fetchLeads(); 

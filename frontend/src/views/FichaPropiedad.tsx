@@ -17,6 +17,7 @@ import { PropertyMap } from '../components/PropertyMap';
 import { PropertyReference } from '../components/PropertyReference';
 import { sortPropertiesByAvailability } from '../utils/propertySorting';
 import { supabase } from '../lib/supabase';
+import { saveOrUpdateLeadFromForm } from '../hooks/useLeadsCRM';
 import { useTranslation, Trans } from 'react-i18next';
 import { getWhatsAppLink } from '../utils/whatsapp';
 import Lightbox from "yet-another-react-lightbox";
@@ -252,8 +253,36 @@ export const FichaPropiedad = () => {
       const propertyUrl = `https://gelaberthomes.es/propiedades/${property?.reference || property?.slug || property?.id}`;
       const messageWithLink = `${formData.message}\n\n---\nConsulta sobre: ${autoTitle}\nEnlace: ${propertyUrl}`;
 
-      // 1. Log en Supabase
+      // 1. Log en Supabase (leads_crm y inquiries)
       if (property) {
+        await saveOrUpdateLeadFromForm(
+          {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            intent: property.operation === 'alquiler' ? 'alquilar' : 'comprar',
+            source: 'web',
+            privacy_accepted: privacyAccepted,
+            privacy_accepted_at: new Date().toISOString()
+          },
+          {
+            id: property.id,
+            reference: property.reference || '',
+            price: property.price || undefined,
+            zone: property.zone || undefined,
+            bedrooms: property.bedrooms || undefined,
+            has_pool: property.has_pool || undefined,
+            has_parking: property.has_parking || undefined,
+            has_terrace: property.has_terrace || undefined,
+            has_elevator: property.has_elevator || undefined,
+            is_furnished: property.is_furnished || undefined,
+            air_conditioning: property.air_conditioning || undefined,
+            pets_allowed: property.pets_allowed || undefined,
+            garden: property.garden || undefined,
+            property_type: property.property_type || undefined
+          }
+        );
+
         await supabase
           .from('inquiries')
           .insert([

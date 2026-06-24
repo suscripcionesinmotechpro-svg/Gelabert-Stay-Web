@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { saveOrUpdateLeadFromForm } from '../hooks/useLeadsCRM';
 import { useTranslation, Trans } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
@@ -39,7 +40,21 @@ export const GeneralContactForm = () => {
     setError(null);
 
     try {
-      // 1. Enviar a Supabase para registro interno
+      // 1. Enviar a Supabase para registro interno (leads_crm e inquiries)
+      const intentValue = formData.inquiry_type === 'compra' ? 'comprar' : formData.inquiry_type === 'alquiler' ? 'alquilar' : formData.inquiry_type === 'venta' ? 'vender' : formData.inquiry_type;
+      
+      await saveOrUpdateLeadFromForm(
+        {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          intent: intentValue,
+          source: 'web',
+          privacy_accepted: privacyAccepted,
+          privacy_accepted_at: new Date().toISOString()
+        }
+      );
+
       const { error: supabaseError } = await supabase
         .from('inquiries')
         .insert([
