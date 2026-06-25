@@ -78,8 +78,10 @@ async function getIdealistaToken(clientId: string, clientSecret: string, baseUrl
  */
 function isIdealistaActive(status: string): boolean {
   const s = String(status || "").toLowerCase().trim();
-  // Treat as active if the status contains "activ" (covers "active", "activating", "activo", "activa")
-  return s.includes("activ") || s === "published" || s === "publicado";
+  if (s.includes("deactiv") || s.includes("inactiv")) {
+    return false;
+  }
+  return s.includes("activ") || s === "published" || s === "publicado" || s === "publicada";
 }
 
 serve(async (req) => {
@@ -173,8 +175,8 @@ serve(async (req) => {
         idealista_id: String(p.propertyId || p.id || ""),
         code: String(p.code || p.reference || ""),
         type: p.type || "",
-        status: p.status || "",
-        is_active: isIdealistaActive(p.status || ""),
+        status: p.status || p.state || "",
+        is_active: isIdealistaActive(p.status || p.state || ""),
         address: p.address
           ? [p.address.streetName, p.address.streetNumber, p.address.town].filter(Boolean).join(", ")
           : "",
