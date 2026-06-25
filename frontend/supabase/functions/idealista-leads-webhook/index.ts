@@ -151,12 +151,16 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
       }
     }
 
-    // SI NO HAY EMAIL REAL DE CLIENTE, RECHAZAMOS LA INSERCIÓN
+    // Generate placeholder email if not found (since email is NOT NULL in database)
     if (!clientEmail) {
-      return new Response(
-        JSON.stringify({ success: false, error: "No se ha encontrado ninguna dirección de email real del cliente en el correo." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      if (extracted.phone) {
+        const cleanPhone = extracted.phone.replace(/\D/g, "");
+        clientEmail = `telefono-${cleanPhone || 'desconocido'}@idealista.com`;
+        console.log(`[idealista-leads-webhook] No email found. Generated phone placeholder: ${clientEmail}`);
+      } else {
+        clientEmail = `sin-email-${Date.now()}@idealista.com`;
+        console.log(`[idealista-leads-webhook] No email or phone found. Generated placeholder: ${clientEmail}`);
+      }
     }
 
     // 1. Find the property by reference
@@ -199,14 +203,28 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
     }
 
     // 2. Insert/Update Lead in leads_crm
-    const { data: existingLead, error: getLeadErr } = await supabaseAdmin
-      .from("leads_crm")
-      .select("id")
-      .eq("email", clientEmail)
-      .maybeSingle();
-
-    if (getLeadErr) {
-      console.error("Error looking up existing lead:", getLeadErr);
+    // Match by email OR by phone (if phone is present) to prevent duplicates
+    let existingLead = null;
+    const query = supabaseAdmin.from("leads_crm").select("id");
+    
+    if (clientEmail && extracted.phone) {
+      const { data, error } = await query
+        .or(`email.eq.${clientEmail},phone.eq.${extracted.phone}`)
+        .maybeSingle();
+      if (error) console.error("Error looking up existing lead:", error);
+      existingLead = data;
+    } else if (clientEmail) {
+      const { data, error } = await query
+        .eq("email", clientEmail)
+        .maybeSingle();
+      if (error) console.error("Error looking up existing lead by email:", error);
+      existingLead = data;
+    } else if (extracted.phone) {
+      const { data, error } = await query
+        .eq("phone", extracted.phone)
+        .maybeSingle();
+      if (error) console.error("Error looking up existing lead by phone:", error);
+      existingLead = data;
     }
 
     let leadId = null;
