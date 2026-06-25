@@ -163,40 +163,98 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
       }
     }
 
-    // 1. Find the property by reference
+    // 1. Find the property by reference or Idealista ID
     let targetProperty = null;
-    if (extracted.propertyRef) {
-      const refNormalized = extracted.propertyRef.toUpperCase().trim();
-      const { data, error } = await supabaseAdmin
+    let propRef = extracted.propertyRef;
+
+    // Fallback: Scan subject and text/html for any mention of a reference or Idealista ID
+    if (!propRef) {
+      // Look for GEL-XXX pattern (case-insensitive)
+      const gelRegex = /GEL-\d+/i;
+      const gelMatch = (subject || "").match(gelRegex) || (text || "").match(gelRegex) || (html || "").match(gelRegex);
+      if (gelMatch) {
+        propRef = gelMatch[0].toUpperCase();
+        console.log(`[idealista-leads-webhook] Extracted GEL reference from raw text: ${propRef}`);
+      } else {
+        // Look for Idealista ID patterns (numbers with 6+ digits, or links/codes)
+        const idRegexes = [
+          /idealista\.com\/inmueble\/(\d+)/i,
+          /idealista\.com\/.*inmueble\/(\d+)/i,
+          /cod\.\s*(\d+)/i,
+          /anuncio\s*(\d+)/i,
+          /referencia\s*:\s*(\d+)/i,
+          /ref\.\s*idealista\s*:\s*(\d+)/i
+        ];
+        for (const regex of idRegexes) {
+          const match = (text || "").match(regex) || (html || "").match(regex) || (subject || "").match(regex);
+          if (match && match[1]) {
+            propRef = match[1];
+            console.log(`[idealista-leads-webhook] Extracted Idealista ID from raw text: ${propRef}`);
+            break;
+          }
+        }
+      }
+    }
+
+    if (propRef) {
+      const refNormalized = propRef.toUpperCase().trim();
+      
+      // Try 1: Match by exact reference (e.g. "GEL-141")
+      const { data: data1, error: err1 } = await supabaseAdmin
         .from("properties")
         .select(`
-          id, title, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
+          id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
           has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
         `)
         .eq("reference", refNormalized)
         .maybeSingle();
 
-      if (error) {
-        console.error(`Error querying property by ref ${refNormalized}:`, error);
-      } else if (data) {
-        targetProperty = data;
-        console.log(`Matched property by exact ref:`, targetProperty.title);
+      if (err1) console.error(`Error querying property by ref ${refNormalized}:`, err1);
+      
+      if (data1) {
+        targetProperty = data1;
+        console.log(`Matched property by exact reference:`, targetProperty.title);
       } else {
-        // Try fallback parsing if the reference extracted is just a number
-        const match = refNormalized.match(/\d+/);
-        if (match) {
-          const numRef = `GEL-${match[0]}`;
-          const { data: data2 } = await supabaseAdmin
-            .from("properties")
-            .select(`
-              id, title, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
-              has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
-            `)
-            .eq("reference", numRef)
-            .maybeSingle();
-          if (data2) {
-            targetProperty = data2;
-            console.log(`Matched property by fallback ref ${numRef}:`, targetProperty.title);
+        // Try 2: Extract any digits in reference and see if it maps
+        const matchDigits = refNormalized.match(/\d+/);
+        if (matchDigits) {
+          const numStr = matchDigits[0];
+          
+          // If the digits length is >= 6, it is likely an Idealista ID!
+          if (numStr.length >= 6) {
+            const { data: data2, error: err2 } = await supabaseAdmin
+              .from("properties")
+              .select(`
+                id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
+                has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
+              `)
+              .eq("idealista_id", numStr)
+              .maybeSingle();
+            
+            if (err2) console.error(`Error querying property by idealista_id ${numStr}:`, err2);
+            if (data2) {
+              targetProperty = data2;
+              console.log(`Matched property by idealista_id ${numStr}:`, targetProperty.title);
+            }
+          }
+
+          // Try 3: If not matched yet, try fallback to "GEL-XXX" pattern
+          if (!targetProperty) {
+            const gelRef = `GEL-${numStr}`;
+            const { data: data3, error: err3 } = await supabaseAdmin
+              .from("properties")
+              .select(`
+                id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
+                has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
+              `)
+              .eq("reference", gelRef)
+              .maybeSingle();
+            
+            if (err3) console.error(`Error querying property by fallback ref ${gelRef}:`, err3);
+            if (data3) {
+              targetProperty = data3;
+              console.log(`Matched property by fallback reference ${gelRef}:`, targetProperty.title);
+            }
           }
         }
       }
@@ -227,21 +285,26 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
       existingLead = data;
     }
 
+    const isAlquiler = extracted.intent === "alquilar" || (targetProperty && targetProperty.operation === "alquiler");
+    const isVenta = extracted.intent === "comprar" || (targetProperty && targetProperty.operation === "venta");
+
     let leadId = null;
     const leadPayload = {
       name: extracted.name || "Contacto Idealista",
       email: clientEmail,
       phone: extracted.phone || null,
-      intent: extracted.intent || "alquilar",
+      intent: extracted.intent || (isVenta ? "comprar" : "alquilar"),
       status: "nuevo",
       source: "idealista",
       target_property_id: targetProperty ? targetProperty.id : null,
-      target_property_ref: extracted.propertyRef || (targetProperty ? targetProperty.reference : null),
+      target_property_ref: targetProperty ? targetProperty.reference : (extracted.propertyRef || null),
       occupation: extracted.occupation || null,
       monthly_income: extracted.monthlyIncome || null,
       employment_seniority: extracted.employmentSeniority || null,
       num_people: extracted.numPeople || null,
       has_pets: extracted.hasPets,
+      max_rent: (isAlquiler && targetProperty) ? targetProperty.price : null,
+      max_buy_price: (isVenta && targetProperty) ? targetProperty.price : null,
       agent_notes: extracted.message || "Consulta recibida de Idealista.",
     };
 
