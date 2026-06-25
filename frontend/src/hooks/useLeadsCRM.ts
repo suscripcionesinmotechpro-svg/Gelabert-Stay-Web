@@ -561,6 +561,9 @@ export interface PropertySearchParams {
   min_bedrooms?: number;
   min_bathrooms?: number;
   zones?: string[];
+  cities?: string[];
+  is_room_rental?: boolean;
+  exclude_property_id?: string;
   wants_terrace?: boolean;
   wants_parking?: boolean;
   wants_pool?: boolean;
@@ -608,18 +611,23 @@ export const searchPropertiesForBot = async (params: PropertySearchParams): Prom
     vender: 'venta',
   };
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('properties')
     .select(`
       id, title, short_description, description, price, city, zone,
       area_m2, bedrooms, bathrooms, operation, main_image, reference, slug,
       has_terrace, has_parking, has_pool, has_elevator, is_furnished,
       air_conditioning, pets_allowed, garden, orientation, commercial_status,
-      property_type, highlights, tags
+      property_type, highlights, tags, is_room_rental
     `)
     .eq('operation', opMap[params.operation] || params.operation)
-    .eq('commercial_status', 'disponible')
-    .limit(100);
+    .eq('commercial_status', 'disponible');
+
+  if (params.is_room_rental !== undefined) {
+    query = query.eq('is_room_rental', params.is_room_rental);
+  }
+
+  const { data, error } = await query.limit(100);
 
   if (error || !data) return [];
 
@@ -641,24 +649,35 @@ export const searchPropertiesForBot = async (params: PropertySearchParams): Prom
     if (params.min_bedrooms && p.bedrooms >= params.min_bedrooms) {
       score += 20;
       reasons.push(`${p.bedrooms} habitación(es)`);
+    } else if (!params.min_bedrooms && params.is_room_rental) {
+      score += 20;
     }
 
     // Bathrooms
     if (params.min_bathrooms && p.bathrooms >= params.min_bathrooms) {
       score += 10;
       reasons.push(`${p.bathrooms} baño(s)`);
+    } else if (!params.min_bathrooms && params.is_room_rental) {
+      score += 10;
     }
 
     // Zone/city match
+    let locationMatched = false;
     if (params.zones && params.zones.length > 0) {
-      const zoneMatch = params.zones.some(z =>
+      locationMatched = params.zones.some(z =>
         p.zone?.toLowerCase().includes(z.toLowerCase()) ||
         p.city?.toLowerCase().includes(z.toLowerCase())
       );
-      if (zoneMatch) {
-        score += 20;
-        reasons.push('Zona deseada');
-      }
+    }
+    if (!locationMatched && params.cities && params.cities.length > 0) {
+      locationMatched = params.cities.some(c =>
+        p.city?.toLowerCase().includes(c.toLowerCase())
+      );
+    }
+
+    if (locationMatched) {
+      score += 20;
+      reasons.push('Ubicación deseada');
     }
 
     // Amenidades
@@ -700,9 +719,9 @@ export const searchPropertiesForBot = async (params: PropertySearchParams): Prom
     };
   });
 
-  // Filter >= 70% and sort by score
+  // Filter >= 70% and sort by score, excluding specified property
   return scored
-    .filter(p => p.score >= 70)
+    .filter(p => p.score >= 70 && (!params.exclude_property_id || p.id !== params.exclude_property_id))
     .sort((a, b) => b.score - a.score)
     .slice(0, 6);
 };
