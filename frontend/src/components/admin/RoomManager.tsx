@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, Upload, Video, Trash2, ShowerHead, Trees, Compass, Wind, Download } from 'lucide-react';
+import { X, Video, Trash2, ShowerHead, Trees, Compass, Wind, Download } from 'lucide-react';
 import { uploadPropertyMedia } from '../../hooks/useProperties';
 import { applyWatermark } from '../../utils/watermark';
 import type { PropertyRoom } from '../../types/property';
@@ -23,8 +23,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
   rooms, 
   onChange, 
   propertyId, 
-  autoEnhance = true,
-  propertyName
+  autoEnhance = true
 }) => {
   const [uploading, setUploading] = useState<string | null>(null);
   const [roomEnhance, setRoomEnhance] = useState<Record<string, boolean>>({});
@@ -60,7 +59,6 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
       private_terrace: false,
       is_exterior: false,
       air_conditioning: false,
-      has_ac: false,
       status: 'disponible',
       availability: null
     };
@@ -143,7 +141,6 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
               : '';
 
             const tenantName = activeTenantName || upcomingTenantName || null;
-            const tenantId = activeContract?.tenant_id || upcomingContract?.tenant_id || null;
 
             return (
               <div key={room.id || idx} className="p-6 bg-[#090909] border border-[#1F1F1F] rounded-sm relative group animate-fadeIn">
@@ -264,8 +261,8 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
                           <input
                             type="checkbox"
                             className="rounded border-[#1F1F1F] bg-[#0A0A0A] text-[#C9A962] focus:ring-0 w-4 h-4"
-                            checked={room.air_conditioning || room.has_ac || false}
-                            onChange={(e) => updateRoom(idx, { air_conditioning: e.target.checked, has_ac: e.target.checked })}
+                            checked={room.air_conditioning || (room as any).has_ac || false}
+                            onChange={(e) => updateRoom(idx, { air_conditioning: e.target.checked, has_ac: e.target.checked } as any)}
                           />
                           <Wind className="w-3.5 h-3.5 text-[#C9A962]/70" /> A/A Individual
                         </label>
@@ -309,7 +306,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
                           const roomText = room.price ? `${label} - ${room.price}€` : label;
                           const urls = [];
                           for (const f of files) {
-                            const originalUrl = await uploadPropertyMedia(f, 'originals', undefined, undefined, shouldEnhance, true);
+                            await uploadPropertyMedia(f, 'originals', undefined, undefined, shouldEnhance, true);
                             const watermarkedFile = await applyWatermark(f, roomText, shouldEnhance);
                             const watermarkedUrl = await uploadPropertyMedia(watermarkedFile, 'gallery', undefined, undefined, shouldEnhance, true);
                             urls.push(watermarkedUrl);
