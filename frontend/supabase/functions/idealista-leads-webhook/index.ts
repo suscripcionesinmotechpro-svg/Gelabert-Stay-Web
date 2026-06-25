@@ -27,15 +27,48 @@ serve(async (req) => {
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     // Read the email payload from Make.com
-    const body = await req.json();
+    const rawBody = await req.text();
+    console.log(`[idealista-leads-webhook] Raw body length: ${rawBody.length}`);
+
+    let body: any = {};
+    let parseError = null;
+    try {
+      body = JSON.parse(rawBody);
+    } catch (err) {
+      parseError = err;
+      console.error("[idealista-leads-webhook] JSON parsing failed, trying fallback regex extraction", err);
+      
+      const extractField = (field: string) => {
+        const regex = new RegExp(`"${field}"\\s*:\\s*"(.*?)"`, "s");
+        const match = rawBody.match(regex);
+        if (match) {
+          return match[1]
+            .replace(/\\"/g, '"')
+            .replace(/\\n/g, '\n')
+            .replace(/\\r/g, '\r')
+            .replace(/\\t/g, '\t');
+        }
+        return null;
+      };
+      
+      body = {
+        subject: extractField("subject"),
+        text: extractField("text"),
+        html: extractField("html"),
+        from: extractField("from"),
+        date: extractField("date")
+      };
+    }
+
     const { subject, text, html, from, date } = body;
 
-    console.log(`[idealista-leads-webhook] Received email webhook:`, {
+    console.log(`[idealista-leads-webhook] Parsed fields:`, {
       subject,
       from,
       date,
       textLength: text?.length,
-      htmlLength: html?.length
+      htmlLength: html?.length,
+      hasParseError: !!parseError
     });
 
     // Assemble text to feed into OpenAI
@@ -305,7 +338,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
       has_pets: extracted.hasPets,
       max_rent: (isAlquiler && targetProperty) ? targetProperty.price : null,
       max_buy_price: (isVenta && targetProperty) ? targetProperty.price : null,
-      agent_notes: extracted.message || "Consulta recibida de Idealista.",
+      agent_notes: extracted.message || `[DEBUG: AI message empty. Raw body: ${rawBody}]`,
     };
 
     if (existingLead) {
@@ -405,7 +438,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
         phone: extracted.phone || null,
         message: extracted.message || "Consulta recibida de Idealista.",
         inquiry_type: extracted.intent === "comprar" ? "compra" : "alquiler",
-        status: "pending",
+        status: "nuevo",
         privacy_accepted: true,
         solvency_accepted: extracted.monthlyIncome ? true : false,
       });
