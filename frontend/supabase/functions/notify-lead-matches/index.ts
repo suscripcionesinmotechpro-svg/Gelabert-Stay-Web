@@ -139,7 +139,7 @@ serve(async (req) => {
           'Authorization': `Bearer ${RESEND_API_KEY}`
         },
         body: JSON.stringify({
-          from: 'Gelabert Homes <info@gelaberthomes.es>',
+          from: 'CRM Lead <info@gelaberthomes.es>',
           to: [leadData.email],
           subject: matches && matches.length > 0 ? 'Selección de Propiedades para ti - Gelabert Homes' : 'Confirmación de Solicitud - Gelabert Homes',
           html: clientHtml
@@ -153,7 +153,7 @@ serve(async (req) => {
         <div style="font-family: sans-serif; padding: 20px; background: #f4f4f4;">
           <div style="background: white; padding: 30px; border-radius: 8px; border-top: 5px solid #C9A962;">
             <h2 style="margin-top: 0; color: #333;">🚀 ¡Nuevo Lead Registrado!</h2>
-            <p style="font-size: 16px;">GelaBot ha captado un nuevo cliente interesado en <strong>${type}</strong>.</p>
+            <p style="font-size: 16px;">El sistema CRM ha captado un nuevo cliente interesado en <strong>${type}</strong>.</p>
             
             <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
               <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Nombre:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${leadData.name || 'No facilitado'}</td></tr>
@@ -163,7 +163,7 @@ serve(async (req) => {
             </table>
 
             <div style="background: #f9f9f9; padding: 15px; border-radius: 4px; border: 1px solid #ddd;">
-              <h3 style="margin-top: 0; font-size: 16px; color: #C9A962;">Notas de GelaBot:</h3>
+              <h3 style="margin-top: 0; font-size: 16px; color: #C9A962;">Notas de CRM Lead:</h3>
               <p style="white-space: pre-wrap; font-size: 14px; color: #444;">${leadData.agent_notes || 'Sin notas adicionales.'}</p>
             </div>
 
@@ -181,7 +181,7 @@ serve(async (req) => {
           'Authorization': `Bearer ${RESEND_API_KEY}`
         },
         body: JSON.stringify({
-          from: 'GelaBot Notifications <info@gelaberthomes.es>',
+          from: 'CRM Lead Notifications <info@gelaberthomes.es>',
           to: [ADMIN_EMAIL],
           subject: `⚡ NUEVO LEAD: ${leadData.name || leadData.email} (${type})`,
           html: adminHtml

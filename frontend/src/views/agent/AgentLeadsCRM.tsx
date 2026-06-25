@@ -64,6 +64,25 @@ export const AgentLeadsCRM = () => {
     fetchAgents();
   }, []);
 
+  // Auto-select lead from URL parameter '?id=xxxx'
+  useEffect(() => {
+    if (!loading && leads && leads.length > 0) {
+      const searchParams = new URLSearchParams(window.location.search);
+      const urlLeadId = searchParams.get('id');
+      if (urlLeadId) {
+        const matchedLead = leads.find(l => l.id === urlLeadId);
+        if (matchedLead) {
+          setSelectedLead(matchedLead);
+          setNotes(matchedLead.agent_notes || '');
+          setLeadMatches(null);
+          // Remove parameter from URL without page reload
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, '', newUrl);
+        }
+      }
+    }
+  }, [loading, leads]);
+
   // Auto-cruce properties when selectedLead changes
   useEffect(() => {
     const autoMatch = async () => {
@@ -816,7 +835,7 @@ export const AgentLeadsCRM = () => {
                       {selectedLead.chat_transcript.map((msg: { role: string; content: string }, i: number) => (
                         <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                           <div className={`max-w-[80%] rounded-lg px-4 py-2 ${msg.role === 'user' ? 'bg-[#C9A962] text-[#0A0A0A]' : 'bg-[#1F1F1F] text-[#FAF8F5]'}`}>
-                            <p className="text-xs font-bold mb-1 opacity-60 uppercase">{msg.role === 'user' ? 'Cliente' : 'Gelabot'}</p>
+                            <p className="text-xs font-bold mb-1 opacity-60 uppercase">{msg.role === 'user' ? 'Cliente' : 'Asistente'}</p>
                             {msg.content}
                           </div>
                         </div>
