@@ -59,7 +59,10 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
       private_bathroom: false,
       private_terrace: false,
       is_exterior: false,
-      has_ac: false
+      air_conditioning: false,
+      has_ac: false,
+      status: 'disponible',
+      availability: null
     };
     onChange([...rooms, newRoom]);
   };
@@ -121,9 +124,26 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
       ) : (
         <div className="flex flex-col gap-6">
           {rooms.map((room, idx) => {
-            const contract = contracts.find(c => c.room_id === room.id && c.status === 'active' && (!c.end_date || c.end_date >= today));
-            const tenantName = contract ? `${contract.tenant?.first_name} ${contract.tenant?.last_name}` : null;
-            const tenantId = contract ? contract.tenant_id : null;
+            const roomContracts = propertyId
+              ? contracts.filter(c => c.room_id === room.id && c.status === 'active')
+              : [];
+            
+            const activeContract = roomContracts.find(
+              c => c.start_date <= today && (!c.end_date || c.end_date >= today)
+            );
+            const upcomingContract = !activeContract
+              ? roomContracts.find(c => c.start_date > today)
+              : null;
+
+            const activeTenantName = activeContract?.tenant
+              ? `${activeContract.tenant.first_name} ${activeContract.tenant.last_name}`
+              : '';
+            const upcomingTenantName = upcomingContract?.tenant
+              ? `${upcomingContract.tenant.first_name} ${upcomingContract.tenant.last_name}`
+              : '';
+
+            const tenantName = activeTenantName || upcomingTenantName || null;
+            const tenantId = activeContract?.tenant_id || upcomingContract?.tenant_id || null;
 
             return (
               <div key={room.id || idx} className="p-6 bg-[#090909] border border-[#1F1F1F] rounded-sm relative group animate-fadeIn">
@@ -162,6 +182,51 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
                       </div>
                     </div>
 
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className={labelClass}>Estado de la Habitación</label>
+                        <select
+                          className={inputClass}
+                          value={room.status || 'disponible'}
+                          onChange={(e) => updateRoom(idx, { status: e.target.value as any })}
+                        >
+                          <option value="disponible">
+                            {activeContract
+                              ? 'Alquilado (Automático)'
+                              : upcomingContract
+                                ? 'Reservado (Automático)'
+                                : 'Disponible (Automático)'}
+                          </option>
+                          <option value="reservado">Reservado (Manual)</option>
+                          <option value="alquilado">Alquilado (Manual)</option>
+                        </select>
+                      </div>
+                      {(room.status === 'alquilado' || room.status === 'reservado') ? (
+                        <div>
+                          <label className={labelClass}>Próxima Disponibilidad (Manual)</label>
+                          <input
+                            type="date"
+                            className={inputClass}
+                            value={room.availability || ''}
+                            onChange={(e) => updateRoom(idx, { availability: e.target.value || null })}
+                          />
+                        </div>
+                      ) : (
+                        <div />
+                      )}
+                    </div>
+
+                    {activeContract && (
+                      <p className="text-[10px] text-[#A78BFA] leading-tight font-semibold mt-1">
+                        ⚠️ Alquilada automáticamente por contrato activo con {activeTenantName || 'inquilino'} (hasta {new Date(activeContract.end_date).toLocaleDateString()}).
+                      </p>
+                    )}
+                    {upcomingContract && (
+                      <p className="text-[10px] text-[#FB923C] leading-tight font-semibold mt-1">
+                        ⚠️ Reservada automáticamente por contrato futuro con {upcomingTenantName || 'inquilino'} (desde {new Date(upcomingContract.start_date).toLocaleDateString()}).
+                      </p>
+                    )}
+
                     <div className="flex flex-col gap-2 bg-[#0A0A0A] p-4 border border-[#1F1F1F] rounded-sm">
                       <span className="font-primary text-[10px] text-[#555] uppercase tracking-wider font-bold mb-1 block">Características</span>
                       <div className="grid grid-cols-2 gap-3">
@@ -199,8 +264,8 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
                           <input
                             type="checkbox"
                             className="rounded border-[#1F1F1F] bg-[#0A0A0A] text-[#C9A962] focus:ring-0 w-4 h-4"
-                            checked={room.has_ac || false}
-                            onChange={(e) => updateRoom(idx, { has_ac: e.target.checked })}
+                            checked={room.air_conditioning || room.has_ac || false}
+                            onChange={(e) => updateRoom(idx, { air_conditioning: e.target.checked, has_ac: e.target.checked })}
                           />
                           <Wind className="w-3.5 h-3.5 text-[#C9A962]/70" /> A/A Individual
                         </label>
@@ -211,7 +276,8 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
                       <div className="bg-[#C9A962]/5 border border-[#C9A962]/20 rounded-sm p-3 flex flex-col gap-1">
                         <span className="font-primary text-[9px] text-[#C9A962] uppercase tracking-wider font-bold">Estado de Ocupación</span>
                         <p className="font-primary text-xs text-[#FAF8F5]">
-                          Alquilada a: <span className="font-bold text-[#C9A962]">{tenantName}</span>
+                          {activeContract ? 'Alquilada a: ' : 'Reservada para: '}
+                          <span className="font-bold text-[#C9A962]">{tenantName}</span>
                         </p>
                       </div>
                     )}
