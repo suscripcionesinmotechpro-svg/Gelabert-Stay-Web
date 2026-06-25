@@ -307,11 +307,17 @@ export const AdminLeadsCRM = () => {
     
     const originUrl = `https://gelaberthomes.es/propiedades/${property.slug || property.reference}`;
     
+    const rawName = selectedLead?.name || '';
+    const isGeneric = !rawName || rawName.toLowerCase().includes('contacto') || rawName.toLowerCase().includes('idealista');
+    const formattedName = isGeneric 
+      ? '' 
+      : ` ${rawName.split(' ')[0].charAt(0).toUpperCase() + rawName.split(' ')[0].slice(1).toLowerCase()}`;
+
     let text = '';
     if (intent === 'alquilar') {
-      text = `Hola, mi nombre es Jose, y le escribo de Gelabert Homes, tenemos una solicitud de información con respecto a la siguiente ${propertyTypeStr} en alquiler 👇\n\n${originUrl}\n\nDéjeme saber en qué horario le vendría bien agendar una llamada y le brindaremos toda la información. Un saludo`;
+      text = `Hola${formattedName}, mi nombre es Jose, y le escribo de Gelabert Homes, tenemos una solicitud de información con respecto a la siguiente ${propertyTypeStr} en alquiler 👇\n\n${originUrl}\n\nDéjeme saber en qué horario le vendría bien agendar una llamada y le brindaremos toda la información. Un saludo`;
     } else {
-      text = `Hola, mi nombre es Jose, y le escribo de Gelabert Homes, tenemos una solicitud de información con respecto a la siguiente propiedad en venta 👇\n\n${originUrl}\n\nDéjeme saber en qué horario le vendría bien agendar una llamada y le brindaremos toda la información. Un saludo`;
+      text = `Hola${formattedName}, mi nombre es Jose, y le escribo de Gelabert Homes, tenemos una solicitud de información con respecto a la siguiente propiedad en venta 👇\n\n${originUrl}\n\nDéjeme saber en qué horario le vendría bien agendar una llamada y le brindaremos toda la información. Un saludo`;
     }
     
     return `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(text)}`;
