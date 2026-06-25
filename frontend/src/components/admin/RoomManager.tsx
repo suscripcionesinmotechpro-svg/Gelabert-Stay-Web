@@ -184,7 +184,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({
                         <label className={labelClass}>Estado de la Habitación</label>
                         <select
                           className={inputClass}
-                          value={room.status || 'disponible'}
+                          value={activeContract ? 'disponible' : (room.status || 'disponible')}
                           onChange={(e) => updateRoom(idx, { status: e.target.value as any })}
                         >
                           <option value="disponible">
