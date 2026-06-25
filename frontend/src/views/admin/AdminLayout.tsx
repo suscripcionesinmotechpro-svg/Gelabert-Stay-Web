@@ -56,7 +56,7 @@ export const AdminLayout = () => {
     { to: `/admin/contratos`, icon: <FileText className="w-4 h-4" />, label: "Contratos" },
     { to: `/admin/reservas`, icon: <CalendarDays className="w-4 h-4" />, label: "Reservas" },
     { to: `/admin/captaciones`, icon: <Briefcase className="w-4 h-4" />, label: "Control Captaciones" },
-    { to: `/admin/leads`, icon: <Bot className="w-4 h-4" />, label: "CRM Leads (Bot)" },
+    { to: `/admin/leads`, icon: <Bot className="w-4 h-4" />, label: "CRM Leads" },
     { to: `/admin/blog`, icon: <FileText className="w-4 h-4" />, label: "Blog & Insights" },
     { to: `/admin/crm-agentes`, icon: <BarChart3 className="w-4 h-4" />, label: "CRM Agentes" },
   ];
@@ -119,7 +119,7 @@ export const AdminLayout = () => {
               {item.icon}
               {item.label}
             </div>
-            {item.label === "CRM Leads (Bot)" && newLeadsCount > 0 && (
+            {item.label === "CRM Leads" && newLeadsCount > 0 && (
               <span className="bg-[#C9A962] text-[#0A0A0A] text-[10px] font-bold px-2 py-0.5 rounded-full">
                 {newLeadsCount}
               </span>
