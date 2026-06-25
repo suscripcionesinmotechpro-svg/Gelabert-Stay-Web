@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, MessageSquare, User, Trash2, Copy, Check, Filter } from 'lucide-react';
+import { Search, MessageSquare, User, Trash2, Copy, Check, Filter, X } from 'lucide-react';
 import type { LeadCRM, ScoredProperty } from '../../hooks/useLeadsCRM';
 import { useLeadsCRM, updateLeadStatus, updateLeadNotes, searchPropertiesForBot, deleteLead, createLeadWithPropertyClone } from '../../hooks/useLeadsCRM';
 import { format } from 'date-fns';
@@ -18,6 +18,7 @@ export const AdminLeadsCRM = () => {
   const [filterYear, setFilterYear] = useState<string>('todos');
   const [filterMonth, setFilterMonth] = useState<string>('todos');
   const [filterPropertyRef, setFilterPropertyRef] = useState<string>('');
+  const [whatsAppModalData, setWhatsAppModalData] = useState<{ phone: string; text: string } | null>(null);
   
   const agentId = selectedAgentId === 'all' ? undefined : selectedAgentId;
 
@@ -298,7 +299,7 @@ export const AdminLeadsCRM = () => {
     }
   };
 
-  const getWhatsAppLink = (leadPhone: string, intent: string, property: { reference: string; slug: string; is_room_rental?: boolean }) => {
+  const getWhatsAppDetails = (leadPhone: string, intent: string, property: { reference: string; slug: string; is_room_rental?: boolean }) => {
     const cleanPhone = leadPhone.replace(/\D/g, '');
     const phoneWithCountry = cleanPhone.startsWith('34') || cleanPhone.length > 9 ? cleanPhone : `34${cleanPhone}`;
     
@@ -320,7 +321,12 @@ export const AdminLeadsCRM = () => {
       text = `Hola${formattedName}, mi nombre es Jose, y le escribo de Gelabert Homes, tenemos una solicitud de información con respecto a la siguiente propiedad en venta 👇\n\n${originUrl}\n\nDéjeme saber en qué horario le vendría bien agendar una llamada y le brindaremos toda la información. Un saludo`;
     }
     
-    return `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(text)}`;
+    return { phone: phoneWithCountry, text };
+  };
+
+  const getWhatsAppLink = (leadPhone: string, intent: string, property: { reference: string; slug: string; is_room_rental?: boolean }) => {
+    const { phone, text } = getWhatsAppDetails(leadPhone, intent, property);
+    return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
   };
 
   const copyToClipboard = (text: string, id: string) => {
@@ -663,14 +669,12 @@ export const AdminLeadsCRM = () => {
                         Ver Ficha
                       </a>
                       {selectedLead.phone && (
-                        <a
-                          href={getWhatsAppLink(selectedLead.phone, selectedLead.intent, selectedLead.target_property)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-[#25D366] hover:bg-[#20ba5a] text-black text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm text-center flex items-center justify-center gap-1.5 transition-all block"
+                        <button
+                          onClick={() => setWhatsAppModalData(getWhatsAppDetails(selectedLead.phone, selectedLead.intent, selectedLead.target_property!))}
+                          className="bg-[#25D366] hover:bg-[#20ba5a] text-black text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm text-center flex items-center justify-center gap-1.5 transition-all block w-full"
                         >
                           💬 WhatsApp
-                        </a>
+                        </button>
                       )}
                     </div>
                   </section>
@@ -778,14 +782,12 @@ export const AdminLeadsCRM = () => {
                                 Ficha
                               </a>
                               {selectedLead.phone && (
-                                <a
-                                  href={getWhatsAppLink(selectedLead.phone, selectedLead.intent, p)}
-                                  target="_blank"
-                                  rel="noreferrer"
+                                <button
+                                  onClick={() => setWhatsAppModalData(getWhatsAppDetails(selectedLead.phone, selectedLead.intent, p))}
                                   className="flex-1 text-center py-1 bg-[#25D366] hover:bg-[#20ba5a] text-black transition-colors rounded text-[9px] uppercase font-bold flex items-center justify-center gap-0.5"
                                 >
                                   <span>WhatsApp</span>
-                                </a>
+                                </button>
                               )}
                             </div>
                           </div>
@@ -1080,6 +1082,67 @@ export const AdminLeadsCRM = () => {
                 </div>
               )}
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* WhatsApp Message Modal */}
+      {whatsAppModalData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#0A0A0A] border border-[#1F1F1F] rounded-lg w-full max-w-lg overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-[#1F1F1F] flex justify-between items-center bg-[#111]">
+              <h3 className="text-xs font-secondary uppercase text-[#C9A962] tracking-wider font-bold">
+                Enviar Mensaje por WhatsApp
+              </h3>
+              <button
+                onClick={() => setWhatsAppModalData(null)}
+                className="text-[#888] hover:text-[#FAF8F5] p-1 rounded hover:bg-[#1A1A1A] transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-[10px] uppercase font-bold text-[#888] mb-1.5 tracking-wider">
+                  Teléfono Destinatario
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  value={whatsAppModalData.phone}
+                  className="w-full bg-[#111] border border-[#1F1F1F] rounded px-3 py-2 text-sm text-[#888888] outline-none focus:border-[#C9A962]"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase font-bold text-[#888] mb-1.5 tracking-wider">
+                  Texto del Mensaje
+                </label>
+                <textarea
+                  value={whatsAppModalData.text}
+                  onChange={(e) => setWhatsAppModalData({ ...whatsAppModalData, text: e.target.value })}
+                  className="w-full bg-[#111] border border-[#1F1F1F] rounded px-3 py-2 text-sm text-[#FAF8F5] outline-none focus:border-[#C9A962] min-h-[180px] resize-none font-primary"
+                  placeholder="Escribe el mensaje..."
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-[#1F1F1F]">
+                <button
+                  type="button"
+                  onClick={() => setWhatsAppModalData(null)}
+                  className="border border-[#333] hover:border-[#555] text-gray-300 font-primary text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-sm transition-all"
+                >
+                  Cancelar
+                </button>
+                <a
+                  href={`https://wa.me/${whatsAppModalData.phone}?text=${encodeURIComponent(whatsAppModalData.text)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setWhatsAppModalData(null)}
+                  className="bg-[#25D366] hover:bg-[#20ba5a] text-black font-primary text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-sm text-center transition-all flex items-center justify-center gap-1.5"
+                >
+                  💬 Enviar WhatsApp
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       )}
