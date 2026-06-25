@@ -1,0 +1,60 @@
+{
+  "name": "Idealista Leads to Supabase CRM",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomMailhook",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0,
+          "name": "Idealista Mailhook"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "http:ActionSendRequest",
+      "version": 3,
+      "parameters": {
+        "url": "https://aumqjpqngmhpbwytpets.supabase.co/functions/v1/idealista-leads-webhook",
+        "method": "post",
+        "headers": [
+          {
+            "name": "apikey",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1bXFqcHFuZ21ocGJ3eXRwZXRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxODgyNjMsImV4cCI6MjA4ODc2NDI2M30.OHi4bRiyFUv2lBHu3wb1IKchj2qF6rZ354uhCQeeAlU"
+          },
+          {
+            "name": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1bXFqcHFuZ21ocGJ3eXRwZXRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxODgyNjMsImV4cCI6MjA4ODc2NDI2M30.OHi4bRiyFUv2lBHu3wb1IKchj2qF6rZ354uhCQeeAlU"
+          }
+        ],
+        "bodyType": "raw",
+        "contentType": "json",
+        "body": "{\n  \"subject\": \"{{1.subject}}\",\n  \"text\": \"{{1.text}}\",\n  \"html\": \"{{1.html}}\",\n  \"from\": \"{{1.from.address}}\",\n  \"date\": \"{{1.date}}\"\n}"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 300,
+          "y": 0,
+          "name": "Send to Supabase"
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoRevert": false,
+      "strict": false
+    }
+  }
+}
