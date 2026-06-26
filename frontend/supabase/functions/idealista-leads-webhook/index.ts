@@ -69,6 +69,7 @@ serve(async (req) => {
     let payloadName = "";
     let payloadPhone = "";
     let payloadEmail = "";
+    let payloadPrice: number | null = null;
 
     if (body && typeof body === "object") {
       const normalizedBody: any = {};
@@ -83,6 +84,15 @@ serve(async (req) => {
       payloadName = normalizedBody.name || "";
       payloadPhone = normalizedBody.phone || "";
       payloadEmail = normalizedBody.email || "";
+      // LAYER 1: Structured price field from Make.com (if available)
+      const rawPayloadPrice = normalizedBody.price || normalizedBody.ad_price || normalizedBody.adPrice || null;
+      if (rawPayloadPrice) {
+        const parsed = parseFloat(String(rawPayloadPrice).replace(/[^\d,.]/g, "").replace(",", "."));
+        if (!isNaN(parsed) && parsed > 0) {
+          payloadPrice = Math.round(parsed);
+          console.log(`[idealista-leads-webhook] LAYER 1: Got price from payload field: ${payloadPrice}`);
+        }
+      }
     }
 
     console.log(`[idealista-leads-webhook] Parsed fields:`, {
@@ -94,6 +104,7 @@ serve(async (req) => {
       payloadName,
       payloadPhone,
       payloadEmail,
+      payloadPrice,
       hasParseError: !!parseError
     });
 
@@ -130,7 +141,7 @@ Analiza el contenido con detenimiento y realiza las siguientes tareas:
    - "age": Edad del cliente. Extrae el número si se menciona (ej. "tengo 21 años"). Si no, pon null.
    - "nationality": Nacionalidad. Extrae el gentilicio o país en español (ej. "Argentina", "Francesa", "Español"). Si no, pon null.
    - "cityOrigin": Ciudad de origen. Extrae si se menciona de dónde viene (ej. "Málaga", "París", "Madrid"). Si no, pon null.
-   - "adPrice": El precio específico de la habitación o propiedad consultada por el lead en Idealista (ej: 450). IMPORTANTE: Ignora por completo precios de rango o mínimos que aparezcan en el título de la propiedad (como "desde 430€" o "desde 400€"). Extrae únicamente el precio real por el cual el lead ha realizado la consulta (que suele venir al final del correo o especificado individualmente como "450 €"). Si no se menciona, pon null.
+   - "adPrice": El precio exacto del anuncio de Idealista por el que el lead ha realizado la consulta. En los correos de Idealista este precio suele aparecer: (a) en el asunto del correo (ej: "Interesado en piso - 1.350 €/mes"), (b) al final del cuerpo del correo junto a los datos del inmueble (ej: "Precio: 1.350 €", "1.350 €/mes", "450 € al mes"), o (c) en el bloque HTML con la información de la propiedad. REGLAS CRÍTICAS: (1) Si el precio aparece precedido por "desde" (ej: "desde 430 €"), es un precio de rango/mínimo — IGNÓRALO COMPLETAMENTE y sigue buscando el precio real. (2) El precio real es el que figura específicamente para esa propiedad o habitación, no el mínimo de un rango. (3) Si encuentras varios precios, prioriza el que aparece en el asunto del correo o el más destacado en el cuerpo. (4) Devuelve el número en euros sin puntos de miles ni símbolo (ej: 1350, no "1.350 €"). Si tras analizar todo el correo no encuentras ningún precio específico, pon null.
    - "intent": Intención de la operación. Devuelve "alquilar" o "comprar". Si el email habla de alquiler, devuelve "alquilar".
 
 Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de código markdown (como \`\`\`json), no escribas texto aclaratorio ni antes ni después. Solo el JSON puro con las siguientes claves:
@@ -195,28 +206,79 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
       throw new Error(`Invalid JSON format returned from AI: ${parseErr.message}`);
     }
 
+    // LAYER 1: Use payload price if AI didn't extract one
+    if (payloadPrice && (!extracted || !extracted.adPrice)) {
+      if (!extracted) extracted = {};
+      extracted.adPrice = payloadPrice;
+      console.log(`[idealista-leads-webhook] LAYER 1 applied: adPrice from payload = ${payloadPrice}`);
+    }
+
+    // LAYER 3: Multi-strategy regex fallback on subject + text + HTML
     if (extracted && typeof extracted === "object" && !extracted.adPrice) {
-      // Smart regex fallback: match all prices, flag those with "desde", and prioritize the specific price.
       const fullText = `${subject || ""} ${text || ""} ${html || ""}`;
-      const matches = [...fullText.matchAll(/(desde\s+)?([\d\.\s,]+)\s*€/ig)];
-      let foundPrice = null;
-      let lastPrice = null;
       
-      for (const m of matches) {
-        const isDesde = !!m[1];
-        const val = parseInt(m[2].replace(/[\.\s,]/g, ""), 10);
-        if (!isNaN(val)) {
-          lastPrice = val;
-          if (!isDesde) {
-            foundPrice = val;
+      // Helper to parse Spanish number format (1.350,50 or 1.350 or 1350)
+      const parseSpanishPrice = (raw: string): number | null => {
+        // Remove thousands separators (dots before 3 digits) and convert comma decimals
+        const cleaned = raw.trim().replace(/\.(\d{3})/g, "$1").replace(",", ".");
+        const val = parseFloat(cleaned);
+        return (!isNaN(val) && val > 0) ? Math.round(val) : null;
+      };
+
+      let foundPrice: number | null = null;
+
+      // Strategy A: Price in subject line (most reliable - e.g. "Piso en alquiler - 1.350 €/mes")
+      if (!foundPrice) {
+        const subjectMatches = [...(subject || "").matchAll(/(?<!desde\s{0,5})([\d]{1,4}(?:[\.,\s]\d{3})*)\s*€/gi)];
+        for (const m of subjectMatches) {
+          const val = parseSpanishPrice(m[1]);
+          if (val && val >= 100 && val <= 15000) { foundPrice = val; break; }
+        }
+        if (foundPrice) console.log(`[idealista-leads-webhook] LAYER 3A: price from subject = ${foundPrice}`);
+      }
+
+      // Strategy B: Explicit price label patterns in body (e.g. "Precio: 1.350 €", "Alquiler: 950 €")
+      if (!foundPrice) {
+        const labelPatterns = [
+          /(?:precio|alquiler|renta|mensualidad|importe)\s*:?\s*([\d]{1,4}(?:[\.,]\d{3})*)\s*€/gi,
+          /([\d]{1,4}(?:[\.,]\d{3})*)\s*€\s*(?:\/mes|al\s+mes|mensual)/gi,
+        ];
+        for (const pattern of labelPatterns) {
+          const matches = [...fullText.matchAll(pattern)];
+          for (const m of matches) {
+            const raw = m[1] || m[0];
+            // Check that "desde" doesn't precede this match
+            const matchIndex = m.index || 0;
+            const prefix = fullText.substring(Math.max(0, matchIndex - 10), matchIndex).toLowerCase();
+            if (prefix.includes("desde")) continue;
+            const numStr = raw.replace(/[^\d.,]/g, "");
+            const val = parseSpanishPrice(numStr);
+            if (val && val >= 100 && val <= 15000) { foundPrice = val; break; }
           }
+          if (foundPrice) break;
+        }
+        if (foundPrice) console.log(`[idealista-leads-webhook] LAYER 3B: price from label pattern = ${foundPrice}`);
+      }
+
+      // Strategy C: Any price in €, excluding those preceded by "desde"
+      if (!foundPrice) {
+        const allPrices: number[] = [];
+        const allMatches = [...fullText.matchAll(/([\d]{1,4}(?:[\.,]\d{3})*)\s*€/gi)];
+        for (const m of allMatches) {
+          const matchIndex = m.index || 0;
+          const prefix = fullText.substring(Math.max(0, matchIndex - 12), matchIndex).toLowerCase();
+          if (prefix.includes("desde")) continue;
+          const val = parseSpanishPrice(m[1]);
+          if (val && val >= 100 && val <= 15000) allPrices.push(val);
+        }
+        // Take the LAST non-"desde" price found (Idealista emails show property details at the bottom)
+        if (allPrices.length > 0) {
+          foundPrice = allPrices[allPrices.length - 1];
+          console.log(`[idealista-leads-webhook] LAYER 3C: price from last non-desde match = ${foundPrice} (${allPrices.length} candidates: ${allPrices.join(", ")})`);
         }
       }
-      
-      extracted.adPrice = foundPrice || lastPrice || null;
-      if (extracted.adPrice) {
-        console.log(`[idealista-leads-webhook] Extracted ad price via regex fallback: ${extracted.adPrice}`);
-      }
+
+      extracted.adPrice = foundPrice || null;
     }
 
     console.log("[idealista-leads-webhook] Extracted data:", extracted);
@@ -296,7 +358,8 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
         .from("properties")
         .select(`
           id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
-          has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
+          has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony,
+          is_room_rental
         `)
         .eq("reference", refNormalized)
         .maybeSingle();
@@ -312,7 +375,8 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
           .from("properties")
           .select(`
             id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
-            has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
+            has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony,
+            is_room_rental
           `)
           .eq("idealista_id", refNormalized)
           .maybeSingle();
@@ -333,7 +397,8 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
               .from("properties")
               .select(`
                 id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
-                has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
+                has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony,
+                is_room_rental
               `)
               .eq("reference", parentRef)
               .maybeSingle();
@@ -358,7 +423,8 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
                 .from("properties")
                 .select(`
                   id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
-                  has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
+                  has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony,
+                  is_room_rental
                 `)
                 .eq("idealista_id", numStr)
                 .maybeSingle();
@@ -377,7 +443,8 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
                 .from("properties")
                 .select(`
                   id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
-                  has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
+                  has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony,
+                  is_room_rental
                 `)
                 .eq("reference", gelRef)
                 .maybeSingle();
@@ -453,8 +520,10 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
       age: extracted.age || null,
       nationality: extracted.nationality || null,
       city_origin: extracted.cityOrigin || null,
-      max_rent: isAlquiler ? (extracted.adPrice || (targetProperty ? targetProperty.price : (existingLead ? existingLead.max_rent : null))) : null,
-      max_buy_price: isVenta ? (extracted.adPrice || (targetProperty ? targetProperty.price : (existingLead ? existingLead.max_buy_price : null))) : null,
+      // Price ALWAYS comes from the email (adPrice extracted from Idealista email).
+      // Never use the DB property price as a fallback - that price may not match what the lead saw.
+      max_rent: isAlquiler ? (extracted.adPrice || (existingLead ? existingLead.max_rent : null)) : null,
+      max_buy_price: isVenta ? (extracted.adPrice || (existingLead ? existingLead.max_buy_price : null)) : null,
       agent_notes: extracted.message || `[DEBUG: AI message empty. Raw body: ${rawBody}]`,
     };
 
@@ -509,9 +578,8 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
       intent: extracted.intent || (targetProperty?.operation === "venta" ? "comprar" : "alquilar"),
       preferred_cities: targetProperty?.city ? [targetProperty.city] : [],
       preferred_zones: targetProperty?.zone ? [targetProperty.zone] : [],
-      max_price: extracted.adPrice
-        ? Math.round(Number(extracted.adPrice) * 1.1)
-        : (targetProperty?.price ? Math.round(Number(targetProperty.price) * 1.1) : null),
+      // max_price = adPrice (from email) + 10%. Never use DB property price.
+      max_price: extracted.adPrice ? Math.round(Number(extracted.adPrice) * 1.1) : null,
       min_bedrooms: targetProperty?.bedrooms || null,
       min_bathrooms: targetProperty?.bathrooms || null,
       min_area_m2: targetProperty?.area_m2 ? Math.floor(Number(targetProperty.area_m2) * 0.9) : null,
