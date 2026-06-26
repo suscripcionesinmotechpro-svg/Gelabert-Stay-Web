@@ -39,7 +39,7 @@ serve(async (req) => {
       console.error("[idealista-leads-webhook] JSON parsing failed, trying fallback regex extraction", err);
       
       const extractField = (field: string) => {
-        const regex = new RegExp(`"${field}"\\s*:\\s*"(.*?)"`, "s");
+        const regex = new RegExp(`"${field}\\s*"\\s*:\\s*"(.*?)"`, "s");
         const match = rawBody.match(regex);
         if (match) {
           return match[1]
@@ -60,10 +60,27 @@ serve(async (req) => {
       };
     }
 
-    const { subject, text, html, from, date } = body;
+    // Normalize keys to trim trailing/leading spaces (e.g., "text " -> "text")
+    let subject = "";
+    let text = "";
+    let html = "";
+    let from = "";
+    let date = "";
+
+    if (body && typeof body === "object") {
+      const normalizedBody: any = {};
+      for (const key of Object.keys(body)) {
+        normalizedBody[key.trim()] = body[key];
+      }
+      subject = normalizedBody.subject || "";
+      text = normalizedBody.text || "";
+      html = normalizedBody.html || "";
+      from = normalizedBody.from || "";
+      date = normalizedBody.date || "";
+    }
 
     console.log(`[idealista-leads-webhook] Parsed fields:`, {
-      subject,
+      subjectLength: subject?.length,
       from,
       date,
       textLength: text?.length,
