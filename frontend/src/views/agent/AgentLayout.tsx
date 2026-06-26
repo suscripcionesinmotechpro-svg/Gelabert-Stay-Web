@@ -29,7 +29,8 @@ export const AgentLayout = () => {
       const { count } = await supabase
         .from('leads_crm')
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'nuevo');
+        .eq('status', 'nuevo')
+        .eq('agent_id', user.id);
       setNewLeadsCount(count || 0);
     };
     if (user) fetchNewLeads();
