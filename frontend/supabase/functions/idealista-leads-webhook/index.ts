@@ -111,7 +111,7 @@ Analiza el contenido con detenimiento y realiza las siguientes tareas:
    - "phone": Teléfono del cliente.
    - "message": El mensaje o consulta original que ha escrito el cliente.
 2. Identifica la referencia del inmueble:
-   - "propertyRef": Busca referencias como "GEL-140", "GEL-129" o un número independiente (ej: si en el asunto dice "Contacto por tu piso 141", la referencia es GEL-141). Formatea la salida como "GEL-XXX" (ej: GEL-138). Si no encuentras una referencia interna, intenta extraer el número del anuncio si existe o déjalo como null.
+   - "propertyRef": Busca y extrae la referencia completa, preservando cualquier sufijo o sub-referencia separada por guiones (ej. "GEL-134-02-01", "GEL-102-01" o "GEL-138"). Si solo viene un número independiente (ej: "piso 141"), formatea la salida como "GEL-141". Si no encuentras una referencia interna, intenta extraer el número del anuncio si existe o déjalo como null.
 3. Extrae la información socioeconómica del cliente (perfil de inquilino o solvencia) si aparece descrita (Idealista suele adjuntar esto cuando el cliente solicita visita y tiene su perfil completado):
    - "occupation": Ocupación o situación profesional (ej. "Estudiante", "Funcionario", "Autónomo", "Trabajador por cuenta ajena", etc.).
    - "monthlyIncome": Ingresos mensuales netos totales en euros. Devuelve un valor numérico limpio (ej: 3200). Si dice "2000-2500", pon 2250 (la media). Si no hay datos, pon null.
@@ -219,8 +219,8 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
 
     // Fallback: Scan subject and text/html for any mention of a reference or Idealista ID
     if (!propRef) {
-      // Look for GEL-XXX pattern (case-insensitive)
-      const gelRegex = /GEL-\d+/i;
+      // Look for GEL-XXX pattern (case-insensitive, matching full references with suffixes)
+      const gelRegex = /GEL-\d+(?:-[0-9a-zA-Z]+)*/i;
       const gelMatch = (subject || "").match(gelRegex) || (text || "").match(gelRegex) || (html || "").match(gelRegex);
       if (gelMatch) {
         propRef = gelMatch[0].toUpperCase();
@@ -265,45 +265,69 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
         targetProperty = data1;
         console.log(`Matched property by exact reference:`, targetProperty.title);
       } else {
-        // Try 2: Extract any digits in reference and see if it maps
-        const matchDigits = refNormalized.match(/\d+/);
-        if (matchDigits) {
-          const numStr = matchDigits[0];
+        // Try 1b: Progressive parent-reference fallback (e.g. GEL-134-02-01 -> GEL-134-02 -> GEL-134)
+        let parts = refNormalized.split("-");
+        while (parts.length > 2 && !targetProperty) {
+          parts.pop(); // Remove the last segment (e.g., "-01")
+          const parentRef = parts.join("-");
+          console.log(`Trying progressive fallback reference: ${parentRef}`);
+          const { data: parentData, error: parentErr } = await supabaseAdmin
+            .from("properties")
+            .select(`
+              id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
+              has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
+            `)
+            .eq("reference", parentRef)
+            .maybeSingle();
           
-          // If the digits length is >= 6, it is likely an Idealista ID!
-          if (numStr.length >= 6) {
-            const { data: data2, error: err2 } = await supabaseAdmin
-              .from("properties")
-              .select(`
-                id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
-                has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
-              `)
-              .eq("idealista_id", numStr)
-              .maybeSingle();
-            
-            if (err2) console.error(`Error querying property by idealista_id ${numStr}:`, err2);
-            if (data2) {
-              targetProperty = data2;
-              console.log(`Matched property by idealista_id ${numStr}:`, targetProperty.title);
-            }
+          if (parentErr) console.error(`Error querying property by progressive fallback ref ${parentRef}:`, parentErr);
+          if (parentData) {
+            targetProperty = parentData;
+            console.log(`Matched property by progressive parent reference ${parentRef}:`, targetProperty.title);
           }
+        }
 
-          // Try 3: If not matched yet, try fallback to "GEL-XXX" pattern
-          if (!targetProperty) {
-            const gelRef = `GEL-${numStr}`;
-            const { data: data3, error: err3 } = await supabaseAdmin
-              .from("properties")
-              .select(`
-                id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
-                has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
-              `)
-              .eq("reference", gelRef)
-              .maybeSingle();
+        if (!targetProperty) {
+          // Try 2: Extract any digits in reference and see if it maps
+          const matchDigits = refNormalized.match(/\d+/);
+          if (matchDigits) {
+            const numStr = matchDigits[0];
             
-            if (err3) console.error(`Error querying property by fallback ref ${gelRef}:`, err3);
-            if (data3) {
-              targetProperty = data3;
-              console.log(`Matched property by fallback reference ${gelRef}:`, targetProperty.title);
+            // If the digits length is >= 6, it is likely an Idealista ID!
+            if (numStr.length >= 6) {
+              const { data: data2, error: err2 } = await supabaseAdmin
+                .from("properties")
+                .select(`
+                  id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
+                  has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
+                `)
+                .eq("idealista_id", numStr)
+                .maybeSingle();
+              
+              if (err2) console.error(`Error querying property by idealista_id ${numStr}:`, err2);
+              if (data2) {
+                targetProperty = data2;
+                console.log(`Matched property by idealista_id ${numStr}:`, targetProperty.title);
+              }
+            }
+
+            // Try 3: If not matched yet, try fallback to "GEL-XXX" pattern
+            if (!targetProperty) {
+              const gelRef = `GEL-${numStr}`;
+              const { data: data3, error: err3 } = await supabaseAdmin
+                .from("properties")
+                .select(`
+                  id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
+                  has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
+                `)
+                .eq("reference", gelRef)
+                .maybeSingle();
+              
+              if (err3) console.error(`Error querying property by fallback ref ${gelRef}:`, err3);
+              if (data3) {
+                targetProperty = data3;
+                console.log(`Matched property by fallback reference ${gelRef}:`, targetProperty.title);
+              }
             }
           }
         }
