@@ -574,6 +574,7 @@ export interface PropertySearchParams {
   wants_garden?: boolean;
   property_types?: string[];
   keywords?: string;
+  agent_id?: string;
 }
 
 export interface ScoredProperty {
@@ -618,13 +619,17 @@ export const searchPropertiesForBot = async (params: PropertySearchParams): Prom
       area_m2, bedrooms, bathrooms, operation, main_image, reference, slug,
       has_terrace, has_parking, has_pool, has_elevator, is_furnished,
       air_conditioning, pets_allowed, garden, orientation, commercial_status,
-      property_type, highlights, tags, is_room_rental
+      property_type, highlights, tags, is_room_rental, agent_id
     `)
     .eq('operation', opMap[params.operation] || params.operation)
     .eq('commercial_status', 'disponible');
 
   if (params.is_room_rental !== undefined) {
     query = query.eq('is_room_rental', params.is_room_rental);
+  }
+
+  if (params.agent_id) {
+    query = query.eq('agent_id', params.agent_id);
   }
 
   const { data, error } = await query.limit(100);

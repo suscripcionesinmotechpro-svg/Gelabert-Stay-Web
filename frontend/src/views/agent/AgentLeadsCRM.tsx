@@ -110,6 +110,7 @@ export const AgentLeadsCRM = () => {
           wants_garden: profile?.wants_garden || undefined,
           property_types: profile?.property_types || [],
           keywords: profile?.search_keywords || undefined,
+          agent_id: user?.id || undefined,
         };
         const matches = await searchPropertiesForBot(searchParams);
         setLeadMatches(matches);
