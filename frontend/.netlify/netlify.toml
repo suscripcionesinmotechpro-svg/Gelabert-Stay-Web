@@ -1,5 +1,7 @@
+functionsDirectory = "C:\\Users\\lenovo\\Desktop\\Gelabert Homes\\04_Desarrollo_y_Sistemas\\WEB\\frontend\\netlify\\functions"
+functionsDirectoryOrigin = "default"
+redirectsOrigin = "config"
 headersOrigin = "inline"
-redirects = []
 
 [build]
 edge_functions = "C:\\Users\\lenovo\\Desktop\\Gelabert Homes\\04_Desarrollo_y_Sistemas\\WEB\\frontend\\netlify\\edge-functions"
@@ -8,6 +10,7 @@ publishOrigin = "config"
 commandOrigin = "config"
 base = "C:\\Users\\lenovo\\Desktop\\Gelabert Homes\\04_Desarrollo_y_Sistemas\\WEB\\frontend"
 command = "npm run build"
+functions = "C:\\Users\\lenovo\\Desktop\\Gelabert Homes\\04_Desarrollo_y_Sistemas\\WEB\\frontend\\netlify\\functions"
 
 [build.environment]
 NETLIFY_NEXT_PLUGIN_SKIP_FORMS = "true"
@@ -60,3 +63,27 @@ for = "/_next/static/*"
 
 [headers.values]
 Cache-Control = "public, max-age=31536000, immutable"
+
+[[redirects]]
+from = "/reseñas"
+to = "/resenas"
+status = 301.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/rese%C3%B1as"
+to = "/resenas"
+status = 301.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
