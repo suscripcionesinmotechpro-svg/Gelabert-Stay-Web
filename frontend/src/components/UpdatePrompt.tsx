@@ -1,83 +1,46 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { useEffect } from 'react';
 
 /**
- * UpdatePrompt — Detecta cuando hay una nueva versión del Service Worker disponible
- * y muestra un banner sutil para que el usuario actualice sin necesidad de refrescar
- * manualmente. Utiliza las APIs nativas del navegador para ser compatible tanto con
- * Vite como con Next.js sin depender de importaciones virtuales de empaquetador.
+ * UpdatePrompt — Ahora actúa como un limpiador automático de Service Workers antiguos.
+ * Como la web migró de Vite a Next.js, los navegadores de los clientes aún conservan
+ * el Service Worker de la versión de Vite. Este script los desregistra de inmediato
+ * y limpia la caché local para forzar la carga limpia de la versión Next.js.
  */
 export const UpdatePrompt = () => {
-  const [showPrompt, setShowPrompt] = useState(false);
-  const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
-
   useEffect(() => {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
 
-    // Detect when a new service worker version is waiting to take over
     navigator.serviceWorker.getRegistrations().then((registrations) => {
-      for (const reg of registrations) {
-        if (reg.waiting) {
-          setSwRegistration(reg);
-          setShowPrompt(true);
+      let unregisteredAny = false;
+      
+      const promises = registrations.map((reg) => 
+        reg.unregister().then((success) => {
+          if (success) {
+            console.log('[PWA] Service Worker antiguo desregistrado con éxito.');
+            unregisteredAny = true;
+          }
+        })
+      );
+
+      Promise.all(promises).then(() => {
+        if (unregisteredAny) {
+          // Limpiar caches de la PWA
+          if ('caches' in window) {
+            caches.keys().then((keys) => {
+              Promise.all(keys.map(key => caches.delete(key))).then(() => {
+                console.log('[PWA] Caché antigua eliminada. Recargando para aplicar Next.js...');
+                window.location.reload();
+              });
+            });
+          } else {
+            window.location.reload();
+          }
         }
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          if (!newWorker) return;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              setSwRegistration(reg);
-              setShowPrompt(true);
-            }
-          });
-        });
-      }
+      });
     });
   }, []);
 
-  const handleUpdate = () => {
-    setShowPrompt(false);
-    if (swRegistration?.waiting) {
-      swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
-    } else {
-      window.location.reload();
-    }
-  };
-
-  const handleDismiss = () => {
-    setShowPrompt(false);
-  };
-
-  if (!showPrompt) return null;
-
-  return (
-    <div
-      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 px-4 py-3 
-                 bg-[#0A0A0A] border border-[#C9A962]/40 shadow-[0_0_30px_rgba(201,169,98,0.15)] 
-                 rounded-sm max-w-sm w-[calc(100%-2rem)] animate-fade-up"
-      role="alert"
-    >
-      <RefreshCw className="w-4 h-4 text-[#C9A962] shrink-0" />
-      <p className="font-primary text-sm text-[#FAF8F5] flex-1">
-        Nueva versión disponible
-      </p>
-      <div className="flex items-center gap-2 shrink-0">
-        <button
-          onClick={handleDismiss}
-          className="font-primary text-xs text-[#666666] hover:text-[#888888] transition-colors"
-        >
-          Ahora no
-        </button>
-        <button
-          onClick={handleUpdate}
-          className="font-primary text-xs font-bold text-[#0A0A0A] bg-[#C9A962] hover:bg-[#D4B673] 
-                     px-3 py-1.5 transition-colors"
-        >
-          Actualizar
-        </button>
-      </div>
-    </div>
-  );
+  return null;
 };
