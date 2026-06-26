@@ -3,40 +3,36 @@
 import { useEffect } from 'react';
 
 /**
- * UpdatePrompt — Ahora actúa como un limpiador automático de Service Workers antiguos.
- * Como la web migró de Vite a Next.js, los navegadores de los clientes aún conservan
- * el Service Worker de la versión de Vite. Este script los desregistra de inmediato
- * y limpia la caché local para forzar la carga limpia de la versión Next.js.
+ * UpdatePrompt — Limpia Service Workers antiguos de la versión Vite del sitio.
+ * Usa sessionStorage para ejecutarse UNA SOLA VEZ por sesión y evitar bucles de recarga.
  */
 export const UpdatePrompt = () => {
   useEffect(() => {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
 
+    // Si ya limpiamos en esta sesión, no volvemos a hacerlo
+    if (sessionStorage.getItem('sw_cleaned') === '1') return;
+
     navigator.serviceWorker.getRegistrations().then((registrations) => {
-      let unregisteredAny = false;
-      
-      const promises = registrations.map((reg) => 
-        reg.unregister().then((success) => {
-          if (success) {
-            console.log('[PWA] Service Worker antiguo desregistrado con éxito.');
-            unregisteredAny = true;
-          }
-        })
-      );
+      if (registrations.length === 0) {
+        // Nada que limpiar
+        sessionStorage.setItem('sw_cleaned', '1');
+        return;
+      }
+
+      const promises = registrations.map((reg) => reg.unregister());
 
       Promise.all(promises).then(() => {
-        if (unregisteredAny) {
-          // Limpiar caches de la PWA
-          if ('caches' in window) {
-            caches.keys().then((keys) => {
-              Promise.all(keys.map(key => caches.delete(key))).then(() => {
-                console.log('[PWA] Caché antigua eliminada. Recargando para aplicar Next.js...');
-                window.location.reload();
-              });
+        sessionStorage.setItem('sw_cleaned', '1');
+
+        if ('caches' in window) {
+          caches.keys().then((keys) => {
+            Promise.all(keys.map(key => caches.delete(key))).then(() => {
+              window.location.reload();
             });
-          } else {
-            window.location.reload();
-          }
+          });
+        } else {
+          window.location.reload();
         }
       });
     });
@@ -44,3 +40,4 @@ export const UpdatePrompt = () => {
 
   return null;
 };
+
