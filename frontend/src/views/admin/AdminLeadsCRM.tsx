@@ -322,9 +322,6 @@ export const AdminLeadsCRM = () => {
     }
     
     return { phone: phoneWithCountry, text };
-  };  const getWhatsAppLink = (leadPhone: string, intent: string, property: { reference: string; slug: string; is_room_rental?: boolean }) => {
-    const { phone, text } = getWhatsAppDetails(leadPhone, intent, property);
-    return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
   };
 
 
@@ -693,14 +690,12 @@ export const AdminLeadsCRM = () => {
                         Ver Ficha
                       </a>
                       {selectedLead.phone && (
-                        <a
-                          href={getWhatsAppLink(selectedLead.phone!, selectedLead.intent, selectedLead.target_property!)}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => setWhatsAppModalData(getWhatsAppDetails(selectedLead.phone!, selectedLead.intent, selectedLead.target_property!))}
                           className="bg-[#25D366] hover:bg-[#20ba5a] text-black text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm text-center flex items-center justify-center gap-1.5 transition-all block w-full"
                         >
                           💬 WhatsApp
-                        </a>
+                        </button>
                       )}
                     </div>
                   </section>
@@ -867,14 +862,12 @@ export const AdminLeadsCRM = () => {
                                 Ficha
                               </a>
                               {selectedLead.phone && (
-                                <a
-                                  href={getWhatsAppLink(selectedLead.phone!, selectedLead.intent, p)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
+                                <button
+                                  onClick={() => setWhatsAppModalData(getWhatsAppDetails(selectedLead.phone!, selectedLead.intent, p))}
                                   className="flex-1 text-center py-1 bg-[#25D366] hover:bg-[#20ba5a] text-black transition-colors rounded text-[9px] uppercase font-bold flex items-center justify-center gap-0.5"
                                 >
                                   <span>WhatsApp</span>
-                                </a>
+                                </button>
                               )}
                             </div>
                           </div>

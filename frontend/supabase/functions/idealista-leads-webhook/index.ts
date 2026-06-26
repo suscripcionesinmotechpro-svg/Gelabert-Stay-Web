@@ -66,6 +66,9 @@ serve(async (req) => {
     let html = "";
     let from = "";
     let date = "";
+    let payloadName = "";
+    let payloadPhone = "";
+    let payloadEmail = "";
 
     if (body && typeof body === "object") {
       const normalizedBody: any = {};
@@ -77,6 +80,9 @@ serve(async (req) => {
       html = normalizedBody.html || "";
       from = normalizedBody.from || "";
       date = normalizedBody.date || "";
+      payloadName = normalizedBody.name || "";
+      payloadPhone = normalizedBody.phone || "";
+      payloadEmail = normalizedBody.email || "";
     }
 
     console.log(`[idealista-leads-webhook] Parsed fields:`, {
@@ -85,6 +91,9 @@ serve(async (req) => {
       date,
       textLength: text?.length,
       htmlLength: html?.length,
+      payloadName,
+      payloadPhone,
+      payloadEmail,
       hasParseError: !!parseError
     });
 
@@ -121,6 +130,7 @@ Analiza el contenido con detenimiento y realiza las siguientes tareas:
    - "age": Edad del cliente. Extrae el número si se menciona (ej. "tengo 21 años"). Si no, pon null.
    - "nationality": Nacionalidad. Extrae el gentilicio o país en español (ej. "Argentina", "Francesa", "Español"). Si no, pon null.
    - "cityOrigin": Ciudad de origen. Extrae si se menciona de dónde viene (ej. "Málaga", "París", "Madrid"). Si no, pon null.
+   - "adPrice": El precio específico de la habitación o propiedad consultada por el lead en Idealista (ej: 450). IMPORTANTE: Ignora por completo precios de rango o mínimos que aparezcan en el título de la propiedad (como "desde 430€" o "desde 400€"). Extrae únicamente el precio real por el cual el lead ha realizado la consulta (que suele venir al final del correo o especificado individualmente como "450 €"). Si no se menciona, pon null.
    - "intent": Intención de la operación. Devuelve "alquilar" o "comprar". Si el email habla de alquiler, devuelve "alquilar".
 
 Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de código markdown (como \`\`\`json), no escribas texto aclaratorio ni antes ni después. Solo el JSON puro con las siguientes claves:
@@ -138,6 +148,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
   "age": number | null,
   "nationality": string | null,
   "cityOrigin": string | null,
+  "adPrice": number | null,
   "intent": "alquilar" | "comprar"
 }`;
 
@@ -184,9 +195,33 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
       throw new Error(`Invalid JSON format returned from AI: ${parseErr.message}`);
     }
 
+    if (extracted && typeof extracted === "object" && !extracted.adPrice) {
+      // Smart regex fallback: match all prices, flag those with "desde", and prioritize the specific price.
+      const fullText = `${subject || ""} ${text || ""} ${html || ""}`;
+      const matches = [...fullText.matchAll(/(desde\s+)?([\d\.\s,]+)\s*€/ig)];
+      let foundPrice = null;
+      let lastPrice = null;
+      
+      for (const m of matches) {
+        const isDesde = !!m[1];
+        const val = parseInt(m[2].replace(/[\.\s,]/g, ""), 10);
+        if (!isNaN(val)) {
+          lastPrice = val;
+          if (!isDesde) {
+            foundPrice = val;
+          }
+        }
+      }
+      
+      extracted.adPrice = foundPrice || lastPrice || null;
+      if (extracted.adPrice) {
+        console.log(`[idealista-leads-webhook] Extracted ad price via regex fallback: ${extracted.adPrice}`);
+      }
+    }
+
     console.log("[idealista-leads-webhook] Extracted data:", extracted);
 
-    let clientEmail = extracted.email;
+    let clientEmail = extracted.email || payloadEmail;
     if (!clientEmail) {
       // Fallback: search the raw text/html for any email patterns
       const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
@@ -209,8 +244,9 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
 
     // Generate placeholder email if not found (since email is NOT NULL in database)
     if (!clientEmail) {
-      if (extracted.phone) {
-        const cleanPhone = extracted.phone.replace(/\D/g, "");
+      const targetPhone = extracted.phone || payloadPhone;
+      if (targetPhone) {
+        const cleanPhone = targetPhone.replace(/\D/g, "");
         clientEmail = `telefono-${cleanPhone || 'desconocido'}@idealista.com`;
         console.log(`[idealista-leads-webhook] No email found. Generated phone placeholder: ${clientEmail}`);
       } else {
@@ -360,11 +396,13 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
     // 2. Insert/Update Lead in leads_crm
     // Match by email OR by phone (if phone is present) to prevent duplicates
     let existingLead = null;
-    const query = supabaseAdmin.from("leads_crm").select("id, name");
+    const query = supabaseAdmin.from("leads_crm").select("id, name, phone, email, max_rent, max_buy_price, target_property_id, target_property_ref");
     
-    if (clientEmail && extracted.phone) {
+    const targetPhone = extracted.phone || payloadPhone || null;
+    
+    if (clientEmail && targetPhone) {
       const { data, error } = await query
-        .or(`email.eq.${clientEmail},phone.eq.${extracted.phone}`)
+        .or(`email.eq.${clientEmail},phone.eq.${targetPhone}`)
         .maybeSingle();
       if (error) console.error("Error looking up existing lead:", error);
       existingLead = data;
@@ -374,9 +412,9 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
         .maybeSingle();
       if (error) console.error("Error looking up existing lead by email:", error);
       existingLead = data;
-    } else if (extracted.phone) {
+    } else if (targetPhone) {
       const { data, error } = await query
-        .eq("phone", extracted.phone)
+        .eq("phone", targetPhone)
         .maybeSingle();
       if (error) console.error("Error looking up existing lead by phone:", error);
       existingLead = data;
@@ -399,14 +437,14 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
     const leadPayload = {
       name: existingLead && existingLead.name && existingLead.name !== "Contacto Idealista"
         ? existingLead.name
-        : (extracted.name || "Contacto Idealista"),
-      email: clientEmail,
-      phone: extracted.phone || null,
+        : (extracted.name || payloadName || "Contacto Idealista"),
+      email: clientEmail || (existingLead ? existingLead.email : null),
+      phone: targetPhone || (existingLead ? existingLead.phone : null),
       intent: extracted.intent || (isVenta ? "comprar" : "alquilar"),
       status: "nuevo",
       source: "idealista",
-      target_property_id: targetProperty ? targetProperty.id : null,
-      target_property_ref: targetProperty ? targetProperty.reference : (extracted.propertyRef || null),
+      target_property_id: targetProperty ? targetProperty.id : (existingLead ? existingLead.target_property_id : null),
+      target_property_ref: targetProperty ? targetProperty.reference : (existingLead ? existingLead.target_property_ref : (extracted.propertyRef || null)),
       occupation: extracted.occupation || null,
       monthly_income: extracted.monthlyIncome || null,
       employment_seniority: extracted.employmentSeniority || null,
@@ -415,8 +453,8 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
       age: extracted.age || null,
       nationality: extracted.nationality || null,
       city_origin: extracted.cityOrigin || null,
-      max_rent: (isAlquiler && targetProperty) ? targetProperty.price : null,
-      max_buy_price: (isVenta && targetProperty) ? targetProperty.price : null,
+      max_rent: isAlquiler ? (extracted.adPrice || (targetProperty ? targetProperty.price : (existingLead ? existingLead.max_rent : null))) : null,
+      max_buy_price: isVenta ? (extracted.adPrice || (targetProperty ? targetProperty.price : (existingLead ? existingLead.max_buy_price : null))) : null,
       agent_notes: extracted.message || `[DEBUG: AI message empty. Raw body: ${rawBody}]`,
     };
 
@@ -471,7 +509,9 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
       intent: extracted.intent || (targetProperty?.operation === "venta" ? "comprar" : "alquilar"),
       preferred_cities: targetProperty?.city ? [targetProperty.city] : [],
       preferred_zones: targetProperty?.zone ? [targetProperty.zone] : [],
-      max_price: targetProperty?.price ? Math.ceil(Number(targetProperty.price) * 1.1) : null,
+      max_price: extracted.adPrice
+        ? Math.round(Number(extracted.adPrice) * 1.1)
+        : (targetProperty?.price ? Math.round(Number(targetProperty.price) * 1.1) : null),
       min_bedrooms: targetProperty?.bedrooms || null,
       min_bathrooms: targetProperty?.bathrooms || null,
       min_area_m2: targetProperty?.area_m2 ? Math.floor(Number(targetProperty.area_m2) * 0.9) : null,
@@ -507,26 +547,45 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
       }
     }
 
-    // 4. Save inquiry record
-    const { error: inqErr } = await supabaseAdmin
-      .from("inquiries")
-      .insert({
-        property_id: targetProperty ? targetProperty.id : null,
-        name: extracted.name || "Contacto Idealista",
-        email: clientEmail,
-        phone: extracted.phone || null,
-        message: extracted.message || "Consulta recibida de Idealista.",
-        inquiry_type: extracted.intent === "comprar" ? "compra" : "alquiler",
-        status: "nuevo",
-        privacy_accepted: true,
-        solvency_accepted: extracted.monthlyIncome ? true : false,
-        created_at: leadDateISO,
-      });
+    // 4. Save/Update inquiry record (prevent duplicates)
+    let existingInquiry = null;
+    if (clientEmail) {
+      const { data, error } = await supabaseAdmin
+        .from("inquiries")
+        .select("id")
+        .eq("email", clientEmail)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (!error) existingInquiry = data;
+    }
 
-    if (inqErr) {
-      console.error("Error inserting inquiry:", inqErr);
+    const inquiryPayload = {
+      property_id: targetProperty ? targetProperty.id : null,
+      name: extracted.name || payloadName || "Contacto Idealista",
+      email: clientEmail,
+      phone: targetPhone || null,
+      message: extracted.message || "Consulta recibida de Idealista.",
+      inquiry_type: extracted.intent === "comprar" ? "compra" : "alquiler",
+      status: "nuevo",
+      privacy_accepted: true,
+      solvency_accepted: extracted.monthlyIncome ? true : false,
+      created_at: leadDateISO,
+    };
+
+    if (existingInquiry) {
+      console.log(`Updating existing inquiry with ID: ${existingInquiry.id}`);
+      const { error: inqErr } = await supabaseAdmin
+        .from("inquiries")
+        .update(inquiryPayload)
+        .eq("id", existingInquiry.id);
+      if (inqErr) console.error("Error updating inquiry:", inqErr);
     } else {
-      console.log("Inquiry record saved successfully.");
+      console.log("Inserting new inquiry record.");
+      const { error: inqErr } = await supabaseAdmin
+        .from("inquiries")
+        .insert(inquiryPayload);
+      if (inqErr) console.error("Error inserting inquiry:", inqErr);
     }
 
     return new Response(
