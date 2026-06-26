@@ -111,7 +111,7 @@ const DEFAULT_FORM: Partial<PropertyInsert> = {
   main_image: '', gallery: [], video_url: '', videos: [], videos_metadata: [], floor_plan: '', floor_plans: [], virtual_tour_url: '',
   slug: '', meta_title: '', meta_description: '',
   status: 'borrador', commercial_status: 'disponible', is_manual_commercial_status: false, is_featured: false,
-  rent_type: null, reference: '',
+  rent_type: null, reference: '', idealista_id: '',
   latitude: undefined, longitude: undefined,
   orientation: [], energy_rating: '', energy_consumption: undefined,
   emissions_rating: '', emissions_value: undefined,
@@ -188,6 +188,7 @@ export const AdminPropertyForm = () => {
         is_manual_commercial_status: property.is_manual_commercial_status ?? false,
         is_featured: property.is_featured,
         rent_type: property.rent_type, reference: property.reference ?? '',
+        idealista_id: property.idealista_id ?? '',
         latitude: property.latitude ?? undefined,
         longitude: property.longitude ?? undefined,
         orientation: property.orientation ?? [],
@@ -699,7 +700,7 @@ export const AdminPropertyForm = () => {
       
       // 3. Limpiar strings vacíos para evitar conflictos en UNIQUE (reference, slug)
       // y para que se guarden como NULL en Postgres
-      const nullableFields = ['reference', 'slug', 'meta_title', 'meta_description', 'street_number', 'door_number', 'parking_price', 'short_description', 'description', 'video_url', 'floor_plan', 'virtual_tour_url', 'availability', 'property_condition', 'energy_rating', 'emissions_rating', 'conservation_state', 'block_staircase', 'urbanization', 'tenant_profile'];
+      const nullableFields = ['reference', 'slug', 'meta_title', 'meta_description', 'street_number', 'door_number', 'parking_price', 'short_description', 'description', 'video_url', 'floor_plan', 'virtual_tour_url', 'availability', 'property_condition', 'energy_rating', 'emissions_rating', 'conservation_state', 'block_staircase', 'urbanization', 'tenant_profile', 'idealista_id'];
       
       nullableFields.forEach(field => {
         if (data[field] === undefined || (typeof data[field] === 'string' && data[field].trim() === '')) {
@@ -935,6 +936,10 @@ export const AdminPropertyForm = () => {
           <div className="flex flex-col gap-2">
             <label className={labelClass}>Referencia</label>
             <input className={inputClass} placeholder="Ej: REF123" value={form.reference} onChange={e => set('reference', e.target.value)} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className={labelClass}>Referencia de Idealista (ID)</label>
+            <input className={inputClass} placeholder="Ej: 111453262" value={form.idealista_id ?? ''} onChange={e => set('idealista_id', e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
             <label className={labelClass}>Tipo de Inmueble *</label>

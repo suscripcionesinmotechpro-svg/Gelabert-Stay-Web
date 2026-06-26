@@ -112,12 +112,15 @@ Analiza el contenido con detenimiento y realiza las siguientes tareas:
    - "message": El mensaje o consulta original que ha escrito el cliente.
 2. Identifica la referencia del inmueble:
    - "propertyRef": Busca y extrae la referencia completa, preservando cualquier sufijo o sub-referencia separada por guiones (ej. "GEL-134-02-01", "GEL-102-01" o "GEL-138"). Si solo viene un número independiente (ej: "piso 141"), formatea la salida como "GEL-141". Si no encuentras una referencia interna, intenta extraer el número del anuncio si existe o déjalo como null.
-3. Extrae la información socioeconómica del cliente (perfil de inquilino o solvencia) si aparece descrita (Idealista suele adjuntar esto cuando el cliente solicita visita y tiene su perfil completado):
-   - "occupation": Ocupación o situación profesional (ej. "Estudiante", "Funcionario", "Autónomo", "Trabajador por cuenta ajena", etc.).
+3. Extrae la información socioeconómica del cliente (perfil de inquilino o solvencia). Analiza tanto el perfil adjunto estructurado por Idealista como el texto redactado a mano del mensaje (ej: "somos dos estudiantes...", "trabajo de autónomo...", "tengo 21 años, soy Argentina"):
+   - "occupation": Ocupación o situación laboral. CLASIFÍCALO en una de estas categorías simples en español: "Estudiante", "Trabajador", "Autónomo", "Funcionario", "Jubilado". Si es algo como "trabajo en un bar", clasifícalo como "Trabajador". Si no se menciona situación profesional ni se puede inferir del texto, pon null.
    - "monthlyIncome": Ingresos mensuales netos totales en euros. Devuelve un valor numérico limpio (ej: 3200). Si dice "2000-2500", pon 2250 (la media). Si no hay datos, pon null.
    - "employmentSeniority": Antigüedad laboral o tipo de contrato (ej. "Indefinido", "Temporal", "2 años", etc.).
-   - "numPeople": Número de personas que vivirán en la propiedad (ej. 2). Devuelve un valor numérico entero. Si no se indica, por defecto pon null.
-   - "hasPets": Si tiene mascotas o no. Devuelve true si indica explícitamente que tiene mascotas, false si indica que no tiene, o null si no se menciona.
+   - "numPeople": Número de personas que vivirán en la propiedad. Devuelve un valor entero. Intenta inferirlo si dicen "somos dos amigas" (2), "con mi pareja" (2), etc. Si no se indica, por defecto pon null.
+   - "hasPets": Si tiene mascotas o no. Devuelve true si indica que las tiene, false si indica que no, o null si no se menciona.
+   - "age": Edad del cliente. Extrae el número si se menciona (ej. "tengo 21 años"). Si no, pon null.
+   - "nationality": Nacionalidad. Extrae el gentilicio o país en español (ej. "Argentina", "Francesa", "Español"). Si no, pon null.
+   - "cityOrigin": Ciudad de origen. Extrae si se menciona de dónde viene (ej. "Málaga", "París", "Madrid"). Si no, pon null.
    - "intent": Intención de la operación. Devuelve "alquilar" o "comprar". Si el email habla de alquiler, devuelve "alquilar".
 
 Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de código markdown (como \`\`\`json), no escribas texto aclaratorio ni antes ni después. Solo el JSON puro con las siguientes claves:
@@ -132,6 +135,9 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
   "employmentSeniority": string | null,
   "numPeople": number | null,
   "hasPets": boolean | null,
+  "age": number | null,
+  "nationality": string | null,
+  "cityOrigin": string | null,
   "intent": "alquilar" | "comprar"
 }`;
 
@@ -265,25 +271,42 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
         targetProperty = data1;
         console.log(`Matched property by exact reference:`, targetProperty.title);
       } else {
-        // Try 1b: Progressive parent-reference fallback (e.g. GEL-134-02-01 -> GEL-134-02 -> GEL-134)
-        let parts = refNormalized.split("-");
-        while (parts.length > 2 && !targetProperty) {
-          parts.pop(); // Remove the last segment (e.g., "-01")
-          const parentRef = parts.join("-");
-          console.log(`Trying progressive fallback reference: ${parentRef}`);
-          const { data: parentData, error: parentErr } = await supabaseAdmin
-            .from("properties")
-            .select(`
-              id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
-              has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
-            `)
-            .eq("reference", parentRef)
-            .maybeSingle();
-          
-          if (parentErr) console.error(`Error querying property by progressive fallback ref ${parentRef}:`, parentErr);
-          if (parentData) {
-            targetProperty = parentData;
-            console.log(`Matched property by progressive parent reference ${parentRef}:`, targetProperty.title);
+        // Try 1.5: Match by exact idealista_id (in case AI extracted the ID directly as refNormalized)
+        const { data: dataIdealistaId, error: errIdealistaId } = await supabaseAdmin
+          .from("properties")
+          .select(`
+            id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
+            has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
+          `)
+          .eq("idealista_id", refNormalized)
+          .maybeSingle();
+
+        if (errIdealistaId) console.error(`Error querying property by idealista_id ${refNormalized}:`, errIdealistaId);
+
+        if (dataIdealistaId) {
+          targetProperty = dataIdealistaId;
+          console.log(`Matched property by exact idealista_id:`, targetProperty.title);
+        } else {
+          // Try 1b: Progressive parent-reference fallback (e.g. GEL-134-02-01 -> GEL-134-02 -> GEL-134)
+          let parts = refNormalized.split("-");
+          while (parts.length > 2 && !targetProperty) {
+            parts.pop(); // Remove the last segment (e.g., "-01")
+            const parentRef = parts.join("-");
+            console.log(`Trying progressive fallback reference: ${parentRef}`);
+            const { data: parentData, error: parentErr } = await supabaseAdmin
+              .from("properties")
+              .select(`
+                id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
+                has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony
+              `)
+              .eq("reference", parentRef)
+              .maybeSingle();
+            
+            if (parentErr) console.error(`Error querying property by progressive fallback ref ${parentRef}:`, parentErr);
+            if (parentData) {
+              targetProperty = parentData;
+              console.log(`Matched property by progressive parent reference ${parentRef}:`, targetProperty.title);
+            }
           }
         }
 
@@ -337,7 +360,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
     // 2. Insert/Update Lead in leads_crm
     // Match by email OR by phone (if phone is present) to prevent duplicates
     let existingLead = null;
-    const query = supabaseAdmin.from("leads_crm").select("id");
+    const query = supabaseAdmin.from("leads_crm").select("id, name");
     
     if (clientEmail && extracted.phone) {
       const { data, error } = await query
@@ -363,8 +386,20 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
     const isVenta = extracted.intent === "comprar" || (targetProperty && targetProperty.operation === "venta");
 
     let leadId = null;
+    // Parse original email date
+    let leadDate = new Date();
+    if (date) {
+      const parsedDate = new Date(date);
+      if (!isNaN(parsedDate.getTime())) {
+        leadDate = parsedDate;
+      }
+    }
+    const leadDateISO = leadDate.toISOString();
+
     const leadPayload = {
-      name: extracted.name || "Contacto Idealista",
+      name: existingLead && existingLead.name && existingLead.name !== "Contacto Idealista"
+        ? existingLead.name
+        : (extracted.name || "Contacto Idealista"),
       email: clientEmail,
       phone: extracted.phone || null,
       intent: extracted.intent || (isVenta ? "comprar" : "alquilar"),
@@ -377,6 +412,9 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
       employment_seniority: extracted.employmentSeniority || null,
       num_people: extracted.numPeople || null,
       has_pets: extracted.hasPets,
+      age: extracted.age || null,
+      nationality: extracted.nationality || null,
+      city_origin: extracted.cityOrigin || null,
       max_rent: (isAlquiler && targetProperty) ? targetProperty.price : null,
       max_buy_price: (isVenta && targetProperty) ? targetProperty.price : null,
       agent_notes: extracted.message || `[DEBUG: AI message empty. Raw body: ${rawBody}]`,
@@ -389,7 +427,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
         .from("leads_crm")
         .update({
           ...leadPayload,
-          updated_at: new Date().toISOString()
+          updated_at: leadDateISO
         })
         .eq("id", leadId);
       
@@ -403,8 +441,8 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
         .from("leads_crm")
         .insert({
           ...leadPayload,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          created_at: leadDateISO,
+          updated_at: leadDateISO
         })
         .select("id")
         .single();
@@ -482,6 +520,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
         status: "nuevo",
         privacy_accepted: true,
         solvency_accepted: extracted.monthlyIncome ? true : false,
+        created_at: leadDateISO,
       });
 
     if (inqErr) {

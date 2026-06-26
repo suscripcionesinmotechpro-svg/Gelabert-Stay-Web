@@ -324,10 +324,6 @@ export const AgentLeadsCRM = () => {
     return { phone: phoneWithCountry, text };
   };
 
-  const getWhatsAppLink = (leadPhone: string, intent: string, property: { reference: string; slug: string; is_room_rental?: boolean }) => {
-    const { phone, text } = getWhatsAppDetails(leadPhone, intent, property);
-    return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-  };
 
   const copyToClipboard = (text: string, id: string) => {
     const fullUrl = `${window.location.origin}${text}`;
@@ -429,7 +425,7 @@ export const AgentLeadsCRM = () => {
                 className="flex-1 bg-[#1A1A1A] border border-[#333333] rounded-md px-3 py-2 text-xs text-[#FAF8F5] focus:border-[#C9A962] outline-none"
               >
                 <option value="todos">Todo estado</option>
-                <option value="nuevo">Nuevo</option>
+                <option value="nuevo">Pendiente de contactar</option>
                 <option value="contactado">Contactado</option>
                 <option value="cualificado">Cualificado</option>
                 <option value="cerrado">Cerrado</option>
@@ -515,7 +511,19 @@ export const AgentLeadsCRM = () => {
                     {/* Info */}
                     <div className="flex-1 min-w-0 pr-8">
                       <div className="flex justify-between items-start gap-2 mb-1">
-                        <span className="font-primary text-[#FAF8F5] font-bold text-sm truncate">{lead.name || 'Sin nombre'}</span>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <input
+                            type="checkbox"
+                            checked={lead.status === 'contactado'}
+                            onChange={async (e) => {
+                              e.stopPropagation();
+                              const newStatus = lead.status === 'contactado' ? 'nuevo' : 'contactado';
+                              await handleUpdateStatus(lead.id, newStatus);
+                            }}
+                            className="w-3.5 h-3.5 accent-[#C9A962] border-[#333] rounded bg-[#111] cursor-pointer flex-shrink-0"
+                          />
+                          <span className="font-primary text-[#FAF8F5] font-bold text-sm truncate">{lead.name || 'Sin nombre'}</span>
+                        </div>
                       </div>
                       
                       <div className="text-xs text-[#88] truncate mb-1">
@@ -535,8 +543,15 @@ export const AgentLeadsCRM = () => {
 
                         {/* Status */}
                         <span className={`text-[9px] px-1.5 py-0.5 rounded border uppercase tracking-wider font-semibold ${getStatusColor(lead.status)}`}>
-                          {lead.status}
+                          {lead.status === 'nuevo' ? 'pendiente' : lead.status}
                         </span>
+
+                        {/* Occupation Tag */}
+                        {lead.occupation && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#C9A962]/10 border border-[#C9A962]/20 text-[#C9A962] font-semibold uppercase tracking-wider">
+                            👤 {lead.occupation}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -587,25 +602,31 @@ export const AgentLeadsCRM = () => {
                   {/* Quick Action Buttons */}
                   <div className="flex flex-wrap items-center gap-2">
                     <button
-                      onClick={() => handleUpdateStatus(selectedLead.id, 'contactado')}
-                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded text-[10px] font-bold uppercase transition-all border ${selectedLead.status === 'contactado' ? 'bg-yellow-500 text-[#0A0A0A] border-yellow-500' : 'bg-transparent text-yellow-400 border-yellow-500/20 hover:bg-yellow-500/10'}`}
+                      onClick={() => handleUpdateStatus(selectedLead.id, 'nuevo')}
+                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded text-[10px] font-bold uppercase transition-all border ${selectedLead.status === 'nuevo' ? 'bg-blue-500 text-white border-blue-500' : 'bg-transparent text-blue-400 border-blue-500/20 hover:bg-blue-500/10'}`}
                     >
-                      ✅ Contactar
+                      ⏳ Pendiente
                     </button>
                     <button
-                      onClick={() => handleUpdateStatus(selectedLead.id, 'cualificado')}
+                      onClick={() => handleUpdateStatus(selectedLead.id, selectedLead.status === 'contactado' ? 'nuevo' : 'contactado')}
+                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded text-[10px] font-bold uppercase transition-all border ${selectedLead.status === 'contactado' ? 'bg-yellow-500 text-[#0A0A0A] border-yellow-500' : 'bg-transparent text-yellow-400 border-yellow-500/20 hover:bg-yellow-500/10'}`}
+                    >
+                      ✅ Contactado
+                    </button>
+                    <button
+                      onClick={() => handleUpdateStatus(selectedLead.id, selectedLead.status === 'cualificado' ? 'nuevo' : 'cualificado')}
                       className={`flex items-center gap-1 px-2.5 py-1.5 rounded text-[10px] font-bold uppercase transition-all border ${selectedLead.status === 'cualificado' ? 'bg-purple-500 text-white border-purple-500' : 'bg-transparent text-purple-400 border-purple-500/20 hover:bg-purple-500/10'}`}
                     >
                       ⭐ Cualificar
                     </button>
                     <button
-                      onClick={() => handleUpdateStatus(selectedLead.id, 'descartado')}
+                      onClick={() => handleUpdateStatus(selectedLead.id, selectedLead.status === 'descartado' ? 'nuevo' : 'descartado')}
                       className={`flex items-center gap-1 px-2.5 py-1.5 rounded text-[10px] font-bold uppercase transition-all border ${selectedLead.status === 'descartado' ? 'bg-red-500 text-white border-red-500' : 'bg-transparent text-red-400 border-red-500/20 hover:bg-red-500/10'}`}
                     >
                       ✖ Descartar
                     </button>
                     <button
-                      onClick={() => handleUpdateStatus(selectedLead.id, 'cerrado')}
+                      onClick={() => handleUpdateStatus(selectedLead.id, selectedLead.status === 'cerrado' ? 'nuevo' : 'cerrado')}
                       className={`flex items-center gap-1 px-2.5 py-1.5 rounded text-[10px] font-bold uppercase transition-all border ${selectedLead.status === 'cerrado' ? 'bg-green-500 text-[#0A0A0A] border-green-500' : 'bg-transparent text-green-400 border-green-500/20 hover:bg-green-500/10'}`}
                     >
                       🔒 Cerrar
@@ -667,11 +688,70 @@ export const AgentLeadsCRM = () => {
                       </a>
                       {selectedLead.phone && (
                         <button
-                          onClick={() => setWhatsAppModalData(getWhatsAppDetails(selectedLead.phone, selectedLead.intent, selectedLead.target_property!))}
+                          onClick={() => setWhatsAppModalData(getWhatsAppDetails(selectedLead.phone!, selectedLead.intent, selectedLead.target_property!))}
                           className="bg-[#25D366] hover:bg-[#20ba5a] text-black text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm text-center flex items-center justify-center gap-1.5 transition-all block w-full"
                         >
                           💬 WhatsApp
                         </button>
+                      )}
+                    </div>
+                  </section>
+                )}
+
+                {/* Perfil del Inquilino / Solvencia */}
+                {(selectedLead.occupation || selectedLead.monthly_income || selectedLead.employment_seniority || selectedLead.num_people !== null || selectedLead.has_pets !== null || selectedLead.age || selectedLead.nationality || selectedLead.city_origin) && (
+                  <section className="bg-[#111]/40 border border-[#1F1F1F] rounded-lg p-5">
+                    <h3 className="text-[#C9A962] font-primary text-xs uppercase tracking-wider mb-4 border-b border-[#1F1F1F] pb-2 font-bold flex items-center gap-1.5">
+                      <User className="w-4 h-4" /> Perfil del Inquilino
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm font-primary">
+                      {selectedLead.occupation && (
+                        <div>
+                          <span className="block text-[#666666] text-xs mb-1">Ocupación / Situación</span>
+                          <span className="text-[#FAF8F5] font-semibold">{selectedLead.occupation}</span>
+                        </div>
+                      )}
+                      {selectedLead.monthly_income && (
+                        <div>
+                          <span className="block text-[#666666] text-xs mb-1">Ingresos Mensuales</span>
+                          <span className="text-[#FAF8F5] font-semibold">{Number(selectedLead.monthly_income).toLocaleString('es-ES')} €</span>
+                        </div>
+                      )}
+                      {selectedLead.employment_seniority && (
+                        <div>
+                          <span className="block text-[#666666] text-xs mb-1">Antigüedad / Contrato</span>
+                          <span className="text-[#FAF8F5] font-semibold">{selectedLead.employment_seniority}</span>
+                        </div>
+                      )}
+                      {selectedLead.num_people !== null && selectedLead.num_people !== undefined && (
+                        <div>
+                          <span className="block text-[#666666] text-xs mb-1">Nº Personas</span>
+                          <span className="text-[#FAF8F5] font-semibold">{selectedLead.num_people}</span>
+                        </div>
+                      )}
+                      {selectedLead.age && (
+                        <div>
+                          <span className="block text-[#666666] text-xs mb-1">Edad</span>
+                          <span className="text-[#FAF8F5] font-semibold">{selectedLead.age} años</span>
+                        </div>
+                      )}
+                      {selectedLead.nationality && (
+                        <div>
+                          <span className="block text-[#666666] text-xs mb-1">Nacionalidad</span>
+                          <span className="text-[#FAF8F5] font-semibold">{selectedLead.nationality}</span>
+                        </div>
+                      )}
+                      {selectedLead.city_origin && (
+                        <div>
+                          <span className="block text-[#666666] text-xs mb-1">Origen</span>
+                          <span className="text-[#FAF8F5] font-semibold">{selectedLead.city_origin}</span>
+                        </div>
+                      )}
+                      {selectedLead.has_pets !== null && selectedLead.has_pets !== undefined && (
+                        <div>
+                          <span className="block text-[#666666] text-xs mb-1">Mascotas</span>
+                          <span className="text-[#FAF8F5] font-semibold">{selectedLead.has_pets ? 'Sí tiene' : 'No tiene'}</span>
+                        </div>
                       )}
                     </div>
                   </section>
@@ -780,7 +860,7 @@ export const AgentLeadsCRM = () => {
                               </a>
                               {selectedLead.phone && (
                                 <button
-                                  onClick={() => setWhatsAppModalData(getWhatsAppDetails(selectedLead.phone, selectedLead.intent, p))}
+                                  onClick={() => setWhatsAppModalData(getWhatsAppDetails(selectedLead.phone!, selectedLead.intent, p))}
                                   className="flex-1 text-center py-1 bg-[#25D366] hover:bg-[#20ba5a] text-black transition-colors rounded text-[9px] uppercase font-bold flex items-center justify-center gap-0.5"
                                 >
                                   <span>WhatsApp</span>
