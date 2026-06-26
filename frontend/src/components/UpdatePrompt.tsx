@@ -16,22 +16,23 @@ export const UpdatePrompt = () => {
   useEffect(() => {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
 
-    // Unregister any old service workers from the previous Vite PWA setup
+    // Detect when a new service worker version is waiting to take over
     navigator.serviceWorker.getRegistrations().then((registrations) => {
-      if (registrations.length > 0) {
-        console.log("Desregistrando Service Workers antiguos para evitar caché...");
-        let unregisteredCount = 0;
-        for (const reg of registrations) {
-          reg.unregister().then((success) => {
-            if (success) {
-              unregisteredCount++;
-              if (unregisteredCount === registrations.length) {
-                console.log("Todos los Service Workers desregistrados, recargando...");
-                window.location.reload();
-              }
+      for (const reg of registrations) {
+        if (reg.waiting) {
+          setSwRegistration(reg);
+          setShowPrompt(true);
+        }
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              setSwRegistration(reg);
+              setShowPrompt(true);
             }
           });
-        }
+        });
       }
     });
   }, []);

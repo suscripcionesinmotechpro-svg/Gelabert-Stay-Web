@@ -76,6 +76,32 @@ const Cookies = lazy(() => import('./views/legal/Cookies').then(m => ({ default:
 const NotFound = lazy(() => import('./views/NotFound').then(m => ({ default: m.NotFound })));
 
 import { ServiceCartProvider } from './context/ServiceCartContext';
+import { Component, type ReactNode } from 'react';
+
+// ErrorBoundary: catches failed lazy-import chunks after a deploy
+// and auto-reloads once to get fresh assets from the network.
+class ChunkErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: Error) {
+    const isChunkError = error.message?.includes('Failed to fetch dynamically imported module') ||
+      error.message?.includes('Loading chunk') ||
+      error.message?.includes('Importing a module script failed');
+    if (isChunkError && !sessionStorage.getItem('chunk_reload')) {
+      sessionStorage.setItem('chunk_reload', '1');
+      window.location.reload();
+    }
+  }
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
 
 function App() {
   const location = useLocation();
@@ -85,6 +111,7 @@ function App() {
       <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#1A1A1A', color: '#FAF8F5', border: '1px solid #1F1F1F', fontSize: '14px', borderRadius: '4px' } }} />
       <ScrollToTop />
       <UpdatePrompt />
+      <ChunkErrorBoundary>
       <Suspense fallback={<PageLoading />}>
         <Routes location={location} key={location.pathname}>
         {/* Handle optional language prefix for SEO static pages */}
@@ -196,6 +223,7 @@ function App() {
         <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      </ChunkErrorBoundary>
     </ServiceCartProvider>
   );
 }
