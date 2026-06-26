@@ -359,7 +359,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
         .select(`
           id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
           has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony,
-          is_room_rental
+          is_room_rental, agent_id
         `)
         .eq("reference", refNormalized)
         .maybeSingle();
@@ -376,7 +376,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
           .select(`
             id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
             has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony,
-            is_room_rental
+            is_room_rental, agent_id
           `)
           .eq("idealista_id", refNormalized)
           .maybeSingle();
@@ -398,7 +398,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
               .select(`
                 id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
                 has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony,
-                is_room_rental
+                is_room_rental, agent_id
               `)
               .eq("reference", parentRef)
               .maybeSingle();
@@ -424,7 +424,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
                 .select(`
                   id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
                   has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony,
-                  is_room_rental
+                  is_room_rental, agent_id
                 `)
                 .eq("idealista_id", numStr)
                 .maybeSingle();
@@ -444,7 +444,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
                 .select(`
                   id, title, reference, price, operation, city, zone, bedrooms, bathrooms, area_m2, 
                   has_pool, has_elevator, is_furnished, has_parking, has_terrace, garden, has_balcony,
-                  is_room_rental
+                  is_room_rental, agent_id
                 `)
                 .eq("reference", gelRef)
                 .maybeSingle();
@@ -463,7 +463,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
     // 2. Insert/Update Lead in leads_crm
     // Match by email OR by phone (if phone is present) to prevent duplicates
     let existingLead = null;
-    const query = supabaseAdmin.from("leads_crm").select("id, name, phone, email, max_rent, max_buy_price, target_property_id, target_property_ref");
+    const query = supabaseAdmin.from("leads_crm").select("id, name, phone, email, max_rent, max_buy_price, target_property_id, target_property_ref, agent_id");
     
     const targetPhone = extracted.phone || payloadPhone || null;
     
@@ -525,6 +525,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
       max_rent: isAlquiler ? (extracted.adPrice || (existingLead ? existingLead.max_rent : null)) : null,
       max_buy_price: isVenta ? (extracted.adPrice || (existingLead ? existingLead.max_buy_price : null)) : null,
       agent_notes: extracted.message || `[DEBUG: AI message empty. Raw body: ${rawBody}]`,
+      agent_id: targetProperty ? targetProperty.agent_id : (existingLead ? existingLead.agent_id : null),
     };
 
     if (existingLead) {
@@ -630,6 +631,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido. No uses bloques de códi
 
     const inquiryPayload = {
       property_id: targetProperty ? targetProperty.id : null,
+      agent_id: targetProperty ? targetProperty.agent_id : null,
       name: extracted.name || payloadName || "Contacto Idealista",
       email: clientEmail,
       phone: targetPhone || null,

@@ -5,8 +5,10 @@ import { useLeadsCRM, updateLeadStatus, updateLeadNotes, searchPropertiesForBot,
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../hooks/useAuth.tsx';
 
 export const AdminLeadsCRM = () => {
+  const { userProfile } = useAuth();
   const [selectedAgentId, setSelectedAgentId] = useState<string>('all');
   
   const [filterIntent, setFilterIntent] = useState<string>('todos');
@@ -314,11 +316,12 @@ export const AdminLeadsCRM = () => {
       ? '' 
       : ` ${rawName.split(' ')[0].charAt(0).toUpperCase() + rawName.split(' ')[0].slice(1).toLowerCase()}`;
 
+    const agentName = userProfile?.agent_name || 'Jose';
     let text = '';
     if (intent === 'alquilar') {
-      text = `Hola${formattedName}, mi nombre es Jose, y le escribo de Gelabert Homes, tenemos una solicitud de información con respecto a la siguiente ${propertyTypeStr} en alquiler 👇\n\n${originUrl}\n\nDéjeme saber en qué horario le vendría bien agendar una llamada y le brindaremos toda la información. Un saludo`;
+      text = `Hola${formattedName}, mi nombre es ${agentName}, y le escribo de Gelabert Homes, tenemos una solicitud de información con respecto a la siguiente ${propertyTypeStr} en alquiler 👇\n\n${originUrl}\n\nDéjeme saber en qué horario le vendría bien agendar una llamada y le brindaremos toda la información. Un saludo`;
     } else {
-      text = `Hola${formattedName}, mi nombre es Jose, y le escribo de Gelabert Homes, tenemos una solicitud de información con respecto a la siguiente propiedad en venta 👇\n\n${originUrl}\n\nDéjeme saber en qué horario le vendría bien agendar una llamada y le brindaremos toda la información. Un saludo`;
+      text = `Hola${formattedName}, mi nombre es ${agentName}, y le escribo de Gelabert Homes, tenemos una solicitud de información con respecto a la siguiente propiedad en venta 👇\n\n${originUrl}\n\nDéjeme saber en qué horario le vendría bien agendar una llamada y le brindaremos toda la información. Un saludo`;
     }
     
     // Add suggested properties if available

@@ -31,12 +31,28 @@ serve(async (req) => {
     if (inquiry.property_id) {
       const { data, error } = await supabaseAdmin
         .from("properties")
-        .select("title, reference, slug, price, operation, city")
+        .select("title, reference, slug, price, operation, city, agent_id")
         .eq("id", inquiry.property_id)
         .maybeSingle();
       
       if (!error && data) {
         propertyDetails = data;
+      }
+    }
+
+    let agentEmail = null;
+    const agentId = inquiry.agent_id || propertyDetails?.agent_id;
+    if (agentId) {
+      try {
+        const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(agentId);
+        if (!userError && userData?.user?.email) {
+          agentEmail = userData.user.email;
+          console.log(`Resolved agent email for inquiry notification: ${agentEmail}`);
+        } else if (userError) {
+          console.error("Error fetching agent user info:", userError);
+        }
+      } catch (authErr) {
+        console.error("Exception fetching agent user info:", authErr);
       }
     }
 
@@ -180,7 +196,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         from: "Web Contacto <alertas@gelaberthomes.es>",
-        to: [ADMIN_EMAIL],
+        to: agentEmail && agentEmail !== ADMIN_EMAIL ? [ADMIN_EMAIL, agentEmail] : [ADMIN_EMAIL],
         subject,
         html: emailHtml,
       }),

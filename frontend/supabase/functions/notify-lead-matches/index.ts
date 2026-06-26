@@ -1,6 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+const supabaseAdmin = createClient(
+  SUPABASE_URL ?? "",
+  SUPABASE_SERVICE_ROLE_KEY ?? ""
+);
+
 const ADMIN_EMAIL = 'info@gelaberthomes.es';
 
 const corsHeaders = {
@@ -8,8 +17,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Official Signature HTML Snippet (Adapted for embedding)
-const EMAIL_SIGNATURE = `
+const getEmailSignature = (agentProfile?: any, agentEmail?: string | null) => {
+  const name = agentProfile ? `${agentProfile.agent_name} ${agentProfile.last_name || ""}` : "José Carlos Delgado";
+  const role = agentProfile ? (agentProfile.role === "admin" ? "Director / CEO" : "Asesor Inmobiliario") : "Director / CEO";
+  const phone = agentProfile?.phone || "+34 611 898 827";
+  const email = agentEmail || "info@gelaberthomes.es";
+  
+  return `
 <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%; max-width: 600px; background-color: #ffffff; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
     <tr>
         <td style="padding: 15px 0;">
@@ -25,18 +39,18 @@ const EMAIL_SIGNATURE = `
                         <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%;">
                             <tr>
                                 <td style="font-family: Arial, Helvetica, sans-serif; font-size: 16px; color: #C9A962; font-weight: bold; padding-bottom: 2px;">
-                                    José Carlos Delgado
+                                    ${name}
                                 </td>
                             </tr>
                             <tr>
                                 <td style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #888888; font-weight: 600; padding-bottom: 8px; text-transform: uppercase;">
-                                    Director / CEO
+                                    ${role}
                                 </td>
                             </tr>
                             <tr>
                                 <td style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #444444;">
-                                    📞 <a href="tel:+34611898827" style="color: #444444; text-decoration: none;">+34 611 898 827</a><br>
-                                    ✉️ <a href="mailto:info@gelaberthomes.es" style="color: #444444; text-decoration: none;">info@gelaberthomes.es</a><br>
+                                    📞 <a href="tel:${phone.replace(/\s+/g, "")}" style="color: #444444; text-decoration: none;">${phone}</a><br>
+                                    ✉️ <a href="mailto:${email}" style="color: #444444; text-decoration: none;">${email}</a><br>
                                     🌐 <a href="https://gelaberthomes.es" target="_blank" style="color: #444444; text-decoration: none;">www.gelaberthomes.es</a>
                                 </td>
                             </tr>
@@ -53,6 +67,7 @@ const EMAIL_SIGNATURE = `
     </tr>
 </table>
 `;
+};
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -61,6 +76,29 @@ serve(async (req) => {
 
   try {
     const { leadData, matches, type, isSummary, summaryHtml, adminOnly } = await req.json();
+
+    let agentEmail = null;
+    let agentProfile = null;
+    if (leadData.agent_id) {
+      try {
+        const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(leadData.agent_id);
+        if (!userError && userData?.user?.email) {
+          agentEmail = userData.user.email;
+        }
+        
+        const { data: profileData, error: profileError } = await supabaseAdmin
+          .from("user_profiles")
+          .select("*")
+          .eq("id", leadData.agent_id)
+          .maybeSingle();
+        if (!profileError && profileData) {
+          agentProfile = profileData;
+        }
+        console.log(`Resolved agent for lead notification: ${agentEmail} (${agentProfile?.agent_name})`);
+      } catch (err) {
+        console.error("Error loading agent details:", err);
+      }
+    }
 
     if (!RESEND_API_KEY) {
       throw new Error('Missing RESEND_API_KEY');
@@ -128,7 +166,7 @@ serve(async (req) => {
       clientHtml += `
           <p style="font-size: 15px; color: #666; margin-top: 30px;">Si tienes alguna duda urgente, puedes responder a este correo o escribirnos por WhatsApp.</p>
           
-          ${EMAIL_SIGNATURE}
+          ${getEmailSignature(agentProfile, agentEmail)}
         </div>
       `;
 
@@ -182,7 +220,7 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           from: 'CRM Lead Notifications <info@gelaberthomes.es>',
-          to: [ADMIN_EMAIL],
+          to: agentEmail && agentEmail !== ADMIN_EMAIL ? [ADMIN_EMAIL, agentEmail] : [ADMIN_EMAIL],
           subject: `⚡ NUEVO LEAD: ${leadData.name || leadData.email} (${type})`,
           html: adminHtml
         })
