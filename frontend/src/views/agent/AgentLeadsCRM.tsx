@@ -321,6 +321,17 @@ export const AgentLeadsCRM = () => {
       text = `Hola${formattedName}, mi nombre es Jose, y le escribo de Gelabert Homes, tenemos una solicitud de información con respecto a la siguiente propiedad en venta 👇\n\n${originUrl}\n\nDéjeme saber en qué horario le vendría bien agendar una llamada y le brindaremos toda la información. Un saludo`;
     }
     
+    // Add suggested properties if available
+    if (leadMatches && leadMatches.length > 0) {
+      const suggestions = leadMatches.filter(p => p.reference !== property.reference).slice(0, 3);
+      if (suggestions.length > 0) {
+        text += `\n\nPropiedades sugeridas que creemos que también pueden encajar contigo:`;
+        suggestions.forEach(s => {
+          text += `\n- https://gelaberthomes.es/propiedades/${s.slug || s.reference}`;
+        });
+      }
+    }
+    
     return { phone: phoneWithCountry, text };
   };
 
