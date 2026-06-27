@@ -175,7 +175,9 @@ const PropertyRow = ({ property, periodFilter }: { property: Property; periodFil
                   const roomUpcoming = upcomingContracts.find(c => c.room_id === room.id);
                   
                   let roomStatus: string = room.status || 'disponible';
-                  if (roomStatus === 'disponible') {
+                  if (roomStatus === 'disponible_manual') {
+                    roomStatus = 'disponible';
+                  } else if (roomStatus === 'disponible') {
                     if (roomContract) roomStatus = 'alquilada';
                     else if (roomUpcoming) roomStatus = 'reservada';
                   } else {
