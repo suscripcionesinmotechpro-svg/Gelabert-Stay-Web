@@ -11,6 +11,29 @@ async function testDomain(domain) {
 
   page.on('console', msg => console.log(`[${domain} BROWSER LOG]`, msg.text()));
   page.on('pageerror', err => console.error(`[${domain} BROWSER ERROR]`, err.message));
+  page.on('request', request => {
+    if (request.url().includes('properties')) {
+      const apikey = request.headers()['apikey'];
+      const legacyKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1bXFqcHFuZ21ocGJ3eXRwZXRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxODgyNjMsImV4cCI6MjA4ODc2NDI2M30.OHi4bRiyFUv2lBHu3wb1IKchj2qF6rZ354uhCQeeAlU';
+      console.log(`[${domain} REQUEST]`, request.url());
+      console.log(`  ApiKey length: ${apikey ? apikey.length : 'undefined'}`);
+      console.log(`  Matches legacy key exactly? ${apikey === legacyKey}`);
+      if (apikey && apikey !== legacyKey) {
+        console.log(`  ApiKey starts with: ${apikey.substring(0, 15)}`);
+        console.log(`  ApiKey ends with: ${apikey.substring(apikey.length - 15)}`);
+      }
+    }
+  });
+  page.on('response', async response => {
+    if (response.status() >= 400) {
+      try {
+        const body = await response.text();
+        console.log(`[${domain} HTTP ERROR ${response.status()}] ${response.url()} | Response Body: ${body}`);
+      } catch (e) {
+        console.log(`[${domain} HTTP ERROR ${response.status()}] ${response.url()} | (Failed to read body: ${e.message})`);
+      }
+    }
+  });
 
   try {
     console.log(`Navigating to ${domain}/propiedades...`);
